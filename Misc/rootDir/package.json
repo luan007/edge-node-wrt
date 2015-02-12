@@ -1,0 +1,33 @@
+{
+  "name": "edge",
+  "version": "0.0.0",
+  "description": "Edge main system",
+  "author": "Edge project",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/emerge/edge.git"
+  },
+  "dependencies": {
+    "async": "*",
+    "log4js": "*",
+    "colors": "*",
+    "unix-socket-credentials": "*",
+    "contextify": "*",
+    "ffi": "*",
+    "chroot": "*",
+    "orm": "*",
+    "sqlite3": "*",
+    "level": "*",
+    "level-subkey": "*",
+    "level-queryengine": "*",
+    "jsonquery-engine": "*",
+    "node-rsa": "*",
+    "forsake": "*",
+    "node-arp": "*",
+    "useragent": "*",
+    "unix-dgram": "*",
+    "nginx-conf": "*",
+    "cli_debug": "*",
+    "express": "*"
+  }
+}

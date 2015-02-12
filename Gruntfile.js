@@ -10,6 +10,7 @@ module.exports = function(grunt) {
                 }
             }
         },
+        clean: ['./_Releases'],
         copy: {
             main: {
                 files: [
@@ -17,12 +18,13 @@ module.exports = function(grunt) {
                     {expand: true, src: ['Modules/**/*.*',      '!Modules/**/*.ts']         , dest: './_Releases', filter: 'isFile'},
                     {expand: true, src: ['Orbit/**/*.*',        '!Orbit/**/*.ts']           , dest: './_Releases', filter: 'isFile'},
                     {expand: true, src: ['System/**/*.*',       '!System/**/*.ts']          , dest: './_Releases', filter: 'isFile'},
+                    {expand: true, src: ['Misc/rootDir/*.*'],   flatten: true               , dest: './_Releases/', filter: 'isFile'}
                 ]
             }
         },
         ts: {
             default : {
-                src: ["**/*.ts", "!node_modules/**/*.ts"],
+                src: ['**/*.ts', '!node_modules/**/*.ts'],
                 target: 'es5',
                 outDir: './_Releases',
                 options: {
@@ -36,11 +38,12 @@ module.exports = function(grunt) {
         }
     });
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks("grunt-ts");
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks("grunt-ts");
 
-    grunt.registerTask("default", ['copy', 'ts']);
-    grunt.registerTask("w", ['ts', 'watch']);
+    grunt.registerTask("default", ['clean', 'copy', 'ts']);
+    grunt.registerTask("w", ['clean', 'copy', 'ts', 'watch']);
 
     //grunt.loadNpmTasks("grunt-ts");
     //grunt.registerTask("default", ["ts"]);
