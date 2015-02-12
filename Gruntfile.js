@@ -13,10 +13,10 @@ module.exports = function(grunt) {
         copy: {
             main: {
                 files: [
-                    {expand: true, src: ['Applications/**/*.*', '!Applications/**/*.ts'], dest: './_Releases', filter: 'isFile'},
-                    {expand: true, src: ['Modules/**/*.*',      '!Modules/**/*.ts'], dest: './_Releases', filter: 'isFile'},
-                    {expand: true, src: ['Orbit/**/*.*',        '!Orbit/**/*.ts'], dest: './_Releases', filter: 'isFile'},
-                    {expand: true, src: ['System/**/*.*',       '!System/**/*.ts'], dest: './_Releases', filter: 'isFile'},
+                    {expand: true, src: ['Applications/**/*.*', '!Applications/**/*.ts']    , dest: './_Releases', filter: 'isFile'},
+                    {expand: true, src: ['Modules/**/*.*',      '!Modules/**/*.ts']         , dest: './_Releases', filter: 'isFile'},
+                    {expand: true, src: ['Orbit/**/*.*',        '!Orbit/**/*.ts']           , dest: './_Releases', filter: 'isFile'},
+                    {expand: true, src: ['System/**/*.*',       '!System/**/*.ts']          , dest: './_Releases', filter: 'isFile'},
                 ]
             }
         },
