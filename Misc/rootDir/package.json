@@ -18,16 +18,21 @@
     "orm": "*",
     "sqlite3": "*",
     "level": "*",
-    "level-subkey": "*",
+    "level-subkey": "7.9.1",
     "level-queryengine": "*",
     "jsonquery-engine": "*",
-    "node-rsa": "*",
+    "node-rsa": "0.1.54",
     "forsake": "*",
     "node-arp": "*",
     "useragent": "*",
     "unix-dgram": "*",
     "nginx-conf": "*",
     "cli_debug": "*",
-    "express": "*"
+    "express": "*",
+    "circular-json": "*",
+    "underscore": "*",
+    "uuid": "*",
+    "ip": "*",
+    "ipaddr.js": "*"
   }
 }

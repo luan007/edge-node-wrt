@@ -1,10 +1,10 @@
-﻿require("Node");
-require("Core");
-global.path = require("path");
+﻿global.path = require("path");
 global.http = require("http");
 global.qs = require("querystring");
-require("colors");
 global.async = require("async");
+require("colors");
+require("Node");
+require("Core");
 import Loader = require("./loader");
 
 //Loader.Load(["Base", "Lib", "Data", "API", "SubSys", "App", "Test"], (err, result) => {
