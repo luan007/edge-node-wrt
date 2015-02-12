@@ -1,0 +1,17 @@
+{
+  "name": "Deployment",
+  "version": "0.0.0",
+  "description": "Deployment",
+  "main": "app.js",
+  "author": {
+    "name": "luanc_000",
+    "email": ""
+  },
+  "dependencies": {
+    "watchr": "^2.4.11",
+    "log4js": "^0.6.21",
+    "colors": "^1.0.3",
+    "fs-extra": "^0.12.0",
+    "readline-sync": "^0.4.9"
+  }
+}

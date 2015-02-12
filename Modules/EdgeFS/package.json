@@ -1,0 +1,10 @@
+{
+  "name": "EdgeFS",
+  "version": "0.0.0",
+  "description": "EdgeFS",
+  "main": "app.js",
+  "author": {
+    "name": "luanc_000",
+    "email": ""
+  }
+}

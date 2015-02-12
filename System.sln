@@ -1,0 +1,122 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "System", "System\System.njsproj", "{A11E59C5-867C-49C4-9790-CC34C2422031}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Include", "Include", "{00A71A17-9CB2-48C2-8E74-EB64C4591A0B}"
+	ProjectSection(SolutionItems) = preProject
+		Include\async.d.ts = Include\async.d.ts
+		Include\colors.d.ts = Include\colors.d.ts
+		Include\express.d.ts = Include\express.d.ts
+		Include\global.d.ts = Include\global.d.ts
+		Include\ipaddrjs.d.ts = Include\ipaddrjs.d.ts
+		Include\level.d.ts = Include\level.d.ts
+		Include\nginx-conf.d.ts = Include\nginx-conf.d.ts
+		Include\node.d.ts = Include\node.d.ts
+		Include\orm.d.ts = Include\orm.d.ts
+		Include\Q.d.ts = Include\Q.d.ts
+		Include\restify.d.ts = Include\restify.d.ts
+		Include\sql-query.d.ts = Include\sql-query.d.ts
+		Include\underscore.d.ts = Include\underscore.d.ts
+		Include\unix-socket-credentials.d.ts = Include\unix-socket-credentials.d.ts
+		Include\uuid.d.ts = Include\uuid.d.ts
+		Include\validator.d.ts = Include\validator.d.ts
+		Include\wait.for.d.ts = Include\wait.for.d.ts
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{91DD1C06-958B-4713-AA21-3764E9431FD4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Applications", "Applications", "{C56F3789-0C33-4740-885A-77BFC5DAB2BC}"
+EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "TestApp", "Applications\TestApp\TestApp.njsproj", "{6D8E98F8-C099-4D1C-A3F2-8D209143CB4A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infra", "Infra", "{C3D742F6-8666-4EE1-A8D2-63414B2960FB}"
+EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "AppSignTool", "Infra\AppSignTool\AppSignTool.njsproj", "{3112D890-EC8B-4DEF-8632-39CCBAE62B8F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Misc", "Misc", "{6165076B-2B32-4257-8577-23A69C5D327F}"
+	ProjectSection(SolutionItems) = preProject
+		Misc\airplay.js = Misc\airplay.js
+		Misc\Memo.txt = Misc\Memo.txt
+		Misc\nginx.conf = Misc\nginx.conf
+	EndProjectSection
+EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Deployment", "Infra\Deployment\Deployment.njsproj", "{407BE735-A903-48A7-AA63-929C086054DF}"
+EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "RPC", "Modules\RPC\RPC.njsproj", "{26B513AE-97FB-48AF-BEA2-A220B60E32EA}"
+EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "EdgeFS", "Modules\EdgeFS\EdgeFS.njsproj", "{6B9900C5-A7D6-49B8-B360-F408E96BFC20}"
+EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Shared", "Modules\Shared\Shared.njsproj", "{73EF9DCB-AB62-4993-888F-3A4FB5CF80F2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Lua", "Lua", "{680B157A-C43D-494A-9E18-6A477DABDEB6}"
+	ProjectSection(SolutionItems) = preProject
+		Modules\Lua\cookie.lua = Modules\Lua\cookie.lua
+		Modules\Lua\Init.lua = Modules\Lua\Init.lua
+		Modules\Lua\MainServer.lua = Modules\Lua\MainServer.lua
+		Modules\Lua\RPC.lua = Modules\Lua\RPC.lua
+	EndProjectSection
+EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Launcher", "Applications\Launcher\Launcher.njsproj", "{215E29F2-4394-4D73-B86F-EE1879474BDC}"
+EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Orbit", "Orbit\Orbit.njsproj", "{F3ABEBE6-2FBA-4CDD-BF5D-F8468984CAE7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A11E59C5-867C-49C4-9790-CC34C2422031}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A11E59C5-867C-49C4-9790-CC34C2422031}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A11E59C5-867C-49C4-9790-CC34C2422031}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A11E59C5-867C-49C4-9790-CC34C2422031}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D8E98F8-C099-4D1C-A3F2-8D209143CB4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D8E98F8-C099-4D1C-A3F2-8D209143CB4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D8E98F8-C099-4D1C-A3F2-8D209143CB4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D8E98F8-C099-4D1C-A3F2-8D209143CB4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3112D890-EC8B-4DEF-8632-39CCBAE62B8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3112D890-EC8B-4DEF-8632-39CCBAE62B8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3112D890-EC8B-4DEF-8632-39CCBAE62B8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3112D890-EC8B-4DEF-8632-39CCBAE62B8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{407BE735-A903-48A7-AA63-929C086054DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{407BE735-A903-48A7-AA63-929C086054DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{407BE735-A903-48A7-AA63-929C086054DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{407BE735-A903-48A7-AA63-929C086054DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26B513AE-97FB-48AF-BEA2-A220B60E32EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26B513AE-97FB-48AF-BEA2-A220B60E32EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26B513AE-97FB-48AF-BEA2-A220B60E32EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26B513AE-97FB-48AF-BEA2-A220B60E32EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B9900C5-A7D6-49B8-B360-F408E96BFC20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B9900C5-A7D6-49B8-B360-F408E96BFC20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B9900C5-A7D6-49B8-B360-F408E96BFC20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B9900C5-A7D6-49B8-B360-F408E96BFC20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73EF9DCB-AB62-4993-888F-3A4FB5CF80F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73EF9DCB-AB62-4993-888F-3A4FB5CF80F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73EF9DCB-AB62-4993-888F-3A4FB5CF80F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73EF9DCB-AB62-4993-888F-3A4FB5CF80F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{215E29F2-4394-4D73-B86F-EE1879474BDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{215E29F2-4394-4D73-B86F-EE1879474BDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{215E29F2-4394-4D73-B86F-EE1879474BDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{215E29F2-4394-4D73-B86F-EE1879474BDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3ABEBE6-2FBA-4CDD-BF5D-F8468984CAE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3ABEBE6-2FBA-4CDD-BF5D-F8468984CAE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3ABEBE6-2FBA-4CDD-BF5D-F8468984CAE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3ABEBE6-2FBA-4CDD-BF5D-F8468984CAE7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6D8E98F8-C099-4D1C-A3F2-8D209143CB4A} = {C56F3789-0C33-4740-885A-77BFC5DAB2BC}
+		{3112D890-EC8B-4DEF-8632-39CCBAE62B8F} = {C3D742F6-8666-4EE1-A8D2-63414B2960FB}
+		{407BE735-A903-48A7-AA63-929C086054DF} = {C3D742F6-8666-4EE1-A8D2-63414B2960FB}
+		{26B513AE-97FB-48AF-BEA2-A220B60E32EA} = {91DD1C06-958B-4713-AA21-3764E9431FD4}
+		{6B9900C5-A7D6-49B8-B360-F408E96BFC20} = {91DD1C06-958B-4713-AA21-3764E9431FD4}
+		{73EF9DCB-AB62-4993-888F-3A4FB5CF80F2} = {91DD1C06-958B-4713-AA21-3764E9431FD4}
+		{680B157A-C43D-494A-9E18-6A477DABDEB6} = {91DD1C06-958B-4713-AA21-3764E9431FD4}
+		{215E29F2-4394-4D73-B86F-EE1879474BDC} = {C56F3789-0C33-4740-885A-77BFC5DAB2BC}
+	EndGlobalSection
+EndGlobal

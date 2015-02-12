@@ -1,0 +1,10 @@
+{
+  "name": "TestApp",
+  "version": "0.0.0",
+  "description": "TestApp",
+  "main": "app.js",
+  "author": {
+    "name": "luanc_000",
+    "email": ""
+  }
+}

@@ -15,6 +15,7 @@ coverage
 
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
+.tscache
 
 # Compiled binary addons (http://nodejs.org/api/addons.html)
 build/Release
@@ -29,13 +30,11 @@ node_modules
 
 .DS_Store
 .idea/
-*.ts
 *.map
 *.dll
 *.exe
 bin/
 obj/
+_Releases/
 *.ldb
 *.dat
-
-tests/*.js

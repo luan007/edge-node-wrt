@@ -1,0 +1,217 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<title>Edge</title>
+    <link href="./public/css/fontello-embedded.css" rel="stylesheet" />
+    <link href="./public/css/fontello-custom.css" rel="stylesheet" />
+    <link href="./public/css/_list-embedded.css" rel="stylesheet" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="./public/js/jquery-2.1.3.js"></script>
+    <script src="./public/js/velocity.js"></script>
+    <link href="./public/css/main.css?rand=<%= Math.random()%>" rel="stylesheet" />
+</head>
+<body>
+    <div id="search-mask" class="search-mask transit menu-slow">
+        <div class="search-bar">
+            <div class="wrap">
+                <textarea rows="1" id="search-input"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="mask transit">
+    </div>
+    <div class="menuzone">
+        <h1 style="font-weight:100;">
+            Notification
+        </h1>
+    </div>
+    <div class="background transit menu-slow">
+        <img src="/public/images/bg4.jpg" />
+        <div></div>
+    </div>
+    <div class="content transit menu-slow"
+         style='cursor:default; -moz-user-select: none; -webkit-user-select: none; -ms-user-select:none; user-select:none;-o-user-select:none;'
+         unselectable='on'
+         onselectstart='return false;'
+         onmousedown='return false;'>
+        <div class="relative-wrap">
+            <div class="mainpage-menu">
+                <div class="button">
+                    <img class="avatar transit" src="/public/images/doge.jpg" />
+                    <span>&nbsp;&nbsp;Mike Luan</span>
+                </div>
+                <br />
+                <div class="button button-desktop">
+                    <span>Bigmeat</span>
+                </div>
+                <br />
+                <div class="button button-wifi">
+                    <span>EmergeLabs_2</span>
+                </div>
+                <br />
+                <div class="button button-search">
+                </div>
+                <br />
+                <div class="button button-doc"></div>
+                <br />
+            </div>
+
+            <div class="mainpage-title">
+                <h1 class="title darkBG icon-custom-home"></h1>
+                <br />
+                <h1 id="title" class="title darkBG">StudioEmerge</h1>
+                <span class="description darkBG">
+                    Edge Router<br />DEV_ENV
+                </span>
+            </div>
+
+            <div class="mainpage-entry transit">
+                <div class="entry_button">
+                    <div class="entry_animation_wrap transit top"></div>
+                    <div class="entry_animation_wrap icon-list-th transit bottom"></div>
+                    <!--<svg height="100" width="100">
+                                        <defs>
+                                            <clipPath id="clip">
+                                                <path d="M50,0C22.386,0,0,22.386,0,50s22.386,50,50,50s50-22.386,50-50S77.614,0,50,0z M50,94.021
+                    C25.688,94.021,5.979,74.312,5.979,50S25.688,5.979,50,5.979S94.021,25.688,94.021,50S74.312,94.021,50,94.021z" />
+                                            </clipPath>
+                                        </defs>
+                                        <image id="test" style="clip-path:url(#clip)" width="100" height="100" xlink:href="3.png"></image>
+                                    </svg>-->
+                </div>
+            </div>
+            <div class="mainpage-notifyicon">
+                <div class="button button-bell notification"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+
+
+        var btn_press = function () {
+            $(this).addClass("button_press");
+            $(this).removeClass("button_hover");
+        };
+
+        var btn_up = function () {
+            $(this).removeClass("button_press");
+            $(this).addClass("button_hover");
+        };
+
+        var btn_leave = function () {
+            $(this).css("width", 55);
+            $(this).removeClass("button_hover");
+            $(this).removeClass("button_press");
+        };
+
+        var btn_hover = function () {
+            var c = $(this).children();
+            var w = 0;
+            for (var i = 0; i < c.length; i++) {
+                if (i == 0 && $(c[i]).hasClass("avatar")) {
+                    continue;
+                }
+                w += $(c[i]).width();
+            }
+            w = w == 0 ? 0 : w + 25;
+            $(this).addClass("button_hover");
+            $(this).css("width", 55 + w);
+        }
+
+        $(".button")
+          .on("mousedown", btn_press)
+          .on("mouseup", btn_up)
+          .on("mouseleave", btn_leave)
+          .on("mouseenter", btn_hover);
+
+        //$(".entry_button")
+        //  .on("mousedown", btn_press)
+        //  .on("mouseup", btn_up)
+        //  .on("mouseleave", function () {
+        //      $(this).removeClass("hover");
+        //  })
+        //  .on("mouseenter", function () {
+        //      $(this).addClass("hover");
+        //  });
+
+        
+        var state = 0;
+        var STATE_MENU = 1;
+        var STATE_SEARCH = 2;
+
+        function SETMODE(mode) {
+            switch (mode) {
+                case STATE_MENU:
+                    $("#search-input").attr("readonly", "true");
+                    $("body").addClass("mode-menu");
+                    $("body").removeClass("mode-search");
+                    state = STATE_MENU;
+                    break;
+                case STATE_SEARCH:
+                    $("#search-input").removeAttr("readonly");
+                    $("body").removeClass("mode-menu");
+                    $("body").addClass("mode-search");
+                    $("#search-input").text("");
+                    $("#search-input").focus();
+                    state = STATE_SEARCH;
+                    break;
+            }
+        }
+
+        function RESETMODE() {
+            $("body").removeClass("mode-menu");
+            $("body").removeClass("mode-search");
+            state = 0;
+            $("#search-input").attr("readonly", "true");
+        }
+
+        $(".button-bell.button").click(function (e) {
+            SETMODE(STATE_MENU);
+        });
+
+        $(".button-search.button").click(function (e) {
+            SETMODE(STATE_SEARCH);
+        });
+
+        $(".mask").click(function (e) {
+            RESETMODE();
+        });
+
+        $(".search-mask").click(function (e) {
+            var element = document.elementFromPoint(e.pageX, e.pageY);
+            if (element.id == "search-mask") {
+                RESETMODE();
+            }
+        });
+
+        $(document).keydown(function (e) {
+            if (state !== STATE_SEARCH) {
+                SETMODE(STATE_SEARCH);
+            }
+        });
+
+        $("#search-input").keydown(function (e) {
+            if (e.keyCode == 27) {
+                e.stopPropagation();
+                e.preventDefault();
+                RESETMODE();
+            }
+        });
+
+        var prevX = 0;
+        var prevY = 0;
+        var move_th = 50; //5 for ultra high resolution, 50 for steppy conditions
+        var multiplier = 10;
+        $("body").mousemove(function (e) {
+            if (Math.abs(e.pageX - prevX) + Math.abs(e.pageY - prevY) > move_th) {
+                prevX = e.pageX;
+                prevY = e.pageY;
+                var X = ($(window).width() / 2 - e.pageX) / $(window).width();
+                var Y = ($(window).height() / 2 - e.pageY) / $(window).height();
+                $(".background img").css("transform", "translateX(" + X * multiplier + "px) " + "translateY(" + Y * multiplier + "px)");
+            }
+        });
+
+    </script>
+</body>
+</html>
