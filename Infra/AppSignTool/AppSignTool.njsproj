@@ -30,8 +30,29 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="app.js" />
+    <Content Include="4k\key.pb" />
+    <Content Include="4k\key.pr" />
+    <Content Include="aaa.txt" />
+    <Content Include="DUMMY_ROUTER\Router.pb" />
+    <Content Include="DUMMY_ROUTER\Router.pr" />
+    <Content Include="OUT.txt" />
     <Content Include="package.json" />
+    <Content Include="test.txt" />
+    <Content Include="testapp.txt" />
+    <Content Include="testzone1.txt" />
+    <Content Include="test_3k2\key.pb" />
+    <Content Include="test_3k2\key.pr" />
+    <Content Include="test_4k\key.pb" />
+    <Content Include="test_4k\key.pr" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="app.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="4k\" />
+    <Folder Include="DUMMY_ROUTER\" />
+    <Folder Include="test_3k2\" />
+    <Folder Include="test_4k\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsTools.targets" />
 </Project>
