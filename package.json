@@ -7,27 +7,11 @@
     "type": "git",
     "url": "git://github.com/emerge/edge.git"
   },
-  "dependencies": {
-    "async": "*",
-    "log4js": "*",
-    "colors": "*",
-    "unix-socket-credentials": "*",
-    "contextify": "*",
-    "ffi": "*",
-    "chroot": "*",
-    "orm": "*",
-    "level": "*",
-    "level-subkey": "*",
-    "level-queryengine": "*",
-    "jsonquery-engine": "*",
-    "node-rsa": "*",
-    "forsake": "*",
-    "node-arp": "*",
-    "useragent": "*",
-    "unix-dgram": "*",
-    "nginx-conf": "*",
-    "cli_debug": "*",
-    "express": "*",
-    "sqlite3": "*"
+  "devDependencies": {
+    "grunt": "*",
+    "grunt-ts": "*",
+    "grunt-contrib-clean": "*",
+    "grunt-contrib-copy": "*",
+    "grunt-contrib-watch": "*"
   }
 }
