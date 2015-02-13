@@ -66,7 +66,9 @@ class ManagedProcess {
 
     private HookEvent() {
         this.Process.on("exit", () => {
-            this.Process.removeAllListeners();
+            if(this.Process) {
+                this.Process.removeAllListeners();
+            }
             warn("Exited " + ('' +this.Process.pid.toString()).bold + " " + this.Name);
             this.Process = undefined;
             if (this.Forever) {
