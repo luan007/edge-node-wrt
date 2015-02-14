@@ -64,7 +64,7 @@ export class Configurable extends Node.events.EventEmitter {
             return cb();
         }
         this.sub.get(this.key, (err, result) => {
-            if (!result || err) {
+            if (!result || err || (CONF.IS_DEBUG && CONF.RELOAD_DEFAULT_CONFIG)) {
                 if (_default) {
                     trace("Data Absent.. going default");
                     return this.Apply(_default, cb);

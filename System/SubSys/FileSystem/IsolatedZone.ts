@@ -11,9 +11,14 @@ export function Initialize(cb) {
         Node.fs.mkdirSync(CONF.SHADOW_BASE_PATH);
     }
 
-    if (!Node.fs.existsSync(CONF.SHADOW_DATA_PATH)) {
+    if (!Node.fs.existsSync(CONF.BASE_DATA_PATH)) {
         info("Creating Shadow Data_Path..");
-        Node.fs.mkdirSync(CONF.SHADOW_DATA_PATH);
+        Node.fs.mkdirSync(CONF.BASE_DATA_PATH);
+    }
+
+    if (!Node.fs.existsSync(CONF.SHADOW_BASE_PATH)) {
+        info("Creating Shadow Data_Path..");
+        Node.fs.mkdirSync(CONF.SHADOW_BASE_PATH);
     }
 
     if (!Node.fs.existsSync(GetSDataPath("App"))) {
@@ -22,15 +27,17 @@ export function Initialize(cb) {
     }
 
     trace("Preparing FS..");
-    trace("If crashed here, the system is then somehow broken and shall not start.");
+    // useless
+    // trace("If crashed here, the system is then somehow broken and shall not start.");
 
     if (!CONF.ROOT_LEVEL_SECURITY && CONF.IS_DEBUG) {
         fatal("ROOT LEVEL SECURITY IS OFF");
         error("YOU ARE RUNNING WITHOUT PROTECTION");
-        error("SET ROOT_LEVEL_SECURITY TO OFF IS A MUST".bold.red);
+        //error("SET ROOT_LEVEL_SECURITY TO OFF IS A MUST".bold.red);
     }
 
-    error("FIX CHMOD !! 711 IS NOT SECURE!!!!!!!!");
+    //TODO: Fix CHMOD, 0711 is not secure
+    //error("FIX CHMOD !! 711 IS NOT SECURE!!!!!!!!");
     
     async.series([
         exec.bind(null, "quotaoff", "-a"),

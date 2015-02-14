@@ -72,7 +72,6 @@ export function UserAppear(
             callback(null, usr);
         });
     }
-
 }
 
 export function Login(
@@ -116,7 +115,6 @@ export function Login(
 
 }
 
-
 export function Logout(
     atoken: string,
     callback: (err) => any) {
@@ -129,7 +127,6 @@ export function Logout(
     }
 
 }
-
 
 export function Renew(
     atoken: string,
@@ -158,10 +155,7 @@ export function Renew(
                     });
                 });
         });
-
-
 }
-
 
 //Called in AuthServer
 export function GetCurrentUserId(auth: string) {
