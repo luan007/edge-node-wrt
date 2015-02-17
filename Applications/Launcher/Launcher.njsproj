@@ -34,30 +34,32 @@
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
-    <Content Include="Auth\Distribute.ejs" />
-    <Content Include="Auth\Renew.ejs" />
-    <Content Include="Auth\Entry.ejs" />
+    <Content Include="Auth\views\Distribute.ejs" />
+    <Content Include="Auth\views\Renew.ejs" />
+    <Content Include="Auth\views\Entry.ejs" />
     <Content Include="Main\public\css\animation.css" />
     <Content Include="Main\public\css\fontello-custom.css" />
     <Content Include="Main\public\css\fontello-embedded.css" />
     <Content Include="Main\public\css\main.css" />
     <Content Include="Main\public\css\_list-embedded.css" />
-    <Content Include="Main\index.ejs" />
+    <Content Include="Main\views\index.ejs" />
     <Content Include="Main\public\images\bg.jpg" />
     <Content Include="Main\public\images\bg4.jpg" />
     <Content Include="Main\public\images\doge.jpg" />
-    <Content Include="Main\Test.ejs" />
+    <Content Include="Main\views\Test.ejs" />
     <Content Include="manfest.json" />
     <Content Include="package.json" />
-    <TypeScriptCompile Include="Auth.ts" />
+    <TypeScriptCompile Include="Auth\server.ts" />
     <TypeScriptCompile Include="driver.ts" />
     <TypeScriptCompile Include="global.d.ts" />
-    <TypeScriptCompile Include="Main.ts" />
+    <TypeScriptCompile Include="Main\server.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Auth\" />
+    <Folder Include="Auth\views\" />
     <Folder Include="Auth\public\" />
     <Folder Include="Main\" />
+    <Folder Include="Main\views\" />
     <Folder Include="Main\public\css\" />
     <Folder Include="Main\public\" />
     <Folder Include="Main\public\images\" />

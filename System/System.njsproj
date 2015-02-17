@@ -205,9 +205,6 @@
     <Folder Include="Test\" />
     <Folder Include="Test\FakeData\" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="App\Sandbox\sandboxed_module_fork.js" />
-  </ItemGroup>
   <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsTools.targets" />
   <ProjectExtensions>
     <VisualStudio>

@@ -104,7 +104,7 @@ function Jail() {
         CLONE_FS |
         CLONE_FILES |
         CLONE_NEWNET |
-        //CLONE_NEWPID | //TODO: Investigate Security Flaws
+        //CLONE_NEWPID | //TODO: Fix this by calling clone(_PID) instead of doing node-fork
         CLONE_NEWNS | 0); //BYEBYE
     if (result < 0) {
         process.exit();
@@ -117,7 +117,7 @@ var _rpc: rpc.RPCEndpoint;
 var API: any;
 var _api_full: any;
 global.sandbox = undefined;
-
+global.EDGE = true; //TODO: should be version
 /*
     Directory Check Code - Do it in Sync Mode, should be in ASYNC mode in future releases
 */
@@ -130,7 +130,7 @@ function _early_rpc(cb) {
         }
         else {
             _api_full = rpc.APIManager.GetAPI(_env.api_obj, _rpc);
-            API = _api_full.API;
+            global.API = API = _api_full.API;
             //_rpc.once("ready", cb);
             cb();
         }
@@ -149,6 +149,7 @@ function _jail(cb) {
         process.argv = [];
         process.title = "";
         _env = undefined;
+        chroot = syscall = ffi = undefined; //for .. sake
         cb();
     });
 }
@@ -170,8 +171,6 @@ function _actual_launch(cb) {
     try {
         //sandbox.run("'use strict';\n require('/app');");
         //sandbox.run("require('/app')");
-        chroot = syscall = ffi = undefined;
-        global.API = API;
         require("/app");
     } catch (e) {
         console.log("Code Init Error - " + e);
