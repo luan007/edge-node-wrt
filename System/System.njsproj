@@ -56,6 +56,7 @@
     <TypeScriptCompile Include="App\Runtime.ts" />
     <TypeScriptCompile Include="App\RuntimePool.ts" />
     <TypeScriptCompile Include="App\Sandbox\Context.ts" />
+    <TypeScriptCompile Include="App\Sandbox\Fork.ts" />
     <TypeScriptCompile Include="App\Sandbox\local.d.ts" />
     <TypeScriptCompile Include="App\Sandbox\ReverseAPI.ts" />
     <TypeScriptCompile Include="App\Sandbox\Sandbox.ts" />
