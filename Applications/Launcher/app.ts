@@ -3,11 +3,11 @@ import fs = require("fs");
 import path = require("path");
 if (!global.EDGE) {
     global.async = require("async");
-    require(path.join(__dirname, "../../Modules/Shared/use"));
+    require("../../Modules/Shared/use");
     console.log("Debug Env");
     async.series([
-        (cb) => { require(path.join(__dirname, "Auth/server")).Initialize(9999, cb); },
-        (cb) => { require(path.join(__dirname, "Main/server")).Initialize(8888, cb); }
+        (cb) => { require("./Auth/server").Initialize(9999, cb); },
+        (cb) => { require("./Main/server").Initialize(8888, cb); }
     ],(err) => {
              console.log("Launcher is up @ " +
                     9999 + " ~ " + 8888);

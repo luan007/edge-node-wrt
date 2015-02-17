@@ -12,6 +12,11 @@
     "express": "^4.10.5",
     "cookies": "^0.5.0",
     "querystring": "*",
-    "connect": "2.14.1"
+    "connect": "2.14.1",
+
+    "morgan": "*",
+    "serve-static": "*",
+    "serve-favicon": "*",
+    "body-parser":  "*"
   }
 }

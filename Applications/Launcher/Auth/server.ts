@@ -2,22 +2,22 @@
 import express = require("express");
 import querystring = require("querystring");
 import path = require("path");
-var connect = require("connect");
 var Cookies = require("cookies");
+var favicon = require('serve-favicon');
+var logger = require("morgan");
+var bodyParser = require('body-parser');
 
 var key = UUIDstr();
 var app = express();
 
 global.AuthServerKey = key;
 
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
-//app.use(connect.favicon());
-app.use(connect.logger("dev"));
-app.use(connect.json());
-app.use(connect.urlencoded());
-app.use(connect.query());
-app.use(connect.errorHandler());
 app.use("/public", express.static(path.join(__dirname, 'public')));
+
 
 //export function ErrorHandler(err: Error, req: ExpressServerRequest, res: ExpressServerResponse, next) {
 //    if (!err) { return next(); }
@@ -193,6 +193,34 @@ app.get("*",(req, res) => {
             c: digest(back, key)
         }));
 });
+
+// error handlers
+
+// development error handler
+// will print stacktrace
+if (app.get('env') === 'development') {
+    app.use(function (err, req, res, next) {
+        res.status(err.status || 500);
+        res.render('error', {
+            message: err.message,
+            error: err
+        });
+    });
+}
+
+// production error handler
+// no stacktraces leaked to user
+app.use(function (err, req, res, next) {
+    res.status(err.status || 500);
+    res.render('error', {
+        message: err.message,
+        error: {}
+    });
+});
+
+
+
+
 
 export function Initialize(port, cb) {
     console.log("Starting Auth Server @" + port);

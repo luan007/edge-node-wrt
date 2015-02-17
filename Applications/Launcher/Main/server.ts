@@ -1,61 +1,81 @@
 ﻿import http = require("http");
 import express = require("express");
 import querystring = require("querystring");
-import fs = require("fs");
 import path = require("path");
-var connect = require("connect");
-var Cookies = require("cookies");
+var favicon = require('serve-favicon');
+var logger = require("morgan");
+var bodyParser = require('body-parser');
 
 var app = express();
-
-//app.use(connect.logger("dev"));
-//app.use(connect.json());
-//app.use(connect.urlencoded());
-//app.use(connect.query());
-//app.use(connect.errorHandler());
 
 var key = UUIDstr();
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 
-app.use("/public/css", connect.static(path.join(__dirname, 'public/css')));
-app.use("/public/js", connect.static(path.join(__dirname ,'public/js')));
-app.use("/public/images", connect.static(path.join(__dirname, '/public/images')));
+//app.use("/public/css", connect.static(path.join(__dirname, 'public/css')));
+//app.use("/public/js", connect.static(path.join(__dirname ,'public/js')));
+//app.use("/public/images", connect.static(path.join(__dirname, '/public/images')));
 
-//app.use(serveStatic('/Main/public/images', { index: false }));
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(require('less-middleware')(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.post("/",(req, res) => {
-    if (req.query.r &&
-        req.query.c &&
-        digest(req.query.r, global.AuthServerKey) == req.query.c) {
 
-        //Valid Redirection
-        return res.redirect(req.query.r);
-    }
-    else {
-        return res.redirect("/");
-    }
+app.use("/", require("./router/index"));
+app.use("/landscape", require("./router/landscape"));
+
+// catch 404 and forward to error handler
+app.use(function (req, res, next) {
+    var err = new Error('Not Found');
+    err["status"] = 404;
+    next(err);
 });
+
+// error handlers
+
+// development error handler
+// will print stacktrace
+if (app.get('env') === 'development') {
+    app.use(function (err, req, res, next) {
+        res.status(err.status || 500);
+        res.render('error', {
+            message: err.message,
+            error: err
+        });
+    });
+}
+
+// production error handler
+// no stacktraces leaked to user
+app.use(function (err, req, res, next) {
+    res.status(err.status || 500);
+    res.render('error', {
+        message: err.message,
+        error: {}
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 app.get("/",(req, res) => {
     res.render("index");
-});
-
-app.get("/Logout",(req, res) => {
-    var host = req.header("edge_host").toLowerCase();
-    if (host !== global.AUTH_DOMAIN) {
-        return res.redirect("http://" + global.AUTH_DOMAIN + "/Logout");
-    }
-    //remove server-side credential
-    //remove R-Token
-    var cookies = new Cookies(req, res);
-    var atoken = cookies.get("edge_atoken");
-    API.Launcher.Logout(atoken,(err, result) => {
-        cookies.set("edge_atoken");
-        cookies.set("edge_rtoken");
-        res.redirect("/");
-    });
 });
 
 export function Initialize(port, cb) {
