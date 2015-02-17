@@ -63,9 +63,11 @@ Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Launcher", "Applications\La
 EndProject
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Orbit", "Orbit\Orbit.njsproj", "{F3ABEBE6-2FBA-4CDD-BF5D-F8468984CAE7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Grunt", "Grunt", "{E1883909-3DA7-4A52-92FF-992BFC0DE33D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project", "Project", "{E1883909-3DA7-4A52-92FF-992BFC0DE33D}"
 	ProjectSection(SolutionItems) = preProject
 		Gruntfile.js = Gruntfile.js
+		package.json = package.json
+		README.md = README.md
 	EndProjectSection
 EndProject
 Global
