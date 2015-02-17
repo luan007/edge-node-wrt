@@ -36,7 +36,8 @@ var _permission_buffer_length = Math.ceil((Object.keys(Permission).length / 2) /
 var _perm_length = (Object.keys(Permission).length / 2);
 
 /*Generate Groups*/
-var _GROUP_SYSTEM = Array["apply"](null, { length: _perm_length }).map(Number["call"], Number);
+var _GROUP_SYSTEM = _.range(_perm_length);
+    //Array["apply"](null, { length: _perm_length }).map(Number["call"], Number);
 
 //get processed permission if there're any ... sp in it
 function Resolve(raw_p?: Permission[]): any[] {
