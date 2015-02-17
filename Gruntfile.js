@@ -45,6 +45,7 @@ module.exports = function(grunt) {
     grunt.registerTask("default", ['clean', 'copy', 'ts']);
     grunt.registerTask("w", ['clean', 'copy', 'ts', 'watch']);
     grunt.registerTask("build", ['copy', 'ts']);
+    grunt.registerTask("debug", ['copy', 'ts', 'watch']);
 
     //grunt.loadNpmTasks("grunt-ts");
     //grunt.registerTask("default", ["ts"]);
