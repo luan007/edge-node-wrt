@@ -17,7 +17,7 @@ app.use(connect.json());
 app.use(connect.urlencoded());
 app.use(connect.query());
 app.use(connect.errorHandler());
-app.use("/public", express.static(path.join(__dirname + 'Auth/public')));
+app.use("/public", express.static(path.join(__dirname, 'public')));
 
 //export function ErrorHandler(err: Error, req: ExpressServerRequest, res: ExpressServerResponse, next) {
 //    if (!err) { return next(); }
@@ -32,7 +32,7 @@ var ROUTER_LOCAL = [
 ];
 
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'Auth/views'));
+app.set('views', path.join(__dirname, 'views'));
 
 function SetCookie(cookie, atoken, expire, domain) {
     cookie.set("edge_atoken", atoken,

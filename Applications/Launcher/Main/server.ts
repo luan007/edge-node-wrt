@@ -16,12 +16,12 @@ var app = express();
 
 var key = UUIDstr();
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname + 'Main/views'));
+app.set('views', path.join(__dirname, 'views'));
 
 
-app.use("/public/css", connect.static(path.join(__dirname + 'Main/public/css')));
-app.use("/public/js", connect.static(path.join(__dirname + 'Main/public/js')));
-app.use("/public/images", connect.static(path.join(__dirname + 'Main/public/images')));
+app.use("/public/css", connect.static(path.join(__dirname, 'public/css')));
+app.use("/public/js", connect.static(path.join(__dirname ,'public/js')));
+app.use("/public/images", connect.static(path.join(__dirname, '/public/images')));
 
 //app.use(serveStatic('/Main/public/images', { index: false }));
 

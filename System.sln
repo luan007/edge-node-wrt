@@ -65,9 +65,14 @@ Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Orbit", "Orbit\Orbit.njspro
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project", "Project", "{E1883909-3DA7-4A52-92FF-992BFC0DE33D}"
 	ProjectSection(SolutionItems) = preProject
+		Misc\rootDir\package.json = Misc\rootDir\package.json
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Grunt", "Grunt", "{623C6D6C-8A40-42B8-842D-5823A9997093}"
+	ProjectSection(SolutionItems) = preProject
 		Gruntfile.js = Gruntfile.js
 		package.json = package.json
-		README.md = README.md
 	EndProjectSection
 EndProject
 Global
@@ -125,5 +130,6 @@ Global
 		{73EF9DCB-AB62-4993-888F-3A4FB5CF80F2} = {91DD1C06-958B-4713-AA21-3764E9431FD4}
 		{680B157A-C43D-494A-9E18-6A477DABDEB6} = {91DD1C06-958B-4713-AA21-3764E9431FD4}
 		{215E29F2-4394-4D73-B86F-EE1879474BDC} = {C56F3789-0C33-4740-885A-77BFC5DAB2BC}
+		{623C6D6C-8A40-42B8-842D-5823A9997093} = {E1883909-3DA7-4A52-92FF-992BFC0DE33D}
 	EndGlobalSection
 EndGlobal
