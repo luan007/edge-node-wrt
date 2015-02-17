@@ -8,6 +8,13 @@ module.exports = function(grunt) {
                 options: {
                     spawn: false
                 }
+            },
+            staticFiles: {
+                files: ['Applications/**/*.*', '!Applications/**/*.ts'] ,
+                tasks: ['copy'],
+                options: {
+                    spawn: false
+                }
             }
         },
         clean: ['./_Releases'],
