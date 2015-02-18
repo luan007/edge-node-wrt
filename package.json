@@ -12,6 +12,7 @@
     "grunt-ts": "*",
     "grunt-contrib-clean": "*",
     "grunt-contrib-copy": "*",
-    "grunt-contrib-watch": "*"
+    "grunt-contrib-watch": "*",
+    "grunt-sync" : "*"
   }
 }
