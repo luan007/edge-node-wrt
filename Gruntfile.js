@@ -11,7 +11,7 @@ module.exports = function(grunt) {
             },
             staticFiles: {
                 files: ['Applications/**/*.*', '!Applications/**/*.ts'] ,
-                tasks: ['copy'],
+                tasks: ['copy', 'sync'],
                 options: {
                     spawn: false
                 }
@@ -21,12 +21,19 @@ module.exports = function(grunt) {
         copy: {
             main: {
                 files: [
-                    {expand: true, src: ['Applications/**/*.*', '!Applications/**/*.ts']    , dest: './_Releases', filter: 'isFile'},
-                    {expand: true, src: ['Modules/**/*.*',      '!Modules/**/*.ts']         , dest: './_Releases', filter: 'isFile'},
-                    {expand: true, src: ['Orbit/**/*.*',        '!Orbit/**/*.ts']           , dest: './_Releases', filter: 'isFile'},
-                    {expand: true, src: ['System/**/*.*',       '!System/**/*.ts']          , dest: './_Releases', filter: 'isFile'},
-                    {expand: true, src: ['Misc/rootDir/*.*'],   flatten: true               , dest: './_Releases/', filter: 'isFile'}
+                    {expand: true, src: ['Misc/rootDir/*.*'],   flatten: true , dest: './_Releases/', filter: 'isFile'}
                 ]
+            }
+        },
+        sync: {
+            main: {
+                files: [
+                    {src: ['Applications/**/*.*', '!Applications/**/*.ts']    , dest: './_Releases'},
+                    {src: ['Modules/**/*.*',      '!Modules/**/*.ts']         , dest: './_Releases'},
+                    {src: ['Orbit/**/*.*',        '!Orbit/**/*.ts']           , dest: './_Releases'},
+                    {src: ['System/**/*.*',       '!System/**/*.ts']          , dest: './_Releases'},
+                ],
+                verbose: true // Display log messages when copying files
             }
         },
         ts: {
@@ -46,13 +53,14 @@ module.exports = function(grunt) {
     });
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-sync');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks("grunt-ts");
 
-    grunt.registerTask("default", ['clean', 'copy', 'ts']);
-    grunt.registerTask("w", ['clean', 'copy', 'ts', 'watch']);
-    grunt.registerTask("build", ['copy', 'ts']);
-    grunt.registerTask("debug", ['copy', 'ts', 'watch']);
+    grunt.registerTask("default", ['clean', 'copy', 'sync', 'ts']);
+    grunt.registerTask("w", ['clean', 'copy','sync', 'ts', 'watch']);
+    grunt.registerTask("build", ['copy', 'sync', 'ts']);
+    grunt.registerTask("debug", ['copy', 'sync', 'ts', 'watch']);
 
     //grunt.loadNpmTasks("grunt-ts");
     //grunt.registerTask("default", ["ts"]);
