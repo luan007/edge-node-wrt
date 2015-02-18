@@ -150,6 +150,7 @@
     <Content Include="Main\views\index.ejs" />
     <Content Include="Main\views\landscape.ejs" />
     <Content Include="Main\views\partials\applist.ejs" />
+    <Content Include="Main\views\partials\menu.ejs" />
     <Content Include="Main\views\partials\pageEnd.ejs" />
     <Content Include="Main\views\partials\pageHead.ejs" />
     <Content Include="manfest.json" />
@@ -181,6 +182,7 @@
     <Folder Include="Main\views\partials\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Main\public\javascripts\colorAt.js" />
     <Compile Include="Main\public\javascripts\easing\EasePack.js" />
     <Compile Include="Main\public\javascripts\jquery-2.1.3.js" />
     <Compile Include="Main\public\javascripts\jquery.gsap.js" />

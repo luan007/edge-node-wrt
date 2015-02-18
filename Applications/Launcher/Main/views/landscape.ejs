@@ -3,42 +3,20 @@
 <!--<div class="window noverflow"><div id="main-bg" class="background"><img data-bg-src="images/bg/bg.jpg" /></div></div>-->
 <!--<div class="window" id="main-mask"></div>-->
 <div class="window" id="main-content">
-    <div id="menu">
-        <div id="menu-area">
-            <div id="menu-tab-bg"></div>
-        </div>
-        <div class="icon-menu generic-ico" color-released="#FFF" id="menu-icon">
-        </div>
-        <div id="menu-tab-area">
-            <div data-fix-opacity color-released="#FFF" class="generic-ico menu-tab-icon">
-                <div class="img"><img src="/images/ico/test.gif" /></div>
-                <p>App</p>
-            </div>
-            <div data-fix-opacity color-released="#FFF" class="generic-ico menu-tab-icon">
-                <div class="img"><img src="/images/doge.jpg" /></div>
-                <p>Me</p>
-            </div>
-            <div data-fix-opacity color-released="#FFF" class="fa fa-bell-o generic-ico menu-tab-icon">
-                <p>Updates</p>
-            </div>
-            <div data-fix-opacity color-released="#FFF" class="icon-signal generic-ico menu-tab-icon">
-                <p>Network</p>
-            </div>
-            <div data-fix-opacity color-released="#FFF" class="icon-search generic-ico menu-tab-icon">
-                <p>Search</p>
-            </div>
-            <div data-fix-opacity color-released="#FFF" class="icon-attach generic-ico menu-tab-icon">
-                <p>Send</p>
-            </div>
-        </div>
-    </div>
+    <% var menu1=12345; %>
+    <% var menu2=34567; %>
+    <% include partials/menu %>
     <div class="pushed-by-menu" id="app-content">
-        <div style="position:relative; background:#FFF; height:200px; font-size:20px;  overflow:hidden;">
-            <!--<span>网络地貌</span>-->
+        <div class="noverflow" style="position:absolute; left:0; right:0; top:0; width:100%; height: 200px; background:#0094ff;">
+        </div>
+        <div style="position:relative; height:200px; font-size:20px;  overflow:hidden;">
+            <span>网络地貌</span>
         </div>
     </div>
 </div>
-
+<script>
+    
+</script>
 <% include partials/applist %>
 
 <!--

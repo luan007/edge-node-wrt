@@ -7,7 +7,7 @@ if (!global.EDGE) {
     console.log("Debug Env");
     async.series([
         (cb) => { require("./Auth/server").Initialize(9999, cb); },
-        (cb) => { require("./Main/server").Initialize(8888, cb); }
+        (cb) => { require("./Main/server").Initialize(8080, cb); }
     ],(err) => {
              console.log("Launcher is up @ " +
                     9999 + " ~ " + 8888);

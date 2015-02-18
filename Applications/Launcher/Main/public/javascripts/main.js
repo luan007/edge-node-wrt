@@ -542,7 +542,8 @@ function comp_menu() {
         menustate = 0;
         //$(ico).addClass("icon-menu");
         //$(ico).removeClass("icon-left-open-mini");
-        //$(ico).attr("color-released", "#000");
+        
+        $(ico).attr("color-released", $(ico).attr("default-color"));
         fromElementStore(ico).obj.leave();
         TweenLite.to(area, 0.5, {
             x: 0 + "px",
@@ -593,7 +594,7 @@ function comp_menu() {
     };
     var leave = function () {
         if (!menustate) {
-            //$(ico).attr("color-released", "#000");
+            $(ico).attr("color-released", $(ico).attr("default-color"));
             fromElementStore(ico).obj.leave();
             TweenLite.to(tab, 0.3, {
                 opacity: 0,
