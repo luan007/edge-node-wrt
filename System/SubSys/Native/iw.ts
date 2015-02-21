@@ -140,7 +140,29 @@ function Inspect_Thread(callback?) {
                 Devices[mac].TDLS = match[18] === "yes";
                 if (WatchList[mac.toLowerCase()]) {
                     var prev = WatchList[mac.toLowerCase()].prev;
-                    var change = delta_add_return_changes(prev, Devices[mac], true);
+                    var update = false;
+                    var change = delta_add_return_changes(prev, Devices[mac], true, true);
+                    if (Object.keys(change).length == 0) {
+                        continue;
+                    }
+                    if (!(has(change, "rx_bytes") || has(change, "rx_packets") ||
+                        has(change, "tx_bytes") || has(change, "tx_packets") ||
+                        has(change, "tx_retry") || has(change, "tx_fail") ||
+                        has(change, "signal") || has(change, "avg_signal"))) {
+                        //fundamental change
+                        update = true;
+                    }
+                    else {
+                        update = true; //not going to work, see TODO below
+                    }
+                    //else if (){
+                        //TODO: trigger threshold for changed_cb
+                    //}
+
+                    if (update) {
+                        WatchList[mac.toLowerCase()].prev = Devices[mac];
+                        WatchList[mac.toLowerCase()].f(Devices[mac]);
+                    }
                 }
             }
             cb(undefined, undefined);
