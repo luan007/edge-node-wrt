@@ -44,7 +44,7 @@ export interface STA {
 
 var _devList: IDic<string> = {};
 
-var WatchList: IDic<Function> = {};
+var WatchList: IDic<{ prev: STA; f: Function; }> = {};
 
 export var Devices: IDic<STA> = {};
 
@@ -62,7 +62,10 @@ export function Unwatch(mac: string) {
 }
 
 export function Watch(mac: string, cb) {
-    WatchList[mac] = cb;
+    WatchList[mac] = {
+        prev: <any>{},
+        f: cb
+    };
 }
 
 
@@ -136,7 +139,8 @@ function Inspect_Thread(callback?) {
                 Devices[mac].MFP = match[17] === "yes";
                 Devices[mac].TDLS = match[18] === "yes";
                 if (WatchList[mac.toLowerCase()]) {
-                    WatchList[mac.toLowerCase()](Devices[mac]);
+                    var prev = WatchList[mac.toLowerCase()].prev;
+                    var change = delta_add_return_changes(prev, Devices[mac], true);
                 }
             }
             cb(undefined, undefined);

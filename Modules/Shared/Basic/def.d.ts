@@ -32,7 +32,7 @@ declare function delta_add(o, plus, override?: boolean): any;
 declare function delta_mod(o, mod);
 
 
-declare function delta_add_return_changes(o, plus, override?: boolean): any;
+declare function delta_add_return_changes(o, plus, override?: boolean, pretend?: boolean): any;
 
 
 declare function once(cb: Function): Function;

@@ -11,7 +11,7 @@ function Type(obj) {
     return text.match(/function (.*)\(/)[1];
 }
 
-function deep_delta(o, delta, override = true) {
+function deep_delta(o, delta, override = true, pretend = false) {
     var change_level = {};
     for (var i in delta) {
         if (!has(delta, i)) continue;
@@ -25,7 +25,7 @@ function deep_delta(o, delta, override = true) {
         //}
         if (Type(delta[i]) == "Function") continue;
         if (!has(o, i)) {
-            o[i] = delta[i];
+            if (!pretend) o[i] = delta[i];
             change_level[i] = delta[i];
         } else if (!override || Type(o[i]) == "Function") {
             continue;
@@ -36,7 +36,7 @@ function deep_delta(o, delta, override = true) {
             !_.isObject(delta[i])
             ) &&
             !_.isEqual(o[i], delta[i])) {
-            o[i] = delta[i];
+            if (!pretend) o[i] = delta[i];
             change_level[i] = delta[i];
         } else if (!_.isEqual(o[i], delta[i])) { //both are objects / or undefined / or array
             //same type, Object/Array type
@@ -62,7 +62,7 @@ global.delta_add = function (o, plus, override = true) {
 
 
 
-global.delta_add_return_changes = function (o, plus, override = true) {
+global.delta_add_return_changes = function (o, plus, override = true, pretend = false) {
     //var change = {};
     //for (var i in plus) {
     //    if (((override && !_.isEqual(plus[i], o[i])) || !o.has(i))) {
@@ -72,7 +72,7 @@ global.delta_add_return_changes = function (o, plus, override = true) {
     //}
     //return change;
 
-    return deep_delta(o, plus, override);
+    return deep_delta(o, plus, override, pretend);
 }
 
 global.delta_mod = function (o, mod) {
