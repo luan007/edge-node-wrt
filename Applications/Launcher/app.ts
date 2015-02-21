@@ -7,7 +7,7 @@ if (!global.EDGE) {
     console.log("Debug Env");
     async.series([
         (cb) => { require("./Auth/server").Initialize(9999, cb); },
-        (cb) => { require("./Main/server").Initialize(8080, cb); }
+        (cb) => { require("./Main_Staging/server").Initialize(8080, cb); }
     ],(err) => {
              console.log("Launcher is up @ " +
                     9999 + " ~ " + 8888);
@@ -39,7 +39,7 @@ else {
     var AuthPort = "sock/" + UUIDstr();
     async.series([
         (cb) => { require("Auth/server").Initialize("/Data/" + AuthPort, cb); },
-        (cb) => { require("Main/server").Initialize("/Data/" + MainPort, cb); }
+        (cb) => { require("Main_Staging/server").Initialize("/Data/" + MainPort, cb); }
     ],(err) => {
             console.log("Settingup Launcher's port");
             API.Launcher.SetupPort(MainPort, AuthPort,(err, result) => {

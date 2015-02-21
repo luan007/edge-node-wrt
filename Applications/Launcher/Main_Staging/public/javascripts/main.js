@@ -28,8 +28,6 @@ function toElementStore(dom, obj) {
 function fromElementStore(dom) {
     var prev = $(dom).attr("_e_id");
     if (!prev) return undefined;
-    console.log(prev);
-    console.log(elementStore[Number(prev)]);
     return elementStore[Number(prev)];
 }
 
@@ -386,12 +384,12 @@ function comp_app_list() {
             opacity: 1,
         });
         TweenLite.to(content, 1, {
-            scale: 0.5,
-            ease: Power4.easeOut
+            scale: 0.8,
+            ease: Power2.easeOut
         });
-        TweenLite.to(content, 0.4, {
+        TweenLite.to(content, 0.6, {
             opacity: 0,
-            ease: Power4.easeOut
+            ease: Power2.easeOut
         });
     }
     
@@ -525,9 +523,9 @@ function comp_menu() {
             x: 280 + "px",
             ease: Power3.easeOut
         });
-        TweenLite.to(pushing, 1, {
+        TweenLite.to(pushing, 1.3, {
             x: 100 + "px",
-            opacity: 0.3,
+            opacity: 0.2,
             ease: Power3.easeOut
         });
         //TweenLite.to(menu_mask, 1, {
@@ -561,7 +559,7 @@ function comp_menu() {
                 $(tab).css("display", "none");
             }
         });
-        TweenLite.to(pushing, 0.5, {
+        TweenLite.to(pushing, 0.7, {
             x: 0 + "px",
             opacity: 1,
             ease: Power4.easeOut

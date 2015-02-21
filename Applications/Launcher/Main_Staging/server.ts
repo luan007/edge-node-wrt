@@ -12,7 +12,6 @@ var key = UUIDstr();
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-
 //app.use("/public/css", connect.static(path.join(__dirname, 'public/css')));
 //app.use("/public/js", connect.static(path.join(__dirname ,'public/js')));
 //app.use("/public/images", connect.static(path.join(__dirname, '/public/images')));
@@ -22,7 +21,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
-
 
 app.use("/", require("./router/index"));
 app.use("/landscape", require("./router/landscape"));
