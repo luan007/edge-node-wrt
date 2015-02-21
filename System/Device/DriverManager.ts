@@ -250,6 +250,10 @@ export function DeviceDrop(dev: IDevice) {
     }
 }
 
+export function DriverInvoke(drv: IDriver, dev: IDevice, actionId, params, cb) {
+    drv.invoke(dev, actionId, params, cb);
+}
+
 export function Initialize(callback: Callback) {
     trace("Init..");
     async.series([

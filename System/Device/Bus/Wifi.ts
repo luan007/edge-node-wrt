@@ -31,7 +31,7 @@ class Wifi extends Bus {
                 }
             });
         });
-        Core.Connectivity.LocalNetwork.DNSMASQ.Leases.Watch(mac, (lease) => {
+        Core.Connectivity.LocalNetwork.DNSMASQ.Leases.Watch(mac,(lease) => {
             this._on_device({
                 hwaddr: mac,
                 data: {
@@ -39,10 +39,16 @@ class Wifi extends Bus {
                 }
             });
         });
+        Core.SubSys.Native.iw.Watch(mac,(d) => { //TODO: Test, impact on performance & usability
+            this._on_device({
+                hwaddr: mac,
+                data: {
+                    Wireless: d
+                }
+            });
+        });
 
         //rOUIFind((mac + "").substr(0, 8), (err, OUI: string) => {
-
-        //    UARecon.WatchUA(mac, (ua, raw) => {
         //        Bus._onDevice(mac, {
         //            UA: { Obj: ua, raw: raw }
         //        });
@@ -52,20 +58,22 @@ class Wifi extends Bus {
         //            });
         //        });
         //    });
-
         //avoid clash
+
         setTask("IW_ImmediateSurvey", () => {
             Core.SubSys.Native.iw.ImmediateSurvey(() => {
                 //log(JSON.stringify(Joint.Scaffold.IW.Station.Devices));
                 info("Force Station Survey Completed");
             });
         }, 3000); //Magic..
+
         this._on_device({
             hwaddr: mac,
             data: {
                 Band: band,
                 Addr: Core.SubSys.Native.ip.Neigh.Get(mac),
-                Lease: Core.Connectivity.LocalNetwork.DNSMASQ.Leases.LeaseDB[mac]
+                Lease: Core.Connectivity.LocalNetwork.DNSMASQ.Leases.LeaseDB[mac],
+                Wireless: Core.SubSys.Native.iw.Devices[mac]
             }//OUI: OUI,
         });
         //});
@@ -76,6 +84,8 @@ class Wifi extends Bus {
         this._on_drop({
             hwaddr: mac
         });
+
+        Core.SubSys.Native.iw.Unwatch(mac);
         Core.SubSys.Native.ip.Neigh.Unwatch(mac);
         Core.Connectivity.LocalNetwork.DNSMASQ.Leases.Unwatch(mac);
         //UARecon.UnwatchUA(mac);

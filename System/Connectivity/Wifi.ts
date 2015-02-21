@@ -196,7 +196,6 @@ class _wifi extends Abstract.Configurable {
         ], cb);
     };
 
-
 }
 
 var _export = new _wifi();

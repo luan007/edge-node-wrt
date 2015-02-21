@@ -18,7 +18,6 @@ var path_80211 = "/sys/kernel/debug/ieee80211/";
 var pattern = /Station (\w{2}:\w{2}:\w{2}:\w{2}:\w{2}:\w{2}) \(on (\w+)\)+\n.+:\s+(\d+).*\n.+:\s+(\d+).*\n.+:\s+(\d+).*\n.+:\s+(\d+).*\n.+:\s+(\d+).*\n.+:\s+(\d+).*\n.+:\s+(\d+).*\n.+:\s+(.+)dBm\n.+:\s+(.+)dBm\n.+:\s+(.+)\n.+:\s+(.+)\n.+:\s+(.+)\n.+:\s+(.+)\n.+:\s+(.+)\n.+:\s+(.+)\n.+:\s+(.+)\n/gm;
 
 export interface STA {
-
     dev: string;
     signal: number;
     avg_signal: number;
@@ -43,11 +42,13 @@ export interface STA {
     MFP: boolean;
 }
 
-var Watch: IDic<string> = {};
+var _devList: IDic<string> = {};
+
+var WatchList: IDic<Function> = {};
 
 export var Devices: IDic<STA> = {};
 
-export var Inspect_Interval = 20000;
+export var Inspect_Interval = 15000;
 
 export var Stop = false;
 
@@ -56,16 +57,25 @@ export function Initialize() {
     setTimeout(Inspect_Thread, Inspect_Interval);
 }
 
+export function Unwatch(mac: string) {
+    delete WatchList[mac];
+}
+
+export function Watch(mac: string, cb) {
+    WatchList[mac] = cb;
+}
+
+
 export function Attach(dev: string) {
     dev = dev.toLowerCase();
     info("Attaching " + dev.bold);
-    Watch[dev] = dev;
+    _devList[dev] = dev;
 }
 
 export function Detach(dev: string) {
-    if (Watch[dev]) {
+    if (_devList[dev]) {
         info("Detaching " + dev.bold);
-        delete Watch[dev];
+        delete _devList[dev];
         return;
     } else {
         return error(new Error(dev + " Not Found in Watchlist"), "Detach Failed");
@@ -97,11 +107,11 @@ function Inspect_Thread(callback?) {
     var tag = new Date().getTime();
     var jobs = [];
 
-    async.each(Object.keys(Watch), (dev, cb) => {
+    async.each(Object.keys(_devList), (dev, cb) => {
         survey(dev, (err, str) => {
             var match = [];
             while ((match = pattern.exec(str)) !== null) {
-                var mac = match[1];
+                var mac = match[1].toLowerCase();
                 if (!Devices[mac]) {
                     Devices[mac] = <STA>{
                         mac: mac
@@ -125,6 +135,9 @@ function Inspect_Thread(callback?) {
                 Devices[mac].WWM_WME = match[16] === "yes";
                 Devices[mac].MFP = match[17] === "yes";
                 Devices[mac].TDLS = match[18] === "yes";
+                if (WatchList[mac.toLowerCase()]) {
+                    WatchList[mac.toLowerCase()](Devices[mac]);
+                }
             }
             cb(undefined, undefined);
         });
