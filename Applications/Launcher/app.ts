@@ -38,8 +38,8 @@ else {
     var MainPort = "sock/" + UUIDstr();
     var AuthPort = "sock/" + UUIDstr();
     async.series([
-        (cb) => { require("Auth/server").Initialize("/Data/" + AuthPort, cb); },
-        (cb) => { require("Main_Staging/server").Initialize("/Data/" + MainPort, cb); }
+        (cb) => { require("./Auth/server").Initialize("/Data/" + AuthPort, cb); },
+        (cb) => { require("./Main_Staging/server").Initialize("/Data/" + MainPort, cb); }
     ],(err) => {
             console.log("Settingup Launcher's port");
             API.Launcher.SetupPort(MainPort, AuthPort,(err, result) => {

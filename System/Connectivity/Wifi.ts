@@ -178,7 +178,7 @@ class _wifi extends Abstract.Configurable {
     protected _apply = (mod, cb: Callback) => {
         async.series([
             this._apply2G4.bind(this, mod),
-            this._apply5G7.bind(this, mod)
+            //this._apply5G7.bind(this, mod)
         ], cb);
     };
 

@@ -17,6 +17,7 @@
     "morgan": "*",
     "serve-static": "*",
     "serve-favicon": "*",
-    "body-parser":  "*"
+    "body-parser":  "*",
+    "less-middleware":  "*"
   }
 }

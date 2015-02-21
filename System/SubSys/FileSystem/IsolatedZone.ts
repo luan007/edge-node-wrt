@@ -35,6 +35,11 @@ export function Initialize(cb) {
         error("YOU ARE RUNNING WITHOUT PROTECTION");
         //error("SET ROOT_LEVEL_SECURITY TO OFF IS A MUST".bold.red);
     }
+    if (!CONF.CODE_WRITE_LOCK && CONF.IS_DEBUG) {
+        fatal("CODE-WRITE-LOCK IS OFF");
+        error("MODIFICATION IS ALLOWED");
+        //error("SET ROOT_LEVEL_SECURITY TO OFF IS A MUST".bold.red);
+    }
 
     //TODO: Fix CHMOD, 0711 is not secure
     //error("FIX CHMOD !! 711 IS NOT SECURE!!!!!!!!");
@@ -47,7 +52,7 @@ export function Initialize(cb) {
         //exec.bind(null, "chmod", "000", SHADOW_BASE_PATH),
         exec.bind(null, "chown", "root", "-R", CONF.SHADOW_DATA_PATH),
         exec.bind(null, "chmod", "711", CONF.SHADOW_DATA_PATH), //TODO: USE GROUP!!! 711 VS 701
-        exec.bind(null, "chmod", "500", "-R", Node.path.join(CONF.BASE_PATH + "../")),
+        (CONF.IS_DEBUG && !CONF.CODE_WRITE_LOCK) ? (cb) => { cb(); } : exec.bind(null, "chmod", "500", "-R", Node.path.join(CONF.BASE_PATH + "../")),
         (c) => {
             exec("umount", "-l", "-f", CONF.SHADOW_BASE_PATH, (err) => {
                 if (err) warn(err);

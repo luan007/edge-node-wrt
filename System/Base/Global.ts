@@ -7,6 +7,7 @@ class _sys_conf {
     SKIP_QUOTA_CHECK = false; // = true if your boot is too slow, however Runtime.ts will be unstable
     CMD_DEBUG = false; // turn this on if you want to see iptables, chmod, chroot and such being printed
     ROOT_LEVEL_SECURITY = false; // = true will lead to a recursive chmod 0005 on '/', be warned - NOT TESTED
+    CODE_WRITE_LOCK = false; // = true for production (MUST)
     ENABLE_FULL_LOG = true; // main switch for trace/info .. methods
     TIMER_LOG = false; //enable this to see all active timers (setInterval)
     TIMEOUT_LOG = false; //enable this to see all setTimeout calls
