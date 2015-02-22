@@ -174,6 +174,10 @@ export function Search_By_Name<T extends IDescriptor>(name, callback: PCallback<
     Find({ id: name }, <any>callback);
 }
 
+export function Search<T extends IDescriptor>(name_or_tag, callback: PCallback<T[]>) {
+    Find({ $or: [{ tag: name_or_tag }, { id: name_or_tag }] }, <any>callback);
+}
+
 export function Search_By_Tag<T extends IDescriptor>(tag, callback: PCallback<T[]>) {
     Find({ tag: tag }, <any>callback);
 }
