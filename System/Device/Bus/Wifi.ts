@@ -2,7 +2,6 @@
 import Core = require("Core");
 import Bus = require("./Bus");
 
-//TODO: MAKE 2.4G_5G A single Bus!!!
 
 class Wifi extends Bus {
 

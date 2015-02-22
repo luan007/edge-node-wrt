@@ -251,7 +251,7 @@ export function DeviceDrop(dev: IDevice) {
 }
 
 export function DriverInvoke(drv: IDriver, dev: IDevice, actionId, params, cb) {
-    drv.invoke(dev, actionId, params, cb);
+    drv.invoke(dev, actionId, params, cb); //TODO: not finished
 }
 
 export function Initialize(callback: Callback) {
