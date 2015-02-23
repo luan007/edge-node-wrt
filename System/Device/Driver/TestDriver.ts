@@ -29,7 +29,7 @@ class TestDriver implements IDriver {
         cb(undefined, {
             actions: {},
             attributes: {},
-            classes: [],
+            classes: {},
             valid: true
         });
     }
@@ -39,7 +39,7 @@ class TestDriver implements IDriver {
         cb(undefined, {
             actions: {},
             attributes: {},
-            classes: [],
+            classes: {},
             valid: true
         });
     }

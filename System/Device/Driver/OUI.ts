@@ -38,7 +38,7 @@ class OUI_Identifier implements IDriver {
                         icon: ""
                     }
                 },
-                classes: [],
+                classes: {},
                 valid: true
             });
         });

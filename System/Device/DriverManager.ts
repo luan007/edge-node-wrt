@@ -113,7 +113,7 @@ function _update_driver_data(drv: IDriver, dev: IDevice, assump: IDeviceAssumpti
         dev.assumptions[real.driverId] = real;
         //default value
         real.actions = real.actions ? real.actions : {};
-        real.classes = real.classes ? real.classes : [];
+        real.classes = real.classes ? real.classes : {};
         real.aux = real.aux ? real.aux : undefined;
         real.valid = real.valid ? real.valid : false;
         real.attributes = real.attributes ? real.attributes : {};
