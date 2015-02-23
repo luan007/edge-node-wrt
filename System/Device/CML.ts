@@ -315,17 +315,56 @@ export function Query(query: MatchQuery, callback) {
 }
 
 
+function Demo() {
+
+    //Le Demo:
+    Query({
+        and: [
+            { can: ["print"] }, {
+                or: [
+                    { is: "printer" }, { is: "tv" }
+                ]
+            }
+        ]
+    },(err, result) => {
+            //Le Test
+        });
 
 
-//Le Demo:
-Query({
-    and: [
-        { can: ["print"] }, {
-            or: [
-                { is: "printer" }, { is: "tv" }
-            ]
-        }
-    ]
-},(err, result) => {
-    //Le Test
-});
+
+
+    //Le Demo with all sorts of crap[TM]:
+    Query({
+        and: [
+            {
+                can: {
+                    $: { name: "printer" } //Le embedded query for Graphd tree
+                }
+            }, {
+                /*why*/ not: {
+                    or: [
+                        { is: /regex_should_work/ },
+                        {
+                            is: {
+                                $: {
+                                    tag: "generic"
+                                },
+                                expand: true, //full (das) auto
+                                depth: -1
+                            }
+                        },
+                        { //tripple [TM]
+                            bus: {
+                                name: /wifi/gi ,
+                                'data.Lease': /undefined/gi //Le complex
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },(err, result) => {
+            //Le Magic..
+        });
+
+}
