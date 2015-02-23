@@ -4,6 +4,8 @@ global.wait = require("wait.for");
 global.async = require("async");
 import middlewares = require("./Middlewares");
 var connect = require("connect");
+var logger = require("morgan");
+var bodyParser = require('body-parser');
 import express = require("express");
 
 import Data = require("./Storage");
@@ -15,11 +17,14 @@ export function Initialize(port, callback: Callback) {
     var SERVER = express();
     global.SERVER = SERVER;
 
-    SERVER.use(connect.logger("dev"));
-    SERVER.use(connect.json());
-    SERVER.use(connect.urlencoded());
-    SERVER.use(connect.query());
-    SERVER.use(connect.compress());
+    SERVER.use(logger("dev"));
+    SERVER.use(bodyParser.json());
+    SERVER.use(bodyParser.urlencoded());
+
+    //SERVER.use(connect.json());
+    //SERVER.use(connect.urlencoded());
+    //SERVER.use(connect.query());
+    //SERVER.use(connect.compress());
 
     SERVER.use(middlewares.Compatibility);
     SERVER.use(middlewares.RequestFidelity);

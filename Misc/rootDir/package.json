@@ -33,6 +33,12 @@
     "underscore": "*",
     "uuid": "*",
     "ip": "*",
-    "ipaddr.js": "*"
+    "ipaddr.js": "*",
+    "wait.for" : "*",
+    "fiber": "*",
+    "validator": "*",
+    "connect": "*",
+    "morgan": "~1.5.1",
+    "body-parser": "*"
   }
 }
