@@ -140,27 +140,63 @@ export function QueryStream(query: any, callback: PCallback<NodeJS.ReadableStrea
     });
 }
 
-export function Owner(id_or_obj: any, callback: PCallback<IDescriptor>) {
-    var id = id_or_obj.id ? id_or_obj.id : id_or_obj;
-    Find({ owner: id }, (err, result) => {
-        callback(err, (result && result.length) ? result[0] : undefined);
+export function Owner(id_or_obj: any, filter, callback: PCallback<IDescriptor>) {
+    var id = id_or_obj.owner ? id_or_obj.owner : id_or_obj;
+    filter = filter ? filter : {};
+    if (!id) {
+        return callback(undefined, undefined);
+    }
+    Find({ $and: [{ id: id }, filter] },(err, result) => {
+        callback(err,(result && result.length) ? result[0] : undefined);
     });
 }
 
-function _owner_chain(id, accu: any[], depth, callback) {
+export function Children(id_or_obj: any, filter, callback: PCallback<IDescriptor[]>) {
+    var id = id_or_obj.id ? id_or_obj.id : id_or_obj;
+    filter = filter ? filter : {};
+    if (!id) {
+        return callback(undefined, undefined);
+    }
+    Find({ $and: [{ owner: id }, filter] },(err, result) => {
+        callback(err, result);
+    });
+}
+
+function _owner_chain(id, filter, accu: any[], depth, callback) {
     if (depth == 0) {
         return callback(undefined, accu);
     }
-    Owner(id, (err, result) => {
+    Owner(id, filter, (err, result) => {
         if (err || !result) return callback(err, accu); //done
         accu.push(result);
-        _owner_chain(result.id, accu, depth - 1, callback);
+        _owner_chain(result.id, filter, accu, depth - 1, callback);
     });
 }
 
-export function OwnerChain(id_or_obj: any, max_depth, callback: PCallback<IDescriptor[]>) {
+function _children_chain(id, filter, accu: any[], depth, callback) {
+    if (depth == 0) {
+        return callback(undefined, accu);
+    }
+    Children(id, filter, (err, result) => {
+        if (err || !result) return callback(err, accu); //done
+        var job = [];
+        for (var i = 0; i < result.length; i++) {
+            accu.push(result[i]);
+            job.push(_children_chain.bind(null, result[i].id, filter, accu, depth - 1));
+        }
+        if (job.length === 0) return callback(err, accu); //done
+        async.series(job, callback);
+    });
+}
+
+export function OwnerChain(id_or_obj: any, filter, max_depth, callback: PCallback<IDescriptor[]>) {
     var id = id_or_obj.id ? id_or_obj.id : id_or_obj;
-    _owner_chain(id, [], max_depth, callback);
+    _owner_chain(id, filter, [], max_depth, callback);
+}
+
+export function ChildrenChain(id_or_obj: any, filter, max_depth, callback: PCallback<IDescriptor[]>) {
+    var id = id_or_obj.id ? id_or_obj.id : id_or_obj;
+    _children_chain(id, filter, [], max_depth, callback);
 }
 
 export function Get<T extends IDescriptor>(id, callback: PCallback <T>) {

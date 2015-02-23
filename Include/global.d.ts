@@ -59,7 +59,7 @@ interface IDevice {
 
 interface IDeviceAssumption {
     driverId?: string;
-    classes?: string[]; //ClassList
+    classes?: KVSet; //ClassList
     actions?: KVSet;
     attributes?: KVSet;
     valid?: boolean;

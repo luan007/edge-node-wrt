@@ -3,6 +3,7 @@ import Core = require("Core");
 import DriverManager = require("./DriverManager");
 import DeviceManager = require("./DeviceManager");
 import Graphd = require("./Graphd/DB");
+var find = require('simple-object-query').find;
 
 /*
  CML Stands for Co(M)mon language service layer
@@ -31,31 +32,24 @@ import Graphd = require("./Graphd/DB");
   Webstorm may report (MatchQuery | MatchQuery[]) an error which you can safely ignore.
 */
 
+
+/*Le Code*/
 interface LogicalQuery {
     and?: any[]; or?: any[]; not?: any;
 }
 
-interface Val {
-    key: string[] | string;
-    val?: ValueQuery;
-}
-
 interface MatchQuery extends LogicalQuery {
-    _expanded?: any;
-
     and?: MatchQuery[];
     or?:  MatchQuery[];
     not?: MatchQuery;
     //type
-    is?: string[] | string;
-    bus?: string[] | string;
-
-    busdata?: Val[] | Val;
-
+    is?;
+    bus?;
     //attr group
-    attr?: Val[] | Val;
+    //attr?: Val[] | Val;
+    attr? ;
     //action
-    can?: string[] | string;
+    can?;
 }
 
 
@@ -72,132 +66,205 @@ interface ValueQuery extends LogicalQuery {
     neq? ;
 }
 
-//States
-var state_norm = 0;
-var state_and = 1;
-var state_or = 2;
-var state_not = 3;
-
-///*single step*/
-//function query_atom(query, not, cb) {
-//    //return true as err if nothing found (to stop async.series)
-//}
-
-//function async_boolean_step(preResult, jobs, and_1_or_0, index, cb) {
-    
-//    if (index == jobs.length) {
-//        return cb(undefined, preResult);
-//    }
-//    if (and_1_or_0 && preResult && Object.keys(preResult).length == 0) {
-//        return cb();
-//    }
-//    var curJob = jobs[index];
-//    curJob((err, result) => {
-        
-//        //intersect between result & preResult
-//        if (preResult == undefined) {
-//            return async_boolean_step(result, jobs, and_1_or_0, index + 1, cb); //carry on
-//        }
-//        var nextResult;
-//        var op = Object.keys(preResult).length > Object.keys(result).length ? result : preResult;
-//        var comp = op === result ? preResult : result;
-//        var keys = Object.keys(op);
-//        if (and_1_or_0) {
-//            nextResult = {};
-//            for (var t = 0; t < keys.length; t++) {
-//                //find intersection
-//                if (has(op, keys[t]) && has(comp, keys[t])) {
-//                    nextResult[keys[t]] = result[keys[t]];
-//                }
-//            }
-//        } else {
-//            nextResult = comp;
-//            for (var t = 0; t < keys.length; t++) {
-//                //find intersection
-//                comp[keys[t]] = op[keys[t]];
-//            }
-//        }
-//        return async_boolean_step(nextResult, jobs, and_1_or_0, index + 1, cb); //carry on
-//    });
-
-//}
-
-///*logical-glue*/
-//function logical_atom(query, cb) {
-    
-//    if (!query) { return cb(); }
-
-//    if (Array.isArray(query.and)) {
-//        var job = [];
-//        for (var i = 0; i < query.and.length; i++) {
-//            job.push(logical_atom.bind(null, query.and[i]));
-//        }
-//        return async_boolean_step(undefined, job, true, 0, cb);
-//    } else if (Array.isArray(query.or)) {
-//        var job = [];
-//        for (var i = 0; i < query.and.length; i++) {
-//            job.push(logical_atom.bind(null, query.and[i]));
-//        }
-//        return async_boolean_step(undefined, job, false, 0, cb);
-//    } else if (query.not) {
-//        //exclude these results
-//        //{ not : { and : {...} } } <--stupid results
-//        logical_atom(query.not,(err, result) => {
-//            //invert and pop?
-
-//        });
-//    }
-//    //} else if (query.or) {
-//    //    logical_atom(state_or, query.or, cb);
-//    //} else if (query.not) {
-//    //    logical_atom(state_not, query.not, cb);
-//    //} else {
-//    //    logical_atom(state_norm, query, cb);
-//    //}
-
-//}
-
-
-function expandQuery(query: MatchQuery, cb) {
-    //var e: any = {};
-    //if (!!query.is) {
-    //    Graphd.Find({
-    //        $and: [{ type: 0 }, {
-    //            $or: [
-    //                { name: !Array.isArray(query.is) ? query.is : { $all: query.is } },
-    //                { tag: !Array.isArray(query.is) ? query.is : { $all: query.is } }
-    //            ]
-    //        }]
-    //    },(err, des) => {
-    //            if (!err && des && des.length) {
-    //                e.is = des;
-    //            }
-    //        });
-    //}
-    //if (!!query.can) {
-    //    Graphd.Find({
-    //        $and: [{ type: 2 }, {
-    //            $or: [
-    //                { name: !Array.isArray(query.can) ? query.can : { $all: query.can } },
-    //                { tag: !Array.isArray(query.can) ? query.can : { $all: query.can } }
-    //            ]
-    //        }]
-    //    },(err, des) => {
-    //            if (!err && des && des.length) {
-    //                e.can = des;
-    //            }
-    //        });
-    //}
-}
-
-//takes care of one element + one condition
-//query should be normalized (this method gets HOT)
-function qualifier(element: IDevice, query: MatchQuery, cb) {
-    if (!query._expanded) {
-        //query._expanded = expandQuery(query);
+function _test_(self, target) {
+    if (_.isRegExp(self)) {
+        return self.test(target);
+    } else {
+        return self === target;
     }
 }
 
+function _explode_($query, type, fetchchildren, childdepth, cb) {
+    if (Array.isArray($query)) {
+        $query = {
+            $or: [{ name: { $all: $query } }, { tag: { $all: $query } }]
+        };
+    } else if (_.isRegExp($query) || _.isString($query)) {
+        $query = {
+            $or: [{ name: $query }, { tag: $query }]
+        };
+    }
+    $query = {
+        $and: [
+            { type: type },
+            $query
+        ]
+    };
+    Graphd.Find($query,(err, des) => {
+        if (err || !des || des.length == 0) {
+            return cb(undefined);
+        } else if (!fetchchildren) {
+            var t = [];
+            for (var i = 0; i < des.length; i++) {
+                t.push(des[i].id);
+            }
+            return cb(t);
+        } else {
+            var t = [];
+            var jobs = [];
+            for (var i = 0; i < des.length; i++) {
+                t.push(des[i].id);
+                jobs.push(Graphd.ChildrenChain.bind(null, des[i].id, {
+                    type: type
+                }, childdepth === undefined ? -1 : childdepth));
+            }
+            async.series(jobs,(err, result) => {
+                if (!err) {
+                    for (var i = 0; i < result.length; i++) {
+                        for (var j = 0; j < result[i].length; j++) {
+                            t.push(result[i][j]);
+                        }
+                    }
+                }
+                return cb(t);
+            });
+        }
+    });
+}
+
+/*Return true if ERROR, NOR/NAND logic*/
+var parsers = {
+    can: function (element: IDevice, can, cb) {
+        if (can.__expanded) {
+            can = can.__expanded;
+        }
+        else if (can.$) {
+            return _explode_(can.$, 2, can.expand, can.depth,(result) => {
+                can.__expanded = result;
+                parsers.can(element, can, cb);
+            });
+        }
+        if (can === undefined) {
+            return cb(true);
+        }
+        //test
+        if (!Array.isArray(can)) {
+            can = [can];
+        } else if (can.length == 0) {
+            return cb(false);
+        }
+        for (var t = 0; t < can.length; t++) {
+            var found = false;
+            for (var i in element.assumptions) {
+                if (element.assumptions[i].actions[can[t]]) {
+                    found = true;
+                    continue;
+                }
+                for (var j in element.assumptions[i].actions) {
+                    if (_test_(can[t], j)) {
+                        found = true;
+                        continue;
+                    }
+                }
+            }
+            if (!found) {
+                return cb(true);
+            }
+        }
+        return cb(false);
+    },
+    is: function (element: IDevice, is, cb) {
+        if (is.__expanded) {
+            is = is.__expanded;
+        }
+        else if (is.$) {
+            return _explode_(is.$, 0, is.expand, is.depth,(result) => {
+                is.__expanded = result;
+                parsers.can(element, is, cb);
+            });
+        }
+        if (is === undefined) {
+            return cb(true);
+        }
+        //test
+        if (!Array.isArray(is)) {
+            is = [is];
+        } else if (is.length == 0) {
+            return cb(false);
+        }
+        for (var t = 0; t < is.length; t++) {
+            var found = false;
+            for (var i in element.assumptions) {
+                if (element.assumptions[i].classes[is[t]]) {
+                    found = true;
+                    continue;
+                }
+                for (var j in element.assumptions[i].classes) {
+                    if (_test_(is[t], j)) {
+                        found = true;
+                        continue;
+                    }
+                }
+            }
+            if (!found) {
+                return cb(true);
+            }
+        }
+        return cb(false);
+    },
+    bus: function (element: IDevice, bus, cb) {
+        var result = find(element.bus, bus);
+        return cb(!result || result.length == 0);
+    },
+    attr: function (element, attr, cb) {
+        //TODO: support nested value search
+        if (attr.__expanded) {
+            attr = attr.__expanded;
+        }
+        else if (attr.$) {
+            return _explode_(attr.$, 1, attr.expand, attr.depth, (result) => {
+                attr.__expanded = result;
+                parsers.can(element, attr, cb);
+            });
+        }
+        if (attr === undefined) {
+            return cb(true);
+        }
+        //test
+        if (!Array.isArray(attr)) {
+            attr = [attr];
+        } else if (attr.length == 0) {
+            return cb(false);
+        }
+        for (var t = 0; t < attr.length; t++) {
+            var found = false;
+            for (var i in element.assumptions) {
+                if (element.assumptions[i].attributes[attr[t]]) {
+                    found = true;
+                    continue;
+                }
+                for (var j in element.assumptions[i].attributes) {
+                    if (_test_(attr[t], j)) {
+                        found = true;
+                        continue;
+                    }
+                }
+            }
+            if (!found) {
+                return cb(true);
+            }
+        }
+        return cb(false);
+    }
+};
+
+//takes care of one element + one condition
+//query should be normalized (this method gets HOT)
+function qualifier(element, query: MatchQuery, cb) {
+    var jobs = [];
+    for (var i in query) {
+        if (parsers[i]) {
+            jobs.push(parsers[i].bind(element, query[i]));
+        }
+    }
+    if (jobs.length > 0) {
+        async.series(jobs,(not_passed) => {
+            process.nextTick(cb.bind(null, !!!not_passed));
+        });
+    } else {
+        process.nextTick(cb.bind(null, true));
+    }
+}
 
 //takes care of one element + condition chain(step)
 function chain(qualifier, negate, obj, query, cb) {
@@ -225,18 +292,40 @@ function chain(qualifier, negate, obj, query, cb) {
     }
 }
 
-export function Query(param: MatchQuery) {
-    
+//Le Loop
+export function Query(query: MatchQuery, callback) {
+    var devs = DeviceManager.Devices();
+    var jobs = [];
+    var fin = [];
+    for (var d in devs) {
+        ((d) => { //Le Closure
+            jobs.push((cb) => { //Le Job
+                chain(qualifier, false, devs[d], query,(result) => {
+                    if (result) {
+                        fin.push(devs[d]);
+                    }
+                    cb();
+                });
+            });
+        })(d);
+    }
+    async.series(jobs,() => {
+        callback(undefined, fin); //Le Callback
+    });
 }
 
 
-//Expected:
+
+
+//Le Demo:
 Query({
     and: [
-        { can: ["print", "scan"] }, {
+        { can: ["print"] }, {
             or: [
                 { is: "printer" }, { is: "tv" }
             ]
         }
     ]
+},(err, result) => {
+    //Le Test
 });
