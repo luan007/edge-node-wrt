@@ -1,9 +1,9 @@
 ﻿@import "vars.less";
 
-.main-text-shadow(@size: 10px, @opacity: 0.5) {
-    -moz-text-shadow: 0px 0px @size rgba(0,0,0,@opacity);
-    -webkit-text-shadow: 0px 0px @size rgba(0,0,0,@opacity);
-    text-shadow: 0px 0px @size rgba(0,0,0,@opacity);
+.main-text-shadow(@size: 20px, @opacity: 0.2) {
+    -moz-text-shadow: 0px 3px @size rgba(0,0,0,@opacity);
+    -webkit-text-shadow: 0px 3px @size rgba(0,0,0,@opacity);
+    text-shadow: 0px 3px @size rgba(0,0,0,@opacity);
 }
 
 .text-shadow-subtle {
@@ -78,6 +78,14 @@ body {
     }
 }
 
+#powered-by {
+    position:fixed;
+    bottom:10px;
+    left:10px;
+    font-size:13px;
+    color:rgba(255,255,255,0.5);
+}
+
 #main-mask {
     background: rgba(0,0,0,0.2); /* BG COLOR SHOULD VARY UPON DIFFERENT IMG */
 }
@@ -138,7 +146,7 @@ body {
     }
 
     p {
-        .main-text-shadow(5px, 0.8);
+        .main-text-shadow(30px, 0.5);
         font-size: 18px;
     }
 
@@ -178,7 +186,7 @@ body {
 #app-list-area {
     visibility: hidden;
     overflow: hidden;
-    opacity: 0;
+    opacity:1;
 }
 
 #app-list-parent {
@@ -206,7 +214,6 @@ body {
         margin-top: 20px;
 
         .app-list-icon {
-            .main-text-shadow();
             @size_w: 150px;
             @img: 100px;
             text-align: center;

@@ -56,7 +56,6 @@ interface MatchQuery extends LogicalQuery {
     can?;
 }
 
-
 interface ValueQuery extends LogicalQuery {
     and?: ValueQuery[];
     or?: ValueQuery[];

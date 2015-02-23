@@ -58,6 +58,10 @@
     <Content Include="Main_Staging\public\fonts\fontawesome-webfont.woff" />
     <Content Include="Main_Staging\public\fonts\fontawesome-webfont.woff2" />
     <Content Include="Main_Staging\public\fonts\FontAwesome.otf" />
+    <Content Include="Main_Staging\public\fonts\HelveticaNeueLight.css" />
+    <Content Include="Main_Staging\public\fonts\HelveticaNeueLight_gdi.eot" />
+    <Content Include="Main_Staging\public\fonts\HelveticaNeueLight_gdi.svg" />
+    <Content Include="Main_Staging\public\fonts\HelveticaNeueLight_gdi.woff" />
     <Content Include="Main_Staging\public\fonts\typicons.css" />
     <Content Include="Main_Staging\public\fonts\typicons.eot" />
     <Content Include="Main_Staging\public\fonts\typicons.min.css" />
@@ -73,6 +77,7 @@
     <Content Include="Main_Staging\public\images\bg\c.jpg" />
     <Content Include="Main_Staging\public\images\bg\exo.jpg" />
     <Content Include="Main_Staging\public\images\bg\mountain.jpg" />
+    <Content Include="Main_Staging\public\images\bg\universe.jpg" />
     <Content Include="Main_Staging\public\images\doge.jpg" />
     <Content Include="Main_Staging\public\images\home_ico.svg" />
     <Content Include="Main_Staging\public\images\ico\flat\.DS_Store" />

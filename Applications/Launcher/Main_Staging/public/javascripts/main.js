@@ -89,8 +89,8 @@ function comp_background(bg_id, perspective) {
                         rotationX: -2,
                     },
                     scale: targetW / w,
-                    opacity: 1,
                     rotationX: 0,
+                    opacity: 1,
                     ease: Power3.easeOut
                 });
                 first_time = false;
@@ -175,7 +175,7 @@ function comp_main_toolico() {
                 TweenLite.to(i, 0.2, {
                     color: "rgba(255,255,255,255)",
                     background: "rgba(255,255,255,0)",
-                    textShadow: "0px 0px 5px rgba(0,0,0,0.5)",
+                    textShadow: "0px 5px 2px rgba(0,0,0,0.2)",
                     ease: Power2.easeOut
                 });
             };
@@ -184,7 +184,7 @@ function comp_main_toolico() {
                 var text_no_retract = ico.attributes["do-not-retract"];
                 
                 TweenLite.to(ico, 0.3, {
-                    opacity: 0.7,
+                    opacity: 0.8,
                     y: 0 + "px",
                     ease: Power2.easeOut
                 });
@@ -196,7 +196,7 @@ function comp_main_toolico() {
                 TweenLite.to(i, 0.2, {
                     color: "rgba(255,255,255,255)",
                     background: "rgba(255,255,255,0)",
-                    textShadow: "0px 0px 10px rgba(0,0,0,0.5)",
+                    textShadow: "0px 6px 20px rgba(0,0,0,0.1)",
                     ease: Power2.easeOut
                 });
             };
@@ -369,21 +369,22 @@ function comp_app_list() {
     
     TweenLite.set(list, {
         scale: 4,
+        opacity: 0,
     });
     TweenLite.set(applist, {
-        opacity: 0
+        opacity: 0,
     });
-    
     function open() {
         applist.style.visibility = "visible";
         TweenLite.to(list, 0.8, {
+            opacity: 1,
             scale: 1,
             ease: Power4.easeOut
         });
-        TweenLite.to(applist, 0.8, {
-            opacity: 1,
+        TweenLite.to(applist, 1, {
+            opacity: 1
         });
-        TweenLite.to(content, 1, {
+        TweenLite.to(content, 0.6, {
             scale: 0.8,
             ease: Power2.easeOut
         });
@@ -394,10 +395,11 @@ function comp_app_list() {
     }
     
     function close() {
+        TweenLite.to(applist, 0.4, {
+            opacity: 0
+        });
         TweenLite.to(list, 0.5, {
             scale: 4,
-        });
-        TweenLite.to(applist, 0.4, {
             opacity: 0,
         });
         TweenLite.to(content, 0.8, {
@@ -681,16 +683,17 @@ function resize_handler() {
 function window_loaded() {
     var content = document.getElementById("main-content");
     TweenLite.set(content, {
-        visibility: 'visible',
-        rotationX: 30,
-        y: 100 + "px",
+        rotationX: 10,
+        y: 50 + "px",
         opacity: 0,
-        transformOrigin: "center top",
+        scale: 0.8,
+        visibility: 'visible',
         transformPerspective: 1000, perspective: 1000,
     });
-    TweenLite.to(content, 1, {
+    TweenLite.to(content, 1.7, {
         opacity: 1,
         y: 0 + "px",
+        scale: 1,
         rotationX: 0,
         ease: Power4.easeOut
     });
