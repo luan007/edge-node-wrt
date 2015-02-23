@@ -1,4 +1,8 @@
-﻿import Node = require("Node");
+﻿//TODO: Test CML
+//CRAP ALERT
+//NOT IN PRODUCTION QUALITY
+
+import Node = require("Node");
 import Core = require("Core");
 import DriverManager = require("./DriverManager");
 import DeviceManager = require("./DeviceManager");
@@ -314,7 +318,6 @@ export function Query(query: MatchQuery, callback) {
     });
 }
 
-
 function Demo() {
 
     //Le Demo:
@@ -330,15 +333,12 @@ function Demo() {
             //Le Test
         });
 
-
-
-
     //Le Demo with all sorts of crap[TM]:
     Query({
         and: [
             {
                 can: {
-                    $: { name: "printer" } //Le embedded query for Graphd tree
+                    $: { name: "print" } //Le embedded query for Graphd tree
                 }
             }, {
                 /*why*/ not: {
