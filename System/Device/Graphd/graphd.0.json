@@ -24,6 +24,11 @@
             "desc": "",
             "owner": "generic"
         },
+        "name": {
+            "tag": [ "name", "display name" ],
+            "desc": "",
+            "owner": "generic"
+        },
         "dummyAttr": {
             "tag": [ "dummy" ],
             "desc": "no desc available",

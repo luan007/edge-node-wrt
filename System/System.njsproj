@@ -64,6 +64,7 @@
     <TypeScriptCompile Include="App\_Module.ts" />
     <TypeScriptCompile Include="Base\global.d.ts" />
     <TypeScriptCompile Include="Base\Global.ts" />
+    <TypeScriptCompile Include="Base\Machine.ts" />
     <TypeScriptCompile Include="Base\SystemEvent.ts" />
     <TypeScriptCompile Include="Base\_Module.ts" />
     <TypeScriptCompile Include="Connectivity\Wan.ts" />
@@ -82,9 +83,11 @@
     <TypeScriptCompile Include="Device\Bus\Wifi.ts" />
     <TypeScriptCompile Include="Device\Bus\_Export.ts" />
     <TypeScriptCompile Include="Device\CML.ts" />
+    <TypeScriptCompile Include="Device\DeviceConfig.ts" />
     <TypeScriptCompile Include="Device\DeviceManager.ts" />
     <TypeScriptCompile Include="Device\DriverManager.ts" />
     <TypeScriptCompile Include="Device\Driver\InAppDriver.ts" />
+    <TypeScriptCompile Include="Device\Driver\NameService.ts" />
     <TypeScriptCompile Include="Device\Driver\OUI.ts" />
     <TypeScriptCompile Include="Device\Driver\TestDriver.ts" />
     <TypeScriptCompile Include="Device\Graphd\Builder.ts" />
@@ -119,6 +122,7 @@
     <TypeScriptCompile Include="Lib\_Export.ts" />
     <TypeScriptCompile Include="Lib\_Module.ts" />
     <TypeScriptCompile Include="loader.ts" />
+    <TypeScriptCompile Include="Network\Rules.ts" />
     <TypeScriptCompile Include="Node.ts" />
     <TypeScriptCompile Include="Connectivity\LocalNetwork.ts" />
     <TypeScriptCompile Include="Connectivity\Wifi.ts" />
@@ -165,6 +169,7 @@
     <TypeScriptCompile Include="Test\NGinx\GenericTest.ts" />
     <TypeScriptCompile Include="Test\Ports\UnixSocatTest.ts" />
     <TypeScriptCompile Include="Test\_Module.ts" />
+    <TypeScriptCompile Include="User\Preference.ts" />
     <TypeScriptCompile Include="User\UserManager.ts" />
     <TypeScriptCompile Include="User\_Export.ts" />
     <TypeScriptCompile Include="User\_Module.ts" />
@@ -178,6 +183,8 @@
     <Folder Include="Lib\Abstract\" />
     <Folder Include="Lib\OUI\OUI\" />
     <Folder Include="Lib\Remote\" />
+    <Folder Include="Messaging\" />
+    <Folder Include="Network\" />
     <Folder Include="SubSys\" />
     <Folder Include="SubSys\Native\" />
     <Folder Include="SubSys\FileSystem\" />

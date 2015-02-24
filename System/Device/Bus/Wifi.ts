@@ -2,7 +2,6 @@
 import Core = require("Core");
 import Bus = require("./Bus");
 
-
 class Wifi extends Bus {
 
     constructor(public HostapdInstances : IDic<Core.SubSys.Native.hostapd.hostapd>) {
@@ -119,3 +118,5 @@ class Wifi extends Bus {
 }
 
 export = Wifi;
+
+

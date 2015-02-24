@@ -125,7 +125,6 @@ export function GetCallingRuntime(context): Runtime {
 export function Initialize() {
     trace("Initializing..");
 
-
     Core.API.Server.AddHandler(ConnectionHandler);
 
     trace("App Resp Scan Probe at " + ('' + CONF.APP_RESP_SCAN_INTERVAL.toString()).bold);
