@@ -41,6 +41,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Misc", "Misc", "{6165076B-2
 		Misc\airplay.js = Misc\airplay.js
 		Misc\Memo.txt = Misc\Memo.txt
 		Misc\nginx.conf = Misc\nginx.conf
+		Misc\TODO.txt = Misc\TODO.txt
 	EndProjectSection
 EndProject
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Deployment", "Infra\Deployment\Deployment.njsproj", "{407BE735-A903-48A7-AA63-929C086054DF}"
