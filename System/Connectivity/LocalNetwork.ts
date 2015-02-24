@@ -141,8 +141,6 @@ class _localNetwork extends Abstract.Configurable {
         }
     };
 
-
-
     public Initialize = (cb) => {
         this.sub = Core.Data.Registry.Sector(Core.Data.Registry.RootKeys.Network, "LOCALNETWORK");
 

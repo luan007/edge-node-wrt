@@ -64,7 +64,6 @@
     <TypeScriptCompile Include="App\_Module.ts" />
     <TypeScriptCompile Include="Base\global.d.ts" />
     <TypeScriptCompile Include="Base\Global.ts" />
-    <TypeScriptCompile Include="Base\Machine.ts" />
     <TypeScriptCompile Include="Base\SystemEvent.ts" />
     <TypeScriptCompile Include="Base\_Module.ts" />
     <TypeScriptCompile Include="Connectivity\Wan.ts" />
