@@ -1,5 +1,5 @@
-�ǵ�SAMBA��ڷ���ROUTER��ҳ��
-ϵͳ��ҳ��SAMBA��ڣ�
-�����
+﻿记得SAMBA入口放在ROUTER首页里
+系统首页？SAMBA入口？
+设置里？
 
-ROUTER��ҳ ����ʹ���� ���ǣ�
+ROUTER首页 磁盘使用率 这那？
