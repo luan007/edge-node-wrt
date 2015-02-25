@@ -39,6 +39,7 @@
     "validator": "*",
     "connect": "*",
     "morgan": "~1.5.1",
-    "body-parser": "*"
+    "body-parser": "*",
+    "simple-object-query": "*"
   }
 }
