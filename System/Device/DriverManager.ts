@@ -143,10 +143,10 @@ export function DriverActiveUpdate(drv: IDriver, dev: IDevice, assump: IDeviceAs
 
 function _notify_driver(driver: IDriver, dev: IDevice, tracker: _tracker, delta: IDeviceAssumption, deltaBus: IBusData, deltaConf: KVSet, stateChange?) {
     process.nextTick(() => {
-        if (_sanity_check(version, dev, driver)) return;
         var drvId = driver.id();
         var version = dev.time.getTime();
         var myAssump = dev.assumptions[drvId];
+        if (_sanity_check(version, dev, driver)) return;
         //console.log(JSON.stringify(dev));
         try {
             if (myAssump && myAssump.valid) {
