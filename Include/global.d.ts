@@ -47,12 +47,15 @@ interface IBusData {
     hwaddr?: string;
     data?: any;
     name?: string;
+    stamp?: number;
+    total_uptime?: number;
 }
 
 interface IDevice {
     assumptions: IDic<IDeviceAssumption>;
     id: string;
     bus: IBusData;
+    config: any;
     state: number;
     time: Date;
 }
@@ -67,18 +70,51 @@ interface IDeviceAssumption {
     aux?: any;
 }
 
+//TODO: this need to be done
+interface IDriverInterest {
+    bus?;
+    assumption? ;
+    config? ;
+    delta?: {
+        bus? ;
+        assumption? ;
+        config? ;
+    }
+    stateChange?: boolean;
+    all?: boolean;
+}
+
 interface IDriver {
     id();
     name();
     status();
     bus(): string[];
+    interest(): IDriverInterest;
 
-    match(dev: IDevice, cb: Callback);
-    attach(dev: IDevice, matchResult: any, cb: PCallback<IDeviceAssumption>);
+    match(dev: IDevice, delta: {
+        assumption: IDeviceAssumption;
+        bus: IBusData;
+        config: KVSet;
+    }, cb: Callback);
+
+    attach(dev: IDevice, delta: {
+        assumption: IDeviceAssumption;
+        bus: IBusData;
+        config: KVSet;
+    }, matchResult: any, cb: PCallback<IDeviceAssumption>);
 
     //TODO: Evaluate if we need "prev" state
-    change(dev: IDevice, delta_from_other_driver: IDeviceAssumption, cb: PCallback<IDeviceAssumption>);
-    detach(dev: IDevice, cb: PCallback<IDeviceAssumption>);
+    change(dev: IDevice, delta: {
+        assumption: IDeviceAssumption;
+        bus: IBusData;
+        config: KVSet;
+    }, cb: PCallback<IDeviceAssumption>);
+
+    detach(dev: IDevice, delta: {
+        assumption: IDeviceAssumption;
+        bus: IBusData;
+        config: KVSet;
+    }, cb: PCallback<IDeviceAssumption>);
 
     load(cb: Callback);
     unload(cb: Callback);

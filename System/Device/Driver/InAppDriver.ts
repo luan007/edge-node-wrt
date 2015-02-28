@@ -13,9 +13,14 @@ class InAppDriver implements IDriver {
     constructor(
         private App: Runtime,
         private InApp_DriverId,
-        private TargetBuses: string[]
+        private TargetBuses: string[],
+        private Interest: IDriverInterest
         ) {
     }
+
+    interest = () => {
+        return this.Interest;
+    };
 
     id = () => {
         return "App_" + this.App.App.uid + ":" + this.InApp_DriverId;
@@ -33,22 +38,22 @@ class InAppDriver implements IDriver {
         return this.TargetBuses;
     }
 
-    match = (dev: IDevice, cb: Callback) => {
+    match = (dev: IDevice, delta, cb: Callback) => {
         if (!this.status()) return cb(new Error("Driver is Offline"));
         this.App.API.Driver.Match(this.InApp_DriverId, dev, cb);
     };
 
-    attach = (dev: IDevice, matchResult: any, cb: PCallback<IDeviceAssumption>) => {
+    attach = (dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) => {
         if (!this.status()) return cb(new Error("Driver is Offline"));
         this.App.API.Driver.Attach(this.InApp_DriverId, dev, matchResult, cb);
     };
 
-    change = (dev: IDevice, delta_from_other_driver: IDeviceAssumption, cb: PCallback<IDeviceAssumption>) => {
+    change = (dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) => {
         if (!this.status()) return cb(new Error("Driver is Offline"));
-        this.App.API.Driver.Change(this.InApp_DriverId, dev, delta_from_other_driver, cb);
+        this.App.API.Driver.Change(this.InApp_DriverId, dev, delta, cb);
     };
 
-    detach = (dev: IDevice, cb: PCallback<IDeviceAssumption>) => {
+    detach = (dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) => {
         if (!this.status()) return cb(new Error("Driver is Offline"));
         this.App.API.Driver.Detach(this.InApp_DriverId, dev, cb);
     };

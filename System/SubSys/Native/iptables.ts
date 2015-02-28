@@ -138,11 +138,16 @@ export class Table {
                     var p = parseInt(ln.split(" ")[4]);
                     var deltaB = Math.abs(b - curchain.Bytes);
                     deltaA += deltaB;
-                    if (deltaB !== 0) {
-                        curchain.emit("traffic", curchain, b, curchain.Bytes, p, curchain.Packets, new Date().getTime() - curchain.LastMeasure);
+                    if (deltaB !== 0 || p !== curchain.Packets) {
+                        curchain.Delta_Bytes = b - curchain.Bytes;
+                        curchain.Delta_Packets = p - curchain.Packets;
+                        curchain.Delta_Time = new Date().getTime() - g.LastMeasure;
+                        curchain.LastMeasure = new Date().getTime();
+                        var old_B = curchain.Bytes;
+                        var old_P = curchain.Packets;
                         curchain.Bytes = b;
                         curchain.Packets = p;
-                        curchain.LastMeasure = new Date().getTime();
+                        curchain.emit("traffic", curchain, b, old_B, p, old_P, curchain.Delta_Time);
                     }
                 }
             } else if (ln[0] == "n") {
@@ -155,14 +160,18 @@ export class Table {
                 var bytes = parseInt(contents[2]);
                 var g = curchain.Get(num - 1);
                 if (g) {
-                    if (g.Count_Bytes !== bytes) {
+                    if (g.Count_Bytes !== bytes || g.Count_Packets !== pkgs) {
                         //trigger event if u wish
-
+                        var oldB = g.Count_Bytes;
+                        var oldP = g.Count_Packets;
                         //let's do this
-                        g.emit("traffic", g, bytes, g.Count_Bytes, pkgs, g.Count_Packets, new Date().getTime() - g.LastMeasure);
+                        g.Delta_Bytes = bytes - g.Count_Bytes;
+                        g.Delta_Packets = pkgs - g.Count_Packets;
+                        g.Delta_Time = new Date().getTime() - g.LastMeasure;
                         g.Count_Bytes = bytes;
                         g.Count_Packets = pkgs;
                         g.LastMeasure = new Date().getTime();
+                        g.emit("traffic", g, bytes, oldB, pkgs, oldP, g.Delta_Time);
                     }
                 }
             }
@@ -279,6 +288,12 @@ export class Chain extends events.EventEmitter {
     Packets: number = 0;
 
     Bytes: number = 0;
+
+    Delta_Bytes: number = 0;
+
+    Delta_Packets: number = 0;
+
+    Delta_Time: number = 0;
 
     Name: string = "";
 
@@ -748,6 +763,12 @@ export class Rule extends events.EventEmitter {
     Index: number = -1;
 
     LastMeasure: number = 0;
+
+    Delta_Bytes: number = 0;
+    
+    Delta_Packets: number = 0;
+
+    Delta_Time: number = 0;
 
     Count_Packets: number = 0;
 
@@ -1480,14 +1501,12 @@ export class Rule extends events.EventEmitter {
     }
 }
 
-export var Iptables: Iptable_Base;
-export var Iptables_IPV6: Iptable_Base;
+export var Iptables: Iptable_Base = new Iptable_Base();
+export var Iptables_IPV6: Iptable_Base = new Iptable_Base();
 
 export function Initialize(cb) {
-    Iptables = new Iptable_Base();
     Iptables.Load();
     Iptables.Loaded(() => {
-        Iptables_IPV6 = new Iptable_Base();
         Iptables_IPV6.SetExec("ip6tables");
         Iptables_IPV6.Load();
         Iptables_IPV6.Loaded(cb);

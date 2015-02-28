@@ -4,5 +4,6 @@
         require("./FileSystem/_Module").Load.bind(undefined, load_arg),
         require("./Ports/_Module").Load.bind(undefined, load_arg),
         require("./FrontEnds/_Module").Load.bind(undefined, load_arg),
+        require("./Network/_Module").Load.bind(undefined, load_arg),
     ], callback);
 }

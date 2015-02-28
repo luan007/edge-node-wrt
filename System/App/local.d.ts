@@ -48,7 +48,8 @@ declare module local {
             name: string;
             permission: number[];
             drivers: IDic<{
-                Buses: string[]
+                Buses: string[];
+                Interest: IDriverInterest;
             }>;
         }
 

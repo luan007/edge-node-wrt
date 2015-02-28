@@ -117,33 +117,4 @@ __API(function (atoken, cb) {
     }
 }, "Proxy.AuthUser", HttpProxy.NGINX_PERM_ARR);
 
-__API(function (_ip, cb) {
-    var conn = Core.Connectivity.LocalNetwork.Config();
-    var routerip = conn.RouterIP;
-    var netmask = conn.LocalNetmask;
-    var subnet = ip.cidr_num(_ip, netmask);
-    var oursub = ip.cidr_num(routerip, netmask);
-    if (oursub != subnet) {
-        //unhappy :(
-        cb(new Error("Outside current subnet"));
-    } else {
-        Core.Connectivity.LocalNetwork.ResolveSubnetMacFromIp(_ip, (err, mac_dev) => {
-            if (err || !mac_dev) {
-                return cb(err, undefined); //Not a part of our network :(
-            } else {
-                var hwaddr = mac_dev[0];
-                var input_dev = mac_dev[1].toLowerCase();
-                var dev = undefined;
-                switch (input_dev) {
-                    case CONF.DEV.WLAN.DEV_2G:
-                        dev = Core.Device.DeviceManager.FromBus(hwaddr, CONF.BUS[CONF.DEV.WLAN.DEV_2G]);
-                        break;
-                    case CONF.DEV.WLAN.DEV_5G:
-                        dev = Core.Device.DeviceManager.FromBus(hwaddr, CONF.BUS[CONF.DEV.WLAN.DEV_5G]);
-                        break;
-                }
-                return cb(undefined, dev ? dev.id : undefined);
-            }
-        });
-    }
-}, "Proxy.CurrentDevHeader", HttpProxy.NGINX_PERM_ARR);
+__API(Core.Router.Network.GetDeviceByIp, "Proxy.CurrentDevHeader", HttpProxy.NGINX_PERM_ARR);

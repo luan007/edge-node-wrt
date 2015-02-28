@@ -7,6 +7,12 @@ class TestDriver implements IDriver {
         return "_TEST_DRV_";
     }
 
+    interest() {
+        return {
+            all: true
+        };
+    }
+
     name() {
         return "TestDriver";
     }
@@ -19,12 +25,12 @@ class TestDriver implements IDriver {
         return [ "Dummy" ];
     }
 
-    match(dev: IDevice, cb: Callback) {
+    match(dev: IDevice, delta, cb: Callback) {
         trace("MATCH Called");
         //cb(undefined, { foo:"bar" });
     }
 
-    attach(dev: IDevice, matchResult: any, cb: PCallback<IDeviceAssumption>) {
+    attach(dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) {
         info("ATTACH Called");
         cb(undefined, {
             actions: {},
@@ -34,7 +40,7 @@ class TestDriver implements IDriver {
         });
     }
 
-    change(dev: IDevice, delta_from_other_driver: IDeviceAssumption, cb: PCallback<IDeviceAssumption>) {
+    change(dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) {
         fatal("CHANGE Called");
         cb(undefined, {
             actions: {},
@@ -44,7 +50,7 @@ class TestDriver implements IDriver {
         });
     }
 
-    detach(dev: IDevice, cb: PCallback<IDeviceAssumption>) {
+    detach(dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) {
 
     }
 

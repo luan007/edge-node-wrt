@@ -120,13 +120,13 @@ export interface IFAddr {
 
 class addr extends events.EventEmitter {
 
-    public static EVENT_LOAD = "load";
+    public EVENT_LOAD = "load";
 
-    public static EVENT_LOADEND = "loadend";
+    public EVENT_LOADEND = "loadend";
 
-    public static EVENT_RECORD_NEW = "new";
+    public EVENT_RECORD_NEW = "new";
 
-    public static EVENT_RECORD_DEL = "del";
+    public EVENT_RECORD_DEL = "del";
 
     public static Instance: addr;
 
@@ -198,14 +198,14 @@ class addr extends events.EventEmitter {
             Prefix: ifa[1]
         });
 
-        this.emit(addr.EVENT_RECORD_NEW, id, index);
+        this.emit(this.EVENT_RECORD_NEW, id, index);
         //this.Debug_Output();
     };
 
     private OnDelete = (line: string) => {
         var sp = line.split(" ");
         var id = sp[1];
-        this.emit(addr.EVENT_RECORD_NEW);
+        this.emit(this.EVENT_RECORD_NEW);
         if (!this.Interfaces[id]) {
             return;
         } else {
@@ -238,7 +238,7 @@ class addr extends events.EventEmitter {
          * 
          */
         this.Interfaces = {};
-        this.emit(addr.EVENT_LOAD);
+        this.emit(this.EVENT_LOAD);
         Exec(this.Prefix, "show", (err, result) => {
             if (!err && result.out) {
                 var lines = result.out.trim().split('\n');
@@ -258,12 +258,12 @@ class addr extends events.EventEmitter {
                             });
                         }
                     }
-                    this.emit(addr.EVENT_RECORD_NEW);
+                    this.emit(this.EVENT_RECORD_NEW);
                 }
             }
             callback(err, result);
             this.Debug_Output();
-            this.emit(addr.EVENT_LOADEND);
+            this.emit(this.EVENT_LOADEND);
         });
     };
 
@@ -282,21 +282,21 @@ class neigh extends events.EventEmitter {
 
     private WatchList: IDic<{ func: Function; dev: string }> = {};
 
-    public static EVENT_LOAD = "load";
+    public EVENT_LOAD = "load";
 
-    public static EVENT_LOADEND = "loadend";
+    public EVENT_LOADEND = "loadend";
 
-    public static EVENT_RECORD_NEW = "new";
+    public EVENT_RECORD_NEW = "new";
 
-    public static EVENT_RECORD_CHANGE = "change";
+    public EVENT_RECORD_CHANGE = "change";
 
-    public static EVENT_RECORD_DEL = "del";
+    public EVENT_RECORD_DEL = "del";
 
     public static Instance: neigh;
 
-    public MacList = {}; //IP CHANGES, MAC WONT!
+    public MacList: IDic<NeighRecord> = {}; //IP CHANGES, MAC WONT!
 
-    public IpList = {}; //IP CHANGES, MAC WONT!
+    public IpList: IDic<NeighRecord>  = {}; //IP CHANGES, MAC WONT!
 
     private Prefix = "neigh";
 
@@ -317,7 +317,7 @@ class neigh extends events.EventEmitter {
 
     public Load = (callback: ExecCallback) => {
         this.MacList = {};
-        this.emit(neigh.EVENT_LOAD);
+        this.emit(this.EVENT_LOAD);
         Exec(this.Prefix, "show", (err, result) => {
             if (!err && result.out) {
                 var lines = result.out.toLowerCase().trim().split('\n');
@@ -329,15 +329,15 @@ class neigh extends events.EventEmitter {
                 }
             }
             callback(err, result);
-            this.emit(neigh.EVENT_LOADEND);
+            this.emit(this.EVENT_LOADEND);
         });
     };
 
     //not used
     public SweepDead = () => {
         for (var mac in this.MacList) {
-            if (this.MacList[mac].IsDead()) {
-                this.emit(neigh.EVENT_RECORD_DEL, this.MacList[mac]);
+            if (NeighRecord.IsDead(this.MacList[mac])) {
+                this.emit(this.EVENT_RECORD_DEL, this.MacList[mac]);
                 delete this.MacList[mac];
             }
         }
@@ -347,7 +347,7 @@ class neigh extends events.EventEmitter {
 
         info(" +------ ");
         for (var mac in this.MacList) {
-            info(" | " + this.MacList[mac].toCommandString());
+            info(" | " + NeighRecord.toCommandString(this.MacList[mac]));
         }
         info(" +------ ");
 
@@ -362,7 +362,7 @@ class neigh extends events.EventEmitter {
                 if (this.MacList[mac].Address == n.Address) {
 
                     delete this.IpList[n.Address];
-                    this.emit(neigh.EVENT_RECORD_DEL, this.MacList[mac]);
+                    this.emit(this.EVENT_RECORD_DEL, this.MacList[mac]);
 
                     if (this.WatchList[mac]) {
                         warn("Check if we can add DEV filter here");
@@ -375,11 +375,11 @@ class neigh extends events.EventEmitter {
             }
         } else if (this.MacList[n.Mac]) {
 
+            var cur: NeighRecord = this.MacList[n.Mac];
             if (this.WatchList[n.Mac] &&
                 (this.WatchList[n.Mac].dev == undefined ||
                 this.WatchList[n.Mac].dev == n.Dev)) {
 
-                var cur: NeighRecord = this.MacList[n.Mac];
                 var next = n;
                 if (NeighRecord.IsAlive(cur) != NeighRecord.IsAlive(next) &&
                     cur.Address != next.Address) {
@@ -389,12 +389,12 @@ class neigh extends events.EventEmitter {
 
             this.IpList[n.Address] = n;
             this.MacList[n.Mac] = n;
-            this.emit(neigh.EVENT_RECORD_CHANGE, this.MacList[n.Mac]);
+            this.emit(this.EVENT_RECORD_CHANGE, this.MacList[n.Mac], cur);
 
         } else if (!this.MacList[n.Mac]) {
             this.MacList[n.Mac] = n;
             this.IpList[n.Address] = n;
-            this.emit(neigh.EVENT_RECORD_NEW, this.MacList[n.Mac]);
+            this.emit(this.EVENT_RECORD_NEW, this.MacList[n.Mac]);
             if (this.WatchList[n.Mac] &&
                 (this.WatchList[n.Mac].dev == undefined ||
                 this.WatchList[n.Mac].dev == n.Dev)) {
@@ -602,15 +602,15 @@ export enum NUDState {
 
 class link extends events.EventEmitter {
 
-    public static EVENT_LOAD = "load";
-
-    public static EVENT_LOADEND = "loadend";
-
-    public static EVENT_RECORD_NEW = "new";
-
-    public static EVENT_RECORD_CHANGE = "change";
-
-    public static EVENT_RECORD_DEL = "del";
+    public EVENT_LOAD = "load";
+           
+    public EVENT_LOADEND = "loadend";
+           
+    public EVENT_RECORD_NEW = "new";
+           
+    public EVENT_RECORD_CHANGE = "change";
+           
+    public EVENT_RECORD_DEL = "del";
 
     public static Instance: link;
 
@@ -647,7 +647,7 @@ class link extends events.EventEmitter {
         for (var i in this.Interfaces) {
             if (this.Interfaces[i].Id == id) {
                 this.Interfaces[i].Apply(line, line2);
-                this.emit(link.EVENT_RECORD_CHANGE);
+                this.emit(this.EVENT_RECORD_CHANGE);
                 //this.Debug_Output();
                 return;
             }
@@ -655,7 +655,7 @@ class link extends events.EventEmitter {
         var p = new LinkInterface();
         p.Apply(line, line2);
         this.Interfaces[p.Mac] = p;
-        this.emit(link.EVENT_RECORD_NEW);
+        this.emit(this.EVENT_RECORD_NEW);
         //this.Debug_Output();
 
     };
@@ -666,7 +666,7 @@ class link extends events.EventEmitter {
 
     public Load = (callback) => {
         this.Interfaces = {};
-        this.emit(link.EVENT_LOAD);
+        this.emit(this.EVENT_LOAD);
         Exec(this.Prefix, "show", (err, result) => {
             if (!err && result.out) {
                 var lines = result.out.trim().split('\n');
@@ -674,12 +674,12 @@ class link extends events.EventEmitter {
                     var t = new LinkInterface();
                     t.Apply(lines[i], lines[i + 1]);
                     this.Interfaces[t.Dev] = t;
-                    this.emit(link.EVENT_RECORD_NEW);
+                    this.emit(this.EVENT_RECORD_NEW);
                 }
             }
             callback(err, result);
             this.Debug_Output();
-            this.emit(link.EVENT_LOADEND);
+            this.emit(this.EVENT_LOADEND);
         });
     };
 

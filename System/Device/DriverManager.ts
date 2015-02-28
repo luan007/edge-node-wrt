@@ -37,11 +37,9 @@ export function LoadDriver(drv: IDriver, cb) {
                     depth: 1,
                     root: drv.id(),
                     parent: undefined
-                }, undefined);
+                }, undefined, undefined, undefined);
             }
-
             cb(err);
-
         });
     }
 }
@@ -133,7 +131,7 @@ function _update_driver_data(drv: IDriver, dev: IDevice, assump: IDeviceAssumpti
         root: tracker.root
     };
     process.nextTick(() => {
-        DeviceChange(dev, ntracker, delta);
+        DeviceChange(dev, ntracker, delta, undefined, undefined);
     });
 }
 
@@ -143,7 +141,7 @@ export function DriverActiveUpdate(drv: IDriver, dev: IDevice, assump: IDeviceAs
     });
 }
 
-function _notify_driver(driver: IDriver, dev: IDevice, tracker: _tracker, delta?: IDeviceAssumption) {
+function _notify_driver(driver: IDriver, dev: IDevice, tracker: _tracker, delta: IDeviceAssumption, deltaBus: IBusData, deltaConf: KVSet, stateChange?) {
     process.nextTick(() => {
         if (_sanity_check(version, dev, driver)) return;
         var drvId = driver.id();
@@ -153,17 +151,29 @@ function _notify_driver(driver: IDriver, dev: IDevice, tracker: _tracker, delta?
         try {
             if (myAssump && myAssump.valid) {
                 //need change
-                driver.change(dev, delta, <any>once((err, assump) => {
+                driver.change(dev, {
+                    assumption: delta,
+                    bus: deltaBus,
+                    config: deltaConf
+                }, <any>once((err, assump) => {
                     if (!assump || !_sanity_check(version, dev, driver, err)) return;
                     _update_driver_data(driver, dev, assump, tracker);
                 }));
             } else {
                 //need match/attach
                 //TODO: Verify EmitterizeCB's impact/influence on GC, to see if it solves the 'ghost CB' prob
-                driver.match(dev, <any>must((err, data) => {
+                driver.match(dev, {
+                    assumption: delta,
+                    bus: deltaBus,
+                    config: deltaConf
+                }, <any>must((err, data) => {
                     if (!data || !_sanity_check(version, dev, driver, err)) return;
                     try {
-                        driver.attach(dev, data, <any>once((err, assump) => {
+                        driver.attach(dev, {
+                            assumption: delta,
+                            bus: deltaBus,
+                            config: deltaConf
+                        }, data, <any>once((err, assump) => {
                             if (!assump || !_sanity_check(version, dev, driver, err)) return;
                             _update_driver_data(driver, dev, assump, tracker);
                         }));
@@ -178,7 +188,24 @@ function _notify_driver(driver: IDriver, dev: IDevice, tracker: _tracker, delta?
     });
 }
 
-export function DeviceChange(dev: IDevice, tracker: _tracker, delta?: IDeviceAssumption) {
+//TODO: Finish Driver Interest
+function _is_interested_in(interested: IDriverInterest, dev: IDevice, assump, busDelta, config, stateChange?) {
+    if (interested.stateChange && stateChange) {
+        return true;
+    }
+    if (interested.delta && interested.delta.assumption && assump) {
+        return true;
+    }
+    if (interested.delta && interested.delta.bus && busDelta) {
+        return true;
+    }
+    if (interested.delta && interested.delta.config && config) {
+        return true;
+    }
+    return interested.all ? true : false;
+}
+
+export function DeviceChange(dev: IDevice, tracker: _tracker, assump: IDeviceAssumption, busDelta: IBusData, config: KVSet, stateChange?) {
 
     var tracker = tracker ? tracker : <_tracker>{
         depth: 0
@@ -215,12 +242,17 @@ export function DeviceChange(dev: IDevice, tracker: _tracker, delta?: IDeviceAss
             !Drivers[driver_id].status() ||
             !Drivers_BusMapping[dev.bus.name][driver_id]) continue;
         //TODO: Add Driver Preference Here!!!! HIGH PRIORITY
-        _notify_driver(Drivers[driver_id], dev, tracker, delta);
+        //TODO: Finish Driver-Interest - this is not completed
+        
+        //Preference? Sure
+        if (_is_interested_in(Drivers[driver_id].interest(), dev, assump, busDelta, config, stateChange)) {
+            _notify_driver(Drivers[driver_id], dev, tracker, assump, busDelta, config, stateChange);
+        }
     }
 
 }
 
-export function DeviceDrop(dev: IDevice) {
+export function DeviceDrop(dev: IDevice, busDelta?) {
     var version = dev.time;
     for (var i in dev.assumptions) {
         if (!has(dev.assumptions, i) ||
@@ -233,7 +265,11 @@ export function DeviceDrop(dev: IDevice) {
             var drv = Drivers[i];
             process.nextTick(() => {
                 try {
-                    drv.detach(dev, <any>once((err, fin_assumption) => {
+                    drv.detach(dev, {
+                        assumption: undefined,
+                        bus: busDelta,
+                        config: undefined
+                    }, <any>once((err, fin_assumption) => {
                         if (!_sanity_check(version, dev, drv, err) ||
                             !fin_assumption ||
                             _.isEqual(prevAssump, fin_assumption)) return;

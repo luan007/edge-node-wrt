@@ -11,6 +11,12 @@ class NameService implements IDriver {
         return "NameService";
     }
 
+    interest() {
+        return {
+            all: true
+        };
+    }
+
     name() {
         return "NameService";
     }
@@ -23,12 +29,12 @@ class NameService implements IDriver {
         return ["WLAN"];
     }
 
-    match(dev: IDevice, cb: Callback) {
+    match(dev: IDevice, delta, cb: Callback) {
         //should fetch name? or not :(
         return cb(undefined, !!dev.bus.data.Lease);
     }
 
-    attach(dev: IDevice, matchResult: any, cb: PCallback<IDeviceAssumption>) {
+    attach(dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) {
         if (!dev.bus.data.Lease) {
             //return cb(new Error("Lease is missing")), undefined);
         } else {
@@ -37,11 +43,11 @@ class NameService implements IDriver {
         }
     }
 
-    change(dev: IDevice, delta_from_other_driver: IDeviceAssumption, cb: PCallback<IDeviceAssumption>) {
+    change(dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) {
         return cb(undefined, undefined);
     }
 
-    detach(dev: IDevice, cb: PCallback<IDeviceAssumption>) {
+    detach(dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) {
         return cb(undefined, undefined);
     }
 

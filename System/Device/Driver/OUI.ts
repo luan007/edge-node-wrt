@@ -7,6 +7,13 @@ class OUI_Identifier implements IDriver {
         return "_OUI_";
     }
 
+    interest() {
+        return {
+            stateChange: true,
+            all: false
+        };
+    }
+
     name() {
         return "OUI Identifier";
     }
@@ -19,11 +26,11 @@ class OUI_Identifier implements IDriver {
         return [ "WLAN" ];
     }
 
-    match(dev: IDevice, cb: Callback) {
+    match(dev: IDevice, delta, cb: Callback) {
         cb(undefined, dev.bus.hwaddr.length > 8 ? {} : undefined);
     }
 
-    attach(dev: IDevice, matchResult: any, cb: PCallback<IDeviceAssumption>) {
+    attach(dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) {
         //info("OUI ATTACH Called");
         var _oui_Str = (dev.bus.hwaddr + "").substr(0, 8);
         OUI_Find(_oui_Str,(err, result) => {
@@ -44,11 +51,11 @@ class OUI_Identifier implements IDriver {
         });
     }
 
-    change(dev: IDevice, delta_from_other_driver: IDeviceAssumption, cb: PCallback<IDeviceAssumption>) {
+    change(dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) {
         cb(undefined, undefined);
     }
 
-    detach(dev: IDevice, cb: PCallback<IDeviceAssumption>) {
+    detach(dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) {
         cb(undefined, undefined);
     }
 

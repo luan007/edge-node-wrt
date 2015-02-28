@@ -53,6 +53,18 @@ class Runtime {
 
     public Driver: IDic<IDriver> = {};
 
+    public DeathHooks: IDic<Function> = {};
+
+
+    //Release me babyyyy
+    public RegisterDeathHook = (name, func) => {
+        this.DeathHooks[name] = func;
+    };
+
+    public ReleaseDeathHook = (name, func) => {
+        delete this.DeathHooks[name];
+    };
+
     constructor(runtimeId, app: Core.Data.Application) {
         this.App = app;
         this.RuntimeId = runtimeId;
@@ -83,7 +95,11 @@ class Runtime {
 
         if (this.Manifest.drivers) {
             for (var id in this.Manifest.drivers) {
-                var drv = new InAppDriver(this, id, this.Manifest.drivers[id].Buses);
+                var drv = new InAppDriver(
+                    this,
+                    id,
+                    this.Manifest.drivers[id].Buses,
+                    this.Manifest.drivers[id].Interest);
                 this.Driver[id] = drv;
             }
         }
@@ -133,6 +149,12 @@ class Runtime {
     };
 
     private _proc_on_exit = () => {
+
+        for (var i in this.DeathHooks) {
+            this.DeathHooks["i"](this);
+        }
+
+        this.DeathHooks = {};
         if (this._status.State == -2)
             return; //BROKEN
 

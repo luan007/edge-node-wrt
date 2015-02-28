@@ -16,7 +16,8 @@ class _sys_conf {
     SHADOW_BASE_PATH = "/SagittariusA/"
     SHADOW_DATA_PATH = path.join(this.SHADOW_BASE_PATH, "/Data/");
     DEV_STORAGE = "/dev/sda1"; // system partition, as for onboard-emmc configuration: /dev/mmcblk0p1
-    BASE_DATA_PATH = "/Data/"; 
+    BASE_DATA_PATH = "/Data/";
+    USER_DATA_PATH = path.join(this.BASE_DATA_PATH, "User/");
     APP_BASE_PATH = path.join(this.BASE_PATH, "../Applications/");
     PLATFORM_BIAS_FS_SPLITTER = process.platform == "win32" ? "\\" : "/";
     DATA_DIR = process.env.DATA_DIR ? process.env.DATA_DIR : path.join(this.BASE_PATH, "../_data");

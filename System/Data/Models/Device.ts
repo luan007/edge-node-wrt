@@ -13,6 +13,7 @@ export class Device {
     busdata: KVSet = {};
     state: number = 0;
     time: Date = new Date();
+    config: KVSet = {};
 
     static table(): orm.Typed.TypedModel<IDevice> {
         if (!Table) {

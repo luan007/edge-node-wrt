@@ -61,3 +61,10 @@ declare function setTask(name, job, timeout, ...args);
 declare function clearTask(name);
 
 declare function emitterizeCb(_this: any, job, ...args);
+
+
+
+declare function has(obj, key);
+
+
+declare function forEachFlat(arr, job);

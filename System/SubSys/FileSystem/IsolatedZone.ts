@@ -80,7 +80,7 @@ export function Initialize(cb) {
             }
         },
         (c) => {
-            fatal("QUOTACHECK.. This may take some time..");
+            fatal("QUOTACHECK.. This may take a while..");
             c();
         },
         (c) => {

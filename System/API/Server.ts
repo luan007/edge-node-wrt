@@ -110,7 +110,6 @@ function SenderId(context): string {
     return context.rpc.remote;
 }
 
-
 export function Initialize() {
 
     SYS_ON(SYS_EVENT_TYPE.LOADED, () => {

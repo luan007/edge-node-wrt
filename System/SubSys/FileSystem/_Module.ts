@@ -1,10 +1,5 @@
-﻿exports.Load = function (load_arg: string[], callback: Function) {
-
-    require("./IsolatedZone").Initialize((err, result) => {
-        if (err) {
-            error(err);
-            throw (err);
-        }
-        callback();
-    });
+﻿exports.Load = function (load_arg: string[], callback) {
+    async.series([
+        require("./IsolatedZone").Initialize,
+        require("./UserZone").Initialize], callback);
 }

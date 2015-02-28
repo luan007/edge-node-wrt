@@ -30,6 +30,7 @@ function LoadFromDB(callback: Callback) {
                             hwaddr: dev.hwaddr,
                             name: dev.busname
                         },
+                        config: dev.config,
                         id: dev.uid,
                         state: dev.state,
                         time: dev.time
@@ -78,6 +79,7 @@ function SaveToDB(callback: Callback) {
                 devtmp.state = dev.state;
                 devtmp.assumptions = dev.assumptions;
                 devtmp.uid = dev.id;
+                devtmp.config = dev.config;
                 (function (id, devtmp) { // closure
                     jobs.push((cb) => {
                         trace("CREATE DBENTRY " + id);
@@ -110,7 +112,7 @@ function SaveToDB(callback: Callback) {
                             DBDEV.busname = dev.bus.name;
                             DBDEV.state = dev.state;
                             DBDEV.assumptions = dev.assumptions;
-
+                            DBDEV.config = dev.config;
                             DBDEV.save({}, (err) => {
                                 if (!err) {
                                     device_updates[id] = 0;
@@ -149,11 +151,12 @@ function _patrolThread() {
 
 function _OnDevice(bus: IBusData) {
     //check device status
-
+    var stateChange = false;
     if (!hwaddr_map[bus.name]) hwaddr_map[bus.name] = {};
     var devId = hwaddr_map[bus.name][bus.hwaddr];
     //TODO: Re-evaluate [prev]
     //var prev = undefined;
+    var busDelta = {};
     var dev: IDevice;
     if (devId && devices[devId]) {
         //trace("Change : " + devId);
@@ -162,37 +165,75 @@ function _OnDevice(bus: IBusData) {
             dev.bus.data = {}; //corrupt data :[!!!!
         }
 
-        if (dev.state == 1 && _.isEqual(dev.bus.data, bus.data)) {
+        //bug fixed
+        var change = delta_add_return_changes(dev.bus.data, bus.data, true);
+        if (dev.state == 1 && Object.keys(change).length == 0) {
             warn("OnDevice found no change, Skipped");
             return;
         }
-        
-        //prev = JSON.parse(JSON.stringify(devices[devId]));
-        delta_add(dev.bus.data, bus.data, true);
+        busDelta = change;
         dev.time = new Date();
         //log(" Loading DB " + dev.uid.bold);
         if (dev.state == 0) {
+            stateChange = true;
             dev.state = 1;
         }
         else {
             //ACTIVATED
+            stateChange = false;
         }
     } else {
+        stateChange = true;
         dev = <IDevice>{
             bus: bus,
             assumptions: {},
             id: UUIDstr(),
+            config: {},
             time: new Date(),
             state: 1
         };
+        busDelta = bus;
         trace(" Created " + dev.id.bold);
         devices[dev.id] = dev;
         if (!hwaddr_map[bus.name]) hwaddr_map[bus.name] = {};
         hwaddr_map[bus.name][bus.hwaddr] = dev.id;
     }
     device_updates[devId] = 1;
-    DriverManager.DeviceChange(dev, undefined);
+    DriverManager.DeviceChange(dev, undefined, undefined, busDelta, undefined, stateChange);
     not_saved = true;
+}
+
+export function Config(dev: IDevice, conf: any) {
+    
+    var devId = hwaddr_map[dev.bus.name][dev.bus.hwaddr];
+    //TODO: Re-evaluate [prev]
+    //var prev = undefined;
+    var dev: IDevice;
+    if (devId && devices[devId]) {
+        //trace("Change : " + devId);
+        dev = devices[devId];
+        if (!dev.config) {
+            dev.config = {}; //corrupt data :[!!!!
+        }
+
+        var dt = delta_add_return_changes(dev.config, conf, true);
+        if (Object.keys(dt).length == 0) {
+            warn("Config Found No Change, Skipped");
+            return;
+        }
+        //prev = JSON.parse(JSON.stringify(devices[devId]));
+        
+        device_updates[devId] = 1;
+        if (dev.state == 1) {
+            DriverManager.DeviceChange(dev, undefined, undefined, undefined, dt);
+            //Only update when alive
+        }
+        not_saved = true;
+    }
+    else {
+        warn("Device not found");
+    }
+
 }
 
 function _ondriverchange(dev: IDevice) {
@@ -204,12 +245,17 @@ function _OnDrop(bus: IBusData) {
 
     if (!hwaddr_map[bus.name]) hwaddr_map[bus.name] = {};
     var devId = hwaddr_map[bus.name][bus.hwaddr];
-
     if (devId) {
         var dev: IDevice = devices[devId];
         dev.state = 0;
         dev.time = new Date();
-        DriverManager.DeviceDrop(dev);
+
+        var delta = delta_add_return_changes(dev.bus, bus, true);
+        var d = undefined;
+        if (Object.keys(delta).length !== 0) {
+            d = delta;
+        }
+        DriverManager.DeviceDrop(dev, d);
         not_saved = true;
     } else {
         warn("DEVICE NOT FOUND");
@@ -224,8 +270,8 @@ export var Buses: IDic<IBus> = {
 function _initialize_buses(callback: Callback) {
 
     Buses["WLAN"] = new Bus.Wifi({
-        "2G4": Core.Connectivity.Wifi.WLAN_2G4,
-        "5G7": Core.Connectivity.Wifi.WLAN_5G7
+        "2G4": Core.Router.Phy.Wifi.WLAN_2G4,
+        "5G7": Core.Router.Phy.Wifi.WLAN_5G7,
     });
     
     for (var i in Buses) {
@@ -282,4 +328,3 @@ export function OrbitSync(devId, cb) {
         hwaddr: db_devices[devId].hwaddr
     }), cb);
 }
-

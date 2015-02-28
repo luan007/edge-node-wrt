@@ -22,6 +22,7 @@ class Bus extends Node.events.EventEmitter implements IBus {
 
     protected _on_device = (dev: IBusData) => {
         dev.name = this.name();
+        dev.stamp = Date.now();
         if (dev.hwaddr) {
             dev.hwaddr = dev.hwaddr.toLowerCase();
         }
@@ -30,6 +31,7 @@ class Bus extends Node.events.EventEmitter implements IBus {
 
     protected _on_drop = (dev: IBusData) => {
         dev.name = this.name();
+        dev.total_uptime = (!!dev.total_uptime ? dev.total_uptime : 0 ) + Date.now() - dev["stamp"];
         if (dev.hwaddr) {
             dev.hwaddr = dev.hwaddr.toLowerCase();
         }

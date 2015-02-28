@@ -14,7 +14,7 @@ export class Configurable extends Node.events.EventEmitter {
         return this.sub;
     }
 
-    Config() {
+    Get() {
         return this._config;
     }
 
@@ -26,33 +26,29 @@ export class Configurable extends Node.events.EventEmitter {
      */
     Apply = (config_delta, cb) => {
         info(JSON.stringify(config_delta));
-        intoQueue("_CONFIG_" + this.key, (cb) => {
+        intoQueue("_CONFIG_" + this.key,(cb) => {
             var _backup = JSON.stringify(this._config);
             var mod = delta_add_return_changes(this._config, config_delta, true);
             trace("Applying.. [" + Object.keys(mod).length + "]");
-            if (Object.keys(mod).length > 0) {
-                this._apply(mod, (err) => {
-                    if (err) {
-                        error(err);
-                        this._config = JSON.parse(_backup);
-                        cb(err);
+            this._apply(mod, config_delta, (err) => {
+                if (err) {
+                    error(err);
+                    this._config = JSON.parse(_backup);
+                    cb(err);
+                } else {
+                    this.emit("change", mod);
+                    if (this.sub && this.key) {
+                        return this.sub.put(this.key, this._config,(err) => {
+                            if (err) error(err);
+                            else info("Saved - " + JSON.stringify(this._config));
+                            cb(err, mod);
+                        });
                     } else {
-                        this.emit("change", mod);
-                        if (this.sub && this.key) {
-                            return this.sub.put(this.key, this._config, (err) => {
-                                if (err) error(err);
-                                else info("Saved - " + JSON.stringify(this._config));
-                                cb(err, mod);
-                            });
-                        } else {
-                            cb(undefined, mod);
-                        }
-                        trace("Applied");
+                        cb(undefined, mod);
                     }
-                });
-            } else {
-                cb();
-            }
+                    trace("Applied");
+                }
+            });
         }, cb);
     };
     
@@ -80,7 +76,7 @@ export class Configurable extends Node.events.EventEmitter {
     /**
      * Virtual Method, to be implemented
      */
-    protected _apply = (mod, cb: Callback) => {
+    protected _apply = (mod, raw, cb: Callback) => {
         throw new Error("Virtual Method");
     };
     

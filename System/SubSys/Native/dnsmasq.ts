@@ -507,14 +507,16 @@ export class dnsmasq extends Process {
 
     public Config: ConfigInterface = new ConfigInterface();
 
-    public Hosts /* hosts[hostname] = IP_addr */ = {};
+    public Hosts /* hosts[hostname] = IP_addr */ = [{}, {}];
 
-    public DNSRules: ServerRule[] = [];
+    //[Static, Dynamic]
+    public DNSRules: ServerRule[][] = [[],[]];
 
     /**
      * Mac - Ip ( static ip )
      */
-    public DHCP_Hosts: IDic<string> = {};
+    //[Static, Dynamic]
+    public DHCP_Hosts = [{}, {}];
 
 
     constructor() {
@@ -535,17 +537,16 @@ export class dnsmasq extends Process {
                 exec.bind(null, "rm -rf " + this.dns_path),
                 exec.bind(null, "rm -rf " + this.dhcp_host_path)
             ]
-            , () => {
+            ,() => {
                 var _hosts = "";
-                for (var host in this.Hosts) {
-                    if (!has(this.Hosts, host)) continue;
+                forEachFlat(this.Hosts,(host) => {
+                    if (!has(this.Hosts, host)) return;
                     _hosts += this.Hosts[host] + " " + host;
                     _hosts += "\r\n";
-                }
+                });
                 var _dns = "";
                 if (this.DNSRules) {
-                    for (var i = 0; i < this.DNSRules.length; i++) {
-                        var rule = this.DNSRules[i];
+                    forEachFlat(this.DNSRules, (rule) => {
                         var c = "";
                         if (rule.Domains && rule.Domains.length > 0) {
                             c += "/";
@@ -561,19 +562,21 @@ export class dnsmasq extends Process {
                         } else if (c != "") {
                             c += "#";
                         } else {
-                            continue;
+                            return;
                         }
                         _dns += "server=" + c + "\r\n";
-                    }
+                    });
                 }
                 var _dhcp_hosts = "";
                 if (this.DHCP_Hosts) {
-                    for (var t in this.DHCP_Hosts) {
-                        if (!this.DHCP_Hosts.hasOwnProperty(t)) {
-                            continue;
+                    forEachFlat(this.DHCP_Hosts,(hosts) => {
+                        for (var t in hosts) {
+                            if (!hosts.hasOwnProperty(t)) {
+                                continue;
+                            }
+                            _dhcp_hosts += t + "," + hosts[t] + "\r\n";
                         }
-                        _dhcp_hosts += t + "," + this.DHCP_Hosts[t] + "\r\n";
-                    }
+                    });
                 }
                 async.parallel(
                     [
@@ -585,19 +588,21 @@ export class dnsmasq extends Process {
     };
 
     SIGHUP_Update = (cb) => {
-        intoQueue("DNSMASQ_sighup", (cb) => {
-            fatal("Dnsmasq_Hotplug: in progress..");
-            this.flush(() => {
-                if (this.Process) {
-                    this.Process.kill("SIGHUP"); //no more rebootz, BITCHES
-                    info("OK");
-                }
-                else {
-                    this.Start(true);
-                }
-                cb();
-            });
-        }, cb);
+        setTask("DNSMASQ_sighup",() => {
+            intoQueue("DNSMASQ_sighup",(c) => {
+                fatal("Dnsmasq_Hotplug: in progress..");
+                this.flush(() => {
+                    if (this.Process) {
+                        this.Process.kill("SIGHUP"); //no more rebootz, BITCHES
+                        info("OK");
+                    }
+                    else {
+                        this.Start(true);
+                    }
+                    c();
+                });
+            }, cb);
+        }, 400); //speedy? no.
     };
 
     Start(forever: boolean = true) {

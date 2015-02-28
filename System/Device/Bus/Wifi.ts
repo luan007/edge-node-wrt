@@ -29,7 +29,7 @@ class Wifi extends Bus {
                 }
             });
         });
-        Core.Connectivity.LocalNetwork.DNSMASQ.Leases.Watch(mac,(lease) => {
+        Core.Router.Network.dnsmasq.Leases.Watch(mac,(lease) => {
             this._on_device({
                 hwaddr: mac,
                 data: {
@@ -45,7 +45,13 @@ class Wifi extends Bus {
                 }
             });
         });
-
+        Core.SubSys.Network.Traffic.NotifyOnTraffic(mac,(mac, data) => {
+            this._on_device({
+                data: {
+                    Traffic: data
+                }
+            });
+        });
         //rOUIFind((mac + "").substr(0, 8), (err, OUI: string) => {
         //        Bus._onDevice(mac, {
         //            UA: { Obj: ua, raw: raw }
@@ -70,7 +76,7 @@ class Wifi extends Bus {
             data: {
                 Band: band,
                 Addr: Core.SubSys.Native.ip.Neigh.Get(mac),
-                Lease: Core.Connectivity.LocalNetwork.DNSMASQ.Leases.LeaseDB[mac],
+                Lease: Core.Router.Network.dnsmasq.Leases.LeaseDB[mac],
                 Wireless: Core.SubSys.Native.iw.Devices[mac]
             }//OUI: OUI,
         });
@@ -82,10 +88,10 @@ class Wifi extends Bus {
         this._on_drop({
             hwaddr: mac
         });
-
         Core.SubSys.Native.iw.Unwatch(mac);
         Core.SubSys.Native.ip.Neigh.Unwatch(mac);
-        Core.Connectivity.LocalNetwork.DNSMASQ.Leases.Unwatch(mac);
+        Core.Router.Network.dnsmasq.Leases.Unwatch(mac);
+        Core.SubSys.Network.Traffic.RemoveHandler(mac);
         //UARecon.UnwatchUA(mac);
         this._mac_list[band][mac] = undefined;
     };

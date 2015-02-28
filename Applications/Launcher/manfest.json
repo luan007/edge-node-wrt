@@ -3,7 +3,10 @@
     "permission": [ 255 ],
     "drivers": {
         "TestDriver": {
-            "Buses": [ "WLAN" ]
+            "Buses": [ "WLAN" ],
+            "Interest": { 
+                "all":  "true"
+            }
         }
     }
 }

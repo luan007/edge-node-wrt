@@ -8,4 +8,4 @@ export import App = require("./App/_Export");
 export import Device = require("./Device/_Export");
 export import User = require("./User/_Export");
 export import SubSys = require("./SubSys/_Export");
-export import Connectivity = require("./Connectivity/_Export");
+export import Router = require("./Router/_Export");
