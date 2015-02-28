@@ -7,14 +7,27 @@ import Core = require("Core");
 //
 class NameService implements IDriver {
 
+    _interest = {
+        config: {
+            name: {
+                $exists: true
+            }
+        },
+        bus: {
+            data: {
+                Lease: {
+                    $exists: true
+                }
+            }
+        }
+    };
+
     id() {
         return "NameService";
     }
 
-    interest() {
-        return {
-            all: true
-        };
+    interest(): IDriverInterest {
+        return this._interest;
     }
 
     name() {

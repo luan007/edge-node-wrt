@@ -7,10 +7,9 @@ class OUI_Identifier implements IDriver {
         return "_OUI_";
     }
 
-    interest() {
+    interest(): IDriverInterest {
         return {
-            stateChange: true,
-            all: false
+            stateChange: true
         };
     }
 

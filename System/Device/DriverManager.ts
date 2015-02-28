@@ -7,6 +7,8 @@ var Drivers: IDic<IDriver> = {};
 var Drivers_BusMapping: IDic<IDic<IDriver>> = {};
 export var Events = new Node.events.EventEmitter();
 
+var query = require("underscore-query")(_);
+
 export function LoadDriver(drv: IDriver, cb) {
     if (drv /* && !has(Drivers, drv.id())*/ ) {
         if (!has(Drivers, drv.id())) {
@@ -190,19 +192,58 @@ function _notify_driver(driver: IDriver, dev: IDevice, tracker: _tracker, delta:
 
 //TODO: Finish Driver Interest
 function _is_interested_in(interested: IDriverInterest, dev: IDevice, assump, busDelta, config, stateChange?) {
+
+    if (interested.all) return true;
+
     if (interested.stateChange && stateChange) {
         return true;
     }
-    if (interested.delta && interested.delta.assumption && assump) {
+
+    //Delta is good for you
+    if (interested.delta) {
+        if (config && interested.delta.config && query.first([config], interested.delta.config)) {
+            return true;
+        }
+        if (busDelta && interested.delta.bus && query.first([busDelta], interested.delta.bus)) {
+            return true;
+        }
+        if (assump
+            && interested.delta.assumption
+            && query.first([assump], interested.delta.assumption)) {
+            return true;
+        }
+    }
+
+
+
+    if (dev.config && interested.config && query.first([dev.config], interested.config)) {
         return true;
     }
-    if (interested.delta && interested.delta.bus && busDelta) {
+    if (dev.bus && interested.bus && query.first([dev.bus], interested.bus)) {
         return true;
     }
-    if (interested.delta && interested.delta.config && config) {
+    if (dev.assumptions
+        && interested.assumptions
+        && !interested.assumptions["*"]
+        && query.first([dev.assumptions], interested.assumptions)) {
         return true;
     }
-    return interested.all ? true : false;
+
+
+    //COST TOO MUCH
+    if (dev.assumptions
+        && interested.assumptions && interested.assumptions["*"]) {
+        for (var i in dev.assumptions) {
+            if (query.first([dev.assumptions[i]], interested.assumptions["*"])) {
+                return true;
+            }
+        }
+    }
+
+    //match delta first
+    //cuz delta costs less
+
+    return false;
 }
 
 export function DeviceChange(dev: IDevice, tracker: _tracker, assump: IDeviceAssumption, busDelta: IBusData, config: KVSet, stateChange?) {
@@ -244,7 +285,9 @@ export function DeviceChange(dev: IDevice, tracker: _tracker, assump: IDeviceAss
         //TODO: Add Driver Preference Here!!!! HIGH PRIORITY
         //TODO: Finish Driver-Interest - this is not completed
         
+        
         //Preference? Sure
+        //Almost done.
         if (_is_interested_in(Drivers[driver_id].interest(), dev, assump, busDelta, config, stateChange)) {
             _notify_driver(Drivers[driver_id], dev, tracker, assump, busDelta, config, stateChange);
         }

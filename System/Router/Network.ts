@@ -12,7 +12,6 @@ export var Config = new Configuration();
     Filter-in ----> [system-in-filter] -----> [custom-in-filter] -----> 
  */
 
-
 export var Chains =  {
     System: {
         Filter: {
@@ -393,10 +392,6 @@ export function GetDeviceByIp(_ip, cb) {
             }
         });
     }
-}
-
-export function LocalSubnet(cb) {
-    
 }
 
 export function Status(cb) {

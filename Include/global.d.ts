@@ -73,7 +73,7 @@ interface IDeviceAssumption {
 //TODO: this need to be done
 interface IDriverInterest {
     bus?;
-    assumption? ;
+    assumptions? ;
     config? ;
     delta?: {
         bus? ;
