@@ -19,6 +19,12 @@ ROUTER首页 磁盘使用率 这那？
 -------------------------------------------
 	Features To Be Done
 
+*. Wireless
+   Repeater mode?
+
+*. Router Base Features
+   Naming, Theming
+
 0. Auto DHCP / DNS 
    Domain Splitting (not done yet?!)
 
@@ -49,6 +55,7 @@ ROUTER首页 磁盘使用率 这那？
 ** http://archlinuxarm.org/forum/viewtopic.php?t=1103
 ** http://wiki.openmoko.org/wiki/Manually_using_Bluetooth
 ** http://wiki.openmoko.org/wiki/A2DP
+** https://wiki.debian.org/BluetoothUser/a2dp
 
 ** DJ App? (if we can do A2DP, or let's do Web Ext (for showing off lights' effect)) !! important
 
@@ -79,6 +86,10 @@ ROUTER首页 磁盘使用率 这那？
 8. Time Utils
 9. Setup Wizard
 10.Offline-Mode
+11.NAT Firewall/Mapper
+12.DNS Tools
+   a) accelerators
+   b) security scanners
  
 
- ------------------------------------------
+-------------------------------------------
