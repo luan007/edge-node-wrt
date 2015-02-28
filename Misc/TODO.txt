@@ -3,3 +3,82 @@
 设置里？
 
 ROUTER首页 磁盘使用率 这那？
+
+
+
+
+-------------------------------------------
+	Tests To Be Runned
+
+1. Test CML usability (esp on simple-object-query)
+	- or change to underscore-query ?
+
+2. Test DriverFramework (complex condition - lots of mock devices, random events)
+
+
+-------------------------------------------
+	Features To Be Done
+
+0. Auto DHCP / DNS 
+   Domain Splitting (not done yet?!)
+
+1. Samba + MiniDLNA + MDNS
+   A) Samba
+   B) MiniDLNA
+   C) MDNS Server
+   D) File API ? (TBD)
+
+2. PPPD
+   A) PPTP
+   B) PPPOE * Important
+
+3. IPP (Printer Driver)
+   A) MDNS Discovery Service (Bus Data Provider)
+   B) IPP
+   C) Printing Helper Application * Feature
+   
+4. Smart Light / Audio?
+   A) Bluetooth Bus (4.0)
+   B) Bluetooth Naming / Generic Property Discovery
+   C) Yeelight's API
+	  -> Other Sensors go here (TBD)
+   D) Light Control Application ? (TBD) / [The Home App]
+
+** Xiami/Douban.fm/Spotify App? (if we can do A2DP)
+** A2DP Memo:http://blog.csdn.net/colorant/article/details/2590654
+** http://archlinuxarm.org/forum/viewtopic.php?t=1103
+** http://wiki.openmoko.org/wiki/Manually_using_Bluetooth
+** http://wiki.openmoko.org/wiki/A2DP
+
+** DJ App? (if we can do A2DP, or let's do Web Ext (for showing off lights' effect)) !! important
+
+5. Web Extension 
+   A) Demo Site / or HiJack
+   B) Web API, __WEB()? (TBD)
+   *  The Light Example
+   *  The Ink Carrage Example
+
+6. File Sender (APP)
+   A) Cached
+   B) Streaming
+
+7. Full UI (Landscape and so on)
+   A) Landscape
+   B) User Detail Page
+	  Device Detail Page
+   C) Settings
+   D) Router FrontPage
+   E) Register / Login Page
+
+
+7+.Search (in chrome)
+
+-------------------------------------------
+
+
+8. Time Utils
+9. Setup Wizard
+10.Offline-Mode
+ 
+
+ ------------------------------------------
