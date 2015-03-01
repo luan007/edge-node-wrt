@@ -94,18 +94,18 @@ import Process = require("./Process");
  entry is split up as %N:%p.
  */
 
-export enum YesOrNo{
-    NO = 0,
-    YES = 1
+export class YesOrNo {
+    static YES:string = "YES";
+    static NO:string = "NO";
 }
 
 //Default: server role = AUTO
-export enum SmbConfServerRole{
+export class SmbConfServerRole{
     /*
      This is the default server role in Samba, and causes Samba to consult the security parameter (if
      set) to determine the server role, giving compatable behaviours to previous Samba versions.
      */
-    AUTO = 0,
+    static AUTO:string  = "AUTO";
     /*
      If security is also not specified, this is the default security setting in Samba. In standalone
      operation, a client must first "log-on" with a valid username and password (which can be mapped
@@ -114,7 +114,7 @@ export enum SmbConfServerRole{
      only if set are then applied and may change the UNIX user to use on this connection, but only after
      the user has been successfully authenticated.
      */
-    STANDALONE = 1,
+    static STANDALONE:string = "STANDALONE";
     /*
      This mode will only work correctly if net(8) has been used to add this machine into a Windows
      Domain. It expects the encrypted passwords parameter to be set to yes. In this mode Samba will try
@@ -124,39 +124,39 @@ export enum SmbConfServerRole{
      Note that a valid UNIX user must still exist as well as the account on the Domain Controller to
      allow Samba to have a valid UNIX account to map file access to. Winbind can provide this.
      */
-    MEMBER_SERVER = 2,
+    static MEMBER_SERVER:string = "MEMBER SERVER";
     /*
      This mode of operation runs a classic Samba primary domain controller, providing domain logon
      services to Windows and Samba clients of an NT4-like domain. Clients must be joined to the domain
      to create a secure, trusted path across the network. There must be only one PDC per NetBIOS scope
      (typcially a broadcast network or clients served by a single WINS server).
      */
-    CLASSIC_PRIMARY_DOMAIN_CONTROLLER = 3,
+    static CLASSIC_PRIMARY_DOMAIN_CONTROLLER:string = "CLASSIC PRIMARY DOMAIN CONTROLLER";
     /*
      This mode of operation runs a classic Samba backup domain controller, providing domain logon
      services to Windows and Samba clients of an NT4-like domain. As a BDC, this allows multiple Samba
      servers to provide redundant logon services to a single NetBIOS scope.
      */
-    NETBIOS_BACKUP_DOMAIN_CONTROLLER = 4,
+    static NETBIOS_BACKUP_DOMAIN_CONTROLLER:string = "NETBIOS BACKUP DOMAIN CONTROLLER";
     /*
      This mode of operation runs Samba as an active directory domain controller, providing domain logon
      services to Windows and Samba clients of the domain. This role requires special configuration, see
      the Samba4 HOWTO
      */
-    ACTIVE_DIRECTORY_DOMAIN_CONTROLLER = 5
+    static ACTIVE_DIRECTORY_DOMAIN_CONTROLLER:string = "ACTIVE DIRECTORY DOMAIN CONTROLLER";
 }
 
 //Default: map tp guest =  NEVER
-export enum SmbConfMap2Guest{
+export class SmbConfMap2Guest{
     /*
      Means user login requests with an invalid password are rejected. This is the default.
      */
-    Never = 0,
+    static Never:string = "Never";
     /*
      Means user logins with an invalid password are rejected, unless the username does
      not exist, in which case it is treated as a guest login and mapped into the guest account.
      */
-    BadUser = 1,
+    static Bad_User:string = "Bad User";
     /*
      Means user logins with an invalid password are treated as a guest login and
      mapped into the guest account. Note that this can cause problems as it means that any user
@@ -165,7 +165,7 @@ export enum SmbConfMap2Guest{
      to them that they got their password wrong. Helpdesk services will hate you if you set the map
      to guest parameter this way :-).
      */
-    BadPassword = 2,
+    static Bad_Password:string = "Bad Password";
     /*
      Is only applicable when Samba is configured in some type of domain mode security
      (security = {domain|ads}) and means that user logins which are successfully authenticated but
@@ -175,119 +175,101 @@ export enum SmbConfMap2Guest{
      library will export the Windows domain users and groups to the underlying OS via the Name
      Service Switch interface.
      */
-    BadUid = 3
+    static Bad_Uid:string = "Bad Uid";
 }
 
-//Default: security = USER
-export enum SmbConfSecurity {
-    /*
-     This is the default security setting in Samba, and causes Samba to consult the server role
-     parameter (if set) to determine the security mode.
-     */
-    AUTO = 0,
-    /*
-     If server role is not specified, this is the default security setting in Samba. With user-level
-     security a client must first "log-on" with a valid username and password (which can be mapped using
-     the username map parameter). Encrypted passwords (see the encrypted passwords parameter) can also
-     be used in this security mode. Parameters such as user and guest only if set are then applied and
-     may change the UNIX user to use on this connection, but only after the user has been successfully
-     authenticated.
-
-     Note that the name of the resource being requested is not sent to the server until after the server
-     has successfully authenticated the client. This is why guest shares don't work in user level
-     security without allowing the server to automatically map unknown users into the guest account. See
-     the map to guest parameter for details on doing this.
-     */
-    USER = 1,
-    /*
-     This mode will only work correctly if net(8) has been used to add this machine into a Windows NT
-     Domain. It expects the encrypted passwords parameter to be set to yes. In this mode Samba will try
-     to validate the username/password by passing it to a Windows NT Primary or Backup Domain
-     Controller, in exactly the same way that a Windows NT Server would do.
-
-     Note that a valid UNIX user must still exist as well as the account on the Domain Controller to
-     allow Samba to have a valid UNIX account to map file access to.
-
-     Note that from the client's point of view security = domain is the same as security = user. It only
-     affects how the server deals with the authentication, it does not in any way affect what the client
-     sees.
-
-     Note that the name of the resource being requested is not sent to the server until after the server
-     has successfully authenticated the client. This is why guest shares don't work in user level
-     security without allowing the server to automatically map unknown users into the guest account. See
-     the map to guest parameter for details on doing this.
-
-     See also the password server parameter and the encrypted passwords parameter.
-
-     Note that the name of the resource being requested is not sent to the server until after the server
-     has successfully authenticated the client. This is why guest shares don't work in user level
-     security without allowing the server to automatically map unknown users into the guest account. See
-     the map to guest parameter for details on doing this.
-
-     See also the password server parameter and the encrypted passwords parameter.
-     */
-    DOMAIN = 2,
-    /*
-     In this mode, Samba will act as a domain member in an ADS realm. To operate in this mode, the
-     machine running Samba will need to have Kerberos installed and configured and Samba will need to be
-     joined to the ADS realm using the net utility.
-
-     Note that this mode does NOT make Samba operate as a Active Directory Domain Controller.
-
-     Read the chapter about Domain Membership in the HOWTO for details.
-     */
-    ADS = 3
-}
-
-//[global]
-export interface SmbConfGlobalSection {
-    Workgroup: string;
-    ServerString: string;
-    GuestAccount: string;
-    DnsProxy: YesOrNo;
-    ServerRole: SmbConfServerRole;
-    MapToGuest: SmbConfMap2Guest;
-    //UsershareAllowGuests: YesOrNo;
-    //UsersharePath?: string;
-    //UsershareMaxShares?: number;
-    //Security?: SmbConfSecurity;
-}
-
-//common section
-export interface SmbConfService {
+// user defined service: folder
+export interface SmbConfFolder {
     Path: string;
     Comment: string;
     GuestOk: YesOrNo;
     Browseable: YesOrNo;
-    Printable?: YesOrNo;
     Writeable?: YesOrNo;
     ReadOnly?: YesOrNo;
     CreateMask?: string;
     DirectoryMask?: string;
 }
+// user defined service: printer
+export interface SmbConfPrinter {
+    Path: string;
+    Comment: string;
+    GuestOk: YesOrNo;
+    Browseable: YesOrNo;
+    Printable: YesOrNo;
+}
 
-export class SmbConfigBase {
-    public GlobalConfSection: SmbConfGlobalSection;
-    public Folders : IDic<SmbConfService>;
-    public Printers : IDic<SmbConfService>;
+// common section: global printers print$ etc.
+export interface SmbConfSection {
+    [key: string]: any;
+}
 
-    constructor(globalConfSection?: SmbConfGlobalSection){
+export class SmbConfig {
+    public Folders:IDic<SmbConfFolder>;
+    public Printers:IDic<SmbConfPrinter>;
+    public CommonSections:IDic<SmbConfSection>;  //global/printers/print$
+
+    constructor(commonSections?:IDic<SmbConfSection>) {
         this.Folders = {};
         this.Printers = {};
-        this.GlobalConfSection = globalConfSection || {
-            Workgroup : "workgroup",
-            ServerString : "%h server (Samba, Ubuntu)",
-            GuestAccount: "nobody",
-            DnsProxy: YesOrNo.NO,
-            ServerRole: SmbConfServerRole.STANDALONE
+        this.CommonSections = commonSections || {
+            "global": {
+                "Workgroup": "workgroup",
+                "Server_String": "%h server (Samba, Ubuntu)",
+                "Guest_Account": "nobody",
+                "Dns_Proxy": YesOrNo.NO,
+                "Server_Role": SmbConfServerRole.STANDALONE,
+                "Map_To_Guest": SmbConfMap2Guest.Bad_User
+            },
+            "printers": {
+                "Comment": "All printers",
+                "Path": "/var/spool/samba",
+                "Create_Mask": "0700",
+                "Printable": YesOrNo.YES,
+                "Browseable": YesOrNo.YES
+            },
+            "print$": {
+                "Comment": "Printer Drivers",
+                "Path": "/var/lib/samba/printers"
+            }
         };
     }
 
-    public ToString(){
-        //TODO: complete toString
+    public ToConf() {
+        var newConf = "";
+        var util = Node.util // require("util"); // Node.util
+
+        for(var topKey in this) {
+            for (var sectionName in this[topKey]) {
+                newConf += util.format("[%s]\n", sectionName);
+                for (var k in this[topKey][sectionName]) {
+                    newConf += util.format("\t%s = %s\n", k.replace(/_/g, ' '), this[topKey][sectionName][k]);
+                }
+            }
+        }
+
+        return newConf;
     }
 }
 
 export class SmbDaemon extends Process {
 
 }
+
+
+// test suits
+//var conf = new SmbConfig();
+//conf.Printers["printer1"] = {
+//    Path: "192.168.1.23",
+//    Comment: "Printer1",
+//    GuestOk: YesOrNo.YES,
+//    Browseable: YesOrNo.YES,
+//    Printable: YesOrNo.YES
+//};
+//conf.Folders["folder1"] = {
+//    Path: "/folder1",
+//    Comment: "folder1",
+//    GuestOk: YesOrNo.YES,
+//    Browseable: YesOrNo.YES,
+//    Writeable: YesOrNo.YES
+//};
+//console.log(conf.ToConf());
