@@ -20,10 +20,15 @@ ROUTER首页 磁盘使用率 这那？
 	Features To Be Done
 
 *. Wireless
-   Repeater mode?
+   -Repeater mode?
+   -ACS & Channel Listing
 
 *. Router Base Features
    Naming, Theming
+
+*. Network Diagnositics (With Event Interface / API)
+
+*. DHCPCD
 
 0. Auto DHCP / DNS 
    Domain Splitting (not done yet?!)
@@ -33,10 +38,12 @@ ROUTER首页 磁盘使用率 这那？
    B) MiniDLNA
    C) MDNS Server
    D) File API ? (TBD)
+	  --> Event (watcher)
 
 2. PPPD
    A) PPTP
    B) PPPOE * Important
+   C) PPPOE/DHCPCD Auto Detection
 
 3. IPP (Printer Driver)
    A) MDNS Discovery Service (Bus Data Provider)
@@ -49,6 +56,7 @@ ROUTER首页 磁盘使用率 这那？
    C) Yeelight's API
 	  -> Other Sensors go here (TBD)
    D) Light Control Application ? (TBD) / [The Home App]
+   *) Bluetooth OBDC/File Reciever + Samba Combination
 
 ** Xiami/Douban.fm/Spotify App? (if we can do A2DP)
 ** A2DP Memo:http://blog.csdn.net/colorant/article/details/2590654
@@ -58,6 +66,8 @@ ROUTER首页 磁盘使用率 这那？
 ** https://wiki.debian.org/BluetoothUser/a2dp
 
 ** DJ App? (if we can do A2DP, or let's do Web Ext (for showing off lights' effect)) !! important
+
+** Airplay Airpint Airdrop, Demo if possible
 
 5. Web Extension 
    A) Demo Site / or HiJack
@@ -76,7 +86,7 @@ ROUTER首页 磁盘使用率 这那？
    C) Settings
    D) Router FrontPage
    E) Register / Login Page
-
+   
 
 7+.Search (in chrome)
 
