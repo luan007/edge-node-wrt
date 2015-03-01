@@ -236,7 +236,7 @@ export class SmbConfig {
 
     public ToConf() {
         var newConf = "";
-        var util = Node.util // require("util"); // Node.util
+        var util = require("util"); // Node.util
 
         for(var topKey in this) {
             for (var sectionName in this[topKey]) {
@@ -251,8 +251,61 @@ export class SmbConfig {
     }
 }
 
-export class SmbDaemon extends Process {
+export class SmbDaemon extends Process{
+    public Config: SmbConfig;
+    public OutputLevel: number;
 
+    private _daemon_name = "smbd";
+    private _path_conf = getSock(UUIDstr());
+
+    constructor(config: SmbConfig, outputLevel:number = 3){
+        super(this._daemon_name);
+
+        this.Config = config;
+        this.OutputLevel = outputLevel;
+    }
+
+    Start(forever: boolean = true) {
+        if (!this.IsChoking()) {
+            if (fs.existsSync(this._path_conf) && fs.unlinkSync(this._path_conf));
+
+            fs.writeFileSync(this._path_conf, this.Config.ToConf());
+
+            if (this.Process) {
+                this.Process.kill("SIGHUP"); //no more rebootz, BITCHES
+                info("OK");
+                super.Start(forever);
+            } else {
+                killall(this._daemon_name, () => {
+                    this.Process = child_process.spawn(this._daemon_name, [
+                        "-F",
+                        "--log-stdout",
+                        "-s=" + this._path_conf,
+                        "-d=" + this.OutputLevel]);
+                    this.Process.stdout.on("data", function (data) {
+                        info(data.toString());
+                    });
+                    info("OK");
+                    super.Start(forever);
+                });
+            }
+        }
+    }
+
+    OnChoke() {
+        super.OnChoke();
+        info("Killing all SMBD processes");
+        this.Process.removeAllListeners();
+        this.Process = undefined;
+        killall(this._daemon_name, () => {
+            info("Done, waiting for recall");
+            setTimeout(() => {
+                this.ClearChoke();
+                this.Start();
+            }, 2000);
+        });
+        return true;
+    }
 }
 
 
@@ -261,14 +314,14 @@ export class SmbDaemon extends Process {
 //conf.Printers["printer1"] = {
 //    Path: "192.168.1.23",
 //    Comment: "Printer1",
-//    GuestOk: YesOrNo.YES,
+//    Guest_Ok: YesOrNo.YES,
 //    Browseable: YesOrNo.YES,
 //    Printable: YesOrNo.YES
 //};
 //conf.Folders["folder1"] = {
 //    Path: "/folder1",
 //    Comment: "folder1",
-//    GuestOk: YesOrNo.YES,
+//    Guest_Ok: YesOrNo.YES,
 //    Browseable: YesOrNo.YES,
 //    Writeable: YesOrNo.YES
 //};
