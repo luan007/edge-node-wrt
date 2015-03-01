@@ -1,12 +1,15 @@
 ﻿
 
-function _forEachFlat(arr, parent, index, layer, job) {
+function _forEachFlat(arr, flag, parent, index, layer, job) {
+    if (flag.stop) return;
     if (!Array.isArray(arr)) {
-        return job(arr, index, parent, layer);
+        if (flag.stop) return;
+        return job(arr, flag, index, parent, layer);
     } else {
         var t = Object.keys(arr);
         for (var i = 0; i < t.length; i++) {
-            _forEachFlat(arr[t[i]], arr, i, layer + 1, job);
+            if (flag.stop) return;
+            _forEachFlat(arr[t[i]], flag, arr, i, layer + 1, job);
         }
     }
 }
@@ -14,5 +17,5 @@ function _forEachFlat(arr, parent, index, layer, job) {
 //turns [[1],[[[[[2], [3], [[1], [2, 3, 4]]]]]] into 1, 2, 3, 1, 2, 3, 4.. good for segmentation
 global.forEachFlat = function(arr, job) {
     //i love recursion
-    _forEachFlat(arr, undefined, undefined, -1, job);
+    _forEachFlat(arr, { stop: false }, undefined, undefined, -1, job);
 }

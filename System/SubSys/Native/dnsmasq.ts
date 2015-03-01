@@ -518,6 +518,25 @@ export class dnsmasq extends Process {
     //[Static, Dynamic]
     public DHCP_Hosts = [{}, {}];
 
+    public CheckNameAvailability = (name, cb, caseSensitive = false) => {
+        name = (name + "").trim();
+        if (!caseSensitive) {
+            name = name.toLowerCase();
+        }
+        forEachFlat(this.Hosts,(hosts, flag) => {
+            if (!hosts) return;
+            for (var i in hosts) {
+                if (!caseSensitive) {
+                    i = i.toLowerCase();
+                }
+                if (i == name) {
+                    flag.stop = true;
+                    return cb(false);
+                }
+            }
+        });
+        return cb(true);
+    };
 
     constructor() {
         super("DNSMASQ");
@@ -540,9 +559,12 @@ export class dnsmasq extends Process {
             ,() => {
                 var _hosts = "";
                 forEachFlat(this.Hosts,(host) => {
-                    if (!has(this.Hosts, host)) return;
-                    _hosts += this.Hosts[host] + " " + host;
-                    _hosts += "\r\n";
+                    if (!host) return;
+                    for (var t in host) {
+                        if (!has(host, t)) return;
+                        _hosts += t + " " + host[t];
+                        _hosts += "\r\n";
+                    }
                 });
                 var _dns = "";
                 if (this.DNSRules) {
@@ -570,6 +592,7 @@ export class dnsmasq extends Process {
                 var _dhcp_hosts = "";
                 if (this.DHCP_Hosts) {
                     forEachFlat(this.DHCP_Hosts,(hosts) => {
+                        if (!hosts) return;
                         for (var t in hosts) {
                             if (!hosts.hasOwnProperty(t)) {
                                 continue;

@@ -336,6 +336,8 @@ export function DriverInvoke(drv: IDriver, dev: IDevice, actionId, params, cb) {
 export function Initialize(callback: Callback) {
     trace("Init..");
     async.series([
-        LoadDriver.bind(null, new (require("./Driver/OUI"))())
+        LoadDriver.bind(null, require("./Driver/TestDriver")),
+        LoadDriver.bind(null, require("./Driver/OUI")),
+        LoadDriver.bind(null, require("./Driver/NameService"))
     ], callback);
 }

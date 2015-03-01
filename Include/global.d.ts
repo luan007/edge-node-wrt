@@ -51,11 +51,16 @@ interface IBusData {
     total_uptime?: number;
 }
 
+interface IDeviceConfig extends IDic<any> {
+    name?: string;
+    alias?: any[]| IDic<string>;
+}
+
 interface IDevice {
     assumptions: IDic<IDeviceAssumption>;
     id: string;
     bus: IBusData;
-    config: any;
+    config: IDeviceConfig;
     state: number;
     time: Date;
 }
@@ -84,6 +89,12 @@ interface IDriverInterest {
     all?: boolean;
 }
 
+interface IDriverDetla {
+    assumption: IDeviceAssumption;
+    bus: IBusData;
+    config: KVSet;
+}
+
 interface IDriver {
     id();
     name();
@@ -91,30 +102,14 @@ interface IDriver {
     bus(): string[];
     interest(): IDriverInterest;
 
-    match(dev: IDevice, delta: {
-        assumption: IDeviceAssumption;
-        bus: IBusData;
-        config: KVSet;
-    }, cb: Callback);
+    match(dev: IDevice, delta: IDriverDetla , cb: Callback);
 
-    attach(dev: IDevice, delta: {
-        assumption: IDeviceAssumption;
-        bus: IBusData;
-        config: KVSet;
-    }, matchResult: any, cb: PCallback<IDeviceAssumption>);
+    attach(dev: IDevice, delta: IDriverDetla, matchResult: any, cb: PCallback<IDeviceAssumption>);
 
     //TODO: Evaluate if we need "prev" state
-    change(dev: IDevice, delta: {
-        assumption: IDeviceAssumption;
-        bus: IBusData;
-        config: KVSet;
-    }, cb: PCallback<IDeviceAssumption>);
+    change(dev: IDevice, delta: IDriverDetla, cb: PCallback<IDeviceAssumption>);
 
-    detach(dev: IDevice, delta: {
-        assumption: IDeviceAssumption;
-        bus: IBusData;
-        config: KVSet;
-    }, cb: PCallback<IDeviceAssumption>);
+    detach(dev: IDevice, delta: IDriverDetla, cb: PCallback<IDeviceAssumption>);
 
     load(cb: Callback);
     unload(cb: Callback);

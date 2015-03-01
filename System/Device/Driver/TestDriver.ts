@@ -68,4 +68,5 @@ class TestDriver implements IDriver {
 
 }
 
-export = TestDriver;
+var instance = new TestDriver();
+export = instance;
