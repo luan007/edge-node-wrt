@@ -79,3 +79,7 @@ http.createServer(function(request, response) {
 .listen(80);
 
 
+
+
+If npm install failed under windows (with recent VS(2013))
+try npm install --msvs_version=2013

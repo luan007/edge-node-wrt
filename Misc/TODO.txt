@@ -36,7 +36,7 @@ ROUTER首页 磁盘使用率 这那？
 1. Samba + MiniDLNA + MDNS
    A) Samba			------------------------------------------ ( Partly Finished, NEED TEST )
    B) MiniDLNA
-   C) MDNS Server
+   C) MDNS Server   ------------------------------------------ ( Half Done, Half Tested)
    D) File API ? (TBD)
 	  --> Event (watcher)
 

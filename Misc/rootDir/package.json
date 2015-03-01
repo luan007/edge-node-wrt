@@ -41,6 +41,7 @@
     "morgan": "~1.5.1",
     "body-parser": "*",
     "simple-object-query": "*",
-    "underscore-query": "*"
+    "underscore-query": "*",
+    "mdns":  "*"
   }
 }

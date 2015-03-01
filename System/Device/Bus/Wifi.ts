@@ -29,13 +29,48 @@ class Wifi extends Bus {
                 }
             });
         });
+
+        var currentIp = Core.Router.Network.dnsmasq.Leases.LeaseDB[mac];
         Core.Router.Network.dnsmasq.Leases.Watch(mac,(lease) => {
+
+            if (currentIp) {
+                Core.SubSys.Native.mdns.Browser.Unwatch(currentIp);
+            }
+            currentIp = Core.Router.Network.dnsmasq.Leases.LeaseDB[mac];
+
+
             this._on_device({
                 hwaddr: mac,
                 data: {
                     Lease: lease
                 }
             });
+
+            if (currentIp) {
+                Core.SubSys.Native.mdns.Browser.Watch(currentIp,
+                    (service, mine) => {
+                        //add
+                        //TODO: change into mdns: { dead , alive }
+                        //      so that we can use driver interest to filter down mdns queries
+                        this._on_device({
+                            hwaddr: mac,
+                            data: {
+                                MDNS: mine
+                            }
+                        });
+
+                    },(service, mine) => {
+                        //del
+
+                        this._on_device({
+                            hwaddr: mac,
+                            data: {
+                                MDNS: mine
+                            }
+                        });
+
+                    });
+            }
         });
         Core.SubSys.Native.iw.Watch(mac,(d) => { //TODO: Test, impact on performance & usability
             this._on_device({
@@ -77,7 +112,9 @@ class Wifi extends Bus {
                 Band: band,
                 Addr: Core.SubSys.Native.ip.Neigh.Get(mac),
                 Lease: Core.Router.Network.dnsmasq.Leases.LeaseDB[mac],
-                Wireless: Core.SubSys.Native.iw.Devices[mac]
+                Wireless: Core.SubSys.Native.iw.Devices[mac],
+                Traffic: undefined,
+                MDNS: {}
             }//OUI: OUI,
         });
         //});
@@ -92,6 +129,10 @@ class Wifi extends Bus {
         Core.SubSys.Native.ip.Neigh.Unwatch(mac);
         Core.Router.Network.dnsmasq.Leases.Unwatch(mac);
         Core.SubSys.Network.Traffic.RemoveHandler(mac);
+        var ip = Core.Router.Network.dnsmasq.Leases.LeaseDB[mac];;
+        if (ip) {
+            Core.SubSys.Native.mdns.Browser.Unwatch(ip);
+        }
         //UARecon.UnwatchUA(mac);
         this._mac_list[band][mac] = undefined;
     };

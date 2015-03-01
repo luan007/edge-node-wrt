@@ -7,3 +7,4 @@ export import iw = require("./iw");
 export import ip = require("./iproute2");
 export import ipset = require("./ipset");
 export import iptables = require("./iptables");
+export import mdns = require("./mdns");

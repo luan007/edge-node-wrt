@@ -12,3 +12,125 @@ ad2.start();
 */
 
 //TODO: Add MDNS Support (for samba & finder)
+
+
+//Le List
+//http://www.iana.org/form/ports-services
+//Javascript alert
+var mdns = require('mdns');
+import events = require("events");
+
+class _mdns_Browser extends events.EventEmitter {
+    
+    private browser;
+
+    //ServiceType : Browser
+    private manual = {};
+
+    // { Address : { Service : { unique: {/actual/} } } }
+    public Alive = {};
+
+    private watch_addr = {};
+
+    public GetServices(address) {
+        return this.watch_addr[address];
+    }
+
+    public Watch(address, event_add: (service, my_services?) => any, event_lost: (service, my_services?) => any) {
+        this.watch_addr[address] = [event_add, event_lost];
+    }
+
+    public Unwatch(address) {
+        delete this.watch_addr[address];
+    }
+
+    private eventProxy = (event, service) => {
+        var s = JSON.stringify(service);
+        var typeString = mdns.makeServiceType(service.type).toString();
+        var addrs = service.addresses;
+        if (!Array.isArray(addrs)) return;
+        for (var i = 0; i < addrs.length; i++) {
+            var addr = addrs[i];
+            if (event == 1) { //up
+                if (!this.Alive[addr]) {
+                    this.Alive[addr] = {};
+                }
+                if (!this.Alive[addr][typeString]) {
+                    this.Alive[addr][typeString] = {};
+                }
+                this.Alive[addr][typeString][s] = service;
+
+                if (this.watch_addr[addr]) {
+                    this.watch_addr[addr][0](service, this.Alive[addr]);
+                }
+            }
+            else if (event == 0) {
+                if (this.Alive[addr] && this.Alive[addr][typeString]) {
+                    delete this.Alive[addr][typeString][s];
+                    if (Object.keys(this.Alive[addr][typeString]).length == 0) {
+                        delete this.Alive[addr][typeString];
+                        if (Object.keys(this.Alive[addr]).length == 0) {
+                            delete this.Alive[addr];
+                        }
+                    }
+                }
+                if (this.watch_addr[addr]) {
+                    this.watch_addr[addr][1](service, this.Alive[addr]);
+                }
+            }
+        }
+        if (event == 1) {
+            this.emit("serviceUp", service);
+        }
+        else if (event == 0) {
+            this.emit("serviceDown", service);
+        }
+    };
+
+    private browseService = (service) => {
+        var t = service.type;
+        if (!t) return;
+        var string_ = mdns.makeServiceType(t).toString();
+        this.manual[string_] = mdns.createBrowser(t);
+        this.manual[string_].on("serviceUp", this.eventProxy.bind(null, 1));
+        this.manual[string_].on("serviceDown", this.eventProxy.bind(null, 0));
+        this.manual[string_].start();
+        return this.manual[string_];
+    };
+
+    private dropService = (service) => {
+        var t = service.type;
+        if (!t) return;
+        var string_ = mdns.makeServiceType(t).toString();
+        if (this.manual[string_]) {
+            this.manual[string_].stop();
+            delete this.manual[string_];
+        }
+    };
+
+    constructor() {
+        super();
+        //hook all sorts of events
+        //because:
+        //
+        //https://github.com/agnat/node_mdns/issues/91
+        this.browser = mdns.browseThemAll();
+        this.browser.on("serviceUp",(service) => {
+            this.browseService(service);
+        });
+        this.browser.on("serviceDown",(service) => {
+            this.dropService(service);
+        });
+    }
+
+    public Start = () => {
+        this.browser.start();
+    };
+
+    public Stop = () => {
+        this.browser.stop();
+    };
+
+}
+
+export var Browser = new _mdns_Browser();

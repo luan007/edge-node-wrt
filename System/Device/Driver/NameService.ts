@@ -12,7 +12,6 @@ class NameService implements IDriver {
     private _key = UUIDstr();
 
     constructor() {
-        NameService.Instance = this;
     }
 
     _interest = {
