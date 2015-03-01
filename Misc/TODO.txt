@@ -58,12 +58,16 @@ ROUTER首页 磁盘使用率 这那？
    D) Light Control Application ? (TBD) / [The Home App]
    *) Bluetooth OBDC/File Reciever + Samba Combination
 
+4.1 AUDIO 
+	http://alsa.opensrc.org/Asoundrc
+
 ** Xiami/Douban.fm/Spotify App? (if we can do A2DP)
 ** A2DP Memo:http://blog.csdn.net/colorant/article/details/2590654
 ** http://archlinuxarm.org/forum/viewtopic.php?t=1103
 ** http://wiki.openmoko.org/wiki/Manually_using_Bluetooth
 ** http://wiki.openmoko.org/wiki/A2DP
 ** https://wiki.debian.org/BluetoothUser/a2dp
+**!http://www.raspberrypi.org/forums/viewtopic.php?t=68779
 
 ** DJ App? (if we can do A2DP, or let's do Web Ext (for showing off lights' effect)) !! important
 

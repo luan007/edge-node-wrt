@@ -1,7 +1,6 @@
 ﻿import Node = require("Node");
 import Core = require("Core");
 
-
 //Resolve Device Name into DNS domains
 //Also generates generic "name" if there's nothing set
 //
@@ -9,15 +8,11 @@ class NameService implements IDriver {
 
     _interest = {
         config: {
-            name: {
-                $exists: true
-            }
+            name: { $exists: true }
         },
         bus: {
             data: {
-                Lease: {
-                    $exists: true
-                }
+                Lease: { $exists: true }
             }
         }
     };
