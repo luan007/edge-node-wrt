@@ -34,7 +34,7 @@ ROUTER首页 磁盘使用率 这那？
    Domain Splitting (not done yet?!)
 
 1. Samba + MiniDLNA + MDNS
-   A) Samba
+   A) Samba			------------------------------------------ ( Partly Finished, NEED TEST )
    B) MiniDLNA
    C) MDNS Server
    D) File API ? (TBD)
