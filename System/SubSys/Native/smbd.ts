@@ -1,5 +1,7 @@
 ﻿import Core = require("Core");
 import Node = require("Node");
+import fs = require("fs");
+import child_process = require("child_process");
 import Process = require("./Process");
 
 // man smb.conf
@@ -252,14 +254,15 @@ export class SmbConfig {
 }
 
 export class SmbDaemon extends Process{
+    static DAEMON_NAME = "smbd";
+
     public Config: SmbConfig;
     public OutputLevel: number;
 
-    private _daemon_name = "smbd";
     private _path_conf = getSock(UUIDstr());
 
     constructor(config: SmbConfig, outputLevel:number = 3){
-        super(this._daemon_name);
+        super(SmbDaemon.DAEMON_NAME);
 
         this.Config = config;
         this.OutputLevel = outputLevel;
@@ -276,8 +279,8 @@ export class SmbDaemon extends Process{
                 info("OK");
                 super.Start(forever);
             } else {
-                killall(this._daemon_name, () => {
-                    this.Process = child_process.spawn(this._daemon_name, [
+                killall(SmbDaemon.DAEMON_NAME, () => {
+                    this.Process = child_process.spawn(SmbDaemon.DAEMON_NAME, [
                         "-F",
                         "--log-stdout",
                         "-s=" + this._path_conf,
@@ -301,7 +304,7 @@ export class SmbDaemon extends Process{
         info("Killing all SMBD processes");
         this.Process.removeAllListeners();
         this.Process = undefined;
-        killall(this._daemon_name, () => {
+        killall(SmbDaemon.DAEMON_NAME, () => {
             info("Done, waiting for recall");
             setTimeout(() => {
                 this.ClearChoke();
