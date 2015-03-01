@@ -190,6 +190,7 @@ export interface SmbConfFolder {
     ReadOnly?: YesOrNo;
     CreateMask?: string;
     DirectoryMask?: string;
+    Guest_Account?: string;
 }
 // user defined service: printer
 export interface SmbConfPrinter {
@@ -198,6 +199,7 @@ export interface SmbConfPrinter {
     GuestOk: YesOrNo;
     Browseable: YesOrNo;
     Printable: YesOrNo;
+    Guest_Account?: string;
 }
 
 // common section: global printers print$ etc.
