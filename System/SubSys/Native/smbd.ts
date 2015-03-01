@@ -292,6 +292,10 @@ export class SmbDaemon extends Process{
         }
     }
 
+    Apply = (forever: boolean = true) => { //as helper method
+        this.Start(forever);
+    };
+
     OnChoke() {
         super.OnChoke();
         info("Killing all SMBD processes");
