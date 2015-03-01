@@ -217,9 +217,11 @@ export class SmbConfig {
         this.Printers = {};
         this.CommonSections = commonSections || {
             "global": {
+                "available": YesOrNo.YES,
                 "Workgroup": "workgroup",
                 "Server_String": "%h server (Samba, Ubuntu)",
                 "Guest_Account": "nobody",
+                "Netbios_Name": "edge",
                 "Dns_Proxy": YesOrNo.NO,
                 "Server_Role": SmbConfServerRole.STANDALONE,
                 "Map_To_Guest": SmbConfMap2Guest.Bad_User

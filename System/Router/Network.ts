@@ -291,6 +291,11 @@ class Configuration extends Abstract.Configurable {
                 Core.Router.Phy.Wifi.WLAN_5G7.Start(true);
                 jobs.push(Core.Router.Phy.Wifi.WLAN_5G7.StabilityCheck);
             }
+            if (Core.Router.Storage.SambaInstance && Core.Router.Storage.Config.Get().Samba && Core.Router.Storage.Config.Get().Samba.UseRouterName) {
+                Core.Router.Storage.SambaInstance.Config.CommonSections["global"]["Netbios_Name"] = mod.NetworkName.NetworkName; //TODO: NetworkName should be changed into Self
+                Core.Router.Storage.SambaInstance.Start(true);
+                jobs.push(Core.Router.Storage.SambaInstance.StabilityCheck);
+            }
         }
         if (has(mod, "RouterIP")) {
             dhcp_reboot = true;

@@ -1,5 +1,8 @@
 ﻿import Core = require("Core");
 import Node = require("Node");
+import smbd = Core.SubSys.Native.smbd;
+
+export var Samba = new smbd.SmbDaemon(new smbd.SmbConfig());
 
 export function Initialize(cb) {
     //Check if the folder exists..
@@ -17,3 +20,7 @@ export function Initialize(cb) {
     ], cb);
 }
 
+
+//TODO: Implement Watcher Here
+
+//TODO: Create mock directory structure for each user and so on...

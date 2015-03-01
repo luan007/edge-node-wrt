@@ -2,5 +2,6 @@
     async.series([
         require("./Network").Initialize,
         require("./Phy/_Module").Initialize,
+        require("./Storage").Initialize
     ], cb);
 }

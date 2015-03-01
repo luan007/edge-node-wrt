@@ -14,6 +14,7 @@ export var RootKeys = {
     Edge: "EDG",
     Network: "NET",
     Device: "DEV",
+    FileSystem: "EFS",
     User: "USR"
 };
 
