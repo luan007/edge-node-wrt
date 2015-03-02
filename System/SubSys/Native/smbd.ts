@@ -184,7 +184,7 @@ export class SmbConfMap2Guest {
 export interface SmbConfFolder {
     Path: string;
     Comment: string;
-    GuestOk: YesOrNo;
+    Guest_Ok: YesOrNo;
     Browseable: YesOrNo;
     Writeable?: YesOrNo;
     ReadOnly?: YesOrNo;
@@ -196,7 +196,7 @@ export interface SmbConfFolder {
 export interface SmbConfPrinter {
     Path: string;
     Comment: string;
-    GuestOk: YesOrNo;
+    Guest_Ok: YesOrNo;
     Browseable: YesOrNo;
     Printable: YesOrNo;
     Guest_Account?: string;
@@ -221,7 +221,7 @@ export class SmbConfig {
                 "Workgroup": "workgroup",
                 "Server_String": "%h server (Samba, Ubuntu)",
                 "Guest_Account": "nobody",
-                "Netbios_Name": "edge",
+                "Netbios_Name": "edge dev",
                 "Dns_Proxy": YesOrNo.NO,
                 "Server_Role": SmbConfServerRole.STANDALONE,
                 "Map_To_Guest": SmbConfMap2Guest.Bad_User
@@ -240,15 +240,25 @@ export class SmbConfig {
         };
     }
 
+    private Normalize(){
+        var conf = require("underscore").clone(this);
+        if(conf.CommonSections["global"]["Netbios_Name"]){
+            conf.CommonSections["global"]["Netbios_Name"] = conf.CommonSections["global"]["Netbios_Name"].replace(/ /gi, "_");
+        }
+        return conf;
+    }
+
     public ToConf() {
         var newConf = "";
         var util = require("util"); // Node.util
 
+        var conf = this.Normalize();
+
         for (var topKey in this) {
-            for (var sectionName in this[topKey]) {
+            for (var sectionName in conf[topKey]) {
                 newConf += util.format("[%s]\n", sectionName);
-                for (var k in this[topKey][sectionName]) {
-                    newConf += util.format("\t%s = %s\n", k.replace(/_/g, ' '), this[topKey][sectionName][k]);
+                for (var k in conf[topKey][sectionName]) {
+                    newConf += util.format("\t%s = %s\n", k.replace(/_/g, ' '), conf[topKey][sectionName][k]);
                 }
             }
         }
@@ -338,21 +348,20 @@ export class SmbDaemon extends Process {
     }
 }
 
-
-// test suits
-//var conf = new SmbConfig();
-//conf.Printers["printer1"] = {
-//    Path: "192.168.1.23",
-//    Comment: "Printer1",
-//    Guest_Ok: YesOrNo.YES,
-//    Browseable: YesOrNo.YES,
-//    Printable: YesOrNo.YES
-//};
-//conf.Folders["folder1"] = {
-//    Path: "/folder1",
-//    Comment: "folder1",
-//    Guest_Ok: YesOrNo.YES,
-//    Browseable: YesOrNo.YES,
-//    Writeable: YesOrNo.YES
-//};
-//console.log(conf.ToConf());
+//test suits
+var conf = new SmbConfig();
+conf.Printers["printer1"] = {
+    Path: "192.168.1.23",
+    Comment: "Printer1",
+    Guest_Ok: YesOrNo.YES,
+    Browseable: YesOrNo.YES,
+    Printable: YesOrNo.YES
+};
+conf.Folders["folder1"] = {
+    Path: "/folder1",
+    Comment: "folder1",
+    Guest_Ok: YesOrNo.YES,
+    Browseable: YesOrNo.YES,
+    Writeable: YesOrNo.YES
+};
+console.log(conf.ToConf());
