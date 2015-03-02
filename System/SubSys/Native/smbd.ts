@@ -349,19 +349,19 @@ export class SmbDaemon extends Process {
 }
 
 //test suits
-var conf = new SmbConfig();
-conf.Printers["printer1"] = {
-    Path: "192.168.1.23",
-    Comment: "Printer1",
-    Guest_Ok: YesOrNo.YES,
-    Browseable: YesOrNo.YES,
-    Printable: YesOrNo.YES
-};
-conf.Folders["folder1"] = {
-    Path: "/folder1",
-    Comment: "folder1",
-    Guest_Ok: YesOrNo.YES,
-    Browseable: YesOrNo.YES,
-    Writeable: YesOrNo.YES
-};
-console.log(conf.ToConf());
+//var conf = new SmbConfig();
+//conf.Printers["printer1"] = {
+//    Path: "192.168.1.23",
+//    Comment: "Printer1",
+//    Guest_Ok: YesOrNo.YES,
+//    Browseable: YesOrNo.YES,
+//    Printable: YesOrNo.YES
+//};
+//conf.Folders["folder1"] = {
+//    Path: "/folder1",
+//    Comment: "folder1",
+//    Guest_Ok: YesOrNo.YES,
+//    Browseable: YesOrNo.YES,
+//    Writeable: YesOrNo.YES
+//};
+//console.log(conf.ToConf());
