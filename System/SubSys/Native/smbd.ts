@@ -102,12 +102,12 @@ export class YesOrNo {
 }
 
 //Default: server role = AUTO
-export class SmbConfServerRole{
+export class SmbConfServerRole {
     /*
      This is the default server role in Samba, and causes Samba to consult the security parameter (if
      set) to determine the server role, giving compatable behaviours to previous Samba versions.
      */
-    static AUTO:string  = "AUTO";
+    static AUTO:string = "AUTO";
     /*
      If security is also not specified, this is the default security setting in Samba. In standalone
      operation, a client must first "log-on" with a valid username and password (which can be mapped
@@ -149,7 +149,7 @@ export class SmbConfServerRole{
 }
 
 //Default: map tp guest =  NEVER
-export class SmbConfMap2Guest{
+export class SmbConfMap2Guest {
     /*
      Means user login requests with an invalid password are rejected. This is the default.
      */
@@ -244,7 +244,7 @@ export class SmbConfig {
         var newConf = "";
         var util = require("util"); // Node.util
 
-        for(var topKey in this) {
+        for (var topKey in this) {
             for (var sectionName in this[topKey]) {
                 newConf += util.format("[%s]\n", sectionName);
                 for (var k in this[topKey][sectionName]) {
@@ -257,22 +257,23 @@ export class SmbConfig {
     }
 }
 
-export class SmbDaemon extends Process{
-    static DAEMON_NAME = "smbd";
+export class SmbDaemon extends Process {
+    static SMBD_NAME = "smbd";
+    static NMDB_NAME = "nmbd";
 
-    public Config: SmbConfig;
-    public OutputLevel: number;
+    public Config:SmbConfig;
+    public OutputLevel:number;
 
     private _path_conf = getSock(UUIDstr());
 
-    constructor(config: SmbConfig, outputLevel:number = 3){
-        super(SmbDaemon.DAEMON_NAME);
+    constructor(config:SmbConfig, outputLevel:number = 3) {
+        super(SmbDaemon.SMBD_NAME);
 
         this.Config = config;
         this.OutputLevel = outputLevel;
     }
 
-    Start(forever: boolean = true) {
+    Start(forever:boolean = true) {
         if (!this.IsChoking()) {
             if (fs.existsSync(this._path_conf) && fs.unlinkSync(this._path_conf));
 
@@ -281,10 +282,11 @@ export class SmbDaemon extends Process{
             if (this.Process) {
                 this.Process.kill("SIGHUP"); //no more rebootz, BITCHES
                 info("OK");
+                this.RestartNMDB();
                 super.Start(forever);
             } else {
-                killall(SmbDaemon.DAEMON_NAME, () => {
-                    this.Process = child_process.spawn(SmbDaemon.DAEMON_NAME, [
+                killall(SmbDaemon.SMBD_NAME, () => {
+                    this.Process = child_process.spawn(SmbDaemon.SMBD_NAME, [
                         "-F",
                         "--log-stdout",
                         "-s=" + this._path_conf,
@@ -293,27 +295,44 @@ export class SmbDaemon extends Process{
                         info(data.toString());
                     });
                     info("OK");
+                    this.RestartNMDB();
                     super.Start(forever);
                 });
             }
         }
     }
 
-    Apply = (forever: boolean = true) => { //as helper method
+    Stop(restart: boolean = false) {
+        this.KillNMDB(super.Stop.bind(null, restart));
+    }
+
+    Apply = (forever:boolean = true) => { //as helper method
         this.Start(forever);
     };
+
+    RestartNMDB() {
+        this.KillNMDB(() => {
+            exec(SmbDaemon.NMDB_NAME);
+        });
+    }
+
+    KillNMDB(cb){
+        killall(SmbDaemon.NMDB_NAME, cb);
+    }
 
     OnChoke() {
         super.OnChoke();
         info("Killing all SMBD processes");
         this.Process.removeAllListeners();
         this.Process = undefined;
-        killall(SmbDaemon.DAEMON_NAME, () => {
-            info("Done, waiting for recall");
-            setTimeout(() => {
-                this.ClearChoke();
-                this.Start();
-            }, 2000);
+        killall(SmbDaemon.SMBD_NAME, () => {
+            this.KillNMDB(() => {
+                info("Done, waiting for recall");
+                setTimeout(() => {
+                    this.ClearChoke();
+                    this.Start();
+                }, 2000);
+            });
         });
         return true;
     }
