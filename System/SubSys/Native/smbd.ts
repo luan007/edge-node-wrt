@@ -312,7 +312,7 @@ export class SmbDaemon extends Process {
 
     RestartNMDB() {
         this.KillNMDB(() => {
-            exec(SmbDaemon.NMDB_NAME);
+            exec(SmbDaemon.NMDB_NAME, "-s=" + this._path_conf);
         });
     }
 
