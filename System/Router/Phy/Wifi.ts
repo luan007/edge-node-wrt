@@ -27,10 +27,9 @@ export function Initialize(cb) {
     async.series([
         Native.iptables.Iptables.NAT.PREROUTING.Add.bind(null, Rules.NAT_2G4),
         Native.iptables.Iptables.NAT.PREROUTING.Add.bind(null, Rules.NAT_5G7),
+        Config.Initialize
     ], cb);
 }
-
-export var Config = new Configuration();
 
 class Configuration extends Abstract.Configurable {
     //TODO: Optimize 5G7's Config (VF* Configs - Hostapd 80211AC)
@@ -208,6 +207,8 @@ class Configuration extends Abstract.Configurable {
     };
 
 }
+
+export var Config = new Configuration();
 
 __API(Config.Get, "Network.Wifi.Config.Get", [Permission.Network, Permission.Configuration]);
 __API(Config.Apply, "Network.Wifi.Config.Apply", [Permission.Network, Permission.Configuration]);

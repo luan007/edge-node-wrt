@@ -27,6 +27,7 @@ function _load_module(index: number, modules: string[], callback: Function) {
         _m.Load(args, (e) => {
             if (e) {
                 console.log("[SYS_LOADER -> *Error]   " + e.message);
+                throw e;
             }
             _load_module(index + 1, modules, callback);
         });
@@ -34,6 +35,7 @@ function _load_module(index: number, modules: string[], callback: Function) {
     catch (e)
     {
         console.log("[SYS_LOADER -> *Error]   " + e.message);
+        console.log(e);
         return callback(e);
     }
 

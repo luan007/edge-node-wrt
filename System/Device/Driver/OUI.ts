@@ -72,5 +72,4 @@ class OUI_Identifier implements IDriver {
 
 }
 
-var instance = new OUI_Identifier();
-export = instance;
+export var Instance = new OUI_Identifier();

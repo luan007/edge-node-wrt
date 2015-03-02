@@ -263,7 +263,7 @@ class addr extends events.EventEmitter {
             }
             callback(err, result);
             this.Debug_Output();
-            this.emit(this.EVENT_LOADEND);
+            this.emit(this.EVENT_LOADEND, this.Interfaces);
         });
     };
 
@@ -329,7 +329,7 @@ class neigh extends events.EventEmitter {
                 }
             }
             callback(err, result);
-            this.emit(this.EVENT_LOADEND);
+            this.emit(this.EVENT_LOADEND, this.MacList);
         });
     };
 
@@ -679,7 +679,7 @@ class link extends events.EventEmitter {
             }
             callback(err, result);
             this.Debug_Output();
-            this.emit(this.EVENT_LOADEND);
+            this.emit(this.EVENT_LOADEND, this.Interfaces);
         });
     };
 

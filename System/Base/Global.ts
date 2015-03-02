@@ -5,7 +5,7 @@ class _sys_conf {
     INTERACTIVE_DEBUG = true; 
     RPC_FUNC_LOG = true; 
     SKIP_QUOTA_CHECK = false; // = true if your boot is too slow, however Runtime.ts will be unstable
-    CMD_DEBUG = false; // turn this on if you want to see iptables, chmod, chroot and such being printed
+    CMD_DEBUG = true; // turn this on if you want to see iptables, chmod, chroot and such being printed
     ROOT_LEVEL_SECURITY = false; // = true will lead to a recursive chmod 0005 on '/', be warned - NOT TESTED
     CODE_WRITE_LOCK = false; // = true for production (MUST)
     ENABLE_FULL_LOG = true; // main switch for trace/info .. methods
@@ -14,7 +14,7 @@ class _sys_conf {
     ARP_TIMEOUT = 100000; //ARP Cache timeout, ARP-Rescan can be slow (worst case = ping)
     BASE_PATH = path.join(__dirname, "../"); 
     SHADOW_BASE_PATH = "/SagittariusA/"
-    SHADOW_DATA_PATH = path.join(this.SHADOW_BASE_PATH, "/Data/");
+    SHADOW_DATA_PATH = path.join(this.SHADOW_BASE_PATH, "Data");
     DEV_STORAGE = "/dev/sda1"; // system partition, as for onboard-emmc configuration: /dev/mmcblk0p1
     BASE_DATA_PATH = "/Data/";
     USER_DATA_PATH = path.join(this.BASE_DATA_PATH, "User/");
@@ -42,6 +42,7 @@ class _sys_conf {
     DRV_MATCH_TIMEOUT = 1500;
     SENDER_TYPE_APP = "App";
     SENDER_TYPE_PROXY = "Proxy";
+    BASE_FIREWALL = false;
     RELOAD_DEFAULT_CONFIG = true; //Turn this on to restore sys's default config (as for Configurable.ts and its children)
     CORE_PARTS = {
         LAUNCHER: "Launcher"

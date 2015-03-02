@@ -7,7 +7,6 @@ import Dnsmasq = Native.dnsmasq;
 
 export var dnsmasq = new Dnsmasq.dnsmasq();
 
-export var Config = new Configuration();
 /*
     Filter-in ----> [system-in-filter] -----> [custom-in-filter] -----> 
  */
@@ -18,11 +17,14 @@ export var Chains =  {
             Input: new Iptables.Chain('in_sys', Iptables.Iptables.Filter),
             Forward: new Iptables.Chain('fw_sys', Iptables.Iptables.Filter),
             Output: new Iptables.Chain('ot_sys', Iptables.Iptables.Filter),
-            TrafficAccounting: new Iptables.Chain("fw_traffic", Iptables.Iptables.Filter)
         },
         NAT: {
             Prerouting: new Iptables.Chain('pre_sys', Iptables.Iptables.NAT),
             Postrouting: new Iptables.Chain('post_sys', Iptables.Iptables.NAT)
+        }, 
+        Mangle: {
+            TrafficPre: new Iptables.Chain("pre_traffic", Iptables.Iptables.Mangle),
+            TrafficPost: new Iptables.Chain("post_traffic", Iptables.Iptables.Mangle)
         }
     },
     Custom: {
@@ -42,34 +44,38 @@ export var Rules =  {
 
 function InitNetwork(cb) {
 
-    var s_account = new Iptables.Rule();
-    s_account.Target = Iptables.Target_Type.CHAIN;
-    s_account.TargetOptions = <Iptables.IChainOption>{ Chain: Chains.System.Filter.TrafficAccounting.Name };
+    var s_account_i = new Iptables.Rule();
+    s_account_i.Target = Iptables.Target_Type.CHAIN;
+    s_account_i.TargetOptions = <Iptables.IChainOption>{ Chain: Chains.System.Mangle.TrafficPre.Name };
+
+    var s_account_o = new Iptables.Rule();
+    s_account_o.Target = Iptables.Target_Type.CHAIN;
+    s_account_o.TargetOptions = <Iptables.IChainOption>{ Chain: Chains.System.Mangle.TrafficPost.Name };
 
     var s_filter_in = new Iptables.Rule();
     s_filter_in.Target = Iptables.Target_Type.CHAIN;
     s_filter_in.TargetOptions = <Iptables.IChainOption>{ Chain: Chains.System.Filter.Input.Name };
 
     var s_filter_fw = new Iptables.Rule();
-    s_filter_in.Target = Iptables.Target_Type.CHAIN;
-    s_filter_in.TargetOptions = <Iptables.IChainOption>{ Chain: Chains.System.Filter.Forward.Name };
+    s_filter_fw.Target = Iptables.Target_Type.CHAIN;
+    s_filter_fw.TargetOptions = <Iptables.IChainOption>{ Chain: Chains.System.Filter.Forward.Name };
 
     var s_filter_ot = new Iptables.Rule();
-    s_filter_in.Target = Iptables.Target_Type.CHAIN;
-    s_filter_in.TargetOptions = <Iptables.IChainOption>{ Chain: Chains.System.Filter.Output.Name };
+    s_filter_ot.Target = Iptables.Target_Type.CHAIN;
+    s_filter_ot.TargetOptions = <Iptables.IChainOption>{ Chain: Chains.System.Filter.Output.Name };
 
 
     var c_filter_in = new Iptables.Rule();
     c_filter_in.Target = Iptables.Target_Type.CHAIN;
-    c_filter_in.TargetOptions = <Iptables.IChainOption>{ Chain: Chains.System.Filter.Input.Name };
+    c_filter_in.TargetOptions = <Iptables.IChainOption>{ Chain: Chains.Custom.Filter.Input.Name };
 
     var c_filter_fw = new Iptables.Rule();
-    c_filter_in.Target = Iptables.Target_Type.CHAIN;
-    c_filter_in.TargetOptions = <Iptables.IChainOption>{ Chain: Chains.System.Filter.Forward.Name };
+    c_filter_fw.Target = Iptables.Target_Type.CHAIN;
+    c_filter_fw.TargetOptions = <Iptables.IChainOption>{ Chain: Chains.Custom.Filter.Forward.Name };
 
     var c_filter_ot = new Iptables.Rule();
-    c_filter_in.Target = Iptables.Target_Type.CHAIN;
-    c_filter_in.TargetOptions = <Iptables.IChainOption>{ Chain: Chains.System.Filter.Output.Name };
+    c_filter_ot.Target = Iptables.Target_Type.CHAIN;
+    c_filter_ot.TargetOptions = <Iptables.IChainOption>{ Chain: Chains.Custom.Filter.Output.Name };
 
     var s_nat_pre = new Iptables.Rule();
     s_nat_pre.Target = Iptables.Target_Type.CHAIN;
@@ -83,7 +89,7 @@ function InitNetwork(cb) {
     Rules.DropIncomingRequests.Match_State = <Iptables.IState> {
         NEW: true
     };
-    Rules.DropIncomingRequests.Target = Iptables.Target_Type.DROP;
+    Rules.DropIncomingRequests.Target = (CONF.IS_DEBUG && !CONF.BASE_FIREWALL) ? Iptables.Target_Type.ACCEPT : Iptables.Target_Type.DROP;
 
     Rules.HttpTrafficProxy.Protocol = { TCP: true };
     Rules.HttpTrafficProxy.Destination_Port = { Id: 80 };
@@ -101,7 +107,8 @@ function InitNetwork(cb) {
         exec.bind(null, "echo 1 > /proc/sys/net/ipv6/conf/default/forwarding"),
         exec.bind(null, "echo 1 > /proc/sys/net/ipv6/conf/all/forwarding"),
 
-        Iptables.Iptables.Filter.AddChain.bind(null, Chains.System.Filter.TrafficAccounting),
+        Iptables.Iptables.Mangle.AddChain.bind(null, Chains.System.Mangle.TrafficPre),
+        Iptables.Iptables.Mangle.AddChain.bind(null, Chains.System.Mangle.TrafficPost),
         Iptables.Iptables.Filter.AddChain.bind(null, Chains.System.Filter.Input),
         Iptables.Iptables.Filter.AddChain.bind(null, Chains.System.Filter.Forward),
         Iptables.Iptables.Filter.AddChain.bind(null, Chains.System.Filter.Output),
@@ -116,13 +123,14 @@ function InitNetwork(cb) {
         Iptables.Iptables.Filter.INPUT.Add.bind(null, s_filter_in),
         Iptables.Iptables.Filter.INPUT.Add.bind(null, c_filter_in),
         Iptables.Iptables.Filter.INPUT.Add.bind(null, Rules.DropIncomingRequests),
-        Iptables.Iptables.Filter.FORWARD.Add.bind(null, s_account),
         Iptables.Iptables.Filter.FORWARD.Add.bind(null, s_filter_fw),
         Iptables.Iptables.Filter.FORWARD.Add.bind(null, c_filter_fw),
         Iptables.Iptables.Filter.OUTPUT.Add.bind(null, s_filter_ot),
         Iptables.Iptables.Filter.OUTPUT.Add.bind(null, c_filter_ot),
+        Iptables.Iptables.Mangle.PREROUTING.Add.bind(null, s_account_i),
+        Iptables.Iptables.Mangle.POSTROUTING.Add.bind(null, s_account_o),
 
-        Iptables.Iptables.NAT.PREROUTING.Add.bind(null, Rules.DropIncomingRequests),
+        Iptables.Iptables.NAT.PREROUTING.Add.bind(null, Rules.HttpTrafficProxy),
         Iptables.Iptables.NAT.PREROUTING.Add.bind(null, s_nat_pre),
         Iptables.Iptables.NAT.POSTROUTING.Add.bind(null, s_nat_post),
         Iptables.Iptables.NAT.POSTROUTING.Add.bind(null, Rules.UplinkNAT)
@@ -403,6 +411,7 @@ export function Status(cb) {
 
 }
 
+export var Config = new Configuration();
 __API(GetDeviceByIp, "Network.GetDeviceByIp", [Permission.DeviceAccess, Permission.Network, Permission.Configuration]);
 __API(SetCustomDNS, "Network.DNS.Set", [Permission.Network, Permission.Configuration]);
 __API(ClearCustomDNS, "Network.DNS.Clear", [Permission.Network, Permission.Configuration]);
@@ -413,3 +422,4 @@ __API(GetCustomHost, "Network.Hosts.Get", [Permission.Network, Permission.Config
 __API(Config.Get, "Network.Config.Get", [Permission.Network, Permission.Configuration]);
 __API(Config.Apply, "Network.Config.Apply", [Permission.Network, Permission.Configuration]);
 __API(Status, "Network.Status", [Permission.Network, Permission.Configuration]);
+__API(GetDeviceByIp, "Proxy.CurrentDevHeader", Core.SubSys.FrontEnds.HttpProxy.NGINX_PERM_ARR);

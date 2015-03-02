@@ -114,6 +114,7 @@ export class Table {
 
     private _guard_Timer;
     private _guard = () => {
+        
         clearTimeout(this._guard_Timer);
         var dateA = new Date().getTime();
 
@@ -141,7 +142,7 @@ export class Table {
                     if (deltaB !== 0 || p !== curchain.Packets) {
                         curchain.Delta_Bytes = b - curchain.Bytes;
                         curchain.Delta_Packets = p - curchain.Packets;
-                        curchain.Delta_Time = new Date().getTime() - g.LastMeasure;
+                        curchain.Delta_Time = new Date().getTime() - curchain.LastMeasure;
                         curchain.LastMeasure = new Date().getTime();
                         var old_B = curchain.Bytes;
                         var old_P = curchain.Packets;
@@ -1496,6 +1497,8 @@ export class Rule extends events.EventEmitter {
         }
 
         //#endregion
+
+        command += " --set-counters " + this.Count_Packets + " " + this.Count_Bytes;
 
         return command;
     }

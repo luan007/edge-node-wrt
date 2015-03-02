@@ -45,6 +45,8 @@ class _mdns_Browser extends events.EventEmitter {
     }
 
     private eventProxy = (event, service) => {
+        trace((event ? "+" : "-") + " " + service.type);
+        //trace(service);
         var s = JSON.stringify(service);
         var typeString = mdns.makeServiceType(service.type).toString();
         var addrs = service.addresses;
@@ -91,22 +93,29 @@ class _mdns_Browser extends events.EventEmitter {
         var t = service.type;
         if (!t) return;
         var string_ = mdns.makeServiceType(t).toString();
+        if (this.manual[string_]) return;
         this.manual[string_] = mdns.createBrowser(t);
         this.manual[string_].on("serviceUp", this.eventProxy.bind(null, 1));
         this.manual[string_].on("serviceDown", this.eventProxy.bind(null, 0));
+        this.manual[string_].on("error",(err) => {
+            //warn(err);
+        });
         this.manual[string_].start();
+        trace("STARTING BROWSER - " + string_);
         return this.manual[string_];
     };
 
-    private dropService = (service) => {
-        var t = service.type;
-        if (!t) return;
-        var string_ = mdns.makeServiceType(t).toString();
-        if (this.manual[string_]) {
-            this.manual[string_].stop();
-            delete this.manual[string_];
-        }
-    };
+    //private dropService = (service) => {
+    //    info("SERVICE DOWN");
+    //    info(service);
+    //    var t = service.type;
+    //    if (!t) return;
+    //    var string_ = mdns.makeServiceType(t).toString();
+    //    if (this.manual[string_]) {
+    //        this.manual[string_].stop();
+    //        delete this.manual[string_];
+    //    }
+    //};
 
     constructor() {
         super();
@@ -114,16 +123,21 @@ class _mdns_Browser extends events.EventEmitter {
         //because:
         //
         //https://github.com/agnat/node_mdns/issues/91
+        info("Initializing MDNS Browser");
         this.browser = mdns.browseThemAll();
         this.browser.on("serviceUp",(service) => {
             this.browseService(service);
         });
-        this.browser.on("serviceDown",(service) => {
-            this.dropService(service);
+        //this.browser.on("serviceDown",(service) => {
+        //    this.dropService(service);
+        //});
+        this.browser.on("error",(err) => {
+            //warn(err);
         });
     }
 
     public Start = () => {
+        info("Starting MDNS Browser");
         this.browser.start();
     };
 
@@ -134,3 +148,10 @@ class _mdns_Browser extends events.EventEmitter {
 }
 
 export var Browser = new _mdns_Browser();
+
+
+export function Initialize(cb) {
+    info("Starting..");
+    Browser.Start();
+    cb();
+}

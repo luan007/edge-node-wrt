@@ -48,26 +48,26 @@ var WatchList: IDic<{ prev: STA; f: Function; }> = {};
 
 export var Devices: IDic<STA> = {};
 
-export var Inspect_Interval = 15000;
+export var Inspect_Interval = 3000;
 
 export var Stop = false;
 
-export function Initialize() {
+export function Initialize(cb) {
     info("Starting Inspector " + (Inspect_Interval.toString() + '').bold["magentaBG"]);
     setTimeout(Inspect_Thread, Inspect_Interval);
+    cb();
 }
 
 export function Unwatch(mac: string) {
-    delete WatchList[mac];
+    delete WatchList[mac.toLowerCase()];
 }
 
 export function Watch(mac: string, cb) {
-    WatchList[mac] = {
+    WatchList[mac.toLowerCase()] = {
         prev: <any>{},
         f: cb
     };
 }
-
 
 export function Attach(dev: string) {
     dev = dev.toLowerCase();
@@ -111,7 +111,7 @@ function Inspect_Thread(callback?) {
     var jobs = [];
 
     async.each(Object.keys(_devList), (dev, cb) => {
-        survey(dev, (err, str) => {
+        survey(dev,(err, str) => {
             var match = [];
             while ((match = pattern.exec(str)) !== null) {
                 var mac = match[1].toLowerCase();
@@ -160,7 +160,7 @@ function Inspect_Thread(callback?) {
                     //}
 
                     if (update) {
-                        WatchList[mac.toLowerCase()].prev = Devices[mac];
+                        delta_add_return_changes(prev, Devices[mac], true);
                         WatchList[mac.toLowerCase()].f(Devices[mac]);
                     }
                 }
@@ -169,11 +169,11 @@ function Inspect_Thread(callback?) {
         });
     }, (result) => {
             for (var dev in Devices) {
-                if (Devices[dev].tag != tag) {
+                if (Devices[dev] && Devices[dev].tag != tag) {
                     Devices[dev] = undefined;
                 }
             }
-            if (!callback && !Stop) {
+            if (!Stop) {
                 _timeout = setTimeout(Inspect_Thread, Inspect_Interval);
             }
             else {

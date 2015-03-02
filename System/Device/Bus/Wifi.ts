@@ -30,14 +30,14 @@ class Wifi extends Bus {
             });
         });
 
-        var currentIp = Core.Router.Network.dnsmasq.Leases.LeaseDB[mac];
+        var currentIp = Core.Router.Network.dnsmasq.Leases.LeaseDB[mac] ? Core.Router.Network.dnsmasq.Leases.LeaseDB[mac].Address : undefined;
         Core.Router.Network.dnsmasq.Leases.Watch(mac,(lease) => {
 
             if (currentIp) {
                 Core.SubSys.Native.mdns.Browser.Unwatch(currentIp);
             }
-            currentIp = Core.Router.Network.dnsmasq.Leases.LeaseDB[mac];
-
+            currentIp = Core.Router.Network.dnsmasq.Leases.LeaseDB[mac] ? Core.Router.Network.dnsmasq.Leases.LeaseDB[mac].Address : undefined;
+            Core.SubSys.Network.Traffic.Update(mac, currentIp, () => { });
 
             this._on_device({
                 hwaddr: mac,
@@ -80,13 +80,24 @@ class Wifi extends Bus {
                 }
             });
         });
-        Core.SubSys.Network.Traffic.NotifyOnTraffic(mac,(mac, data) => {
-            this._on_device({
-                data: {
-                    Traffic: data
-                }
+        Core.SubSys.Network.Traffic.NotifyOnTraffic(mac,
+            (mac, data) => {
+                this._on_device({
+                    data: {
+                        Traffic: {
+                            Up: data
+                        }
+                    }
+                });
+            },(mac, data) => {
+                this._on_device({
+                    data: {
+                        Traffic: {
+                            Down: data
+                        }
+                    }
+                });
             });
-        });
         //rOUIFind((mac + "").substr(0, 8), (err, OUI: string) => {
         //        Bus._onDevice(mac, {
         //            UA: { Obj: ua, raw: raw }
@@ -129,6 +140,7 @@ class Wifi extends Bus {
         Core.SubSys.Native.ip.Neigh.Unwatch(mac);
         Core.Router.Network.dnsmasq.Leases.Unwatch(mac);
         Core.SubSys.Network.Traffic.RemoveHandler(mac);
+        Core.SubSys.Network.Traffic.Unwatch(mac, () => { });
         var ip = Core.Router.Network.dnsmasq.Leases.LeaseDB[mac];;
         if (ip) {
             Core.SubSys.Native.mdns.Browser.Unwatch(ip);
@@ -143,6 +155,7 @@ class Wifi extends Bus {
         for (var i in this.HostapdInstances) {
             if (!has(this.HostapdInstances, i)) continue;
             ((i) => {
+                Core.SubSys.Native.iw.Attach(this.HostapdInstances[i].Dev);
                 this._mac_list[i] = {};
                 this.HostapdInstances[i].Ctrl.on("event", (type, mac: string) => {
                     if (type == "AP-STA-CONNECTED") {
@@ -158,6 +171,7 @@ class Wifi extends Bus {
 
     stop = (cb) => {
         for (var i in this.HostapdInstances) {
+            Core.SubSys.Native.iw.Detach(this.HostapdInstances[i].Dev);
             this.HostapdInstances[i].Ctrl.removeAllListeners("event");
         }
         cb();

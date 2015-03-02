@@ -7,6 +7,8 @@ import FS = Core.SubSys.FileSystem;
 var smbInstance = FS.UserZone.Samba;
 export var SambaInstance = smbInstance;
 
+//TODO: add mdns support!
+
 class Configuration extends Abstract.Configurable {
 
     Default = {
@@ -45,8 +47,9 @@ class Configuration extends Abstract.Configurable {
             }
         }
         if (reload) {
-            smbInstance.Start(true);
-            smbInstance.StabilityCheck(cb);
+            //smbInstance.Start(true);
+            //smbInstance.StabilityCheck(cb);
+            cb();
         }
         else {
             cb();

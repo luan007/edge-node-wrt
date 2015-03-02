@@ -1,6 +1,6 @@
 ﻿import Core = require("Core");
 import Node = require("Node");
-import smbd = Core.SubSys.Native.smbd;
+import smbd = require("../Native/smbd");
 
 export var Samba = new smbd.SmbDaemon(new smbd.SmbConfig());
 
@@ -16,7 +16,7 @@ export function Initialize(cb) {
     trace("Preparing User Root..");
     async.series([
         exec.bind(null, "chown", "nobody", "-R", CONF.USER_DATA_PATH),
-        exec.bind(null, "chmod", "711", CONF.USER_DATA_PATH)
+        exec.bind(null, "chmod", "711", CONF.USER_DATA_PATH),
     ], cb);
 }
 

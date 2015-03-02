@@ -176,5 +176,4 @@ class NameService implements IDriver {
 
 }
 
-var instance = new NameService();
-export = instance;
+export var Instance = new NameService();

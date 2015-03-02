@@ -17,7 +17,7 @@ export class ServerConfig extends Abstract.Configurable {
         this.Instance = this;
     }
 
-    protected _apply = (mod, cb: Callback) => {
+    protected _apply = (mod, raw, cb: Callback) => {
         cb();
     };
 
@@ -117,4 +117,3 @@ __API(function (atoken, cb) {
     }
 }, "Proxy.AuthUser", HttpProxy.NGINX_PERM_ARR);
 
-__API(Core.Router.Network.GetDeviceByIp, "Proxy.CurrentDevHeader", HttpProxy.NGINX_PERM_ARR);

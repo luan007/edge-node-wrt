@@ -22,7 +22,7 @@ class TestDriver implements IDriver {
     }
 
     bus(): string[]{
-        return [ "Dummy" ];
+        return [ "WLAN" ];
     }
 
     match(dev: IDevice, delta, cb: Callback) {
@@ -68,5 +68,4 @@ class TestDriver implements IDriver {
 
 }
 
-var instance = new TestDriver();
-export = instance;
+export var Instance = new TestDriver();

@@ -248,6 +248,10 @@ function _is_interested_in(interested: IDriverInterest, dev: IDevice, assump, bu
 
 export function DeviceChange(dev: IDevice, tracker: _tracker, assump: IDeviceAssumption, busDelta: IBusData, config: KVSet, stateChange?) {
 
+    if (stateChange) {
+        warn("State Change!");
+    }
+
     var tracker = tracker ? tracker : <_tracker>{
         depth: 0
     };
@@ -289,6 +293,7 @@ export function DeviceChange(dev: IDevice, tracker: _tracker, assump: IDeviceAss
         //Preference? Sure
         //Almost done.
         if (_is_interested_in(Drivers[driver_id].interest(), dev, assump, busDelta, config, stateChange)) {
+            //trace("Notify -> " + Drivers[driver_id].name());
             _notify_driver(Drivers[driver_id], dev, tracker, assump, busDelta, config, stateChange);
         }
     }
@@ -336,8 +341,8 @@ export function DriverInvoke(drv: IDriver, dev: IDevice, actionId, params, cb) {
 export function Initialize(callback: Callback) {
     trace("Init..");
     async.series([
-        LoadDriver.bind(null, require("./Driver/TestDriver")),
-        LoadDriver.bind(null, require("./Driver/OUI")),
-        LoadDriver.bind(null, require("./Driver/NameService"))
+        LoadDriver.bind(null,(require("./Driver/TestDriver")).Instance),
+        LoadDriver.bind(null,(require("./Driver/OUI")).Instance),
+        LoadDriver.bind(null,(require("./Driver/NameService")).Instance)
     ], callback);
 }

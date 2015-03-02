@@ -1,8 +1,7 @@
 ﻿import Core = require("Core");
 import Node = require("Node");
-import network = Core.Router.Network;
-import ipCore = Core.SubSys.Native.ip;
-import iptables = Core.SubSys.Native.iptables;
+import ipCore = require("../Native/iproute2");
+import iptables = require("../Native/iptables");
 /*http://code.google.com/p/wrtbwmon/*/
 
 //[in, out]
@@ -25,9 +24,9 @@ export function GetForwardRate() {
     }
 }
 
-export function NotifyOnTraffic(mac, handler) {
+export function NotifyOnTraffic(mac, up, down) {
     mac = mac.toLowerCase(); //must
-    handler[mac] = handler;
+    handler[mac] = [up, down];
 }
 
 export function RemoveHandler(mac) {
@@ -37,16 +36,23 @@ export function RemoveHandler(mac) {
 
 
 export function Initialize(cb) {
-    ipCore.Neigh.on(ipCore.Neigh.EVENT_RECORD_NEW,(c: ipCore.NeighRecord) => { Watch(c.Mac, c.Address,() => { }); });
-    ipCore.Neigh.on(ipCore.Neigh.EVENT_RECORD_DEL,(c: ipCore.NeighRecord) => { Update(c.Mac, c.Address,() => { }); });
-    ipCore.Neigh.on(ipCore.Neigh.EVENT_RECORD_CHANGE,(c: ipCore.NeighRecord) => { Unwatch(c.Mac, c.Address,() => { }); });
+    //SYS_ON(SYS_EVENT_TYPE.LOADED,() => {
+    //    //for (var i in ipCore.Neigh.MacList) {
+    //    //    Watch(i, ipCore.Neigh.MacList[i].Address,() => { });
+    //    //}
+    //    //ipCore.Neigh.on(ipCore.Neigh.EVENT_RECORD_NEW,(c: ipCore.NeighRecord) => { Watch(c.Mac, c.Address,() => { }); });
+    //    //ipCore.Neigh.on(ipCore.Neigh.EVENT_RECORD_DEL,(c: ipCore.NeighRecord) => { Unwatch(c.Mac, c.Address,() => { }); });
+    //    //ipCore.Neigh.on(ipCore.Neigh.EVENT_RECORD_CHANGE,(c: ipCore.NeighRecord) => { Update(c.Mac, c.Address,() => { }); });
+    //});
+    cb();
 }
 
 function onTraffic(g: iptables.Rule, bytes, oldB, pkgs, oldP, deltaTime){
     var i_o = g["__DIR"]; //0 -> out, 1 <- in
     var mac = g["__MAC"];
+    mac = mac.toLowerCase();
     if (handler[mac]) {
-        handler[mac](mac, {
+        handler[mac][i_o](mac, {
             Bytes: bytes,
             Packets: pkgs,
             PrevBytes: oldB,
@@ -62,7 +68,13 @@ function onTraffic(g: iptables.Rule, bytes, oldB, pkgs, oldP, deltaTime){
 
 
 export function Watch(mac, _ip, cb) {
-    if (ip.parse(_ip).kind() != "ipv4") return;
+    if (!_ip) {
+        return cb(new Error("IP is undefined"));
+    }
+    trace("Watch " + mac + " - " + _ip);
+    try {
+        if (ip.parse(_ip).kind() != "ipv4") return cb();
+    } catch (e) { return cb(); }
     mac = (mac + "").toLowerCase();
     if (mac_table[mac]) {
         return Update(mac, _ip, cb);
@@ -78,7 +90,8 @@ export function Watch(mac, _ip, cb) {
     mac_table[mac][1]["__DIR"] = 1;
     mac_table[mac][0]["__MAC"] = mac_table[mac][1]["__MAC"] = mac;
     mac_table[mac][0].Target = mac_table[mac][1].Target = iptables.Target_Type.RETURN;
-    mac_table[mac][0].Chain = mac_table[mac][1].Chain = network.Chains.System.Filter.TrafficAccounting;
+    mac_table[mac][1].Chain = Core.Router.Network.Chains.System.Mangle.TrafficPost;
+    mac_table[mac][0].Chain = Core.Router.Network.Chains.System.Mangle.TrafficPre;
     mac_table[mac][0].on("traffic", onTraffic);
     mac_table[mac][1].on("traffic", onTraffic);
     async.series([
@@ -88,15 +101,21 @@ export function Watch(mac, _ip, cb) {
 
 }
 
-export function Unwatch(mac, _ip, cb) {
-    if (ip.parse(_ip).kind() != "ipv4") return;
-    mac = (mac + "").toLowerCase();
+export function Unwatch(mac,  cb) {
+    trace("Unwatch " + mac);
     if (!mac_table[mac]) {
         return cb(new Error("Mac does not exist"));
     }
+    var cache = mac_table[mac];
+    delete mac_table[mac]; //Success
     async.series([
-        mac_table[mac][0].Remove,
-        mac_table[mac][1].Remove],(err) => {
+        (c) => {
+            cache[mac][0].Remove(() => { c(); })
+        },
+        (c) => {
+            cache[mac][1].Remove(() => { c(); })
+        }
+    ],(err) => {
             if (err) {
                 //omg something is wrong... 
                 error("Something is wrong with Traffic Accountant");
@@ -105,11 +124,16 @@ export function Unwatch(mac, _ip, cb) {
             }
             cb(err);
         });
-    delete mac_table[mac]; //Success
 }
 
 export function Update(mac, _ip, cb) {
-    if (ip.parse(_ip).kind() != "ipv4") return;
+    if (!_ip) {
+        return cb(new Error("IP is undefined"));
+    }
+    trace("Update " + mac + " - " + _ip);
+    try {
+        if (ip.parse(_ip).kind() != "ipv4") return cb();
+    } catch (e) { return cb(); }
     //ip changed, but not mac :p
     mac = (mac + "").toLowerCase();
     if (!mac_table[mac]) {

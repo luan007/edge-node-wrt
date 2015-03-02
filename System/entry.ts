@@ -18,7 +18,7 @@ import Loader = require("./loader");
 //    });
 //});
 
-Loader.Load(["Base", "Lib", "Data", "API", "SubSys", "Device", "User", "App", "Connectivity", "Test"], (err, result) => {
+Loader.Load(["Base", "Lib", "Data", "API", "SubSys", "Device", "User", "App", "Router", "Test"], (err, result) => {
     process.nextTick(() => {
         if (err) {
             SYS_TRIGGER(SYS_EVENT_TYPE.ERROR, err);
@@ -28,3 +28,5 @@ Loader.Load(["Base", "Lib", "Data", "API", "SubSys", "Device", "User", "App", "C
         }
     });
 });
+
+process.on("uncaughtException", console.log);

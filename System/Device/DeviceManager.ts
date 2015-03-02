@@ -22,7 +22,7 @@ function LoadFromDB(callback: Callback) {
             for (var i = 0; i < devs.length; i++) {
                 var dev = devs[i];
                 if (!devices[dev.uid]) {
-                    info(" + " + dev.hwaddr.bold + " - " + dev.busname.cyan);
+                    info(" + " + dev.uid.bold + " - " + dev.busname.cyan);
                     var d = <IDevice>{
                         assumptions: dev.assumptions,
                         bus: {
@@ -45,7 +45,7 @@ function LoadFromDB(callback: Callback) {
                     hwaddr_map[dev.busname][dev.hwaddr] = dev.uid;
 
                 } else {
-                    fatal(" X " + dev.hwaddr.bold + " - " + dev.busname.cyan); //SKIP
+                    fatal(" X " + dev.uid + " - " + dev.busname.cyan); //SKIP
                 }
             }
         }
@@ -164,9 +164,8 @@ function _OnDevice(bus: IBusData) {
         if (!dev.bus.data) {
             dev.bus.data = {}; //corrupt data :[!!!!
         }
-
         //bug fixed
-        var change = delta_add_return_changes(dev.bus.data, bus.data, true);
+        var change = delta_add_return_changes(dev.bus.data, JSON.parse(JSON.stringify(bus.data)), true);
         if (dev.state == 1 && Object.keys(change).length == 0) {
             warn("OnDevice found no change, Skipped");
             return;
@@ -216,7 +215,7 @@ export function Config(dev: IDevice, conf: any) {
             dev.config = {}; //corrupt data :[!!!!
         }
 
-        var dt = delta_add_return_changes(dev.config, conf, true);
+        var dt = delta_add_return_changes(dev.config, JSON.parse(JSON.stringify(conf)), true);
         if (Object.keys(dt).length == 0) {
             warn("Config Found No Change, Skipped");
             return;

@@ -11,9 +11,9 @@ export function Initialize(cb) {
         Node.fs.mkdirSync(CONF.SHADOW_BASE_PATH);
     }
 
-    if (!Node.fs.existsSync(CONF.BASE_DATA_PATH)) {
+    if (!Node.fs.existsSync(CONF.SHADOW_DATA_PATH)) {
         info("Creating Shadow Data_Path..");
-        Node.fs.mkdirSync(CONF.BASE_DATA_PATH);
+        Node.fs.mkdirSync(CONF.SHADOW_DATA_PATH);
     }
 
     if (!Node.fs.existsSync(CONF.SHADOW_BASE_PATH)) {

@@ -43,7 +43,7 @@ export class CtrlInterface {
             this.Http._add("gzip_min_length", "1024");
             this.Http._add("gzip_comp_level", "3");
             this.Http._add("proxy_set_header", "Accept-Encoding \"\"");
-            this.Http._add("lua_package_cpath", "'/opt/luajit/lib/lua/5.1/?.so;'");
+            this.Http._add("lua_package_cpath", "'/opt/luajit/?.so;'");
             this.Http._add("lua_package_path", '"' + Node.path.join(CONF.MODULE_DIR, "Lua/?.lua") + ';"');
             this.Http._add("init_by_lua", this.GenerateStartupScript());
             //this.Http._add("init_by_lua", "'" + 'require("Nginx");' + "'");

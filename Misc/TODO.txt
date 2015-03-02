@@ -35,7 +35,7 @@ ROUTER首页 磁盘使用率 这那？
 0. Auto DHCP / DNS  ------------------------------------------ ( IMPLEMENTED, NEED TEST )
    Domain Splitting (not done yet?!)
 
-1. Samba + MiniDLNA + MDNS ----------------------------------- ( Test Needed)
+1. Samba + MiniDLNA + MDNS ----------------------------------- ( Test Needed )
    A) Samba			------------------------------------------ ( Partly Finished, NEED TEST )
    B) MiniDLNA
    C) MDNS Server   ------------------------------------------ ( Half Done, Half Tested)
@@ -48,7 +48,7 @@ ROUTER首页 磁盘使用率 这那？
    C) PPPOE/DHCPCD Auto Detection
 
 3. IPP (Printer Driver)
-   A) MDNS Discovery Service (Bus Data Provider)
+   A) MDNS Discovery Service (Bus Data Provider) ------------- (Test Needed)
    B) IPP
    C) Printing Helper Application * Feature
    

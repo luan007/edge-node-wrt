@@ -31,12 +31,14 @@ function deep_delta(o, delta, override = true, pretend = false) {
             continue;
         } else if (
             (
-            Type(o[i]) !== Type(delta[i]) ||
-            !_.isObject(o[i]) ||
-            !_.isObject(delta[i])
-            ) &&
-            !_.isEqual(o[i], delta[i])) {
-            if (!pretend) o[i] = delta[i];
+                Type(o[i]) !== Type(delta[i]) ||
+                !_.isObject(o[i]) ||
+                !_.isObject(delta[i])
+                ) && !_.isEqual(o[i], delta[i] )
+            ) {
+            if (!pretend) {
+                o[i] = delta[i];
+            }
             change_level[i] = delta[i];
         } else if (!_.isEqual(o[i], delta[i])) { //both are objects / or undefined / or array
             //same type, Object/Array type
