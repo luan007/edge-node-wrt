@@ -75,39 +75,34 @@ interface IDeviceAssumption {
     aux?: any;
 }
 
+interface IDriverInterest_Part {
+    bus? ;
+    assumptions? ;
+    config? ;
+    delta?: {
+        bus? ;
+        assumption? ;
+        config? ;
+    }
+    all?: boolean;
+    stateChange?: any;
+    otherDriver?: any;
+}
+
 //TODO: this need to be done
 interface IDriverInterest {
-    match?: {
-        bus? ;
-        assumptions? ;
-        config? ;
-        delta?: {
-            bus? ;
-            assumption? ;
-            config? ;
-        }
-        all?: boolean;
-        stateChange?: boolean;
-    };
-    change?: {
-        bus? ;
-        assumptions? ;
-        config? ;
-        delta?: {
-            bus? ;
-            assumption? ;
-            config? ;
-        }
-        all?: boolean;
-    };
+    match?: IDriverInterest_Part | [IDriverInterest_Part];
+    change?: IDriverInterest_Part | [IDriverInterest_Part];
     stateChange?: boolean;
     all?: boolean;
+    otherDriver?: any;
 }
 
 interface IDriverDetla {
     assumption: IDeviceAssumption;
     bus: IBusData;
     config: KVSet;
+    otherDriver?: boolean;
 }
 
 interface IDriver {

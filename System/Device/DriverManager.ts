@@ -158,7 +158,7 @@ function _notify_driver(driver: IDriver, dev: IDevice, tracker: _tracker, delta:
         if (!_sanity_check(version, dev, driver)) return; //WTF??
         //console.log(JSON.stringify(dev));
         try {
-            if (myAssump && myAssump.valid && _is_interested_in(driver, dev, 1, delta, deltaBus, deltaConf, stateChange)) {
+            if (myAssump && myAssump.valid && _is_interested_in(driver, dev, 1, tracker, delta, deltaBus, deltaConf, stateChange)) {
                 trace("Change -> " + driver.name());
                 //need change
                 driver.change(dev, {
@@ -169,7 +169,7 @@ function _notify_driver(driver: IDriver, dev: IDevice, tracker: _tracker, delta:
                     if (!assump || !_sanity_check(version, dev, driver, err)) return;
                     _update_driver_data(driver, dev, assump, tracker);
                 }));
-            } else if (!(myAssump && myAssump.valid) && _is_interested_in(driver, dev, 0, delta, deltaBus, deltaConf, stateChange)) {
+            } else if (!(myAssump && myAssump.valid) && _is_interested_in(driver, dev, 0, tracker, delta, deltaBus, deltaConf, stateChange)) {
                 trace("Match -> " + driver.name());
                 //need match/attach
                 //TODO: Verify EmitterizeCB's impact/influence on GC, to see if it solves the 'ghost CB' prob
@@ -202,9 +202,11 @@ function _notify_driver(driver: IDriver, dev: IDevice, tracker: _tracker, delta:
 
 
 //TODO: Finish Driver Interest
-function _is_interested_in(drv: IDriver, dev: IDevice, currentStage, d_assump, d_bus, d_conf, stateChange?) {
+function _is_interested_in(drv: IDriver, dev: IDevice, currentStage, tracker: _tracker, d_assump, d_bus, d_conf, stateChange?) {
 
     var interested = drv.interest();
+
+    if (interested.otherDriver == false && tracker && tracker.parent) return 0;
 
     if (interested.all) return 1;
 
@@ -216,11 +218,15 @@ function _is_interested_in(drv: IDriver, dev: IDevice, currentStage, d_assump, d
     if (!cc) return 0;
     if (!Array.isArray(cc)) cc = [cc];
     var matched = 0;
-    for (var tt = 0; tt < cc["length"]; tt++) { //and logic
+    for (var tt = 0; tt < cc[length]; tt++) { //and logic
         var c = cc[tt];
         var result = 0;
         if (c) {
-            if (c["stateChange"] && stateChange) {
+            if (c.otherDriver == false && tracker && tracker.parent) return 0;
+            else if (c.all) {
+                result = 1;
+            }
+            else if (c["stateChange"] && stateChange) {
                 result = 2;
             }
             else if (c.delta) {
