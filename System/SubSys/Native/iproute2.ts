@@ -205,7 +205,6 @@ class addr extends events.EventEmitter {
     private OnDelete = (line: string) => {
         var sp = line.split(" ");
         var id = sp[1];
-        this.emit(this.EVENT_RECORD_NEW);
         if (!this.Interfaces[id]) {
             return;
         } else {
@@ -217,6 +216,7 @@ class addr extends events.EventEmitter {
                     n.push(this.Interfaces[id][i]);
                 }
             }
+            this.emit(this.EVENT_RECORD_DEL, id);
             this.Interfaces[id] = n;
             this.Debug_Output();
             return;
@@ -258,7 +258,7 @@ class addr extends events.EventEmitter {
                             });
                         }
                     }
-                    this.emit(this.EVENT_RECORD_NEW);
+                    this.emit(this.EVENT_RECORD_NEW, _interface);
                 }
             }
             callback(err, result);
@@ -647,7 +647,7 @@ class link extends events.EventEmitter {
         for (var i in this.Interfaces) {
             if (this.Interfaces[i].Id == id) {
                 this.Interfaces[i].Apply(line, line2);
-                this.emit(this.EVENT_RECORD_CHANGE);
+                this.emit(this.EVENT_RECORD_CHANGE, this.Interfaces[i]);
                 //this.Debug_Output();
                 return;
             }
@@ -655,7 +655,7 @@ class link extends events.EventEmitter {
         var p = new LinkInterface();
         p.Apply(line, line2);
         this.Interfaces[p.Mac] = p;
-        this.emit(this.EVENT_RECORD_NEW);
+        this.emit(this.EVENT_RECORD_NEW, p);
         //this.Debug_Output();
 
     };
@@ -666,6 +666,7 @@ class link extends events.EventEmitter {
 
     public Load = (callback) => {
         this.Interfaces = {};
+        
         this.emit(this.EVENT_LOAD);
         Exec(this.Prefix, "show", (err, result) => {
             if (!err && result.out) {

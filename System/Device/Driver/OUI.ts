@@ -34,6 +34,7 @@ class OUI_Identifier implements IDriver {
         var _oui_Str = (dev.bus.hwaddr + "").substr(0, 8);
         OUI_Find(_oui_Str,(err, result) => {
             if (!result) {
+                fatal("OUI Not Found " + _oui_Str);
                 return cb(undefined, undefined);
             }
             cb(undefined, {

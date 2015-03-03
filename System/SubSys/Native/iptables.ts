@@ -121,8 +121,9 @@ export class Table {
         //Filter, NAT, Mangle
         //THIS IS JUST SO FREAKING FAST MAN... (better than IPTABLES-SAVE), MUCHHHHHH BETTER!!!
         //7000Lines ~ 50ms
-
-        //info(this.Exec + " " + this.Name() + " _GUARD");
+        if (CONF.IS_DEBUG && CONF.IPTABLES_GUARD_LOG) {
+            info(this.Exec + " " + this.Name() + " _GUARD");
+        }
         //TODO: investigate.. something is not working..
         var parser = parsespawn(this.Exec, ["-t", this.Name(), "-vnxL", "--line-number"]);
         var curchain: Chain = undefined;
@@ -148,7 +149,9 @@ export class Table {
                         var old_P = curchain.Packets;
                         curchain.Bytes = b;
                         curchain.Packets = p;
-                        curchain.emit("traffic", curchain, b, old_B, p, old_P, curchain.Delta_Time);
+                        process.nextTick(() => {
+                            curchain.emit("traffic", curchain, b, old_B, p, old_P, curchain.Delta_Time);
+                        });
                     }
                 }
             } else if (ln[0] == "n") {
@@ -172,7 +175,9 @@ export class Table {
                         g.Count_Bytes = bytes;
                         g.Count_Packets = pkgs;
                         g.LastMeasure = new Date().getTime();
-                        g.emit("traffic", g, bytes, oldB, pkgs, oldP, g.Delta_Time);
+                        process.nextTick(() => {
+                            g.emit("traffic", g, bytes, oldB, pkgs, oldP, g.Delta_Time);
+                        });
                     }
                 }
             }

@@ -97,6 +97,10 @@ export function Get(mac) {
 }
 
 function survey(dev, callback: (err, result) => any) {
+
+    if (CONF.IS_DEBUG && CONF.IW_LOG) {
+        info("IW Scan - " + dev);
+    }
     process.exec("iw dev " + dev + " station dump", (err, out, e) => {
         callback(err, out.toString("utf8"));
     });
@@ -109,7 +113,6 @@ function Inspect_Thread(callback?) {
     }
     var tag = new Date().getTime();
     var jobs = [];
-
     async.each(Object.keys(_devList), (dev, cb) => {
         survey(dev,(err, str) => {
             var match = [];

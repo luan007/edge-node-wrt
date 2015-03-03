@@ -5,7 +5,7 @@
         "TestDriver": {
             "Buses": [ "WLAN" ],
             "Interest": { 
-                "all":  "false"
+                "all":  false
             }
         }
     }

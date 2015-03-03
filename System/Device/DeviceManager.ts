@@ -21,7 +21,7 @@ function LoadFromDB(callback: Callback) {
         if (devs) {
             for (var i = 0; i < devs.length; i++) {
                 var dev = devs[i];
-                if (!devices[dev.uid]) {
+                if (!devices[dev.uid] && dev.hwaddr) {
                     info(" + " + dev.uid.bold + " - " + dev.busname.cyan);
                     var d = <IDevice>{
                         assumptions: dev.assumptions,
@@ -32,7 +32,8 @@ function LoadFromDB(callback: Callback) {
                         },
                         config: dev.config,
                         id: dev.uid,
-                        state: dev.state,
+                        //state: dev.state,
+                        state: 0, 
                         time: dev.time
                     };
                     total++;
@@ -46,6 +47,10 @@ function LoadFromDB(callback: Callback) {
 
                 } else {
                     fatal(" X " + dev.uid + " - " + dev.busname.cyan); //SKIP
+                    //and remove it
+                    dev.remove(() => {
+                        fatal(' -REMOVED- ');
+                    });
                 }
             }
         }
@@ -64,7 +69,7 @@ function SaveToDB(callback: Callback) {
     var jobs = [];
     for (var id in devices) {
         (function (id) {
-            if (!has(devices, id))
+            if (!has(devices, id) || !devices[id].bus.hwaddr)
                 return;
             var dev = devices[id];
             //SAVE

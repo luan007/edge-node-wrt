@@ -15,6 +15,7 @@ class Wifi extends Bus {
     _mac_list = {};
 
     _on_device_connect = (band, mac) => {
+        if (!mac) warn(" Invalid MAC - Skipped ");
         mac = mac.toLowerCase();
         if (this._mac_list[band][mac]) {
             warn(mac + " skipped (resuming problem?)");
@@ -83,17 +84,19 @@ class Wifi extends Bus {
         Core.SubSys.Network.Traffic.NotifyOnTraffic(mac,
             (mac, data) => {
                 this._on_device({
+                    hwaddr: mac,
                     data: {
                         Traffic: {
-                            Up: data
+                            Down: data
                         }
                     }
                 });
             },(mac, data) => {
                 this._on_device({
+                    hwaddr: mac, //Stupid error
                     data: {
                         Traffic: {
-                            Down: data
+                            Up: data
                         }
                     }
                 });
@@ -124,7 +127,7 @@ class Wifi extends Bus {
                 Addr: Core.SubSys.Native.ip.Neigh.Get(mac),
                 Lease: Core.Router.Network.dnsmasq.Leases.LeaseDB[mac],
                 Wireless: Core.SubSys.Native.iw.Devices[mac],
-                Traffic: undefined,
+                Traffic: {},
                 MDNS: {}
             }//OUI: OUI,
         });
@@ -155,6 +158,17 @@ class Wifi extends Bus {
         for (var i in this.HostapdInstances) {
             if (!has(this.HostapdInstances, i)) continue;
             ((i) => {
+
+                var drop_hostapd = () => {
+                    for (var t in this._mac_list[i]) {
+                        trace("Gracfully Removing " + t + ":" + i);
+                        this._on_device_disconnect(i, t);
+                    }
+                };
+
+                this.HostapdInstances[i].on("exit", drop_hostapd);
+                this.HostapdInstances[i].on("stop", drop_hostapd);
+
                 Core.SubSys.Native.iw.Attach(this.HostapdInstances[i].Dev);
                 this._mac_list[i] = {};
                 this.HostapdInstances[i].Ctrl.on("event", (type, mac: string) => {

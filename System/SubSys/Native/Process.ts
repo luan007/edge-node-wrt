@@ -1,9 +1,9 @@
 ﻿import child_process = require("child_process");
-
+import events = require("events");
 var _reg = {}; //name : .. mapping
 //keep track for future use..
 
-class ManagedProcess {
+class ManagedProcess extends events.EventEmitter {
 
     public Process: child_process.ChildProcess;
 
@@ -22,6 +22,7 @@ class ManagedProcess {
     private lastReboot = 0;
 
     constructor(name?) {
+        super();
         this.Name = name;
         if (name !== undefined) {
             _reg[name] = this;
@@ -29,6 +30,7 @@ class ManagedProcess {
     }
 
     public Stop(restart: boolean = false) {
+        this.emit("stop", this);
         if (this.Process) {
             warn("Stop " + ('' + this.Process.pid.toString()).bold + " " + this.Name);
             this.Forever = restart;
@@ -41,6 +43,7 @@ class ManagedProcess {
     }
 
     public Start(forever: boolean = true) {
+        this.emit("start", this);
         var time = new Date().getTime();
         if (time - this.lastReboot < this.ChokeTolerance_Time) {
             this.chokeCounter++;
@@ -65,7 +68,8 @@ class ManagedProcess {
     }
 
     private HookEvent() {
-        this.Process.on("exit", () => {
+        this.Process.on("exit",() => {
+            this.emit("exit", this);
             if(this.Process) {
                 this.Process.removeAllListeners();
             }
@@ -85,6 +89,7 @@ class ManagedProcess {
      * return True to abort a Start process
      */
     public OnChoke() {
+        this.emit("choke", this);
         warn(this.Name.bold + " CHOKING");
         this.chocking = true;
         return false;

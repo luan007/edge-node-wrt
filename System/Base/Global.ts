@@ -2,10 +2,13 @@
 class _sys_conf {
     LOADED = false; // don't touch
     IS_DEBUG = true; 
-    INTERACTIVE_DEBUG = true; 
+    ALWAYS_REBUILD_OUI = true;
+    INTERACTIVE_DEBUG = true;
+    IPTABLES_GUARD_LOG = false;
+    IW_LOG = false;
     RPC_FUNC_LOG = true; 
     SKIP_QUOTA_CHECK = false; // = true if your boot is too slow, however Runtime.ts will be unstable
-    CMD_DEBUG = true; // turn this on if you want to see iptables, chmod, chroot and such being printed
+    CMD_DEBUG = false; // turn this on if you want to see iptables, chmod, chroot and such being printed
     ROOT_LEVEL_SECURITY = false; // = true will lead to a recursive chmod 0005 on '/', be warned - NOT TESTED
     CODE_WRITE_LOCK = false; // = true for production (MUST)
     ENABLE_FULL_LOG = true; // main switch for trace/info .. methods

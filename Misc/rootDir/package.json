@@ -42,6 +42,9 @@
     "body-parser": "*",
     "simple-object-query": "*",
     "underscore-query": "*",
-    "mdns":  "*"
+    "mdns": "*",
+    "linebyline": "*",
+    "readline-sync":  "*",
+    "pursuit":  "*"
   }
 }

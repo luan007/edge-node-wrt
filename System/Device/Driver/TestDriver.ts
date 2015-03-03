@@ -7,9 +7,33 @@ class TestDriver implements IDriver {
         return "_TEST_DRV_";
     }
 
-    interest() {
+    interest(): IDriverInterest {
         return {
-            all: true
+            match: [
+                {
+                    delta: {
+                        bus:
+                        {
+                            "MDNS": {
+                                $has: true
+                            }
+                        }
+                    }
+                },
+                {
+                    bus: {
+                        "data.Lease": {
+                            $has: true
+                        }
+                    }
+                }],
+            //change: {
+            //    delta: {
+            //        bus: {
+            //            "Traffic.Up.Rate.Bps": { $gt: 100000 }
+            //        }
+            //    }
+            //}
         };
     }
 
@@ -26,12 +50,30 @@ class TestDriver implements IDriver {
     }
 
     match(dev: IDevice, delta, cb: Callback) {
-        trace("MATCH Called");
+        for (var i in dev.bus.data.MDNS) {
+            if (i == "_pdl-datastream._tcp.") {
+                trace(i);
+                return cb(undefined, dev.bus.data.MDNS[i]);
+            }
+        }
         //cb(undefined, { foo:"bar" });
+        return cb(undefined, undefined);
     }
 
     attach(dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) {
         info("ATTACH Called");
+
+        var d = matchResult[Object.keys(matchResult)[0]];
+        var addr = dev.bus.data.Lease.Address;
+
+        trace(addr + ":" + d.port);
+        trace(d.name);
+
+        //var sock = Node.net.connect({ host: addr, port: d.port },(con) => {
+        //    sock.write("Helloworld");
+        //    sock.end();
+        //});
+
         cb(undefined, {
             actions: {},
             attributes: {},
@@ -40,8 +82,8 @@ class TestDriver implements IDriver {
         });
     }
 
-    change(dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) {
-        fatal("CHANGE Called");
+    change(dev: IDevice, delta : IDriverDetla, cb: PCallback<IDeviceAssumption>) {
+        //fatal(delta.bus["Traffic"].Up.Rate.Bps);
         cb(undefined, {
             actions: {},
             attributes: {},

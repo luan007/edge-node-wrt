@@ -77,14 +77,29 @@ interface IDeviceAssumption {
 
 //TODO: this need to be done
 interface IDriverInterest {
-    bus?;
-    assumptions? ;
-    config? ;
-    delta?: {
+    match?: {
         bus? ;
-        assumption? ;
+        assumptions? ;
         config? ;
-    }
+        delta?: {
+            bus? ;
+            assumption? ;
+            config? ;
+        }
+        all?: boolean;
+        stateChange?: boolean;
+    };
+    change?: {
+        bus? ;
+        assumptions? ;
+        config? ;
+        delta?: {
+            bus? ;
+            assumption? ;
+            config? ;
+        }
+        all?: boolean;
+    };
     stateChange?: boolean;
     all?: boolean;
 }

@@ -193,7 +193,15 @@ export class CtrlInterface extends events.EventEmitter {
         super();
         this.Dev = dev;
         this._loc = getSock(UUIDstr());
-        this._gtimer = setInterval(this._guard, 500);
+    }
+
+    public start() {
+        clearInterval(this._gtimer);
+        this._gtimer = setInterval(this._guard, 1000);
+    }
+
+    public stop() {
+        clearInterval(this._gtimer);
     }
 
     private _sta_recur = (curSTA: string, accuresult: {
@@ -393,6 +401,7 @@ export class hostapd extends Process {
         if (dev !== this._dev) {
             this._dev = dev;
             if (this.Ctrl) {
+                this.Ctrl.stop();
                 this.Ctrl.Destroy();
                 this.Ctrl.removeAllListeners();
             }
@@ -423,7 +432,7 @@ export class hostapd extends Process {
     Start(forever: boolean = true) {
 
         if (!this.IsChoking()) {
-
+            this.Ctrl.start();
             if (fs.existsSync(this._path_conf) && fs.unlinkSync(this._path_conf));
             if (fs.existsSync(this._path_accp) && fs.unlinkSync(this._path_accp));
             if (fs.existsSync(this._path_deny) && fs.unlinkSync(this._path_deny));

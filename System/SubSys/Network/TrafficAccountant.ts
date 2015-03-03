@@ -110,10 +110,10 @@ export function Unwatch(mac,  cb) {
     delete mac_table[mac]; //Success
     async.series([
         (c) => {
-            cache[mac][0].Remove(() => { c(); })
+            cache[0].Remove(() => { c(); })
         },
         (c) => {
-            cache[mac][1].Remove(() => { c(); })
+            cache[1].Remove(() => { c(); })
         }
     ],(err) => {
             if (err) {

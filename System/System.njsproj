@@ -46,11 +46,7 @@
     <Content Include="Device\Graphd\graphd.0.json" />
     <Content Include="Lib\Crypto\Keys\App.pb" />
     <Content Include="Lib\Crypto\Keys\Router.pb" />
-    <Content Include="Lib\OUI\OUI\000003.log" />
-    <Content Include="Lib\OUI\OUI\CURRENT" />
-    <Content Include="Lib\OUI\OUI\LOCK" />
-    <Content Include="Lib\OUI\OUI\LOG" />
-    <Content Include="Lib\OUI\OUI\MANIFEST-000002" />
+    <Content Include="Lib\OUI\OUI.txt" />
     <Content Include="package.json" />
     <TypeScriptCompile Include="App\local.d.ts" />
     <TypeScriptCompile Include="App\Runtime.ts" />
@@ -183,6 +179,10 @@
     <TypeScriptCompile Include="User\UserManager.ts" />
     <TypeScriptCompile Include="User\_Export.ts" />
     <TypeScriptCompile Include="User\_Module.ts" />
+    <TypeScriptCompile Include="wipe.ts">
+      <SubType>Code</SubType>
+      <TestFramework>ExportRunner</TestFramework>
+    </TypeScriptCompile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="API\" />
@@ -191,7 +191,6 @@
     <Folder Include="Device\Bus\" />
     <Folder Include="Device\Driver\" />
     <Folder Include="Lib\Abstract\" />
-    <Folder Include="Lib\OUI\OUI\" />
     <Folder Include="Lib\Remote\" />
     <Folder Include="Messaging\" />
     <Folder Include="Router\" />

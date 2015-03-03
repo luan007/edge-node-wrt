@@ -2,7 +2,7 @@ module.exports = function(grunt) {
 
     //target folder
     var destination = './_Releases/';
-    var sambaFolder = '//EDGE-YEYEYE/Release'; //smb://serbver/folder/
+    var sambaFolder = '//192.168.99.154/Release'; //smb://serbver/folder/
 
     function initGrunt(destination) {
         grunt.initConfig({

@@ -5,9 +5,16 @@ import Core = require("Core");
 
 var Drivers: IDic<IDriver> = {};
 var Drivers_BusMapping: IDic<IDic<IDriver>> = {};
+var InterestCache = {};
 export var Events = new Node.events.EventEmitter();
 
 var query = require("underscore-query")(_);
+var pursuit = require("pursuit"); //TODO: Investigate Underscore_Query's performance
+
+export function InvalidateDrvInterest(drvId) {
+    //TODO: swap to pursuit if you want..
+    delete InterestCache[drvId];
+}
 
 export function LoadDriver(drv: IDriver, cb) {
     if (drv /* && !has(Drivers, drv.id())*/ ) {
@@ -20,6 +27,7 @@ export function LoadDriver(drv: IDriver, cb) {
             var drvId = drv.id();
             var buses = drv.bus();
             Drivers[drvId] = drv;
+            //PursuitCache[drvId] = {};
             for (var i = 0; i < buses.length; i++) {
                 var busName = buses[i];
                 if (has(Drivers_BusMapping[busName], drvId)) {
@@ -58,7 +66,6 @@ function _sanity_check(ver, dev: IDevice, drv: IDriver, err = false) {
 
 function _update_driver_data(drv: IDriver, dev: IDevice, assump: IDeviceAssumption, tracker: _tracker) {
     if (!drv || !drv.status() || !dev || !Drivers[drv.id()]) return;
-    
     var real: IDeviceAssumption = <any>{};
     var changed = false;
     for (var i in assump) {
@@ -148,10 +155,11 @@ function _notify_driver(driver: IDriver, dev: IDevice, tracker: _tracker, delta:
         var drvId = driver.id();
         var version = dev.time.getTime();
         var myAssump = dev.assumptions[drvId];
-        if (_sanity_check(version, dev, driver)) return;
+        if (!_sanity_check(version, dev, driver)) return; //WTF??
         //console.log(JSON.stringify(dev));
         try {
-            if (myAssump && myAssump.valid) {
+            if (myAssump && myAssump.valid && _is_interested_in(driver, dev, 1, delta, deltaBus, deltaConf, stateChange)) {
+                trace("Change -> " + driver.name());
                 //need change
                 driver.change(dev, {
                     assumption: delta,
@@ -161,7 +169,8 @@ function _notify_driver(driver: IDriver, dev: IDevice, tracker: _tracker, delta:
                     if (!assump || !_sanity_check(version, dev, driver, err)) return;
                     _update_driver_data(driver, dev, assump, tracker);
                 }));
-            } else {
+            } else if (!(myAssump && myAssump.valid) && _is_interested_in(driver, dev, 0, delta, deltaBus, deltaConf, stateChange)) {
+                trace("Match -> " + driver.name());
                 //need match/attach
                 //TODO: Verify EmitterizeCB's impact/influence on GC, to see if it solves the 'ghost CB' prob
                 driver.match(dev, {
@@ -171,6 +180,7 @@ function _notify_driver(driver: IDriver, dev: IDevice, tracker: _tracker, delta:
                 }, <any>must((err, data) => {
                     if (!data || !_sanity_check(version, dev, driver, err)) return;
                     try {
+                        trace("Attach -> " + driver.name());
                         driver.attach(dev, {
                             assumption: delta,
                             bus: deltaBus,
@@ -190,66 +200,70 @@ function _notify_driver(driver: IDriver, dev: IDevice, tracker: _tracker, delta:
     });
 }
 
-//TODO: Finish Driver Interest
-function _is_interested_in(interested: IDriverInterest, dev: IDevice, assump, busDelta, config, stateChange?) {
 
-    if (interested.all) return true;
+//TODO: Finish Driver Interest
+function _is_interested_in(drv: IDriver, dev: IDevice, currentStage, d_assump, d_bus, d_conf, stateChange?) {
+
+    var interested = drv.interest();
+
+    if (interested.all) return 1;
 
     if (interested.stateChange && stateChange) {
-        return true;
+        return 2;
     }
 
-    //Delta is good for you
-    if (interested.delta) {
-        if (config && interested.delta.config && query.first([config], interested.delta.config)) {
-            return true;
-        }
-        if (busDelta && interested.delta.bus && query.first([busDelta], interested.delta.bus)) {
-            return true;
-        }
-        if (assump
-            && interested.delta.assumption
-            && query.first([assump], interested.delta.assumption)) {
-            return true;
-        }
-    }
-
-
-
-    if (dev.config && interested.config && query.first([dev.config], interested.config)) {
-        return true;
-    }
-    if (dev.bus && interested.bus && query.first([dev.bus], interested.bus)) {
-        return true;
-    }
-    if (dev.assumptions
-        && interested.assumptions
-        && !interested.assumptions["*"]
-        && query.first([dev.assumptions], interested.assumptions)) {
-        return true;
-    }
-
-
-    //COST TOO MUCH
-    if (dev.assumptions
-        && interested.assumptions && interested.assumptions["*"]) {
-        for (var i in dev.assumptions) {
-            if (query.first([dev.assumptions[i]], interested.assumptions["*"])) {
-                return true;
+    var cc = currentStage == 0 ? interested.match : interested.change;
+    if (!cc) return 0;
+    if (!Array.isArray(cc)) cc = [cc];
+    var matched = 0;
+    for (var tt = 0; tt < cc["length"]; tt++) { //and logic
+        var c = cc[tt];
+        var result = 0;
+        if (c) {
+            if (c["stateChange"] && stateChange) {
+                result = 2;
+            }
+            else if (c.delta) {
+                if (d_conf && c.delta.config && query.first([d_conf], c.delta.config)) {
+                    result = 3;
+                }
+                else if (d_bus && c.delta.bus && query.first([d_bus], c.delta.bus)) {
+                    result = 4;
+                }
+                else if (d_assump
+                    && c.delta.assumption
+                    && query.first([d_assump], c.delta.assumption)) {
+                    result = 5;
+                }
+            } else if (dev.config && c.config && query.first([dev.config], c.config)) {
+                result = 6;
+            } else if (dev.bus && c.bus && query.first([dev.bus], c.bus)) {
+                result = 7;
+            } else if (dev.assumptions
+                && c.assumptions
+                && !c.assumptions["*"]
+                && query.first([dev.assumptions], c.assumptions)) {
+                result = 8;
+            } else if (dev.assumptions
+                && c.assumptions && c.assumptions["*"]) {
+                for (var i in dev.assumptions) {
+                    if (query.first([dev.assumptions[i]], c.assumptions["*"])) {
+                        result = 9; break;
+                    }
+                }
             }
         }
+        if (!result) return 0;
     }
-
     //match delta first
     //cuz delta costs less
-
-    return false;
+    return 1;
 }
 
 export function DeviceChange(dev: IDevice, tracker: _tracker, assump: IDeviceAssumption, busDelta: IBusData, config: KVSet, stateChange?) {
 
     if (stateChange) {
-        warn("State Change!");
+        warn("State Change! - " + dev.id);
     }
 
     var tracker = tracker ? tracker : <_tracker>{
@@ -260,7 +274,7 @@ export function DeviceChange(dev: IDevice, tracker: _tracker, assump: IDeviceAss
     //info(tracker);
 
     if (CONF.IS_DEBUG && tracker.depth > 0) {
-        console.log(tracker);
+        trace(tracker);
     }
 
     if (tracker.depth > CONF.MAX_DRIVERCHAIN_DEPTH) {
@@ -292,17 +306,16 @@ export function DeviceChange(dev: IDevice, tracker: _tracker, assump: IDeviceAss
         
         //Preference? Sure
         //Almost done.
-        if (_is_interested_in(Drivers[driver_id].interest(), dev, assump, busDelta, config, stateChange)) {
-            //trace("Notify -> " + Drivers[driver_id].name());
-            _notify_driver(Drivers[driver_id], dev, tracker, assump, busDelta, config, stateChange);
-        }
+        _notify_driver(Drivers[driver_id], dev, tracker, assump, busDelta, config, stateChange);
     }
 
 }
 
 export function DeviceDrop(dev: IDevice, busDelta?) {
     var version = dev.time;
+    fatal("Dropping " + dev.id);
     for (var i in dev.assumptions) {
+        fatal(i);
         if (!has(dev.assumptions, i) ||
             !dev.assumptions[i].valid ||
             !Drivers[i] || !Drivers[i].status() ||
@@ -313,6 +326,7 @@ export function DeviceDrop(dev: IDevice, busDelta?) {
             var drv = Drivers[i];
             process.nextTick(() => {
                 try {
+                    trace("Detach -> " + drv.name());
                     drv.detach(dev, {
                         assumption: undefined,
                         bus: busDelta,
