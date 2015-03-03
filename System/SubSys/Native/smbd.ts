@@ -3,6 +3,7 @@ import Node = require("Node");
 import fs = require("fs");
 import child_process = require("child_process");
 import Process = require("./Process");
+var _ = require("underscore");;
 
 // man smb.conf
 // VARIABLE SUBSTITUTIONS
@@ -241,9 +242,11 @@ export class SmbConfig {
     }
 
     private Normalize(){
-        var conf = require("underscore").clone(this);
-        if(conf.CommonSections["global"]["Netbios_Name"]){
-            conf.CommonSections["global"]["Netbios_Name"] = conf.CommonSections["global"]["Netbios_Name"].replace(/ /gi, "_");
+        var conf = _.clone(this);
+        var netbiosName = conf.CommonSections["global"]["Netbios_Name"].replace(/ /gi, "_"),
+            len = netbiosName.length;
+        if(netbiosName){
+            conf.CommonSections["global"]["Netbios_Name"] = (len > 15 ? netbiosName.substr(0, 15) : netbiosName);
         }
         return conf;
     }
