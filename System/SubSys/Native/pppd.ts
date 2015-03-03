@@ -5,17 +5,37 @@ import util = require("util");
 import child_process = require("child_process");
 import Process = require("./Process");
 
-class PPPDaemon extends Process {
+/*
+ man pppd
+ https://wiki.archlinux.org/index.php/Pppd
+
+ # command line:
+ # pppd plugin rp-pppoe.so syncppp $n mtu 1492 mru 1492 nic-$ifname nopersist usepeerdns nodefaultroute user $user password $pass ipparam $interface ifname pppoe-$interface
+ */
+class PPPoEDaemon extends Process {
     static PPPD_NAME = "pppd";
+    static RP_PPPOE_SO = "/usr/lib/pppd/rp-pppoe.so";
 
-    private _account:string;
-    private _passwd:string;
+    public Options: IDic<string>
+    public Account:string;
+    public Passwd:string;
+    public PPPNumber: number;
 
-    constructor(account:string, passwd:string) {
-        super(PPPDaemon.PPPD_NAME);
+    constructor(account:string, passwd:string, pppNumber: number, opts?: IDic<string>) {
+        super(PPPoEDaemon.PPPD_NAME);
 
-        this._account = account;
-        this._passwd = passwd;
+        this.Account = account;
+        this.Passwd = passwd;
+        this.Options = opts;
+        this.PPPNumber = pppNumber;
+    }
+
+    ConcatParams(){
+        var params = util.format("unit %d plugin %s user %s password %s", this.PPPNumber,
+            PPPoEDaemon.RP_PPPOE_SO, this.Account, this.Passwd);
+        for(var k in this.Options)
+            params += util.format("%s %s", k, this.Options[k]);
+        return params;
     }
 
     Start(forever:boolean = true) {
@@ -26,12 +46,10 @@ class PPPDaemon extends Process {
                 info("OK");
                 super.Start(forever);
             } else {
-                killall(PPPDaemon.PPPD_NAME, () => {
-                    this.Process = child_process.spawn(PPPDaemon.PPPD_NAME, [
-                        util.format('connect "chat %s"', '-f dial-c3po'),
-                        "eth0",
-                        "38400",
-                        "-detach crtscts modem defaultroute"]);
+                killall(PPPoEDaemon.PPPD_NAME, () => {
+                    this.Process = child_process.spawn(PPPoEDaemon.PPPD_NAME, [
+                        this.ConcatParams()
+                    ]);
                     this.Process.stdout.on("data", function (data) {
                         info(data.toString());
                     });
@@ -51,7 +69,7 @@ class PPPDaemon extends Process {
         info("Killing all PPPD processes");
         this.Process.removeAllListeners();
         this.Process = undefined;
-        killall(PPPDaemon.PPPD_NAME, () => {
+        killall(PPPoEDaemon.PPPD_NAME, () => {
             info("Done, waiting for recall");
             setTimeout(() => {
                 this.ClearChoke();
