@@ -47,9 +47,8 @@ class Configuration extends Abstract.Configurable {
             }
         }
         if (reload) {
-            //smbInstance.Start(true);
-            //smbInstance.StabilityCheck(cb);
-            cb();
+            smbInstance.Start(true);
+            smbInstance.StabilityCheck(cb);
         }
         else {
             cb();

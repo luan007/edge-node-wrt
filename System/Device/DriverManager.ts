@@ -218,7 +218,7 @@ function _is_interested_in(drv: IDriver, dev: IDevice, currentStage, tracker: _t
     if (!cc) return 0;
     if (!Array.isArray(cc)) cc = [cc];
     var matched = 0;
-    for (var tt = 0; tt < cc[length]; tt++) { //and logic
+    for (var tt = 0; tt < cc["length"]; tt++) { //and logic
         var c = cc[tt];
         var result = 0;
         if (c) {

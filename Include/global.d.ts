@@ -91,8 +91,8 @@ interface IDriverInterest_Part {
 
 //TODO: this need to be done
 interface IDriverInterest {
-    match?: IDriverInterest_Part | [IDriverInterest_Part];
-    change?: IDriverInterest_Part | [IDriverInterest_Part];
+    match?: [IDriverInterest_Part] | IDriverInterest_Part ;
+    change?: [IDriverInterest_Part] | IDriverInterest_Part ;
     stateChange?: boolean;
     all?: boolean;
     otherDriver?: any;
