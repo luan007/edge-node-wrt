@@ -31,10 +31,9 @@ class PPPoEDaemon extends Process {
     }
 
     ConcatParams(){
-        var params = util.format("unit %d plugin %s user %s password %s", this.PPPNumber,
-            PPPoEDaemon.RP_PPPOE_SO, this.Account, this.Passwd);
+        var params = ['unit', this.PPPNumber, 'plugin', PPPoEDaemon.RP_PPPOE_SO];
         for(var k in this.Options)
-            params += util.format("%s %s", k, this.Options[k]);
+            params = params.concat([k, this.Options[k]]);
         return params;
     }
 
@@ -47,9 +46,7 @@ class PPPoEDaemon extends Process {
                 super.Start(forever);
             } else {
                 killall(PPPoEDaemon.PPPD_NAME, () => {
-                    this.Process = child_process.spawn(PPPoEDaemon.PPPD_NAME, [
-                        this.ConcatParams()
-                    ]);
+                    this.Process = child_process.spawn(PPPoEDaemon.PPPD_NAME, this.ConcatParams());
                     this.Process.stdout.on("data", function (data) {
                         info(data.toString());
                     });
@@ -79,3 +76,4 @@ class PPPoEDaemon extends Process {
         return true;
     }
 }
+
