@@ -109,3 +109,45 @@ ROUTER首页 磁盘使用率 这那？
  
 
 -------------------------------------------
+
+
+
+     Launcher (Swap w/ JS context)
+
+function restoreWindowObj(skip) {
+  skip = skip || {};
+  var f = document.createElement("iframe");
+  f.style.display = "none";
+  document.documentElement.appendChild(f);
+  var newWindow = f.contentWindow;
+  document.documentElement.removeChild(f);
+  for(var i in newWindow){
+  	if(skip[i]) continue;
+  	try{
+  		window[i] = newWindow[i];
+  	}
+  	catch(e){
+
+  	}
+  }
+  for(var i in window){
+  	if(Object.hasOwnProperty(newWindow,i) || skip[i])continue;
+  	delete window[i];
+  }
+}
+
+function go(page){
+	ajax( ... )
+	done(function() {
+		
+		restoreWindowObj({
+			fileHandle: true //skip
+		});
+
+		document.open();
+		document.write(ajaxResult);
+		document.close(); //DONE!
+
+
+	});
+}
