@@ -3,7 +3,14 @@ import Node = require("Node");
 import fs = require("fs");
 import util = require("util");
 import child_process = require("child_process");
+import events = require("events");
 import Process = require("./Process");
+import IpRoute2 = require('./iproute2');
+
+export class PPPStatus{
+    static Offline:string = "Offline";
+    static Online:string = "Online";
+}
 
 /*
  man pppd
@@ -21,8 +28,12 @@ class PPPoEDaemon extends Process {
     public Passwd:string;
     public PPPNumber: number;
 
+    private status:PPPStatus = PPPStatus.Offline;
+
     constructor(account:string, passwd:string, pppNumber: number, opts?: IDic<string>) {
         super(PPPoEDaemon.PPPD_NAME);
+
+        this.RegisterEvents();
 
         this.Account = account;
         this.Passwd = passwd;
@@ -30,8 +41,32 @@ class PPPoEDaemon extends Process {
         this.PPPNumber = pppNumber;
     }
 
+    PPPName() {
+        return "ppp" + this.PPPNumber;
+    }
+
+    PPPStatus(){
+        return this.status;
+    }
+
+    RegisterEvents(){
+        Core.SubSys.Native.ip.Link.on("new", function(device){
+            if(device === this.PPPName()) {
+                info(device, PPPStatus.Online);
+                this.status = PPPStatus.Online;
+            }
+        });
+
+        Core.SubSys.Native.ip.Link.on("del", function(device) {
+            if(device === this.PPPName()) {
+                info(device, PPPStatus.Offline);
+                this.status = PPPStatus.Offline;
+            }
+        });
+    }
+
     ConcatParams(){
-        var params = ['unit', this.PPPNumber, 'plugin', PPPoEDaemon.RP_PPPOE_SO];
+        var params = ['unit', this.PPPNumber.toString(), 'plugin', PPPoEDaemon.RP_PPPOE_SO];
         for(var k in this.Options)
             params = params.concat([k, this.Options[k]]);
         return params;
@@ -76,4 +111,3 @@ class PPPoEDaemon extends Process {
         return true;
     }
 }
-
