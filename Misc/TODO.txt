@@ -21,7 +21,14 @@ ROUTER首页 磁盘使用率 这那？
 																        *state*
 *. Wireless
    -Repeater mode?
+	  -Creating Wlan Interfaces (WLAN0_STA, WLAN0_AP, WLAN0_GUEST .. so on)  ***
+	  -use wpa_suppliant / iw wlan0 list ... to scan / connect to networks   ***
+
    -ACS & Channel Listing
+	  -also iw wlan0 list
+	  -easy
+
+
 
 *. Router Base Features
    Naming, Theming
