@@ -100,7 +100,12 @@ class ipmonitor extends Process {
     };
 
     private Line_Link = (line1: string, line2: string) => {
-        ipmonitor.Link.emit("CHANGE", line1, line2);
+        if (line1.substr(0, 7) == 'Deleted') {
+            ipmonitor.Link.emit("DELETE", line1.substring(8), line2);
+        }
+        else {
+            ipmonitor.Link.emit("CHANGE", line1, line2);
+        }
     };
 
     private Line_Addr = (line: string) => {
@@ -647,16 +652,33 @@ class link extends events.EventEmitter {
         for (var i in this.Interfaces) {
             if (this.Interfaces[i].Id == id) {
                 this.Interfaces[i].Apply(line, line2);
-                this.emit(this.EVENT_RECORD_CHANGE, this.Interfaces[i]);
+                this.emit(this.EVENT_RECORD_CHANGE, i, this.Interfaces[i]);
                 //this.Debug_Output();
                 return;
             }
         }
         var p = new LinkInterface();
         p.Apply(line, line2);
-        this.Interfaces[p.Mac] = p;
+        this.Interfaces[p.Dev] = p;
         this.emit(this.EVENT_RECORD_NEW, p);
         //this.Debug_Output();
+
+    };
+
+    private OnDelete = (line: string, line2: string) => {
+
+        var id = line.split(":")[0];
+        for (var i in this.Interfaces) {
+            if (this.Interfaces[i].Id == id) {
+                var cache = this.Interfaces[i];
+                cache.Apply(line, line2);
+                delete this.Interfaces[i];
+                this.emit(this.EVENT_RECORD_DEL, i, cache);
+                //this.Debug_Output();
+                return;
+            }
+        }
+        //ignore
 
     };
 
@@ -688,6 +710,7 @@ class link extends events.EventEmitter {
         super();
 
         ipmonitor.Link.on("CHANGE", this.OnChange);
+        ipmonitor.Link.on("DELETE", this.OnDelete);
 
         trace("Initialize");
         link.Instance = this;
