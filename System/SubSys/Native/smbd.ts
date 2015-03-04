@@ -220,9 +220,9 @@ export class SmbConfig {
             "global": {
                 "available": YesOrNo.YES,
                 "Workgroup": "workgroup",
-                "Server_String": "%h server (Samba, Ubuntu)",
+                "Server_String": "Edge Server",
                 "Guest_Account": "nobody",
-                "Netbios_Name": "edge dev",
+                "Netbios_Name": "edge_dev",
                 "Dns_Proxy": YesOrNo.NO,
                 "Server_Role": SmbConfServerRole.STANDALONE,
                 "Map_To_Guest": SmbConfMap2Guest.Bad_User
@@ -251,7 +251,7 @@ export class SmbConfig {
         return conf;
     }
 
-    public ToConf() {
+    public ToConf = () => {
         var newConf = "";
         var util = require("util"); // Node.util
 
@@ -267,7 +267,7 @@ export class SmbConfig {
         }
 
         return newConf;
-    }
+    };
 }
 
 export class SmbDaemon extends Process {
@@ -298,15 +298,17 @@ export class SmbDaemon extends Process {
                 this.RestartNMDB();
                 super.Start(forever);
             } else {
-                killall(SmbDaemon.SMBD_NAME, () => {
+                killall(SmbDaemon.SMBD_NAME,() => {
                     this.Process = child_process.spawn(SmbDaemon.SMBD_NAME, [
                         "-F",
                         "--log-stdout",
                         "-s=" + this._path_conf,
-                        "-d=" + this.OutputLevel]);
-                    this.Process.stdout.on("data", function (data) {
-                        info(data.toString());
-                    });
+                        "-d=" + this.OutputLevel], {
+                            stdio: ['ignore', 'ignore', 'ignore']
+                        });
+                    //this.Process.stdout.on("data", function (data) {
+                    //    info(data.toString());
+                    //});
                     info("OK");
                     this.RestartNMDB();
                     super.Start(forever);
