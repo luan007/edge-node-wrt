@@ -34,6 +34,9 @@ export class Configurable extends Node.events.EventEmitter {
                 if (err) {
                     error(err);
                     this._config = JSON.parse(_backup);
+                    this.Reload(_backup,() => {
+                        warn("Reloading last config..");
+                    });
                     cb(err);
                 } else {
                     this.emit("change", mod);

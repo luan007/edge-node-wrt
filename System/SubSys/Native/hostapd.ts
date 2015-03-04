@@ -466,8 +466,8 @@ export class hostapd extends Process {
         super.OnChoke();
         info("Killing all HostAPD processes");
         this.Process.removeAllListeners();
-        this.Process = undefined;
-        killall("hostapd", () => {
+        killall("hostapd",() => {
+            this.Process = undefined;
             info("Done, waiting for recall");
             setTimeout(() => {
                 this.ClearChoke();

@@ -291,13 +291,17 @@ class Configuration extends Abstract.Configurable {
         if (has(mod, "NetworkName")) {
             if (Core.Router.Phy.Wifi.WLAN_2G4 && Core.Router.Phy.Wifi.Config.Get()._2G4 && Core.Router.Phy.Wifi.Config.Get()._2G4.AutoSSID) {
                 Core.Router.Phy.Wifi.WLAN_2G4.Config.SSID = mod.NetworkName;
-                Core.Router.Phy.Wifi.WLAN_2G4.Start(true);
-                jobs.push(Core.Router.Phy.Wifi.WLAN_2G4.StabilityCheck);
+                if (Core.Router.Phy.Wifi.Config.Get()._2G4.Power) {
+                    Core.Router.Phy.Wifi.WLAN_2G4.Start(true);
+                    jobs.push(Core.Router.Phy.Wifi.WLAN_2G4.StabilityCheck);
+                }
             }
             if (Core.Router.Phy.Wifi.WLAN_5G7 && Core.Router.Phy.Wifi.Config.Get()._5G7 && Core.Router.Phy.Wifi.Config.Get()._5G7.AutoSSID) {
                 Core.Router.Phy.Wifi.WLAN_5G7.Config.SSID = mod.NetworkName + "_5G";
-                Core.Router.Phy.Wifi.WLAN_5G7.Start(true);
-                jobs.push(Core.Router.Phy.Wifi.WLAN_5G7.StabilityCheck);
+                if (Core.Router.Phy.Wifi.Config.Get()._5G7.Power) {
+                    Core.Router.Phy.Wifi.WLAN_5G7.Start(true);
+                    jobs.push(Core.Router.Phy.Wifi.WLAN_5G7.StabilityCheck);
+                }
             }
             if (Core.Router.Storage.SambaInstance && Core.Router.Storage.Config.Get().Samba && Core.Router.Storage.Config.Get().Samba.UseRouterName) {
                 Core.Router.Storage.SambaInstance.Config.CommonSections["global"]["Netbios_Name"] = mod.NetworkName.NetworkName; //TODO: NetworkName should be changed into Self
