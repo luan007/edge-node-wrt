@@ -7,7 +7,7 @@ import events = require("events");
 import Process = require("./Process");
 import IpRoute2 = require('./iproute2');
 
-export class PPPStatus{
+export class PPPStatus {
     static Offline:string = "Offline";
     static Online:string = "Online";
 }
@@ -23,14 +23,14 @@ class PPPoEDaemon extends Process {
     static PPPD_NAME = "pppd";
     static RP_PPPOE_SO = "/usr/lib/pppd/rp-pppoe.so";
 
-    public Options: IDic<string>
+    public Options:IDic<string>
     public Account:string;
     public Passwd:string;
-    public PPPNumber: number;
+    public PPPNumber:number;
 
     private status:PPPStatus = PPPStatus.Offline;
 
-    constructor(account:string, passwd:string, pppNumber: number, opts?: IDic<string>) {
+    constructor(account:string, passwd:string, pppNumber:number, opts?:IDic<string>) {
         super(PPPoEDaemon.PPPD_NAME);
 
         this.RegisterEvents();
@@ -41,33 +41,37 @@ class PPPoEDaemon extends Process {
         this.PPPNumber = pppNumber;
     }
 
-    PPPName() {
-        return "ppp" + this.PPPNumber;
-    }
-
-    PPPStatus(){
+    PPPStatus() {
         return this.status;
     }
 
-    RegisterEvents(){
-        Core.SubSys.Native.ip.Link.on("new", function(device){
-            if(device === this.PPPName()) {
-                info(device, PPPStatus.Online);
-                this.status = PPPStatus.Online;
-            }
-        });
-
-        Core.SubSys.Native.ip.Link.on("del", function(device) {
-            if(device === this.PPPName()) {
-                info(device, PPPStatus.Offline);
-                this.status = PPPStatus.Offline;
-            }
-        });
+    OnNewDevice(device) {
+        if (device === "ppp" + this.PPPNumber) {
+            info(device, PPPStatus.Online);
+            this.status = PPPStatus.Online;
+        }
+    }
+    OnDelDevice(device){
+        if (device === "ppp" + this.PPPNumber) {
+            info(device, PPPStatus.Offline);
+            this.status = PPPStatus.Offline;
+        }
     }
 
-    ConcatParams(){
+    RegisterEvents() {
+        Core.SubSys.Native.ip.Link
+            .on("new", this.OnNewDevice)
+            .on("del", this.OnDelDevice);
+    }
+    RemoveEvents(){
+        Core.SubSys.Native.ip.Link
+            .removeListener("new", this.OnNewDevice)
+            .removeListener("del", this.OnDelDevice);
+    }
+
+    ConcatParams() {
         var params = ['unit', this.PPPNumber.toString(), 'plugin', PPPoEDaemon.RP_PPPOE_SO];
-        for(var k in this.Options)
+        for (var k in this.Options)
             params = params.concat([k, this.Options[k]]);
         return params;
     }
@@ -92,7 +96,11 @@ class PPPoEDaemon extends Process {
         }
     }
 
-    Apply = (forever: boolean = true) => { //as helper method
+    Stop(restart:boolean = false) {
+        this.RemoveEvents();
+    }
+
+    Apply = (forever:boolean = true) => { //as helper method
         this.Start(forever);
     };
 
