@@ -186,7 +186,7 @@ class addr extends events.EventEmitter {
 
     private OnChange = (line: string) => {
         var sp = line.split(" ");
-        var id = sp[1];
+        var id = sp[1].split(':')[0];
         if (!this.Interfaces[id]) {
             this.Interfaces[id] = [];
         }
@@ -209,7 +209,7 @@ class addr extends events.EventEmitter {
 
     private OnDelete = (line: string) => {
         var sp = line.split(" ");
-        var id = sp[1];
+        var id = sp[1].split(':')[0];
         if (!this.Interfaces[id]) {
             return;
         } else {

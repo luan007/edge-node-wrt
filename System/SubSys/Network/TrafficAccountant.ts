@@ -94,7 +94,7 @@ export function Watch(mac, _ip, cb) {
     mac_table[mac][0].Chain = Core.Router.Network.Chains.System.Mangle.TrafficPre;
     mac_table[mac][0].on("traffic", onTraffic);
     mac_table[mac][1].on("traffic", onTraffic);
-    async.series([
+    async.parallel([
         mac_table[mac][0].Save,
         mac_table[mac][1].Save
     ], cb);
@@ -142,7 +142,7 @@ export function Update(mac, _ip, cb) {
     mac_table[mac][0].Source = mac_table[mac][1].Destination = {
         Addr: _ip
     };
-    async.series([
+    async.parallel([
         mac_table[mac][0].Save,
         mac_table[mac][1].Save
     ], cb);

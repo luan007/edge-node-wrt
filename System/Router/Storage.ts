@@ -14,8 +14,8 @@ class Configuration extends Abstract.Configurable {
     Default = {
         Samba: {
             Enabled: true,
-            Name: "Edge",
-            UseRouterName: true
+            Name: "edge",
+            UseRouterName: false
         }
     };
 

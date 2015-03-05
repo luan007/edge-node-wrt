@@ -29,7 +29,7 @@ class NameService implements IDriver {
         change: {
             delta: {
                 bus: {
-                    "data.Lease": { $exists: true }
+                    "Lease": { $exists: true }
                 }
             }
         }
@@ -152,7 +152,7 @@ class NameService implements IDriver {
     }
 
     change(dev: IDevice, delta:IDriverDetla, cb: PCallback<IDeviceAssumption>) {
-        if (delta.bus.data.Lease) {
+        if (delta.bus.Lease) {
             if (!dev.bus.data.Lease) {
                 this._remove_name(dev,() => { });
             } else {

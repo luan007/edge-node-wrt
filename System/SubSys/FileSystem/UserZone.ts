@@ -16,8 +16,17 @@ export function Initialize(cb) {
     trace("Preparing User Root..");
     async.series([
         exec.bind(null, "chown", "nobody", "-R", CONF.USER_DATA_PATH),
-        exec.bind(null, "chmod", "711", CONF.USER_DATA_PATH),
+        exec.bind(null, "chmod", "777", CONF.USER_DATA_PATH),
     ], cb);
+
+    Samba.Config.Folders["Shared"] = {
+        Guest_Ok: true,
+        ReadOnly: false,
+        Path: CONF.USER_DATA_PATH,
+        Browseable: true,
+        Comment: "Shared",
+        Guest_Account: "nobody"
+    };
 }
 
 

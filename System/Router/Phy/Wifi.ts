@@ -36,8 +36,8 @@ class Configuration extends Abstract.Configurable {
     Default = {
         _2G4: {
             Power: true,
-            SSID: "_Beyond_Edge_",
-            AutoSSID: true,
+            SSID: "EdgeRouter",
+            AutoSSID: false,
             Visible: true,
             Channel: 8,
             Password: undefined,
@@ -55,9 +55,9 @@ class Configuration extends Abstract.Configurable {
             }
         },
         _5G7: {
-            Power: true,
-            SSID: "_Beyond_Edge_5G",
-            AutoSSID: true,
+            Power: false,
+            SSID: "edge-development-5g",
+            AutoSSID: false,
             Visible: true,
             Channel: 136,
             Password: undefined,
@@ -115,7 +115,7 @@ class Configuration extends Abstract.Configurable {
             WLAN_2G4.Stop(false);
             return cb();
         }
-        else {
+        else if (this.Get()._2G4.Power){
             //apply
             WLAN_2G4.Start(true);
             var pid;
@@ -172,7 +172,7 @@ class Configuration extends Abstract.Configurable {
             WLAN_5G7.Stop(false);
             return cb();
         }
-        else {
+        else if (this.Get()._5G7.Power) {
             //apply
             WLAN_5G7.Start(true);
             var pid;

@@ -20,7 +20,7 @@ class _sys_conf {
     SHADOW_DATA_PATH = path.join(this.SHADOW_BASE_PATH, "Data");
     DEV_STORAGE = "/dev/sda1"; // system partition, as for onboard-emmc configuration: /dev/mmcblk0p1
     BASE_DATA_PATH = "/Data/";
-    USER_DATA_PATH = path.join(this.BASE_DATA_PATH, "User/");
+    USER_DATA_PATH = path.join("/User/");
     APP_BASE_PATH = path.join(this.BASE_PATH, "../Applications/");
     PLATFORM_BIAS_FS_SPLITTER = process.platform == "win32" ? "\\" : "/";
     DATA_DIR = process.env.DATA_DIR ? process.env.DATA_DIR : path.join(this.BASE_PATH, "../_data");
@@ -52,16 +52,16 @@ class _sys_conf {
     };
     DEV = {
         WLAN: {
-            DEV_2G: "wlan0",
-            DEV_5G: "wlan1"
+            DEV_2G: "ap0",
+            DEV_5G: "ap1"
         },
         ETH: {
             DEV_WAN: "eth0"
         }
     };
     BUS = { //DEV Reverse
-        wlan0: "WLAN",
-        wlan1: "WLAN"
+        ap0: "WLAN",
+        ap1: "WLAN"
     };
     ORBIT = {
         HOST: "127.0.0.1",

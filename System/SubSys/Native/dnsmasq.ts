@@ -297,12 +297,14 @@ export class DHCPLeaseManager extends Node.events.EventEmitter {
                 this.emit(DHCPLeaseManager.EVENT_ADD, lease);
                 break;
             case "old":
-                info("Changing " + lease.Hostname + " " + lease.Address);
-                this.LeaseDB[lease.Mac] = lease;
-                if (this.WatchList[lease.Mac] !== undefined) {
-                    this.WatchList[lease.Mac](lease);
+                if (!_.isEqual(lease, this.LeaseDB[lease.Mac])) {
+                    info("Changing " + lease.Hostname + " " + lease.Address);
+                    this.LeaseDB[lease.Mac] = lease;
+                    if (this.WatchList[lease.Mac] !== undefined) {
+                        this.WatchList[lease.Mac](lease);
+                    }
+                    this.emit(DHCPLeaseManager.EVENT_CHANGE, lease);
                 }
-                this.emit(DHCPLeaseManager.EVENT_CHANGE, lease);
                 break;
             case "del":
                 info("Deleting " + lease.Hostname + " " + lease.Address);
@@ -421,7 +423,6 @@ function ConfigToArg(cfg: ConfigInterface, relay_path) {
     //arrLst.push("--resolv-file=" + resolv_path);
     arrLst.push("--dhcp-option=44," + cfg.Listen_Address);
     arrLst.push("--dhcp-option=6," + cfg.Listen_Address);
-
     if (cfg.Listen_Address && cfg.Listen_Address != "") {
         arrLst.push("--listen-address=" + cfg.Listen_Address + ",127.0.0.1");
     }
@@ -458,7 +459,6 @@ function ConfigToArg(cfg: ConfigInterface, relay_path) {
             }
         }
     }
-
     if (cfg.Addresss) {
         for (var t in cfg.Addresss) {
             if (!cfg.Addresss.hasOwnProperty(t)) {
@@ -467,7 +467,6 @@ function ConfigToArg(cfg: ConfigInterface, relay_path) {
             arrLst.push("--address=/" + t + "/" + cfg.Addresss[t]);
         }
     }
-
     if (cfg.Hosts) {
         for (var t in cfg.Hosts) {
             if (!cfg.Hosts.hasOwnProperty(t)) {

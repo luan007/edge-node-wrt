@@ -156,6 +156,7 @@
     <TypeScriptCompile Include="SubSys\Native\smbd.ts" />
     <TypeScriptCompile Include="SubSys\Native\time.ts" />
     <TypeScriptCompile Include="SubSys\Native\user.ts" />
+    <TypeScriptCompile Include="SubSys\Native\wpa_supplicant.ts" />
     <TypeScriptCompile Include="SubSys\Native\_Export.ts" />
     <TypeScriptCompile Include="SubSys\Native\_Module.ts" />
     <TypeScriptCompile Include="SubSys\Network\StatusMonitor.ts" />

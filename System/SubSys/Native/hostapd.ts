@@ -1,4 +1,6 @@
-﻿import Process = require("./Process");
+﻿//http://ftp.netbsd.org/pub/NetBSD/NetBSD-current/src/external/bsd/wpa/dist/hostapd/README-WPS
+
+import Process = require("./Process");
 import child_process = require("child_process");
 import events = require("events");
 import fs = require("fs");
@@ -152,6 +154,21 @@ function CfgString(conf: ConfigBase, dev, ctrl_sock, mac_accp, mac_deny) {
 
     newconf += "accept_mac_file=" + mac_accp + line;
     newconf += "deny_mac_file=" + mac_deny + line;
+
+    newconf += "wps_state=1" + line;
+    newconf += "device_name=Edge Router" + line;
+    newconf += "manufacturer=EmergeLabs" + line;
+    newconf += "model_name=Edge_dev_model" + line;
+    newconf += "model_number=0" + line;
+    newconf += "serial_number=DEV_000000" + line;
+    //http://download.csdn.net/detail/fzel_net/4178287
+    newconf += "model_url=http://wifi.network/" + line;
+    newconf += "device_type=6-0050F204-1" + line;
+    newconf += "friendly_name=Edge" + line;
+    newconf += "manufacturer_url=http://www.edgerouter.com/" + line;
+    newconf += "model_description=Edge Router" + line;
+    newconf += "uuid=87654321-9abc-def0-1234-56789abc0000" + line;
+
 
     warn("WARNING - HTCAP NOT IMPLEMENTED");
 

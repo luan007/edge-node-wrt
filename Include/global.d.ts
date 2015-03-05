@@ -100,7 +100,7 @@ interface IDriverInterest {
 
 interface IDriverDetla {
     assumption: IDeviceAssumption;
-    bus: IBusData;
+    bus;
     config: KVSet;
     otherDriver?: boolean;
 }

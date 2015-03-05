@@ -4,7 +4,6 @@ import Native = Core.SubSys.Native;
 import Abstract = Core.Lib.Abstract;
 import Iptables = Native.iptables;
 import Dnsmasq = Native.dnsmasq;
-
 export var dnsmasq = new Dnsmasq.dnsmasq();
 
 /*
@@ -103,6 +102,12 @@ function InitNetwork(cb) {
     Rules.UplinkNAT.Target = Iptables.Target_Type.MASQUERADE;
 
     async.series([
+        (c) => {
+            exec("iw phy phy0 interface add ap0 type __ap",() => { trace("AP0"); setTimeout(c, 1000); });
+        },
+        (c) => {
+            exec("iw phy phy1 interface add ap1 type __ap",() => { trace("AP1"); setTimeout(c, 1000); });
+        },
         exec.bind(null, "echo 1 > /proc/sys/net/ipv4/ip_forward"),
         exec.bind(null, "echo 1 > /proc/sys/net/ipv6/conf/default/forwarding"),
         exec.bind(null, "echo 1 > /proc/sys/net/ipv6/conf/all/forwarding"),
@@ -138,9 +143,6 @@ function InitNetwork(cb) {
 
 }
 
-function InitTrafficAccounting(cb) {
-    
-}
 
 export function Initialize(cb) {
     async.series([
@@ -255,7 +257,7 @@ function _clearCustomDNS(id) {
 class Configuration extends Abstract.Configurable {
 
     Default = {
-        NetworkName: "E.D.G.E_dev",
+        NetworkName: "edge-dev",
         RouterIP: "192.168.100.1",
         LocalNetmask: 24,
         Uplink: CONF.DEV.ETH.DEV_WAN, //ethernet
@@ -354,7 +356,7 @@ class Configuration extends Abstract.Configurable {
                 Prefix: addr.Prefix
             };
             jobs.push(Native.ip.Addr.Set_Flush.bind(null, CONF.DEV.WLAN.DEV_2G, addr));
-            //jobs.push(Native.ip.Addr.Set_Flush.bind(null, CONF.DEV.WLAN.DEV_5G, addr));
+            jobs.push(Native.ip.Addr.Set_Flush.bind(null, CONF.DEV.WLAN.DEV_5G, addr));
             jobs.push(Rules.DropIncomingRequests.Save);
             jobs.push(Rules.HttpTrafficProxy.Save);
             jobs.push(Rules.UplinkNAT.Save);
@@ -369,7 +371,7 @@ class Configuration extends Abstract.Configurable {
         if (jobs.length == 0) {
             cb(); //success!
         } else {
-            async.parallel(jobs, cb);
+            async.series(jobs, cb);
         }
     };
 
