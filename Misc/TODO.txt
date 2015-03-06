@@ -39,23 +39,23 @@ ROUTER首页 磁盘使用率 这那？
 
 *. DHCPCD
 																																
-0. Auto DHCP / DNS  ------------------------------------------ ( IMPLEMENTED, NEED TEST )
+0. Auto DHCP / DNS  ------------------------------------------ ( GOOD )
    Domain Splitting (not done yet?!)
 
 1. Samba + MiniDLNA + MDNS ----------------------------------- ( Test Needed )
-   A) Samba			------------------------------------------ ( Partly Finished, NEED TEST )
+   A) Samba			------------------------------------------ ( GOOD )
    B) MiniDLNA
    C) MDNS Server   ------------------------------------------ ( Half Done, Half Tested)
-   D) File API ? (TBD) 
+   D) File API ? (TBD)
 	  --> Event (watcher)
 
-2. PPPD
+2. PPPD	
    A) PPTP
-   B) PPPOE * Important
+   B) PPPOE * Important		---------------------------------- ( Test Needed )
    C) PPPOE/DHCPCD Auto Detection
 
 3. IPP (Printer Driver)
-   A) MDNS Discovery Service (Bus Data Provider) ------------- (Test Needed)
+   A) MDNS Discovery Service (Bus Data Provider) ------------- ( Test Needed )
    B) IPP
    C) Printing Helper Application * Feature
    
