@@ -17,7 +17,7 @@ export class PPPStatus {
  https://wiki.archlinux.org/index.php/Pppd
 
  # command line:
- # pppd plugin rp-pppoe.so syncppp $n mtu 1492 mru 1492 nic-$ifname nopersist usepeerdns nodefaultroute user $user password $pass ipparam $interface ifname pppoe-$interface
+ # pppd plugin /usr/lib/ppd/rp-pppoe.so eth0 usepeerdns nodefaultroute nodetach user <user> password <pwd> mtu 1492 mru 1492
  */
 class PPPoEDaemon extends Process {
     static PPPD_NAME = "pppd";
@@ -70,7 +70,7 @@ class PPPoEDaemon extends Process {
     }
 
     ConcatParams() {
-        var params = ['unit', this.PPPNumber.toString(), 'plugin', PPPoEDaemon.RP_PPPOE_SO];
+        var params = ['unit', this.PPPNumber.toString(), 'plugin', PPPoEDaemon.RP_PPPOE_SO, 'nodetach'];
         for (var k in this.Options)
             params = params.concat([k, this.Options[k]]);
         return params;
