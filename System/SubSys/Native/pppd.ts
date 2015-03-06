@@ -17,7 +17,7 @@ export class PPPStatus {
  https://wiki.archlinux.org/index.php/Pppd
 
  # command line:
- # pppd plugin /usr/lib/ppd/rp-pppoe.so eth0 usepeerdns nodefaultroute updetach user <user> password <pwd> mtu 1492 mru 1492
+ # pppd plugin /usr/lib/ppd/rp-pppoe.so eth0 usepeerdns nodefaultroute nodetach user <user> password <pwd> mtu 1492 mru 1492
  */
 class PPPoEDaemon extends Process {
     static PPPD_NAME = "pppd";
