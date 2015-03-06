@@ -363,6 +363,6 @@ export function Initialize(callback: Callback) {
     async.series([
         LoadDriver.bind(null,(require("./Driver/TestDriver")).Instance),
         LoadDriver.bind(null,(require("./Driver/OUI")).Instance),
-        //LoadDriver.bind(null,(require("./Driver/NameService")).Instance)
+        LoadDriver.bind(null,(require("./Driver/NameService")).Instance)
     ], callback);
 }

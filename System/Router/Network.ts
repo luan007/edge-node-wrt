@@ -111,6 +111,14 @@ function InitNetwork(cb) {
         exec.bind(null, "echo 1 > /proc/sys/net/ipv4/ip_forward"),
         exec.bind(null, "echo 1 > /proc/sys/net/ipv6/conf/default/forwarding"),
         exec.bind(null, "echo 1 > /proc/sys/net/ipv6/conf/all/forwarding"),
+        exec.bind(null, "echo 8388608 > /proc/sys/net/core/rmem_max"),
+        exec.bind(null, "echo 8388608 > /proc/sys/net/core/wmem_max"),
+        exec.bind(null, "echo 1 > /proc/sys/net/ipv4/tcp_timestamps"),
+        //exec.bind(null, "echo 1 > /proc/sys/net/ipv4/tcp_bic"),
+        exec.bind(null, "echo 1 > /proc/sys/net/ipv4/tcp_fack"),
+        exec.bind(null, "echo 1 > /proc/sys/net/ipv4/tcp_sack"),
+        exec.bind(null, "echo '8192 4194304 8388608' > /proc/sys/net/ipv4/tcp_wmem"),
+        exec.bind(null, "echo '4096 2097152 8388608' > /proc/sys/net/ipv4/tcp_rmem"),
 
         Iptables.Iptables.Mangle.AddChain.bind(null, Chains.System.Mangle.TrafficPre),
         Iptables.Iptables.Mangle.AddChain.bind(null, Chains.System.Mangle.TrafficPost),
@@ -318,6 +326,7 @@ class Configuration extends Abstract.Configurable {
             dnsmasq.Hosts[0]["wi.fi"] = mod.RouterIP;
             dnsmasq.Hosts[0]["wifi.network"] = mod.RouterIP;
             dnsmasq.Hosts[0]["ed.ge"] = mod.RouterIP;
+            dnsmasq.Hosts[0]["wifi"] = mod.RouterIP;
             addr["Address"] = mod.RouterIP;
         }
         if (has(mod, "LocalNetmask")) {

@@ -40,7 +40,7 @@ class Configuration extends Abstract.Configurable {
             AutoSSID: false,
             Visible: true,
             Channel: 8,
-            Password: undefined,
+            Password: "testtest",
             NAT: 1,
             Isolation: 0, //Not Used, reserved for VLAN,
             Aux: { //GuestWifi
@@ -60,7 +60,7 @@ class Configuration extends Abstract.Configurable {
             AutoSSID: false,
             Visible: true,
             Channel: 136,
-            Password: undefined,
+            Password: "testtest",
             NAT: 1,
             Isolation: 0, //Not Used, reserved for VLAN,
             Aux: { //GuestWifi

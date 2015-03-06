@@ -31,7 +31,8 @@ class NameService implements IDriver {
                 bus: {
                     "Lease": { $exists: true }
                 }
-            }
+            },
+            stateChange: true
         }
     };
 
@@ -76,8 +77,9 @@ class NameService implements IDriver {
     private _update_name = (dev: IDevice, _cb) => {
         _cb = _cb || (() => { });
         intoQueue("dhcp_operation",(c) => {
-            delete this._name_cache[0][dev.id];
-            delete this._name_cache[1][dev.id];
+            //delete this._name_cache[0][dev.id];
+            //delete this._name_cache[1][dev.id];
+            //delete this._name_cache[2][dev.id];
 
             var lease = dev.bus.data.Lease;
             var host = lease.Hostname.trim();
@@ -85,41 +87,61 @@ class NameService implements IDriver {
             var name = dev.config.name;
             var alias = dev.config.alias;
 
-            if (!ip || !host || !lease) {
+            if (!lease) {
                 return c();
             }
 
-            var jobs = [];
-            if (host && host != "" && host.indexOf("*") < 0) {
+            //if (host == "Windows-Phone") {
+            //    alias = ["HELLOWORLD"]; //test
+            //    trace("Found Test Subject");
+            //}
+
+            //if (host && host != "" && host.indexOf("*") < 0) {
+            //    //good
+            //    jobs.push((cb) => {
+            //        this.find_good_spot(host,(spot) => {
+            //            this._name_cache[0][dev.id] = { spot: ip };
+            //            cb();
+            //        });
+            //    });
+            //}
+            var changed = false;
+            if (name && name != "" && name.indexOf("*") < 0 && name != host &&
+                !_.isEqual(this._name_cache[1][dev.id], { name: ip })) {
                 //good
-                jobs.push((cb) => {
-                    this.find_good_spot(host,(spot) => {
-                        this._name_cache[0][dev.id] = { spot: ip };
-                        cb();
-                    });
-                });
+                this._name_cache[1][dev.id] = { name: ip };
+                changed = true;
             }
-            if (name && name != "" && name.indexOf("*") < 0 && name != host) {
+            if (Array.isArray(alias)) {
                 //good
-                jobs.push((cb) => {
-                    this._name_cache[1][dev.id] = { name: ip };
-                    cb();
-                });
+                if (!this._name_cache[2][dev.id]) {
+                    this._name_cache[2][dev.id] = {};
+                }
+                for (var a in this._name_cache[2][dev.id]) {
+                    var found = false;
+                    for (var i = 0; i < alias.length; i++) {
+                        if (alias[a]) {
+                            var found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        delete this._name_cache[2][dev.id][a];
+                        changed = true;
+                    }
+                }
+                for (var i = 0; i < alias.length; i++) {
+                    if (this._name_cache[2][dev.id][alias[i]] != ip) {
+                        this._name_cache[2][dev.id][alias[i]] = ip;
+                        changed = true;
+                    }
+                }
             }
-            if (alias) {
-                //good
-                jobs.push((cb) => {
-                    this._name_cache[2][dev.id] = alias;
-                    cb();
-                });
-            }
-            if (jobs.length == 0) {
+            if (!changed) {
                 c();
             }
             else {
-                async.series(jobs,() => {
-                    Core.Router.Network.dnsmasq.SIGHUP_Update(c);
-                });
+                Core.Router.Network.dnsmasq.SIGHUP_Update(c);
             }
         }, _cb);
     };
@@ -151,18 +173,15 @@ class NameService implements IDriver {
         }
     }
 
-    change(dev: IDevice, delta:IDriverDetla, cb: PCallback<IDeviceAssumption>) {
-        if (delta.bus.Lease) {
-            if (!dev.bus.data.Lease) {
-                this._remove_name(dev,() => { });
-            } else {
-                this._update_name(dev,() => {
-                    //do nothing
-                });
-            }
-            return cb(undefined, { valid: true });
+    change(dev: IDevice, delta: IDriverDetla, cb: PCallback<IDeviceAssumption>) {
+        if (!dev.bus.data.Lease) {
+            this._remove_name(dev,() => { });
+        } else {
+            this._update_name(dev,() => {
+                //do nothing
+            });
         }
-        return cb(undefined, undefined);
+        return cb(undefined, { valid: true });
     }
 
     detach(dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) {

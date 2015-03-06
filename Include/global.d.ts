@@ -53,7 +53,7 @@ interface IBusData {
 
 interface IDeviceConfig extends IDic<any> {
     name?: string;
-    alias?: any[]| IDic<string>;
+    alias?: any[];
 }
 
 interface IDevice {

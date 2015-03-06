@@ -87,14 +87,14 @@ function CfgString(conf: ConfigBase, dev, ctrl_sock, mac_accp, mac_deny) {
     var line = "\n";
     newconf += "interface=" + conf.Dev + line;
 
-    if (this.Logger) {
+    if (conf.Logger) {
         newconf += "logger_syslog=" + conf.Logger.System + line;
         newconf += "logger_syslog_level=" + conf.Logger.System_level + line;
         newconf += "logger_stdout=" + conf.Logger.StdOut + line;
         newconf += "logger_stdout_level=" + conf.Logger.StdOut_level + line;
     }
 
-    switch (this.Base) {
+    switch (conf.Base) {
         case _80211_BASE.A:
             newconf += "wmm_enabled=1" + line;
             newconf += "ieee80211ac=1" + line;

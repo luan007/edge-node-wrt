@@ -421,7 +421,9 @@ function ConfigToArg(cfg: ConfigInterface, relay_path) {
     //TAKE THIS AS WINS SERVER
     //arrLst.push("--dhcp-hostsfile=" + hosts_path);
     //arrLst.push("--resolv-file=" + resolv_path);
-    arrLst.push("--dhcp-option=44," + cfg.Listen_Address);
+    arrLst.push("--dhcp-option=44,0.0.0.0");
+    arrLst.push("--dhcp-option=45,0.0.0.0");
+    arrLst.push("--dhcp-option=46,8");
     arrLst.push("--dhcp-option=6," + cfg.Listen_Address);
     if (cfg.Listen_Address && cfg.Listen_Address != "") {
         arrLst.push("--listen-address=" + cfg.Listen_Address + ",127.0.0.1");
@@ -511,6 +513,8 @@ export class dnsmasq extends Process {
     //[Static, Dynamic]
     public DNSRules: ServerRule[][] = [[],[]];
 
+    private _cache: any = {};
+
     /**
      * Mac - Ip ( static ip )
      */
@@ -549,71 +553,90 @@ export class dnsmasq extends Process {
     //--read-ethers      <<----- arp?
     //--servers-file     <<----- dns... 
     private flush = (cb) => {
+        var changed = false;
+        var _hosts = "";
+        
+        forEachFlat(this.Hosts,(host) => {
+            if (!host) return;
+            for (var t in host) {
+                if (!has(host, t)) return;
+                _hosts += host[t] + " " + t;
+                _hosts += "\r\n";
+            }
+        });
+
+        var _dns = "";
+        if (this.DNSRules) {
+            forEachFlat(this.DNSRules,(rule) => {
+                var c = "";
+                if (rule.Domains && rule.Domains.length > 0) {
+                    c += "/";
+                    for (var j = 0; j < rule.Domains.length; j++) {
+                        c += rule.Domains[j]; + "/";
+                    }
+                }
+                if (rule.UpStreamDNS && rule.UpStreamDNS != "") {
+                    c += rule.UpStreamDNS;
+                    if (rule.UpStreamPort) {
+                        c += "#" + rule.UpStreamPort;
+                    }
+                } else if (c != "") {
+                    c += "#";
+                } else {
+                    return;
+                }
+                _dns += "server=" + c + "\r\n";
+            });
+        }
+        var _dhcp_hosts = "";
+        if (this.DHCP_Hosts) {
+            forEachFlat(this.DHCP_Hosts,(hosts) => {
+                if (!hosts) return;
+                for (var t in hosts) {
+                    if (!hosts.hasOwnProperty(t)) {
+                        continue;
+                    }
+                    _dhcp_hosts += t + "," + hosts[t] + "\r\n";
+                }
+            });
+        }
+
+        if (!(this._cache._hosts == _hosts
+            && this._cache._dns == _dns
+            && this._cache._dhcp_hosts == _dhcp_hosts)) {
+            changed = true;
+            this._cache._hosts = _hosts;
+            this._cache._dns = _dns;
+            this._cache._dhcp_hosts = _dhcp_hosts;
+        }
+        if (!changed) {
+            trace("DNSMASQ found no change, nothing to do :p");
+            return cb(undefined, "nochange");
+        }
+        else {
+            trace(_hosts);
+            trace(_dns);
+            trace(_dhcp_hosts);
+        }
         async.series(
             [
                 exec.bind(null, "rm -rf " + this.hosts_path),
                 exec.bind(null, "rm -rf " + this.dns_path),
-                exec.bind(null, "rm -rf " + this.dhcp_host_path)
-            ]
-            ,() => {
-                var _hosts = "";
-                forEachFlat(this.Hosts,(host) => {
-                    if (!host) return;
-                    for (var t in host) {
-                        if (!has(host, t)) return;
-                        _hosts += t + " " + host[t];
-                        _hosts += "\r\n";
-                    }
-                });
-                var _dns = "";
-                if (this.DNSRules) {
-                    forEachFlat(this.DNSRules, (rule) => {
-                        var c = "";
-                        if (rule.Domains && rule.Domains.length > 0) {
-                            c += "/";
-                            for (var j = 0; j < rule.Domains.length; j++) {
-                                c += rule.Domains[j]; + "/";
-                            }
-                        }
-                        if (rule.UpStreamDNS && rule.UpStreamDNS != "") {
-                            c += rule.UpStreamDNS;
-                            if (rule.UpStreamPort) {
-                                c += "#" + rule.UpStreamPort;
-                            }
-                        } else if (c != "") {
-                            c += "#";
-                        } else {
-                            return;
-                        }
-                        _dns += "server=" + c + "\r\n";
-                    });
-                }
-                var _dhcp_hosts = "";
-                if (this.DHCP_Hosts) {
-                    forEachFlat(this.DHCP_Hosts,(hosts) => {
-                        if (!hosts) return;
-                        for (var t in hosts) {
-                            if (!hosts.hasOwnProperty(t)) {
-                                continue;
-                            }
-                            _dhcp_hosts += t + "," + hosts[t] + "\r\n";
-                        }
-                    });
-                }
-                async.parallel(
-                    [
-                        Node.fs.writeFile.bind(null, this.hosts_path, _hosts),
-                        Node.fs.writeFile.bind(null, this.dns_path, _dns),
-                        Node.fs.writeFile.bind(null, this.dhcp_host_path, _dhcp_hosts)
-                    ], cb);
-            });
+                exec.bind(null, "rm -rf " + this.dhcp_host_path),
+                Node.fs.writeFile.bind(null, this.hosts_path, _hosts),
+                Node.fs.writeFile.bind(null, this.dns_path, _dns),
+                Node.fs.writeFile.bind(null, this.dhcp_host_path, _dhcp_hosts)
+            ], cb);
     };
 
     SIGHUP_Update = (cb) => {
-        setTask("DNSMASQ_sighup",() => {
+        setTask("DNSMASQ_sighup", () => {
             intoQueue("DNSMASQ_sighup",(c) => {
                 fatal("Dnsmasq_Hotplug: in progress..");
-                this.flush(() => {
+                this.flush((err, result) => {
+                    if (result == "nochange") {
+                        return c();
+                    }
                     if (this.Process) {
                         this.Process.kill("SIGHUP"); //no more rebootz, BITCHES
                         info("OK");
@@ -624,7 +647,7 @@ export class dnsmasq extends Process {
                     c();
                 });
             }, cb);
-        }, 400); //speedy? no.
+        }, 1500); //speedy? no.
     };
 
     Start(forever: boolean = true) {

@@ -139,6 +139,7 @@
     <TypeScriptCompile Include="SubSys\FrontEnds\WebEx.ts" />
     <TypeScriptCompile Include="SubSys\FrontEnds\_Export.ts" />
     <TypeScriptCompile Include="SubSys\FrontEnds\_Module.ts" />
+    <TypeScriptCompile Include="SubSys\Native\airplay.ts" />
     <TypeScriptCompile Include="SubSys\Native\commands.ts" />
     <TypeScriptCompile Include="SubSys\Native\def.d.ts" />
     <TypeScriptCompile Include="SubSys\Native\dlna.ts" />

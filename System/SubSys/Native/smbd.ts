@@ -218,14 +218,30 @@ export class SmbConfig {
         this.Printers = {};
         this.CommonSections = commonSections || {
             "global": {
-                "available": YesOrNo.YES,
-                "Workgroup": "workgroup",
+                "Available": YesOrNo.YES,
+                "Follow_Symlinks": YesOrNo.NO,
+                "Wide_Links": YesOrNo.NO,
+                "Use_SendFile": YesOrNo.YES,
+                "Read_Raw": YesOrNo.YES,
+                "Write_Raw": YesOrNo.YES,
+                //"AIO_Read_Size": 16384,
+                //"AIO_Write_Size": 16384,
+                "Write_Cache_Size": 262144,
+                //"Max_Xmit": 65536,
+                "Large_Readwrite": YesOrNo.YES,
+                //"Getwd_cache": YesOrNo.YES,
+                "Workgroup": "WORKGROUP",
+                "Local Master": YesOrNo.YES,
+                "Preferred Master": YesOrNo.YES,
+                "OS Level": 200,
                 "Server_String": "Edge Server",
                 "Guest_Account": "nobody",
                 "Netbios_Name": "edge_dev",
                 "Dns_Proxy": YesOrNo.NO,
+                "Wins_Support": YesOrNo.YES,
                 "Server_Role": SmbConfServerRole.STANDALONE,
-                "Map_To_Guest": SmbConfMap2Guest.Bad_User
+                "Map_To_Guest": SmbConfMap2Guest.Bad_User,
+                "Name_Resolve_Order": "host wins bcast"
             },
             "printers": {
                 "Comment": "All printers",
