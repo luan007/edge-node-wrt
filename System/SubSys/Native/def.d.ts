@@ -22,3 +22,5 @@ declare function parsespawn_full(file, args: string[]): {
     process: any;
     event: NodeJS.EventEmitter
 };
+
+declare var mdns;

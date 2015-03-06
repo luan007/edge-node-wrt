@@ -236,7 +236,7 @@ export class SmbConfig {
                 "OS Level": 200,
                 "Server_String": "Edge Server",
                 "Guest_Account": "nobody",
-                "Netbios_Name": "edge_dev",
+                "Netbios_Name": "edge",
                 "Dns_Proxy": YesOrNo.NO,
                 "Wins_Support": YesOrNo.YES,
                 "Server_Role": SmbConfServerRole.STANDALONE,
@@ -293,6 +293,9 @@ export class SmbDaemon extends Process {
     public Config:SmbConfig;
     public OutputLevel:number;
 
+    private _ad1;
+    private _ad2;
+
     private _path_conf = getSock(UUIDstr());
 
     constructor(config:SmbConfig, outputLevel:number = 3) {
@@ -302,12 +305,33 @@ export class SmbDaemon extends Process {
         this.OutputLevel = outputLevel;
     }
 
-    Start(forever:boolean = true) {
+    Start(forever: boolean = true) {
         if (!this.IsChoking()) {
             if (fs.existsSync(this._path_conf) && fs.unlinkSync(this._path_conf));
 
             fs.writeFileSync(this._path_conf, this.Config.ToConf());
 
+            if (this._ad1) {
+                this._ad1.stop();
+                this._ad1 = undefined;
+            }
+            if (this._ad2) {
+                this._ad2.stop();
+                this._ad2 = undefined;
+            }
+            if (this.Config.CommonSections["global"]["Available"] === YesOrNo.YES) {
+                this._ad1 = mdns.createAdvertisement(mdns.tcp('smb'), 445, {
+                    name: this.Config.CommonSections["global"]["Netbios_Name"]
+                });
+                this._ad1.start();
+                this._ad2 = mdns.createAdvertisement(mdns.tcp('device-info'), 0, {
+                    name: this.Config.CommonSections["global"]["Netbios_Name"],
+                    txtRecord: {
+                        model: "AirPort"
+                    }
+                });
+                this._ad2.start();
+            }
             if (this.Process) {
                 this.Process.kill("SIGHUP"); //no more rebootz, BITCHES
                 info("OK");
@@ -334,6 +358,14 @@ export class SmbDaemon extends Process {
     }
 
     Stop(restart: boolean = false) {
+        if (this._ad1) {
+            this._ad1.stop();
+            this._ad1 = undefined;
+        }
+        if (this._ad2) {
+            this._ad2.stop();
+            this._ad2 = undefined;
+        }
         this.KillNMDB(super.Stop.bind(null, restart));
     }
 

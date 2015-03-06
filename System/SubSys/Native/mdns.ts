@@ -149,6 +149,7 @@ class _mdns_Browser extends events.EventEmitter {
 
 export var Browser = new _mdns_Browser();
 
+global.mdns = mdns;
 
 export function Initialize(cb) {
     info("Starting..");
