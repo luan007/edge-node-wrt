@@ -155,6 +155,7 @@ function CfgString(conf: ConfigBase, dev, ctrl_sock, mac_accp, mac_deny) {
     newconf += "accept_mac_file=" + mac_accp + line;
     newconf += "deny_mac_file=" + mac_deny + line;
 
+    /* This may cause problem in windows ... network-discovery got crazy */
     newconf += "wps_state=1" + line;
     newconf += "device_name=Edge Router" + line;
     newconf += "manufacturer=EmergeLabs" + line;
@@ -240,6 +241,8 @@ export class CtrlInterface extends events.EventEmitter {
             });
         }
     };
+
+    //TODO: add WPS sorta things
 
     public ALL_STA = (callback) => {
         this.STA_FIRST((err, result) => {
@@ -486,7 +489,7 @@ export class hostapd extends Process {
         killall("hostapd",() => {
             this.Process = undefined;
             info("Done, waiting for recall");
-            setTimeout(() => {
+            this.Choke_Timer = setTimeout(() => {
                 this.ClearChoke();
                 this.Start();
             }, 5000);

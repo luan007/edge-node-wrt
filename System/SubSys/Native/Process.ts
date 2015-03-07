@@ -21,6 +21,9 @@ class ManagedProcess extends events.EventEmitter {
 
     private lastReboot = 0;
 
+    protected Choke_Timer = undefined;
+
+
     constructor(name?) {
         super();
         this.Name = name;
@@ -30,6 +33,7 @@ class ManagedProcess extends events.EventEmitter {
     }
 
     public Stop(restart: boolean = false) {
+        clearTimeout(this.Choke_Timer);
         this.emit("stop", this);
         if (this.Process) {
             warn("Stop " + ('' + this.Process.pid.toString()).bold + " " + this.Name);
@@ -44,6 +48,7 @@ class ManagedProcess extends events.EventEmitter {
 
     public Start(forever: boolean = true) {
         this.emit("start", this);
+        clearTimeout(this.Choke_Timer);
         var time = new Date().getTime();
         if (time - this.lastReboot < this.ChokeTolerance_Time) {
             this.chokeCounter++;

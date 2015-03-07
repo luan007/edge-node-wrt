@@ -391,7 +391,7 @@ export class SmbDaemon extends Process {
         killall(SmbDaemon.SMBD_NAME, () => {
             this.KillNMDB(() => {
                 info("Done, waiting for recall");
-                setTimeout(() => {
+                this.Choke_Timer = setTimeout(() => {
                     this.ClearChoke();
                     this.Start();
                 }, 2000);

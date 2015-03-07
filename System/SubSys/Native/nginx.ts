@@ -193,7 +193,7 @@ export class nginx extends Process {
         this.Process = undefined;
         killall("nginx", () => {
             info("Done, waiting for recall");
-            setTimeout(() => {
+            this.Choke_Timer = setTimeout(() => {
                 this.ClearChoke();
                 this.Start();
             }, 5000);

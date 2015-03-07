@@ -680,7 +680,7 @@ export class dnsmasq extends Process {
         warn("Killing all DNSMASQ processes");
         killall("dnsmasq", () => {
             info("Done, waiting for recall");
-            setTimeout(() => {
+            this.Choke_Timer = setTimeout(() => {
                 this.ClearChoke();
                 this.Start();
             }, 2000);
