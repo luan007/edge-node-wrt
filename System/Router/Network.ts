@@ -101,6 +101,7 @@ function InitNetwork(cb) {
 
     Rules.UplinkNAT.Target = Iptables.Target_Type.MASQUERADE;
 
+    //TODO: Check Multicase, I think it is the root cause for everything being invisible to everything
     async.series([
         (c) => {
             exec("iw phy phy0 interface add ap0 type __ap",() => { trace("AP0"); setTimeout(c, 1000); });
