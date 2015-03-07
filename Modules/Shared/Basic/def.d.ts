@@ -68,3 +68,5 @@ declare function has(obj, key);
 
 
 declare function forEachFlat(arr, job);
+
+declare function didChange(name, thisTime, comp_func?: (cur, last) => boolean);

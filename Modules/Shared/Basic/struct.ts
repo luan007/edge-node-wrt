@@ -19,3 +19,26 @@ global.forEachFlat = function(arr, job) {
     //i love recursion
     _forEachFlat(arr, { stop: false }, undefined, undefined, -1, job);
 }
+
+
+
+var _change_cache = {};
+
+function _didChange(name, thisTime, comp_func?: (cur, last) => boolean) {
+    var last = _change_cache[name];
+    var same = false;
+    if (comp_func) {
+        same = comp_func(thisTime, last);
+    } else {
+        same = thisTime === last;
+    }
+    if (!same) {
+        _change_cache[name] = thisTime;
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+global.didChange = _didChange;
