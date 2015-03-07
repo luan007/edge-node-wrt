@@ -28,7 +28,10 @@ ROUTER首页 磁盘使用率 这那？
 	  -also iw wlan0 list
 	  -easy
 
+*. HOSTAPD with WPS support
 
+*. UPNP & SSDP
+   SSDP discovery / UPNP broadcast
 
 *. Router Base Features
    Naming, Theming
@@ -50,9 +53,9 @@ ROUTER首页 磁盘使用率 这那？
 	  --> Event (watcher)
 
 2. PPPD	
-   A) PPTP
+   A) PPTP (delayed)
    B) PPPOE * Important		---------------------------------- ( Test Needed )
-   C) PPPOE/DHCPCD Auto Detection
+   C) PPPOE/DHCPCD Auto Detection (delayed)
 
 3. IPP (Printer Driver)
    A) MDNS Discovery Service (Bus Data Provider) ------------- ( Test Needed )

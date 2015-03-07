@@ -155,6 +155,7 @@
     <TypeScriptCompile Include="SubSys\Native\nginx.ts" />
     <TypeScriptCompile Include="SubSys\Native\Process.ts" />
     <TypeScriptCompile Include="SubSys\Native\smbd.ts" />
+    <TypeScriptCompile Include="SubSys\Native\ssdp.ts" />
     <TypeScriptCompile Include="SubSys\Native\time.ts" />
     <TypeScriptCompile Include="SubSys\Native\user.ts" />
     <TypeScriptCompile Include="SubSys\Native\wpa_supplicant.ts" />
