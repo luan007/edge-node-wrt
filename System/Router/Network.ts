@@ -365,8 +365,9 @@ class Configuration extends Abstract.Configurable {
                 Addr: addr.Address,
                 Prefix: addr.Prefix
             };
-            jobs.push(Native.ip.Addr.Set_Flush.bind(null, CONF.DEV.WLAN.DEV_2G, addr));
-            jobs.push(Native.ip.Addr.Set_Flush.bind(null, CONF.DEV.WLAN.DEV_5G, addr));
+            //fix broadcast in iproute2 please
+            jobs.push(exec.bind(null, "ifconfig " + " " + CONF.DEV.WLAN.DEV_2G + " " + addr));
+            jobs.push(exec.bind(null, "ifconfig " + " " + CONF.DEV.WLAN.DEV_5G + " " + addr));
             jobs.push(Rules.DropIncomingRequests.Save);
             jobs.push(Rules.HttpTrafficProxy.Save);
             jobs.push(Rules.UplinkNAT.Save);
