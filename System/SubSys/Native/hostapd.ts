@@ -156,19 +156,19 @@ function CfgString(conf: ConfigBase, dev, ctrl_sock, mac_accp, mac_deny) {
     newconf += "deny_mac_file=" + mac_deny + line;
 
     /* This may cause problem in windows ... network-discovery got crazy */
-    newconf += "wps_state=1" + line;
-    newconf += "device_name=Edge Router" + line;
-    newconf += "manufacturer=EmergeLabs" + line;
-    newconf += "model_name=Edge_dev_model" + line;
-    newconf += "model_number=0" + line;
-    newconf += "serial_number=DEV_000000" + line;
-    //http://download.csdn.net/detail/fzel_net/4178287
-    newconf += "model_url=http://wifi.network/" + line;
-    newconf += "device_type=6-0050F204-1" + line;
-    newconf += "friendly_name=Edge" + line;
-    newconf += "manufacturer_url=http://www.edgerouter.com/" + line;
-    newconf += "model_description=Edge Router" + line;
-    newconf += "uuid=87654321-9abc-def0-1234-56789abc0000" + line;
+    //newconf += "wps_state=1" + line;
+    //newconf += "device_name=Edge Router" + line;
+    //newconf += "manufacturer=EmergeLabs" + line;
+    //newconf += "model_name=Edge_dev_model" + line;
+    //newconf += "model_number=0" + line;
+    //newconf += "serial_number=DEV_000000" + line;
+    ////http://download.csdn.net/detail/fzel_net/4178287
+    //newconf += "model_url=http://wifi.network/" + line;
+    //newconf += "device_type=6-0050F204-1" + line;
+    //newconf += "friendly_name=Edge" + line;
+    //newconf += "manufacturer_url=http://www.edgerouter.com/" + line;
+    //newconf += "model_description=Edge Router" + line;
+    //newconf += "uuid=87654321-9abc-def0-1234-56789abc0000" + line;
 
 
     warn("WARNING - HTCAP NOT IMPLEMENTED");
@@ -453,18 +453,41 @@ export class hostapd extends Process {
 
         if (!this.IsChoking()) {
             this.Ctrl.start();
-            if (fs.existsSync(this._path_conf) && fs.unlinkSync(this._path_conf));
-            if (fs.existsSync(this._path_accp) && fs.unlinkSync(this._path_accp));
-            if (fs.existsSync(this._path_deny) && fs.unlinkSync(this._path_deny));
 
-            fs.writeFileSync(this._path_conf, CfgString(this.Config, this._dev, this._path_sock, this._path_accp, this._path_deny));
-            fs.writeFileSync(this._path_accp, this.obj_to_strlst(this.MAC_Accept));
-            fs.writeFileSync(this._path_deny, this.obj_to_strlst(this.MAC_Deny));
+            var conf = CfgString(this.Config, this._dev, this._path_sock, this._path_accp, this._path_deny);
+            var accp = this.obj_to_strlst(this.MAC_Accept);
+            var deny = this.obj_to_strlst(this.MAC_Deny);
+
+            var changed = false;
+            if (didChange(this._path_conf, conf)) {
+                changed = true;
+                if (fs.existsSync(this._path_conf) && fs.unlinkSync(this._path_conf));
+                fs.writeFileSync(this._path_conf, CfgString(this.Config, this._dev, this._path_sock, this._path_accp, this._path_deny));
+            }
+
+            if (didChange(this._path_accp, accp)) {
+                changed = true;
+                if (fs.existsSync(this._path_accp) && fs.unlinkSync(this._path_accp));
+                fs.writeFileSync(this._path_accp, accp);
+            }
+
+            if (didChange(this._path_deny, deny)) {
+                changed = true;
+                if (fs.existsSync(this._path_deny) && fs.unlinkSync(this._path_deny));
+                fs.writeFileSync(this._path_deny, deny);
+            }
             
+
+            //TODO: use DidChange to determine what to do!
             if (this.Process) {
-                this.Process.kill("SIGHUP"); //no more rebootz, BITCHES
-                info("OK");
-                super.Start(forever);
+                if (changed) {
+                    this.Process.kill("SIGHUP"); //no more rebootz, BITCHES
+                    //Actually, this does cause a reboot.
+                    info("OK");
+                    super.Start(forever);
+                } else {
+                    info("No change, skipped");
+                }
             } else {
                 killall("hostapd", () => {
                     this.Process = child_process.spawn("hostapd", [this._path_conf]);

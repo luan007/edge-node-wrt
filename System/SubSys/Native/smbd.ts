@@ -238,10 +238,10 @@ export class SmbConfig {
                 "Guest_Account": "nobody",
                 "Netbios_Name": "edge",
                 "Dns_Proxy": YesOrNo.NO,
-                "Wins_Support": YesOrNo.YES,
+                //"Wins_Support": YesOrNo.YES,
                 "Server_Role": SmbConfServerRole.STANDALONE,
                 "Map_To_Guest": SmbConfMap2Guest.Bad_User,
-                "Name_Resolve_Order": "host wins bcast"
+                //"Name_Resolve_Order": "host wins bcast"
             },
             "printers": {
                 "Comment": "All printers",
@@ -307,10 +307,13 @@ export class SmbDaemon extends Process {
 
     Start(forever: boolean = true) {
         if (!this.IsChoking()) {
-            if (fs.existsSync(this._path_conf) && fs.unlinkSync(this._path_conf));
-
-            fs.writeFileSync(this._path_conf, this.Config.ToConf());
-
+            var changed = false;
+            var conf = this.Config.ToConf();
+            if (didChange(this._path_conf, conf)) {
+                if (fs.existsSync(this._path_conf) && fs.unlinkSync(this._path_conf));
+                fs.writeFileSync(this._path_conf, this.Config.ToConf());
+                changed = true;
+            }
             if (this._ad1) {
                 this._ad1.stop();
                 this._ad1 = undefined;
@@ -333,10 +336,14 @@ export class SmbDaemon extends Process {
                 this._ad2.start();
             }
             if (this.Process) {
-                this.Process.kill("SIGHUP"); //no more rebootz, BITCHES
-                info("OK");
-                this.RestartNMDB();
-                super.Start(forever);
+                if (changed) {
+                    this.Process.kill("SIGHUP"); //no more rebootz, BITCHES
+                    info("OK");
+                    this.RestartNMDB();
+                    super.Start(forever);
+                } else {
+                    info("No change, skipped");
+                }
             } else {
                 killall(SmbDaemon.SMBD_NAME,() => {
                     this.Process = child_process.spawn(SmbDaemon.SMBD_NAME, [

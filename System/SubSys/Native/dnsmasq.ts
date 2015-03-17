@@ -421,8 +421,8 @@ function ConfigToArg(cfg: ConfigInterface, relay_path) {
     //TAKE THIS AS WINS SERVER
     //arrLst.push("--dhcp-hostsfile=" + hosts_path);
     //arrLst.push("--resolv-file=" + resolv_path);
-    arrLst.push("--dhcp-option=44,0.0.0.0");
-    arrLst.push("--dhcp-option=45,0.0.0.0");
+    //arrLst.push("--dhcp-option=44,0.0.0.0");
+    //arrLst.push("--dhcp-option=45,0.0.0.0");
     arrLst.push("--dhcp-option=46,8");
     arrLst.push("--dhcp-option=6," + cfg.Listen_Address);
     if (cfg.Listen_Address && cfg.Listen_Address != "") {

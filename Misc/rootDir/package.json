@@ -45,6 +45,7 @@
     "mdns": "*",
     "linebyline": "*",
     "readline-sync":  "*",
-    "pursuit":  "*"
+    "pursuit": "*",
+    "node-ssdp":  "*"
   }
 }

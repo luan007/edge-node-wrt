@@ -46,6 +46,8 @@ class _sys_conf {
     SENDER_TYPE_APP = "App";
     SENDER_TYPE_PROXY = "Proxy";
     BASE_FIREWALL = false;
+    SSDP_PORT = 9979;
+    SSDP_DEBUG = true;
     RELOAD_DEFAULT_CONFIG = true; //Turn this on to restore sys's default config (as for Configurable.ts and its children)
     CORE_PARTS = {
         LAUNCHER: "Launcher"

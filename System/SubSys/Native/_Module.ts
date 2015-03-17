@@ -6,5 +6,6 @@
         require("./iw").Initialize,
         require("./user").ClearGenerated,
         require("./mdns").Initialize,
+        require("./ssdp").Initialize,
     ], <any>callback);
 }

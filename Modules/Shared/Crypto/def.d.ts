@@ -1,5 +1,5 @@
 ﻿declare function UUID(): NodeBuffer;
-declare function UUIDstr(): string;
+declare function UUIDstr(short?): string;
 declare function randombuf(len?): NodeBuffer;
 declare function randomstr(len?, encoding?): string;
 declare function sha1(content): string;

@@ -33,7 +33,7 @@ class _mdns_Browser extends events.EventEmitter {
     private watch_addr = {};
 
     public GetServices(address) {
-        return this.watch_addr[address];
+        return this.Alive[address];
     }
 
     public Watch(address, event_add: (service, my_services?) => any, event_lost: (service, my_services?) => any) {

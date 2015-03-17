@@ -1,5 +1,16 @@
 ﻿//TODO: Bluetooth Support
 
+//udevadm monitor --udev!!!
+//http://www.raspberrypi.org/forums/viewtopic.php?t=26685 <-- very helpful
+
+//bluetooth-agent (block)
+//will pair
+
+
+
+//http://delx.net.au/blog/2014/01/bluetooth-audio-a2dp-receiver-raspberry-pi/
+
+//http://vadimgrinco.com/turning-your-cubieboardraspberrypi-into-an-a2dp-capable-media-player.html
 
 //HCI 2.0
 //HCI 4.0
@@ -52,6 +63,4 @@
 // hciconfig auth / noauth
 
 // 
-
-
 
