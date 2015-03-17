@@ -112,11 +112,11 @@ var defaults: SimpleUPNPRecord = {
 };
 
 var upnp_template = '<?xml version="1.0" encoding="UTF-8"?>\n' + 
-'<root xmlns="urn:schemas-upnp-org:device-1-0"><specVersion><major>__{{versionMajor}}__</major><minor>__{{versionMinor}}__</minor></specVersion><device><deviceType>__{{deviceType}}__</deviceType><friendlyName>edge</friendlyName><manufacturer>__{{manufacturer}}__</manufacturer><manufacturerURL>__{{manufacturerUrl}}__</manufacturerURL><modelDescription>__{{desc}}__</modelDescription><modelName>__{{modelName}}__</modelName><modelNumber>__{{modelNumber}}__</modelNumber><modelURL>__{{modelUrl}}__</modelURL><serialNumber>__{{serialNumber}}__</serialNumber><UDN>uuid:DC30EF3B-37B3-93DF-A20A-BF3ACE286300</UDN><presentationURL>__{{presentationUrl}}__</presentationURL></device></root>'; //tbd
+'<root xmlns="urn:schemas-upnp-org:device-1-0"><specVersion><major>__{{versionMajor}}__</major><minor>__{{versionMinor}}__</minor></specVersion><device><deviceType>__{{deviceType}}__</deviceType><friendlyName>edge</friendlyName><manufacturer>__{{manufacturer}}__</manufacturer><manufacturerURL>__{{manufacturerUrl}}__</manufacturerURL><modelDescription>__{{desc}}__</modelDescription><modelName>__{{modelName}}__</modelName><modelNumber>__{{modelNumber}}__</modelNumber><modelURL>__{{modelUrl}}__</modelURL><serialNumber>__{{serialNumber}}__</serialNumber><UDN>__{{udn}}__</UDN><presentationURL>__{{presentationUrl}}__</presentationURL></device></root>'; //tbd
 //var matcher = /__{{(.*?)}}__/;
 //__{{versionMajor}}__
 
-function generateUPnPresp(my) {
+function generateUPnPresp(uuid, my) {
     var now = upnp_template;
     for (var i in defaults) {
         var c = defaults[i];
@@ -125,6 +125,7 @@ function generateUPnPresp(my) {
         }
         now = now.replace("__{{" + i + "}}__", c);
     }
+    now = now.replace("__{{udn}}__", uuid);
     if (CONF.IS_DEBUG && CONF.SSDP_DEBUG) {
         trace(now);
     }
@@ -148,7 +149,7 @@ generic_server.get("*",(req, res) => {
         return res.status(404);
     } else {
         res.contentType("xml");
-        return res.send(200, generateUPnPresp(handled[q].Record));
+        return res.send(200, generateUPnPresp(handled[q].Opt.udn, handled[q].Record));
     }
 });
 
