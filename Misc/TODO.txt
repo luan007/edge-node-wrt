@@ -30,7 +30,7 @@ ROUTER首页 磁盘使用率 这那？
 
 *. HOSTAPD with WPS support
 
-*. UPNP & SSDP
+*. UPNP & SSDP      ----------------------------------------- ( Test Needed )
    SSDP discovery / UPNP broadcast
 
 *. Router Base Features
