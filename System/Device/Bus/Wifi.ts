@@ -71,6 +71,28 @@ class Wifi extends Bus {
                         });
 
                     });
+
+
+                Core.SubSys.Native.ssdp.SSDP_Browser.Watch(currentIp,
+                    (service, mine) => {
+                        this._on_device({
+                            hwaddr: mac,
+                            data: {
+                                SSDP: mine
+                            }
+                        });
+
+                    },(service, mine) => {
+                        this._on_device({
+                            hwaddr: mac,
+                            data: {
+                                SSDP: mine
+                            }
+                        });
+
+                    });
+
+
             }
         });
         Core.SubSys.Native.iw.Watch(mac,(d) => { //TODO: Test, impact on performance & usability
@@ -128,7 +150,8 @@ class Wifi extends Bus {
                 Lease: Core.Router.Network.dnsmasq.Leases.LeaseDB[mac],
                 Wireless: Core.SubSys.Native.iw.Devices[mac],
                 Traffic: {},
-                MDNS: {}
+                MDNS: {},
+                SSDP: {}
             }//OUI: OUI,
         });
         //});
@@ -147,6 +170,7 @@ class Wifi extends Bus {
         var ip = Core.Router.Network.dnsmasq.Leases.LeaseDB[mac];;
         if (ip) {
             Core.SubSys.Native.mdns.Browser.Unwatch(ip);
+            Core.SubSys.Native.ssdp.SSDP_Browser.Unwatch(ip);
         }
         //UARecon.UnwatchUA(mac);
         this._mac_list[band][mac] = undefined;

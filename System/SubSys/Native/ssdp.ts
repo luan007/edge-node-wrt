@@ -1,6 +1,8 @@
 ﻿var ssdp = require('node-ssdp');
 var Server = ssdp.Server;
 import express = require("express");
+import events = require("events");
+
 /*
     DIRTY HACK AHEAD
 */
@@ -19,15 +21,16 @@ Client.prototype._notify = function () {
     );
 };
 
-import events = require("events");
 
 class _ssdp_Browser extends events.EventEmitter {
 
+    public Cache = {};
+    
     private client;
 
     private watch_addr = {};
     
-    public Watch(address, event_add: (usn, service, rinfo?) => any, event_lost: (usn, service, rinfo?) => any) {
+    public Watch(address, event_add: (headers, mine) => any, event_lost: (headers, mine) => any) {
         this.watch_addr[address] = [event_add, event_lost];
     }
 
@@ -37,23 +40,29 @@ class _ssdp_Browser extends events.EventEmitter {
 
     private detected = (headers, statusCode, rinfo, kind = 'alive') => {
         if (!(headers && rinfo && kind && rinfo.address && headers.USN)) return;
+        if (!this.Cache[rinfo.address]) this.Cache[rinfo.address] = {};
         switch (kind) {
             case "alive":
+                this.Cache[rinfo.address][headers.USN] = headers;
                 this.emit("serviceUp", rinfo.address, headers);
                 if (this.watch_addr[rinfo.address]) {
-                    this.watch_addr[rinfo.address][0](headers.USN, headers, rinfo);
+                    this.watch_addr[rinfo.address][0](headers, this.Cache[rinfo.address]);
                 }
                 break;
             case "byebye":
+                delete this.Cache[rinfo.address][headers.USN];
                 this.emit("serviceDown", rinfo.address, headers);
                 if (this.watch_addr[rinfo.address]) {
-                    this.watch_addr[rinfo.address][1](headers.USN, headers, rinfo);
+                    this.watch_addr[rinfo.address][1](headers, this.Cache[rinfo.address]);
                 }
                 break;
             case "update":
-
-                this.emit("serviceUp", rinfo.address, headers);
             case "notify":
+                this.Cache[rinfo.address][headers.USN] = headers;
+                this.emit("serviceUp", rinfo.address, headers);
+                if (this.watch_addr[rinfo.address]) {
+                    this.watch_addr[rinfo.address][0](headers, this.Cache[rinfo.address]);
+                }
                 break;
 
             default:
@@ -80,6 +89,27 @@ class _ssdp_Browser extends events.EventEmitter {
     };
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 interface SimpleUPNPRecord {
     versionMajor?: string;
