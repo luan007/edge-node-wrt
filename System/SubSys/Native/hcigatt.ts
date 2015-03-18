@@ -61,6 +61,5 @@
 
 // 4. device auth
 // hciconfig auth / noauth
-
 // 
 

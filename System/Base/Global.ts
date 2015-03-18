@@ -1,10 +1,14 @@
-﻿declare var path;
+﻿require("./SystemEvent");
+require("./Machine");
+
+declare var path;
 class _sys_conf {
     LOADED = false; // don't touch
     IS_DEBUG = true; 
     ALWAYS_REBUILD_OUI = true;
     INTERACTIVE_DEBUG = true;
     IPTABLES_GUARD_LOG = false;
+    DISABLE_SAMBA = true;
     IW_LOG = false;
     RPC_FUNC_LOG = true; 
     SKIP_QUOTA_CHECK = false; // = true if your boot is too slow, however Runtime.ts will be unstable

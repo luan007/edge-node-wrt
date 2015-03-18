@@ -16,7 +16,7 @@ Client.prototype._notify = function () {
     arguments[0].NTS && this.emit('m',
         arguments[1],
         200,
-        arguments[3],
+        arguments[2],
         arguments[0].NTS.toLowerCase().split(':')[1]
     );
 };
@@ -39,6 +39,7 @@ class _ssdp_Browser extends events.EventEmitter {
     }
 
     private detected = (headers, statusCode, rinfo, kind = 'alive') => {
+        trace(arguments);
         if (!(headers && rinfo && kind && rinfo.address && headers.USN)) return;
         if (!this.Cache[rinfo.address]) this.Cache[rinfo.address] = {};
         switch (kind) {
@@ -64,7 +65,6 @@ class _ssdp_Browser extends events.EventEmitter {
                     this.watch_addr[rinfo.address][0](headers, this.Cache[rinfo.address]);
                 }
                 break;
-
             default:
                 break;
         }
@@ -89,22 +89,6 @@ class _ssdp_Browser extends events.EventEmitter {
     };
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

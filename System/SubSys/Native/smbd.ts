@@ -300,12 +300,17 @@ export class SmbDaemon extends Process {
 
     constructor(config:SmbConfig, outputLevel:number = 3) {
         super(SmbDaemon.SMBD_NAME);
-
+        if (CONF.IS_DEBUG && CONF.DISABLE_SAMBA) {
+            this.BypassStabilityTest = true;
+        }
         this.Config = config;
         this.OutputLevel = outputLevel;
     }
 
+
+
     Start(forever: boolean = true) {
+        if (CONF.IS_DEBUG && CONF.DISABLE_SAMBA) return;
         if (!this.IsChoking()) {
             var changed = false;
             var conf = this.Config.ToConf();

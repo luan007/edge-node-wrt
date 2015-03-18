@@ -70,7 +70,7 @@ ROUTER首页 磁盘使用率 这那？
    D) Light Control Application ? (TBD) / [The Home App]
    *) Bluetooth OBDC/File Reciever + Samba Combination
 
-4.1 AUDIO 
+4.1 AUDIO
 	http://alsa.opensrc.org/Asoundrc
 
 ** Xiami/Douban.fm/Spotify App? (if we can do A2DP)
