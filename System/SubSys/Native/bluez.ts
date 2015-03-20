@@ -91,7 +91,7 @@ export class Bluez extends Process {
             else {
                 delta_add(dev.Properties, props, true);
             }
-            this.emit("PropertyChanged", addr);
+            this.emit("Changed", addr);
         });
     };
 
@@ -104,6 +104,7 @@ export class Bluez extends Process {
                 this._dev_cache[addr].Alive = true;
                 this._update_property(addr, dev);
                 //get hooked 
+                this.emit("Created", addr);
                 dev.on("PropertyChanged",(id, data) => {
                     data = dbus_magic(data);
                     this._dev_cache[addr].Properties.PropertyStamp = Date.now();
@@ -123,6 +124,7 @@ export class Bluez extends Process {
             this._dev_cache[addr].Properties = props;
             this._dev_cache[addr].Alive = true;
             this._dev_cache[addr].Properties.RSSIStamp = Date.now();
+            this.emit("Found", addr);
             this.emit("RSSIChanged", addr);
         }
     };
@@ -131,12 +133,14 @@ export class Bluez extends Process {
         var addr = obj_path.substring(obj_path.length - 17).replace("_", ":").toLowerCase();
         if (this._dev_cache[addr]) {
             this._dev_cache[addr].Alive = false;
+            this.emit("Disappeared", addr);
         }
     };
 
     _release_dev = (obj_path) => {
         var addr = obj_path.substring(obj_path.length - 17).replace("_", ":").toLowerCase();
         if (this._dev_cache[addr]) {
+            this.emit("Removed", addr, this._dev_cache[addr]);
             this._dev_cache[addr].removeAllListeners();
             this._dev_cache[addr] = this._dev_cache[addr] = undefined;
         }
@@ -166,6 +170,8 @@ export class Bluez extends Process {
                             adapter.on("DeviceFound", this._dev_found.bind(null, adapter));
                             adapter.on("DeviceDisappeared", this._dev_disap);
                             adapter.on("DeviceRemoved", this._release_dev);
+
+                            this.emit("dbus_Started");
                             return cb();
                         });
                     });
@@ -183,6 +189,7 @@ export class Bluez extends Process {
                 this._dev_cache[i].removeAllListeners();
                 this._dev_cache[i] = undefined;
             }
+            this.emit("dbus_Stopped");
         }
     };
 
