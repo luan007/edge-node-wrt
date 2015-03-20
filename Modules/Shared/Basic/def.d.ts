@@ -65,6 +65,7 @@ declare function emitterizeCb(_this: any, job, ...args);
 
 
 declare function has(obj, key);
+declare function dbus_magic(obj);
 
 
 declare function forEachFlat(arr, job);

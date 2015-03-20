@@ -140,11 +140,11 @@
     <TypeScriptCompile Include="SubSys\FrontEnds\_Export.ts" />
     <TypeScriptCompile Include="SubSys\FrontEnds\_Module.ts" />
     <TypeScriptCompile Include="SubSys\Native\airplay.ts" />
+    <TypeScriptCompile Include="SubSys\Native\bluez.ts" />
     <TypeScriptCompile Include="SubSys\Native\commands.ts" />
     <TypeScriptCompile Include="SubSys\Native\def.d.ts" />
     <TypeScriptCompile Include="SubSys\Native\dlna.ts" />
     <TypeScriptCompile Include="SubSys\Native\dnsmasq.ts" />
-    <TypeScriptCompile Include="SubSys\Native\hcigatt.ts" />
     <TypeScriptCompile Include="SubSys\Native\hostapd.ts" />
     <TypeScriptCompile Include="SubSys\Native\iproute2.ts" />
     <TypeScriptCompile Include="SubSys\Native\ipset.ts" />
@@ -153,6 +153,7 @@
     <TypeScriptCompile Include="SubSys\Native\limit.ts" />
     <TypeScriptCompile Include="SubSys\Native\mdns.ts" />
     <TypeScriptCompile Include="SubSys\Native\nginx.ts" />
+    <TypeScriptCompile Include="SubSys\Native\obex.ts" />
     <TypeScriptCompile Include="SubSys\Native\Process.ts" />
     <TypeScriptCompile Include="SubSys\Native\pulseaudio.ts" />
     <TypeScriptCompile Include="SubSys\Native\smbd.ts" />

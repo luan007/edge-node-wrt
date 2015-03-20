@@ -46,6 +46,7 @@
     "linebyline": "*",
     "readline-sync":  "*",
     "pursuit": "*",
-    "node-ssdp":  "*"
+    "node-ssdp": "*",
+    "dbus-native":  "*"
   }
 }

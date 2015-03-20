@@ -37,6 +37,7 @@
   <ItemGroup>
     <Content Include="package.json" />
     <TypeScriptCompile Include="Basic\cjson.ts" />
+    <TypeScriptCompile Include="Basic\dbus-magic.ts" />
     <TypeScriptCompile Include="Basic\def.d.ts" />
     <TypeScriptCompile Include="Basic\delta.ts" />
     <TypeScriptCompile Include="Basic\flowcontrol.ts" />

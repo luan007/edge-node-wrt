@@ -39,7 +39,7 @@ class _ssdp_Browser extends events.EventEmitter {
     }
 
     private detected = (headers, statusCode, rinfo, kind = 'alive') => {
-        trace(arguments);
+        //trace(arguments);
         if (!(headers && rinfo && kind && rinfo.address && headers.USN)) return;
         if (!this.Cache[rinfo.address]) this.Cache[rinfo.address] = {};
         switch (kind) {
