@@ -188,14 +188,27 @@ export class Bluez extends Process {
 
     Start(forever: boolean = true) {
         this._stop_dbus();
-        killall("bluetoothd", () => {
+        killall("bluetoothd",() => {
             this.Process = child_process.spawn("bluetoothd", ['-n'], {
                 stdio: ['ignore', 'ignore', 'ignore']
             });
-            info("OK");
-            this._start_dbus(() => { 
-                super.Start(forever);
-            });
+            async.series([
+                exec.bind(null, "hciconfig  " + this.GenericIface + " down"),
+                exec.bind(null, "hciconfig  " + this.GenericIface + " up"),
+                exec.bind(null, "hciconfig  " + this.GenericIface + " name edge-router"),
+                exec.bind(null, "hciconfig  " + this.GenericIface + " down"),
+                exec.bind(null, "hciconfig  " + this.GenericIface + " up"),
+                exec.bind(null, "hciconfig  " + this.GenericIface + " piscan"),
+                exec.bind(null, "hciconfig  " + this.GenericIface + " inqparms 20:4096"),
+                exec.bind(null, "hciconfig  " + this.GenericIface + " pageparms 200:1024"),
+                exec.bind(null, "sdptool -i " + this.GenericIface + " add --channel=9 OPUSH"),
+                exec.bind(null, "hciconfig  " + this.GenericIface + " class 0x950300")
+            ],() => {
+                    this._start_dbus(() => {
+                        info("OK");
+                        super.Start(forever);
+                    });
+                });
         });
     }
 
