@@ -177,7 +177,7 @@ class Wifi extends Bus {
     };
 
 
-    start = (cb) => {
+    _start = (cb) => {
         this._mac_list = {};
         for (var i in this.HostapdInstances) {
             if (!has(this.HostapdInstances, i)) continue;
@@ -207,7 +207,7 @@ class Wifi extends Bus {
         cb();
     };
 
-    stop = (cb) => {
+    _stop = (cb) => {
         for (var i in this.HostapdInstances) {
             Core.SubSys.Native.iw.Detach(this.HostapdInstances[i].Dev);
             this.HostapdInstances[i].Ctrl.removeAllListeners("event");

@@ -8,16 +8,36 @@ import Core = require("Core");
 
 class Bus extends Node.events.EventEmitter implements IBus {
 
+    private _started = false;
+
     name = (): string => {
         throw new Error("Cannot Call an Abstract Bus");
     }
 
     start = (cb) => {
+        if (this._started) return cb(new Error("Already Started"));
+        this._start((err, result) => {
+            if (err) return cb(err);
+            this._started = true;
+            return cb(err, result);
+        });
+    }
+
+    protected _start = (cb) => {
+        throw new Error("Abstract Bus");
+    }
+
+    protected _stop = (cb) => {
         throw new Error("Abstract Bus");
     }
 
     stop = (cb) => {
-        throw new Error("Abstract Bus");
+        if (!this._started) return cb(new Error("Not yet Started"));
+        this.stop((err, result) => {
+            if (err) return cb(err);
+            this._started = false;
+            return cb(err, result);
+        });
     }
 
     protected _on_device = (dev: IBusData) => {
