@@ -254,8 +254,12 @@ export class Bluez extends Process {
         if (!this._dev_cache[addr]) {
             adapter.CreateDevice(addr,() => {
                 if (!this._dev_cache[addr]) return;
-                this._dev_cache[addr].Properties.RSSIStamp = Date.now();
-                this._dev_cache[addr].Properties.RSSI = props.RSSI;
+                if (!this._dev_cache[addr].Properties) {
+                    this._dev_cache[addr].Properties = props;
+                } else {
+                    this._dev_cache[addr].Properties.RSSIStamp = Date.now();
+                    this._dev_cache[addr].Properties.RSSI = props.RSSI;
+                }
                 this.emit("Found", addr);
             });
         } else {
