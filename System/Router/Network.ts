@@ -374,7 +374,7 @@ class Configuration extends Abstract.Configurable {
             //fix broadcast in iproute2 please
             //TODO: BROADCAST IS A PROBLEM, INVESTIGATE
             jobs.push(exec.bind(null, "ifconfig " + " " + CONF.DEV.WLAN.DEV_2G + " " + addr.Address + "/" + addr.Prefix));
-            jobs.push(exec.bind(null, "ifconfig " + " " + CONF.DEV.WLAN.DEV_5G + " " + addr.Address + "/" + addr.Prefix + " broadcast 0.0.0.0"));
+            //jobs.push(exec.bind(null, "ifconfig " + " " + CONF.DEV.WLAN.DEV_5G + " " + addr.Address + "/" + addr.Prefix + " broadcast 0.0.0.0"));
             jobs.push(Rules.DropIncomingRequests.Save);
             jobs.push(Rules.HttpTrafficProxy.Save);
             jobs.push(Rules.UplinkNAT.Save);

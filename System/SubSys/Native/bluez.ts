@@ -200,6 +200,7 @@ export class Bluez extends Process {
     public GenericPower = true;
     public AudioPower = true;
 
+    private _scan_timer = undefined;
 
     constructor() {
         super("Bluez");
@@ -249,7 +250,7 @@ export class Bluez extends Process {
     _dev_found = (adapter, addr, props) => {
         addr = addr.toLowerCase();
         props = dbus_magic(props);
-        //trace("Found - " + addr);
+        trace("Found - " + addr);
         //console.log(this._dev_cache);
         if (!this._dev_cache[addr]) {
             adapter.CreateDevice(addr,() => {
@@ -295,7 +296,7 @@ export class Bluez extends Process {
 
         this.bus.exportInterface(this.GenericPairingAgent, this.agentPath, this.IAgent);
         this.bus.exportInterface(this.AudioPairingAgent, this.audioPath, this.IAgent);
-
+        
         this.bus.getInterface("org.bluez", "/", "org.bluez.Manager", (err, conn) => {
             if (err) { return cb(err); }
             conn.FindAdapter(this.GenericIface,(err, final) => {
@@ -325,7 +326,27 @@ export class Bluez extends Process {
                             adapter.on("DeviceFound", this._dev_found.bind(null, adapter));
                             adapter.on("DeviceDisappeared", this._dev_disap);
                             adapter.on("DeviceRemoved", this._release_dev);
+                            var curState = 1;
+                            adapter.on("PropertyChanged",(name, value) => {
+                                var value = dbus_magic(value);
+                                if (name === "Discovering" && !value) {
+                                    if (curState) {
+                                        trace("Stop Discovery");
+                                        adapter.StopDiscovery();
+                                        curState = 0; //pending 
+                                    }
+                                    else if (curState == 0) {
+                                        curState = -1;
+                                        trace("Should be stopped?");
+                                        this._scan_timer = setTimeout(() => {
+                                            adapter.StartDiscovery();
+                                            info("Start Discovery");
+                                        }, CONF.BLUETOOTH_SCAN_INTERVAL)
+                                    }
+                                }
+                            });
                             adapter.StartDiscovery();
+                            info("Start Discovery");
                             this.emit("dbus_Started");
                             return cb();
                         });
@@ -337,6 +358,7 @@ export class Bluez extends Process {
 
     _stop_dbus = () => {
         if (this.bus && this.bus.connection) {
+            clearTimeout(this._scan_timer);
             this.bus.connection.end();
             this.bus.connection.removeAllListeners();
             this.bus = undefined;
