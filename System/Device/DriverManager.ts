@@ -304,6 +304,7 @@ export function DeviceChange(dev: IDevice, tracker: _tracker, assump: IDeviceAss
     for (var driver_id in Drivers) {
         if (driver_id == tracker.parent ||
             !has(Drivers, driver_id) ||
+            !Drivers_BusMapping[dev.bus.name] || 
             !Drivers[driver_id].status() ||
             !Drivers_BusMapping[dev.bus.name][driver_id]) continue;
         //TODO: Add Driver Preference Here!!!! HIGH PRIORITY

@@ -15,6 +15,7 @@ class Bus extends Node.events.EventEmitter implements IBus {
     }
 
     start = (cb) => {
+        trace(" Start - " + this.name);
         if (this._started) return cb(new Error("Already Started"));
         this._start((err, result) => {
             if (err) return cb(err);
@@ -32,6 +33,7 @@ class Bus extends Node.events.EventEmitter implements IBus {
     }
 
     stop = (cb) => {
+        warn(" Stop - " + this.name);
         if (!this._started) return cb(new Error("Not yet Started"));
         this.stop((err, result) => {
             if (err) return cb(err);

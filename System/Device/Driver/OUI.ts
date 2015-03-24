@@ -3,33 +3,33 @@ import Core = require("Core");
 
 class OUI_Identifier implements IDriver {
 
-    id() {
+    id = () => {
         return "_OUI_";
-    }
+    };
 
-    interest(): IDriverInterest {
+    interest = (): IDriverInterest => {
         return {
             stateChange: true
         };
-    }
+    };
 
-    name() {
+    name = () => {
         return "OUI Identifier";
-    }
+    };
 
-    status() {
+    status = () => {
         return 1; //always on..
-    }
+    };
 
-    bus(): string[] {
-        return [ "WLAN" ];
-    }
+    bus = (): string[]=> {
+        return ["WLAN"];
+    };
 
-    match(dev: IDevice, delta, cb: Callback) {
+    match = (dev: IDevice, delta, cb: Callback) => {
         cb(undefined, dev.bus.hwaddr.length > 8 ? {} : undefined);
-    }
+    };
 
-    attach(dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) {
+    attach = (dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) => {
         //info("OUI ATTACH Called");
         var _oui_Str = (dev.bus.hwaddr + "").substr(0, 8);
         OUI_Find(_oui_Str,(err, result) => {
@@ -49,27 +49,27 @@ class OUI_Identifier implements IDriver {
                 valid: true
             });
         });
-    }
+    };
 
-    change(dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) {
+    change = (dev: IDevice, delta: IDriverDetla, cb: PCallback<IDeviceAssumption>) => {
         cb(undefined, undefined);
-    }
+    };
 
-    detach(dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) {
+    detach = (dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) => {
         cb(undefined, undefined);
-    }
+    };
 
-    load(cb: Callback) {
+    load = (cb: Callback) => {
         cb();
-    }
+    };
 
-    unload(cb: Callback) {
+    unload = (cb: Callback) => {
         cb();
-    }
+    };
 
-    invoke(dev, actionId, params, cb) {
+    invoke = (dev, actionId, params, cb) => {
 
-    }
+    };
 
 }
 

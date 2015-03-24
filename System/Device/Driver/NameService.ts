@@ -36,25 +36,25 @@ class NameService implements IDriver {
         }
     };
 
-    id() {
+    id = () => {
         return "NameService";
-    }
+    };
 
-    interest(): IDriverInterest {
+    interest = (): IDriverInterest=> {
         return this._interest;
-    }
+    };
 
-    name() {
+    name = () => {
         return "NameService";
-    }
+    };
 
-    status() {
+    status = () => {
         return 1; //always on..
-    }
+    };
 
-    bus(): string[] {
+    bus = (): string[]=> {
         return ["WLAN"];
-    }
+    };
 
     private find_good_spot = (name, cb) => {
         trace("Finding spot for " + name);
@@ -156,12 +156,12 @@ class NameService implements IDriver {
         }, cb);
     };
 
-    match(dev: IDevice, delta: IDriverDetla, cb: Callback) {
+    match = (dev: IDevice, delta, cb: Callback) => {
         //IpAddress is required
         return cb(undefined, !!dev.bus.data.Lease);
     }
 
-    attach(dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) {
+    attach = (dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) => {
         if (!dev.bus.data.Lease) {
             return cb(new Error("Lease is missing"), undefined);
         } else {
@@ -173,7 +173,7 @@ class NameService implements IDriver {
         }
     }
 
-    change(dev: IDevice, delta: IDriverDetla, cb: PCallback<IDeviceAssumption>) {
+    change = (dev: IDevice, delta: IDriverDetla, cb: PCallback<IDeviceAssumption>) => {
         if (!dev.bus.data.Lease) {
             this._remove_name(dev,() => { });
         } else {
@@ -184,7 +184,7 @@ class NameService implements IDriver {
         return cb(undefined, { valid: true });
     }
 
-    detach(dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) {
+    detach = (dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) => {
         this._remove_name(dev,() => {
             //do nothing
         });
@@ -196,11 +196,11 @@ class NameService implements IDriver {
         return cb();
     };
 
-    unload(cb: Callback) {
+    unload = (cb: Callback) => {
         return cb();
     }
 
-    invoke(dev, actionId, params, cb) {
+    invoke = (dev, actionId, params, cb) => {
 
     }
 

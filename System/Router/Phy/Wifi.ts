@@ -39,7 +39,7 @@ class Configuration extends Abstract.Configurable {
             SSID: "EdgeRouter",
             AutoSSID: false,
             Visible: true,
-            Channel: 8,
+            Channel: 2,
             Password: "testtest",
             NAT: 1,
             Isolation: 0, //Not Used, reserved for VLAN,

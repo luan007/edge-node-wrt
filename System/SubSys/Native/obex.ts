@@ -40,7 +40,7 @@ export class Obexpushd extends Process {
 
     public Channel = 9;
 
-    public Iface = "hci0";
+    public Iface = CONF.DEV.BLUETOOTH.DEV_HCI;
 
     private _lnkpath;
 

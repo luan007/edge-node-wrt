@@ -12,7 +12,7 @@ class _sys_conf {
     IW_LOG = false;
     RPC_FUNC_LOG = true; 
     SKIP_QUOTA_CHECK = false; // = true if your boot is too slow, however Runtime.ts will be unstable
-    CMD_DEBUG = false; // turn this on if you want to see iptables, chmod, chroot and such being printed
+    CMD_DEBUG = true; // turn this on if you want to see iptables, chmod, chroot and such being printed
     ROOT_LEVEL_SECURITY = false; // = true will lead to a recursive chmod 0005 on '/', be warned - NOT TESTED
     CODE_WRITE_LOCK = false; // = true for production (MUST)
     ENABLE_FULL_LOG = true; // main switch for trace/info .. methods
@@ -53,6 +53,7 @@ class _sys_conf {
     SSDP_PORT = 9979;
     SSDP_DEBUG = true;
     RELOAD_DEFAULT_CONFIG = true; //Turn this on to restore sys's default config (as for Configurable.ts and its children)
+    BLUETOOTH_MAXLIFE = 120 * 1000; //120 sec
     CORE_PARTS = {
         LAUNCHER: "Launcher"
     };
@@ -61,13 +62,19 @@ class _sys_conf {
             DEV_2G: "ap0",
             DEV_5G: "ap1"
         },
+        BLUETOOTH: {
+            DEV_HCI: "hci0",
+            DEV_AUD: "hci1"
+        },
         ETH: {
             DEV_WAN: "eth0"
         }
     };
     BUS = { //DEV Reverse
         ap0: "WLAN",
-        ap1: "WLAN"
+        ap1: "WLAN",
+        hci0: "BLUETOOTH",
+        hci1: "BLUETOOTH",
     };
     ORBIT = {
         HOST: "127.0.0.1",
@@ -85,5 +92,5 @@ enum SYS_EVENT_TYPE {
     LOADED,
     ERROR,
 }
-
+console.log(CONF);
 global.SYS_EVENT_TYPE = SYS_EVENT_TYPE;

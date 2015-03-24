@@ -1,6 +1,7 @@
 ﻿import Core = require("Core");
 import Node = require("Node");
 import smbd = require("../Native/smbd");
+import ssdp = require("../Native/ssdp");
 
 export var Samba = new smbd.SmbDaemon(new smbd.SmbConfig());
 
@@ -13,6 +14,7 @@ export function Initialize(cb) {
         info("Creating User Data Dir ..");
         Node.fs.mkdirSync(CONF.USER_DATA_PATH);
     }
+
     trace("Preparing User Root..");
     async.series([
         exec.bind(null, "chown", "nobody", "-R", CONF.USER_DATA_PATH),

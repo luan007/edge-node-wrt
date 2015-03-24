@@ -75,6 +75,7 @@
     <TypeScriptCompile Include="Data\_Module.ts" />
     <TypeScriptCompile Include="Device\Bus\Bus.ts" />
     <TypeScriptCompile Include="Device\Bus\Dummy.ts" />
+    <TypeScriptCompile Include="Device\Bus\Bluetooth.ts" />
     <TypeScriptCompile Include="Device\Bus\Wifi.ts" />
     <TypeScriptCompile Include="Device\Bus\_Export.ts" />
     <TypeScriptCompile Include="Device\CML.ts" />
@@ -118,7 +119,7 @@
     <TypeScriptCompile Include="loader.ts" />
     <TypeScriptCompile Include="Node.ts" />
     <TypeScriptCompile Include="Router\Network.ts" />
-    <TypeScriptCompile Include="Router\Phy\Btle.ts" />
+    <TypeScriptCompile Include="Router\Phy\Bluetooth.ts" />
     <TypeScriptCompile Include="Router\Phy\Lan.ts" />
     <TypeScriptCompile Include="Router\Phy\Wan.ts" />
     <TypeScriptCompile Include="Router\Phy\Wifi.ts" />

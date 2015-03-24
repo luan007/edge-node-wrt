@@ -10,3 +10,4 @@ export import iptables = require("./iptables");
 export import mdns = require("./mdns");
 export import smbd = require("./smbd");
 export import ssdp = require("./ssdp");
+export import bluez = require("./bluez");

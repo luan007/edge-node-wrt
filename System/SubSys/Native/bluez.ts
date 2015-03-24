@@ -1,4 +1,74 @@
-﻿//TODO: Bluetooth Support
+﻿//We need to patch https://github.com/sidorares/node-dbus/blob/master/lib/bus.js
+//line 123
+
+/*
+var dbus = require('dbus-native');
+var sessionBus = dbus.systemBus();
+//sessionBus.connection.on('message', console.log);
+var exampleIface = {
+    name: 'org.bluez.Agent',
+    methods: {
+        Release: ['', ''],
+        Authorize: ['os', 'd'],
+        RequestPinCode: ['o', 's'],
+        RequestPasskey: ['o', 'u'],
+        DisplayPasskey: ['ou', ''],
+        RequestConfirmation: ['ou', ''],
+        ConfirmModeChange: ['s', ''],
+        Cancel: ['', '']
+    },
+    signals: { },
+    properties: { }
+};
+var example = {
+    Release: console.log,
+    Authorize:  function(path, arg) {
+      if(arg === "0000111e-0000-1000-8000-00805f9b34fb") {
+		//Should return new Error!
+      }
+    },
+    RequestPinCode: console.log,
+    RequestPasskey:  console.log,
+    DisplayPasskey:  console.log,
+    RequestConfirmation:  console.log,
+    ConfirmModeChange:  console.log,
+    Cancel:  console.log
+};
+
+path = "/test/agent";
+sessionBus.exportInterface(example, path, exampleIface);
+sessionBus.getService('org.bluez').getInterface(
+    '/',
+    'org.bluez.Manager', function(err, dev) {
+	dev.DefaultAdapter(function(err, d){
+		sessionBus.getService('org.bluez').getInterface(d, "org.bluez.Adapter", function(err, a){
+			a.RegisterAgent(path, "", console.log);
+		});
+	});
+});
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//TODO: Bluetooth Support
 
 //udevadm monitor --udev!!!
 //http://www.raspberrypi.org/forums/viewtopic.php?t=26685 <-- very helpful
@@ -64,6 +134,7 @@
 // 
 
 
+
 import Process = require("./Process");
 import child_process = require("child_process");
 import events = require("events");
@@ -71,11 +142,64 @@ import fs = require("fs");
 import path = require("path");
 var dbus = require("dbus-native");
 
+
+
 export class Bluez extends Process {
 
-    public GenericIface = "hci0";
+    private IAgent = {
+        name: 'org.bluez.Agent',
+        methods: {
+            Release: ['', ''],
+            Authorize: ['os', 'd'],
+            RequestPinCode: ['o', 's'],
+            RequestPasskey: ['o', 'u'],
+            DisplayPasskey: ['ou', ''],
+            RequestConfirmation: ['ou', ''],
+            ConfirmModeChange: ['s', ''],
+            Cancel: ['', '']
+        },
+        signals: {},
+        properties: {}
+    };
+
+    private GenericPairingAgent = {
+        Release: console.log,
+        Authorize: console.log,
+        RequestPinCode: console.log,
+        RequestPasskey: console.log,
+        DisplayPasskey: console.log,
+        RequestConfirmation: console.log,
+        ConfirmModeChange: console.log,
+        Cancel: console.log
+    };
+
+    private AudioPairingAgent = {
+        Release: console.log,
+        Authorize: console.log,
+        RequestPinCode: console.log,
+        RequestPasskey: console.log,
+        DisplayPasskey: console.log,
+        RequestConfirmation: console.log,
+        ConfirmModeChange: console.log,
+        Cancel: console.log
+    };
+
+
+    public GenericIface = CONF.DEV.BLUETOOTH.DEV_HCI;
+    public AudioIface = CONF.DEV.BLUETOOTH.DEV_AUD;
+
+    private agentPath = "/edge/" + UUIDstr();
+    private audioPath = "/edge/" + UUIDstr();
 
     private bus;
+
+    public GenericName = "Edge";
+    public AudioName = "Edge-Audio";
+    public GenericScan = "piscan";
+    public AudioScan = "piscan";
+    public GenericPower = true;
+    public AudioPower = true;
+
 
     constructor() {
         super("Bluez");
@@ -83,7 +207,13 @@ export class Bluez extends Process {
 
     private _dev_cache = {}; //obj_path
     
+    Get = (addr) => {
+        if (!addr) return undefined;
+        return this._dev_cache[addr.toLowerCase()];
+    };
+
     _update_property = (addr, dev) => {
+        //trace("Update Property - " + addr);
         dev.GetProperties((err, props) => {
             if (err) return;
             props = dbus_magic(props);
@@ -96,20 +226,21 @@ export class Bluez extends Process {
     };
 
     _dev_created = (obj_path, cb = () => { }) => {
-        var addr = obj_path.substring(obj_path.length - 17).replace("_", ":").toLowerCase();
+        var addr = obj_path.substring(obj_path.length - 17).replace(/_/g, ":").toLowerCase();
         if (!this._dev_cache[addr]) {
             this.bus.getInterface("org.bluez", obj_path, "org.bluez.Device",(err, dev) => {
                 if (err) return cb();
+                //trace("Created - " + dev);
                 this._dev_cache[addr] = dev;
                 this._dev_cache[addr].Alive = true;
                 this._update_property(addr, dev);
                 //get hooked 
                 this.emit("Created", addr);
-                dev.on("PropertyChanged",(id, data) => {
-                    data = dbus_magic(data);
-                    this._dev_cache[addr].Properties.PropertyStamp = Date.now();
-                    this._update_property(addr, dev);
-                });
+                //dev.on("PropertyChanged",(id, data) => {
+                //    data = dbus_magic(data);
+                //    this._dev_cache[addr].Properties.PropertyStamp = Date.now();
+                //    this._update_property(addr, dev);
+                //});
                 return cb();
             });
         }
@@ -118,44 +249,64 @@ export class Bluez extends Process {
     _dev_found = (adapter, addr, props) => {
         addr = addr.toLowerCase();
         props = dbus_magic(props);
+        //trace("Found - " + addr);
+        //console.log(this._dev_cache);
         if (!this._dev_cache[addr]) {
-            adapter.CreateDevice(addr);
+            adapter.CreateDevice(addr,() => {
+                if (!this._dev_cache[addr]) return;
+                this._dev_cache[addr].Properties.RSSIStamp = Date.now();
+                this._dev_cache[addr].Properties.RSSI = props.RSSI;
+                this.emit("Found", addr);
+            });
         } else {
             this._dev_cache[addr].Properties = props;
             this._dev_cache[addr].Alive = true;
             this._dev_cache[addr].Properties.RSSIStamp = Date.now();
             this.emit("Found", addr);
-            this.emit("RSSIChanged", addr);
         }
     };
 
     _dev_disap = (obj_path) => {
-        var addr = obj_path.substring(obj_path.length - 17).replace("_", ":").toLowerCase();
+        var addr = obj_path.substring(obj_path.length - 17).replace(/_/g, ":").toLowerCase();
+        //trace("Disappear - " + addr);
         if (this._dev_cache[addr]) {
             this._dev_cache[addr].Alive = false;
-            this.emit("Disappeared", addr);
+            this.emit("Lost", addr);
         }
     };
 
     _release_dev = (obj_path) => {
-        var addr = obj_path.substring(obj_path.length - 17).replace("_", ":").toLowerCase();
+        var addr = obj_path.substring(obj_path.length - 17).replace(/_/g, ":").toLowerCase();
+        //trace("Release - " + addr);
         if (this._dev_cache[addr]) {
             this.emit("Removed", addr, this._dev_cache[addr]);
-            this._dev_cache[addr].removeAllListeners();
             this._dev_cache[addr] = this._dev_cache[addr] = undefined;
         }
     };
 
     _start_dbus = (cb = (err?) => { }) => {
+
         if (this.bus) return cb();
         this.bus = dbus.systemBus({ socket: "/var/run/dbus/system_bus_socket" });
-        this.bus.getInterface("org.bluez", "/", "org.bluez.Manager",(err, conn) => {
-            if (err) { return cb(err); } 
-            conn.FindAdaptor(this.GenericIface, (err, final) => {
+
+        this.bus.exportInterface(this.GenericPairingAgent, this.agentPath, this.IAgent);
+        this.bus.exportInterface(this.AudioPairingAgent, this.audioPath, this.IAgent);
+
+        this.bus.getInterface("org.bluez", "/", "org.bluez.Manager", (err, conn) => {
+            if (err) { return cb(err); }
+            conn.FindAdapter(this.GenericIface,(err, final) => {
                 if (err) { return cb(err); } 
                 this._dev_cache = {};
                 this.bus.getInterface("org.bluez", final, "org.bluez.Adapter",(err, adapter) => {
                     if (err) return cb(err);
+
+                    adapter.RegisterAgent(this.agentPath, "DisplayYesNo");
+                    conn.FindAdapter(this.AudioIface,(err, final) => {
+                        this.bus.getInterface("org.bluez", final, "org.bluez.Adapter",(err, adapter) => {
+                            adapter.RegisterAgent(this.audioPath, "DisplayYesNo");
+                        });
+                    });
+
                     adapter.GetProperties((err, arr) => {
                         if (err) return cb(err);
                         var prop = dbus_magic(arr);
@@ -170,7 +321,7 @@ export class Bluez extends Process {
                             adapter.on("DeviceFound", this._dev_found.bind(null, adapter));
                             adapter.on("DeviceDisappeared", this._dev_disap);
                             adapter.on("DeviceRemoved", this._release_dev);
-
+                            adapter.StartDiscovery();
                             this.emit("dbus_Started");
                             return cb();
                         });
@@ -186,7 +337,6 @@ export class Bluez extends Process {
             this.bus.connection.removeAllListeners();
             this.bus = undefined;
             for (var i in this._dev_cache) {
-                this._dev_cache[i].removeAllListeners();
                 this._dev_cache[i] = undefined;
             }
             this.emit("dbus_Stopped");
@@ -194,29 +344,43 @@ export class Bluez extends Process {
     };
 
     Start(forever: boolean = true) {
-        this._stop_dbus();
-        killall("bluetoothd",() => {
-            this.Process = child_process.spawn("bluetoothd", ['-n'], {
-                stdio: ['ignore', 'ignore', 'ignore']
+
+        var jobs = [
+            (cb) => { exec("hciconfig  " + this.GenericIface + " " + (this.GenericPower ? "up" : "down"), ignore_err(cb)); },
+            (cb) => { exec("hciconfig  " + this.GenericIface + " name " + this.GenericName, ignore_err(cb)); },
+            (cb) => { exec("hciconfig  " + this.GenericIface + " " + this.GenericScan, ignore_err(cb)); },
+            (cb) => { exec("hciconfig  " + this.GenericIface + " inqparms 20:4096", ignore_err(cb)); },
+            (cb) => { exec("hciconfig  " + this.GenericIface + " pageparms 200:1024", ignore_err(cb)); },
+            (cb) => { exec("sdptool -i " + this.GenericIface + " add --channel=9 OPUSH", ignore_err(cb)); },
+            (cb) => { exec("hciconfig  " + this.GenericIface + " class 0x950300", ignore_err(cb)); },
+            (cb) => { exec("hciconfig  " + this.AudioIface + " " + (this.AudioPower ? "up" : "down"), ignore_err(cb)); },
+            (cb) => { exec("hciconfig  " + this.AudioIface + " name " + this.AudioName, ignore_err(cb)); },
+            (cb) => { exec("hciconfig  " + this.AudioIface + " " + this.AudioScan, ignore_err(cb)); },
+            (cb) => { exec("hciconfig  " + this.AudioIface + " class 200414", ignore_err(cb)); },
+        ];
+
+
+        if (this.Process) {
+            //Process still running 
+            async.series(jobs,() => {
+                info("UPDATE");
             });
-            async.series([
-                exec.bind(null, "hciconfig  " + this.GenericIface + " down"),
-                exec.bind(null, "hciconfig  " + this.GenericIface + " up"),
-                exec.bind(null, "hciconfig  " + this.GenericIface + " name edge-router"),
-                exec.bind(null, "hciconfig  " + this.GenericIface + " down"),
-                exec.bind(null, "hciconfig  " + this.GenericIface + " up"),
-                exec.bind(null, "hciconfig  " + this.GenericIface + " piscan"),
-                exec.bind(null, "hciconfig  " + this.GenericIface + " inqparms 20:4096"),
-                exec.bind(null, "hciconfig  " + this.GenericIface + " pageparms 200:1024"),
-                exec.bind(null, "sdptool -i " + this.GenericIface + " add --channel=9 OPUSH"),
-                exec.bind(null, "hciconfig  " + this.GenericIface + " class 0x950300")
-            ],() => {
-                    this._start_dbus(() => {
-                        info("OK");
-                        super.Start(forever);
+        }
+        else {
+            this._stop_dbus();
+
+            killall("bluetoothd",() => {
+                this.Process = child_process.spawn("bluetoothd", ['-n']);
+                setTimeout(() => {
+                    async.series(jobs,() => {
+                        this._start_dbus(() => {
+                            info("OK");
+                            super.Start(forever);
+                        });
                     });
-                });
-        });
+                }, 3000);
+            });
+        }
     }
 
     Apply = (forever: boolean = true) => { //as helper method
@@ -238,5 +402,6 @@ export class Bluez extends Process {
         });
         return true;
     }
+
 }
 

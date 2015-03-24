@@ -29,4 +29,10 @@ Loader.Load(["Base", "Lib", "Data", "API", "SubSys", "Device", "User", "App", "R
     });
 });
 
-process.on("uncaughtException", console.log);
+process.on("uncaughtException",(err) => {
+    console.log("Error:" + err.name);
+    console.log(err.message);
+    console.log("------------------");
+    console.log(err.stack);
+    console.log("------------------");
+});

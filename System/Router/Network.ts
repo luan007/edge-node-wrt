@@ -104,6 +104,12 @@ function InitNetwork(cb) {
     //TODO: Check Multicase, I think it is the root cause for everything being invisible to everything
     async.series([
         (c) => {
+            exec("iw ap0 del",() => { trace("DEL AP0"); setTimeout(c, 1000); });
+        },
+        (c) => {
+            exec("iw ap1 del",() => { trace("DEL AP0"); setTimeout(c, 1000); });
+        },
+        (c) => {
             exec("iw phy phy0 interface add ap0 type __ap",() => { trace("AP0"); setTimeout(c, 1000); });
         },
         (c) => {
@@ -267,7 +273,7 @@ class Configuration extends Abstract.Configurable {
 
     Default = {
         NetworkName: "edge-dev",
-        RouterIP: "192.168.100.1",
+        RouterIP: "192.168.133.1",
         LocalNetmask: 24,
         Uplink: CONF.DEV.ETH.DEV_WAN, //ethernet
         DNS: [
@@ -366,8 +372,9 @@ class Configuration extends Abstract.Configurable {
                 Prefix: addr.Prefix
             };
             //fix broadcast in iproute2 please
+            //TODO: BROADCAST IS A PROBLEM, INVESTIGATE
             jobs.push(exec.bind(null, "ifconfig " + " " + CONF.DEV.WLAN.DEV_2G + " " + addr.Address + "/" + addr.Prefix));
-            jobs.push(exec.bind(null, "ifconfig " + " " + CONF.DEV.WLAN.DEV_5G + " " + addr.Address + "/" + addr.Prefix));
+            jobs.push(exec.bind(null, "ifconfig " + " " + CONF.DEV.WLAN.DEV_5G + " " + addr.Address + "/" + addr.Prefix + " broadcast 0.0.0.0"));
             jobs.push(Rules.DropIncomingRequests.Save);
             jobs.push(Rules.HttpTrafficProxy.Save);
             jobs.push(Rules.UplinkNAT.Save);

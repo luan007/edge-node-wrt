@@ -268,7 +268,8 @@ function _OnDrop(bus: IBusData) {
 
 export var Buses: IDic<IBus> = {
     //Dummy: new Bus.Dummy()
-    WLAN: undefined
+    WLAN: undefined,
+    BLUETOOTH: undefined
 };
 
 function _initialize_buses(callback: Callback) {
@@ -277,13 +278,17 @@ function _initialize_buses(callback: Callback) {
         "2G4": Core.Router.Phy.Wifi.WLAN_2G4,
         "5G7": Core.Router.Phy.Wifi.WLAN_5G7,
     });
+    Buses["BLUETOOTH"] = new Bus.Bluetooth(Core.Router.Phy.Bluetooth.BluezInstance);
     
     for (var i in Buses) {
         Buses[i].on("device", _OnDevice);
         Buses[i].on("drop", _OnDrop);
     }
 
-    async.series([Buses["WLAN"].start], callback);
+    async.series([
+        Buses["WLAN"].start,
+        Buses["BLUETOOTH"].start
+    ], callback);
     //callback();
 }
 

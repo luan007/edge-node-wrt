@@ -3,11 +3,11 @@ import Core = require("Core");
 
 class TestDriver implements IDriver {
 
-    id() {
+    id = () => {
         return "_TEST_DRV_";
-    }
+    };
 
-    interest(): IDriverInterest {
+    interest = (): IDriverInterest => {
         return {
             match: [
                 {
@@ -35,21 +35,21 @@ class TestDriver implements IDriver {
             //    }
             //}
         };
-    }
+    };
 
-    name() {
+    name = () => {
         return "TestDriver";
-    }
+    };
 
-    status() {
+    status = () => {
         return 1; //always on..
-    }
+    };
 
-    bus(): string[]{
-        return [ "WLAN" ];
-    }
+    bus = (): string[] => {
+        return ["WLAN"];
+    };
 
-    match(dev: IDevice, delta, cb: Callback) {
+    match = (dev: IDevice, delta, cb: Callback) => {
         for (var i in dev.bus.data.MDNS) {
             if (i == "_pdl-datastream._tcp.") {
                 trace(i);
@@ -58,9 +58,9 @@ class TestDriver implements IDriver {
         }
         //cb(undefined, { foo:"bar" });
         return cb(undefined, undefined);
-    }
+    };
 
-    attach(dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) {
+    attach = (dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) => {
         info("ATTACH Called");
 
         var d = matchResult[Object.keys(matchResult)[0]];
@@ -80,9 +80,9 @@ class TestDriver implements IDriver {
             classes: {},
             valid: true
         });
-    }
+    };
 
-    change(dev: IDevice, delta : IDriverDetla, cb: PCallback<IDeviceAssumption>) {
+    change = (dev: IDevice, delta: IDriverDetla, cb: PCallback<IDeviceAssumption>) => {
         //fatal(delta.bus["Traffic"].Up.Rate.Bps);
         cb(undefined, {
             actions: {},
@@ -90,23 +90,23 @@ class TestDriver implements IDriver {
             classes: {},
             valid: true
         });
-    }
+    };
 
-    detach(dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) {
+    detach = (dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) => {
 
-    }
+    };
 
-    load(cb: Callback) {
+    load = (cb: Callback) => {
         cb();
-    }
+    };
 
-    unload(cb: Callback) {
+    unload = (cb: Callback) => {
 
-    }
+    };
 
-    invoke(dev, actionId, params, cb) {
+    invoke = (dev, actionId, params, cb) => {
 
-    }
+    };
 
 }
 

@@ -15,7 +15,7 @@ class Wifi extends Bus {
     _mac_list = {};
 
     _on_device_connect = (band, mac) => {
-        if (!mac) warn(" Invalid MAC - Skipped ");
+        if (!mac) return warn(" Invalid MAC - Skipped ");
         mac = mac.toLowerCase();
         if (this._mac_list[band][mac]) {
             warn(mac + " skipped (resuming problem?)");

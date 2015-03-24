@@ -183,21 +183,21 @@ global.hotswap = function (name, _safe_to_swap_now: (done: Function) => any) {
 }
 
 
-var job = {};
-var task = {};
+var _job = {};
+var _task = {};
 
 /*setInterval*/
 global.setJob = function (name, job, interval, ...args) {
     clearJob(name);
-    job[name] = setInterval.apply(undefined, [job, interval].concat(args));
+    _job[name] = setInterval.apply(undefined, [job, interval].concat(args));
     return name;
 };
 
 global.clearJob = function (name) {
-    if (job[name] !== undefined) {
+    if (_job[name] !== undefined) {
         //cancel
-        clearInterval(job[name]);
-        job[name] = undefined;
+        clearInterval(_job[name]);
+        _job[name] = undefined;
         return true;
     }
     return false;
@@ -206,15 +206,15 @@ global.clearJob = function (name) {
 /*setTimeout*/
 global.setTask = function (name, task, timeout, ...args) {
     clearTask(name);
-    task[name] = setTimeout.apply(undefined, [task, timeout].concat(args));
+    _task[name] = setTimeout.apply(undefined, [task, timeout].concat(args));
     return name;
 };
 
 global.clearTask = function (name) {
-    if (task[name] !== undefined) {
+    if (_task[name] !== undefined) {
         //cancel
-        clearInterval(task[name]);
-        task[name] = undefined;
+        clearTimeout(_task[name]);
+        _task[name] = undefined;
         return true;
     }
     return false;
