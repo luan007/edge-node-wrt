@@ -70,4 +70,6 @@ declare function dbus_magic(obj);
 
 declare function forEachFlat(arr, job);
 
+declare function mkStruct(base, tree, ignoreErr, cb);
+
 declare function didChange(name, thisTime, comp_func?: (cur, last) => boolean);
