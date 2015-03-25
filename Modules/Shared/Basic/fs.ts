@@ -6,21 +6,21 @@ function _mkstructure(base, tree, ignoreErr, cb) {
     var jobs = [];
     for (var i in tree) {
         if (!tree.hasOwnProperty(i)) continue;
-        if (typeof tree[i] === "string") {
-            ((i) => {
-                jobs.push((cb) => {
-                    var cur = path.join(base, i);
-                    fs.exists(cur,(e) => {
-                        if (e) return cb();
-                        else {
-                            fs.mkdir(cur,(err) => {
-                                return cb(ignoreErr ? (void 0) : err);
-                            });
-                        }
-                    });
+
+        ((i) => {
+            jobs.push((cb) => {
+                var cur = path.join(base, i);
+                fs.exists(cur,(e) => {
+                    if (e) return cb();
+                    else {
+                        fs.mkdir(cur,(err) => {
+                            return cb(ignoreErr ? (void 0) : err);
+                        });
+                    }
                 });
-            })(i);
-        } else if (typeof tree[i] === "object") {
+            });
+        })(i);
+        if (typeof tree[i] === "object") {
             jobs.push(_mkstructure.bind(null, path.join(base, i), tree[i], ignoreErr));
         }
     }

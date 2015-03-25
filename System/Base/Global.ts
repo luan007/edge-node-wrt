@@ -53,8 +53,9 @@ class _sys_conf {
     SSDP_PORT = 9979;
     SSDP_DEBUG = true;
     RELOAD_DEFAULT_CONFIG = true; //Turn this on to restore sys's default config (as for Configurable.ts and its children)
-    BLUETOOTH_MAXLIFE = 120 * 1000; //120 sec
+    BLUETOOTH_MAXLIFE = 300 * 1000; //300 sec
     BLUETOOTH_SCAN_INTERVAL = 15 * 1000; //15 sec
+    BLUETOOTH_DROPWAIT = 30 * 1000; //30 sec till dead
     CORE_PARTS = {
         LAUNCHER: "Launcher"
     };
@@ -83,6 +84,7 @@ class _sys_conf {
         DEFAULT_TIMEOUT: 20000
     };
     USER_IMMEDIATE_EXPIRE = false;
+
 }
 
 

@@ -143,8 +143,9 @@ import path = require("path");
 var dbus = require("dbus-native");
 
 
-
 export class Bluez extends Process {
+
+    public static Instance: Bluez;
 
     private IAgent = {
         name: 'org.bluez.Agent',
@@ -204,6 +205,7 @@ export class Bluez extends Process {
 
     constructor() {
         super("Bluez");
+        Bluez.Instance = this;
     }
 
     private _dev_cache = {}; //obj_path
@@ -231,17 +233,24 @@ export class Bluez extends Process {
         if (!this._dev_cache[addr]) {
             this.bus.getInterface("org.bluez", obj_path, "org.bluez.Device",(err, dev) => {
                 if (err) return cb();
-                //trace("Created - " + dev);
+                //trace("Created - " + addr);
                 this._dev_cache[addr] = dev;
                 this._dev_cache[addr].Alive = true;
+                //trace("~~~" + this._dev_cache[addr]);
                 this._update_property(addr, dev);
                 //get hooked 
                 this.emit("Created", addr);
-                //dev.on("PropertyChanged",(id, data) => {
-                //    data = dbus_magic(data);
-                //    this._dev_cache[addr].Properties.PropertyStamp = Date.now();
-                //    this._update_property(addr, dev);
-                //});
+                dev.on("PropertyChanged",(id, data) => {
+                    data = dbus_magic(data);
+                    if (this._dev_cache[addr].Properties) {
+                        //trace("Property Changed!! - " + id + ":" + data);
+                        this._dev_cache[addr].Properties.PropertyStamp = Date.now();
+                        this._dev_cache[addr].Properties[id] = data;
+                        this.emit("Changed", addr);
+                    } else {
+                        this._update_property(addr, dev);
+                    }
+                });
                 return cb();
             });
         }
@@ -250,9 +259,10 @@ export class Bluez extends Process {
     _dev_found = (adapter, addr, props) => {
         addr = addr.toLowerCase();
         props = dbus_magic(props);
-        trace("Found - " + addr);
+        //trace("Found - " + addr);
         //console.log(this._dev_cache);
         if (!this._dev_cache[addr]) {
+            //trace("We are going to create new dev for - " + addr);
             adapter.CreateDevice(addr,() => {
                 if (!this._dev_cache[addr]) return;
                 if (!this._dev_cache[addr].Properties) {
@@ -282,10 +292,10 @@ export class Bluez extends Process {
 
     _release_dev = (obj_path) => {
         var addr = obj_path.substring(obj_path.length - 17).replace(/_/g, ":").toLowerCase();
-        //trace("Release - " + addr);
+        //fatal("Release - " + addr);
         if (this._dev_cache[addr]) {
             this.emit("Removed", addr, this._dev_cache[addr]);
-            this._dev_cache[addr] = this._dev_cache[addr] = undefined;
+            //this._dev_cache[addr] = undefined;
         }
     };
 
@@ -327,24 +337,27 @@ export class Bluez extends Process {
                             adapter.on("DeviceDisappeared", this._dev_disap);
                             adapter.on("DeviceRemoved", this._release_dev);
                             var curState = 1;
-                            adapter.on("PropertyChanged",(name, value) => {
-                                var value = dbus_magic(value);
-                                if (name === "Discovering" && !value) {
-                                    if (curState) {
-                                        trace("Stop Discovery");
-                                        adapter.StopDiscovery();
-                                        curState = 0; //pending 
-                                    }
-                                    else if (curState == 0) {
-                                        curState = -1;
-                                        trace("Should be stopped?");
-                                        this._scan_timer = setTimeout(() => {
-                                            adapter.StartDiscovery();
-                                            info("Start Discovery");
-                                        }, CONF.BLUETOOTH_SCAN_INTERVAL)
-                                    }
-                                }
-                            });
+                            //adapter.on("PropertyChanged",(name, value) => {
+                            //    var value = dbus_magic(value);
+                            //    if (name === "Discovering" && !value) {
+                            //        if (curState) {
+                            //            trace("Stop Discovery");
+                            //            adapter.StopDiscovery(console.log);
+                            //            curState = 0; //pending 
+                            //        }
+                            //        else if (curState == 0) {
+                            //            curState = -1;
+                            //            trace("Should be stopped?");
+                            //            adapter.StopDiscovery(console.log);
+                            //            this._scan_timer = setTimeout(() => {
+                            //                adapter.StartDiscovery();
+                            //                info("Start Discovery");
+                            //            }, CONF.BLUETOOTH_SCAN_INTERVAL)
+                            //        }
+                            //    } else if (name === "Discovering" && value) {
+                            //        info("Discovery Started...");
+                            //    }
+                            //});
                             adapter.StartDiscovery();
                             info("Start Discovery");
                             this.emit("dbus_Started");
@@ -375,14 +388,16 @@ export class Bluez extends Process {
             (cb) => { exec("hciconfig  " + this.GenericIface + " " + (this.GenericPower ? "up" : "down"), ignore_err(cb)); },
             (cb) => { exec("hciconfig  " + this.GenericIface + " name " + this.GenericName, ignore_err(cb)); },
             (cb) => { exec("hciconfig  " + this.GenericIface + " " + this.GenericScan, ignore_err(cb)); },
-            (cb) => { exec("hciconfig  " + this.GenericIface + " inqparms 20:4096", ignore_err(cb)); },
-            (cb) => { exec("hciconfig  " + this.GenericIface + " pageparms 200:1024", ignore_err(cb)); },
+            (cb) => { exec("hciconfig  " + this.GenericIface + " inqparms 10:2048", ignore_err(cb)); },
+            (cb) => { exec("hciconfig  " + this.GenericIface + " pageparms 20:1024", ignore_err(cb)); },
             (cb) => { exec("sdptool -i " + this.GenericIface + " add --channel=9 OPUSH", ignore_err(cb)); },
             (cb) => { exec("hciconfig  " + this.GenericIface + " class 0x950300", ignore_err(cb)); },
+            (cb) => { exec("hciconfig  " + this.GenericIface + " noleadv", ignore_err(cb)); },
             (cb) => { exec("hciconfig  " + this.AudioIface + " " + (this.AudioPower ? "up" : "down"), ignore_err(cb)); },
             (cb) => { exec("hciconfig  " + this.AudioIface + " name " + this.AudioName, ignore_err(cb)); },
             (cb) => { exec("hciconfig  " + this.AudioIface + " " + this.AudioScan, ignore_err(cb)); },
             (cb) => { exec("hciconfig  " + this.AudioIface + " class 200414", ignore_err(cb)); },
+            (cb) => { exec("hciconfig  " + this.AudioIface + " noleadv", ignore_err(cb)); },
         ];
 
 

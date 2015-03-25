@@ -18,17 +18,21 @@ class Bluetooth extends Bus {
     };
 
     _on_device_disappear = (mac) => {
+        //might be some sort of minor probs..
         mac = mac.toLowerCase();
-        this._on_drop({
-            hwaddr: mac
-        });
-        this._mac_list[mac] = undefined;
+        setTask("BLUETOOTH_DROP_" + mac,() => {
+            this._on_drop({
+                hwaddr: mac
+            });
+            this._mac_list[mac] = undefined;
+        }, CONF.BLUETOOTH_DROPWAIT);
     };
 
     _on_device_appear = (mac) => {
         //this can be called multiple times, thus differs from wifi
         if (!mac) return warn(" Invalid MAC - Skipped ");
         mac = mac.toLowerCase();
+        clearTask("BLUETOOTH_DROP_" + mac);
         if (this._mac_list[mac]) {
             //emm possible RSSI change
             this._on_device({

@@ -16,11 +16,17 @@ class Configuration extends Abstract.Configurable {
             Enabled: true,
             Name: "edge",
             UseRouterName: false
+        }, 
+        OBEXPush: {
+            Enabled: true
         }
     };
 
     constructor() {
         super();
+    }
+
+    private _apply_obexd = (mod, raw, cb) => {
     }
 
     private _apply_samba = (mod, raw, cb) => {

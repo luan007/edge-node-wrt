@@ -4,6 +4,7 @@ import events = require("events");
 import fs = require("fs");
 import path = require("path");
 import net = require("net");
+import bluez = require("./bluez");
 
 
 //Events: data(bf), end(), error(e)
@@ -55,9 +56,11 @@ export class Obexpushd extends Process {
         this._lnkpath = getSock(UUIDstr());
         this._sockpath = getSock(UUIDstr());
         this._script = "socat UNIX-CONNECT:" + this._sockpath + " - ";
+        this.server = net.createServer(this._on_conn_);
+        this.server.listen(this._sockpath);
     }
 
-    _on_conn_ = (client: net.Socket) => {
+    private _on_conn_ = (client: net.Socket) => {
         //handle dirty logics
         var obex: ObexpushObject = undefined;
         var id = UUIDstr();
@@ -67,7 +70,11 @@ export class Obexpushd extends Process {
                 var obj = <any>{};
                 for (var i = 0; i < c.length; i++) {
                     if (c[i].trim().length && c[i].split(":").length) {
-                        obj[c[i].split(":")[0]] = c[i].split(":")[1].trim();
+                        if (c[i].split(":")[0] !== "From") {
+                            obj[c[i].split(":")[0]] = c[i].split(":")[1].trim();
+                        } else {
+                            obj[c[i].split(":")[0]] = c[i].substr(5).trim();
+                        }
                     }
                 }
                 if (!obj.From || !obj.Length || !obj.Name) {
@@ -104,6 +111,7 @@ export class Obexpushd extends Process {
     };
 
     Start(forever: boolean = true) {
+
         async.series(
             [
                 exec.bind(null, "rm -rf " + this._lnkpath),
@@ -131,15 +139,22 @@ export class Obexpushd extends Process {
 
     OnChoke() {
         super.OnChoke();
-        info("Killing all Bluetoothd processes");
+        info("Killing all OBEX processes");
         this.Process.removeAllListeners();
         this.Process = undefined;
         killall("obexpushd",() => {
             info("Done, waiting for recall");
-            this.Choke_Timer = setTimeout(() => {
-                this.ClearChoke();
-                this.Start();
-            }, 2000);
+            //let's wait till bluetooth is up, ok?
+            var _try = () => {
+                clearTimeout(this.Choke_Timer);
+                if (bluez.Bluez.Instance && bluez.Bluez.Instance.Process) {
+                    this.ClearChoke();
+                    this.Start();
+                } else {
+                    this.Choke_Timer = setTimeout(_try, 2000);
+                }
+            };
+            this.Choke_Timer = setTimeout(_try, 2000);
         });
         return true;
     }

@@ -269,7 +269,7 @@ function _is_interested_in(drv: IDriver, dev: IDevice, currentStage, tracker: _t
 export function DeviceChange(dev: IDevice, tracker: _tracker, assump: IDeviceAssumption, busDelta: IBusData, config: KVSet, stateChange?) {
 
     if (stateChange) {
-        warn("State Change! - " + dev.id);
+        trace("Device Online - " + dev.bus.name + " [" + dev.bus.hwaddr + "] ");
     }
 
     var tracker = tracker ? tracker : <_tracker>{
@@ -320,7 +320,7 @@ export function DeviceChange(dev: IDevice, tracker: _tracker, assump: IDeviceAss
 
 export function DeviceDrop(dev: IDevice, busDelta?) {
     var version = dev.time;
-    fatal("Dropping " + dev.id);
+    fatal("Drop - " + dev.bus.name + " [" + dev.bus.hwaddr + "] " + (dev.state ? " UP" : " DOWN"));
     for (var i in dev.assumptions) {
         fatal(i);
         if (!has(dev.assumptions, i) ||
