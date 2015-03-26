@@ -1,6 +1,6 @@
 ﻿{
     "name": "Launcher",
-    "permission": [ 255 ],
+    "permission": [ 1 ],
     "drivers": {
         "TestDriver": {
             "Buses": [ "WLAN" ],
