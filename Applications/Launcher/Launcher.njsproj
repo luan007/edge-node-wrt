@@ -156,7 +156,7 @@
     <Content Include="Main_Staging\views\partials\menu.ejs" />
     <Content Include="Main_Staging\views\partials\pageEnd.ejs" />
     <Content Include="Main_Staging\views\partials\pageHead.ejs" />
-    <Content Include="manfest.json" />
+    <Content Include="manifest.json" />
     <Content Include="package.json" />
     <TypeScriptCompile Include="Auth\server.ts" />
     <TypeScriptCompile Include="driver.ts" />

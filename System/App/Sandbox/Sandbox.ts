@@ -48,7 +48,7 @@
 // * RSA Sign Alg * (v0)
 // Pseudo Code:
 //     total = []
-//     total += manfestfile_content
+//     total += manifestfile_content
 //     for each level in folder                        //
 //          for each file in level                     //
 //              m = hash(file)                         // file content shall not change
@@ -140,8 +140,8 @@ function _early_rpc(cb) {
 function _jail(cb) {
     require("../../../Modules/Shared/use");
     Jail(); //NO MORE NETWORK
-    var mainServer = http.createServer();
-    global.Server = mainServer;
+    var mainServer = net.createServer();
+    global.Server = global.SERVER = mainServer;
     mainServer.listen(_env.main_socket,() => {
         chroot(_env.target_dir, _env.runtime_id); // YOU ARE NOBODY FROM NOW - NO MORE NOTHING
         process.chdir("/");

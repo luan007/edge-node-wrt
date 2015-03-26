@@ -72,13 +72,13 @@ class Runtime {
         //
         if (!Node.fs.existsSync(this.GetAppRootPath())
             || !Node.fs.existsSync(Node.path.join(this.GetAppRootPath(), "app.js"))
-            || !Node.fs.existsSync(Node.path.join(this.GetAppRootPath(), "manfest.json"))
+            || !Node.fs.existsSync(Node.path.join(this.GetAppRootPath(), "manifest.json"))
             || !Node.fs.statSync(Node.path.join(this.GetAppRootPath(), "app.js")).isFile()
-            || !Node.fs.statSync(Node.path.join(this.GetAppRootPath(), "manfest.json")).isFile()) {
+            || !Node.fs.statSync(Node.path.join(this.GetAppRootPath(), "manifest.json")).isFile()) {
 
             throw new Error("Corrupt Package ~ " + this.App.uid.bold);
         }
-        this.Manifest = JSON.parse(Node.fs.readFileSync(Node.path.join(this.GetAppRootPath(), "manfest.json"), "utf8").toString().trim());
+        this.Manifest = JSON.parse(Node.fs.readFileSync(Node.path.join(this.GetAppRootPath(), "manifest.json"), "utf8").toString().trim());
         this._status = {
             Heartbeat: undefined,
             FailHistory: [],

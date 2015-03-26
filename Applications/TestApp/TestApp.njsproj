@@ -36,7 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
-    <Content Include="manfest.json" />
+    <Content Include="manifest.json" />
     <Content Include="package.json" />
     <TypeScriptCompile Include="global.d.ts" />
     <TypeScriptCompile Include="test.ts" />
