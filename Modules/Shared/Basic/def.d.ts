@@ -1,6 +1,7 @@
 ﻿declare var UNCHANGED: any;
 declare var DELETED: any;
 
+declare function withCb(syncFunc): Function;
 
 declare function CJSONString(obj): string;
 declare function CJSONParse(str: string): any;

@@ -1,5 +1,22 @@
 ﻿import events = require("events");
 
+global.withCb = function (syncFunc) {
+    return function () {
+        var cb = arguments[arguments.length - 1];
+        delete arguments[arguments.length - 1];
+        var result = void 0;
+        var error = void 0;
+        try {
+            result = syncFunc.apply(null, arguments);
+        } catch (e) {
+            error = e;
+        }
+        process.nextTick(() => {
+            cb(error, result);
+        });
+    };
+};
+
 global.once = function (func: Function) {
     var wrapper = () => {
         var flag = Math.random().toString();
