@@ -34,12 +34,13 @@ var ROUTER_LOCAL = [
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-function SetCookie(cookie, atoken, expire, domain) {
+function SetCookie(cookie, atoken, expire, d) {
     cookie.set("edge_atoken", atoken,
         {
             httpOnly: true,
             overwrite: true,
-            domain: domain,
+            domain: d,
+            path: "/",
             expires: expire
         });
 }
@@ -170,10 +171,10 @@ app.get("/distribute",(req, res) => {
     expire.setTime(new Date().getTime() + (60 * 1000 * 60 * 24));
     var host = req.header("edge_host").toLowerCase();
     var domains = ROUTER_LOCAL.concat(AUTH_DOMAIN);
-    for (var i in domains) {
+    for (var i = 0; i < domains.length; i++) {
         if (domains[i] == host) {
             var cookies = new Cookies(req, res);
-            SetCookie(cookies, req.query.atoken, expire, ROUTER_LOCAL[i]);
+            SetCookie(cookies, req.query.atoken, expire, domains[i]);
             return res.status(200).json({});
         }
     }
