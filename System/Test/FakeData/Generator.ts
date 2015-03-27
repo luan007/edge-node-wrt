@@ -6,6 +6,27 @@ SYS_ON(SYS_EVENT_TYPE.LOADED, () => {
     warn(" YOU WILL LOSE DATA!!");
     warn("Now.. Clearing Application Table");
 
+    Core.Data.Tables.Application().get(CONF.CORE_PARTS["LAUNCHER"],(err, result) => {
+        if (!err && result) return;
+        trace("First run?");
+        Core.Data.Tables.Application().create([{
+            uid: "TestApp",
+            name: "TestApp",
+            urlName: "TestApp",
+            appsig: "a"
+        }, {
+                uid: CONF.CORE_PARTS["LAUNCHER"],
+                urlName: "",
+                name: "Launcher",
+                appsig: "a"
+            }
+        ],(err, instance) => {
+                warn("App Data Generated ... ");
+                //         Core.App.RuntimePool.LoadApplication("TestApp", (err, str) => { });
+
+            });
+
+    });
     /*Core.Data.Tables.Application().clear().sync((err) => {
         if (err) throw err;
 

@@ -388,7 +388,6 @@ export function List(ops: {
 
 export function SetOwnership(devId, ownership) {
 
-    var devId = hwaddr_map[dev.bus.name][dev.bus.hwaddr];
     var dev: IDevice;
     if (devId && devices[devId]) {
         //trace("Change : " + devId);
