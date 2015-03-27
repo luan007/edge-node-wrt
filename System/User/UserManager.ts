@@ -7,11 +7,16 @@
 import Core = require("Core");
 import Node = require("Node");
 
+import Device = Core.Device.DeviceManager;
 import Data = Core.Data;
 import Storage = Data.Storage;
 
 export var DB_UserList: IDic<Data.IUser> = {};
 export var DB_Ticket: IDic<Data.ITicket> = {};
+
+export var DeviceAlive: IDic<IDic<IDevice>> = {};
+export var UserStatus: IDic<number> = {};
+
 
 /* abstracted for future replacement */
 function getTicket(authId) {
@@ -52,6 +57,7 @@ export function UserAppear(
                 }
                 DB_UserList[_u.uid] = usr;
                 info("USER " + _u.name.bold + " CREATED");
+                Core.Device.DeviceManager.SetOwnership(device, userid);
                 callback(null, usr);
             });
         });
@@ -59,7 +65,7 @@ export function UserAppear(
     if (!ath) {
         var _a = new Data.Ticket();
         _a.device_uid = device;
-        _a.expire = expire / 10 + new Date().getTime();
+        _a.expire = expire / 1.5 + new Date().getTime();
         _a.owner_uid = usr.uid;
         _a.owner = usr;
         _a.uid = ticket;
@@ -72,6 +78,7 @@ export function UserAppear(
             callback(null, usr);
         });
     }
+
 }
 
 export function Login(
@@ -209,12 +216,122 @@ export function AuthPatrolThread() {
     }
 }
 
+export function GetState(userid) {
+    return UserStatus[userid] ? UserStatus[userid] : 0;
+}
+
+export function GetUser(userid) {
+    return DB_UserList[userid];
+}
+
+export function List(opts: {
+    state?: number
+}) {
+    opts = opts || {};
+    var results = {};
+    for (var i in DB_UserList) {
+        if ((opts.state === undefined || 
+            (opts.state === GetState(i)))) {
+            results[i] = DB_UserList[i];
+        }
+    }
+    return results;
+}
+
+export function All() {
+    return DB_UserList;
+}
+
+export function GetOwnedDevices(user, ops: {
+    state?: number;
+    bus?: string | string[];
+}) {
+    ops = ops || {};
+    var usr = GetUser(user);
+    if (!usr) {
+        return {};
+    } else {
+        return Device.List({
+            bus: ops.bus,
+            owner: user,
+            state: ops.state
+        });
+    }
+}
+
+function _UpdateOnlineState(userid) {
+    if (userid && userid !== "") {
+        var curState = UserStatus[userid] || 0;
+        var newState = DeviceAlive[userid] ? Object.keys(DeviceAlive[userid]).length : 0;
+        if (newState > 0 && curState === 0) {
+            UserStatus[userid] = 1;
+            __EMIT("User.up", userid, DB_UserList[userid]);
+        } else if (curState === 1 && newState === 0) {
+            UserStatus[userid] = 0;
+            DB_UserList[userid].lastSeen = new Date();
+            DB_UserList[userid].save();
+            __EMIT("User.down", userid, DB_UserList[userid]);
+        } else if (curState !== newState) {
+            __EMIT("User.onlineDeviceChanged", userid, DB_UserList[userid], DeviceAlive[userid]);
+        }
+    }
+}
+
+function _DeviceOnwershipTransfer(devid, dev: IDevice, newOwner, oldOwner) {
+    if (dev && oldOwner && oldOwner !== "" && DB_UserList[oldOwner]) {
+        if (!DeviceAlive[oldOwner]) {
+            DeviceAlive[oldOwner] = {};
+        }
+        else if (DeviceAlive[dev.owner][dev.id]) {
+            delete DeviceAlive[dev.owner][dev.id];
+        }
+    }
+    if (dev && newOwner && newOwner !== "" && DB_UserList[newOwner]
+        && dev.state > 0) {
+        if (!DeviceAlive[newOwner]) {
+            DeviceAlive[newOwner] = {};
+        }
+        DeviceAlive[newOwner][dev.id] = dev;
+    }
+    _UpdateOnlineState(newOwner);
+    if (oldOwner !== newOwner) _UpdateOnlineState(oldOwner);
+}
+
+function _DeviceOnline(devId, dev: IDevice) {
+    if (dev && dev.owner && DB_UserList[dev.owner]) {
+        if (!DeviceAlive[dev.owner]) {
+            DeviceAlive[dev.owner] = {};
+        }
+        if (!DeviceAlive[dev.owner][dev.id]) {
+            DeviceAlive[dev.owner][dev.id] = dev;
+            _UpdateOnlineState(dev.owner);
+        }
+    }
+}
+
+function _DeviceOffline(devId, dev: IDevice) {
+    if (dev && dev.owner && DB_UserList[dev.owner]) {
+        if (!DeviceAlive[dev.owner]) {
+            DeviceAlive[dev.owner] = {};
+        }
+        else {
+            delete DeviceAlive[dev.owner][dev.id];
+            _UpdateOnlineState(dev.owner);
+        }
+    }
+}
+
 export function Initialize(callback: Callback) {
     trace("Init..");
     LoadFromDB();
     trace("Starting AuthTicket Patrol " + (CONF.USERAUTH_PATROL_INTERVAL + "")["cyanBG"].bold);
     setInterval(AuthPatrolThread, CONF.USERAUTH_PATROL_INTERVAL);
     trace("UP");
+
+    Device.Events.on("up", _DeviceOnline);
+    Device.Events.on("down", _DeviceOffline);
+    Device.Events.on("transfer", _DeviceOnwershipTransfer);
+
     return callback();
 }
 
@@ -223,3 +340,13 @@ __API(Login, "Launcher.Login", [Permission.Launcher]);
 __API(Logout, "Launcher.Logout", [Permission.Launcher]);
 
 __API(Renew, "Launcher.Renew", [Permission.Launcher]);
+
+
+__API(withCb(GetOwnedDevices), "User.GetOwnedDevices", [Permission.UserAccess, Permission.DeviceAccess]);
+__API(withCb(List), "User.List", [Permission.UserAccess]);
+__API(withCb(All), "User.All", [Permission.UserAccess]);
+__API(withCb(GetUser), "User.Get", [Permission.UserAccess]);
+__API(withCb(GetState), "User.GetState", [Permission.UserAccess]);
+__EVENT("User.up", [Permission.UserAccess]);
+__EVENT("User.down", [Permission.UserAccess]);
+__EVENT("User.onlineDeviceChanged", [Permission.UserAccess, Permission.DeviceAccess]);

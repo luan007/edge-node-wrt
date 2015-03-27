@@ -317,6 +317,7 @@ export function Query(query: MatchQuery, callback) {
     });
 }
 
+
 function Demo() {
 
     //Le Demo:
@@ -367,3 +368,6 @@ function Demo() {
         });
 
 }
+
+
+__API(Query, "Device.Query", [Permission.DeviceAccess]);

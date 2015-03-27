@@ -61,7 +61,8 @@ export function LoadApplication(app_uid: string, callback: PCallback<string>) {
     } else if (_pool[app_uid]) {
         return callback(undefined,(<Runtime>_pool[app_uid]).RuntimeId);
     }
-    Core.Data.Application.table().one({ uid: app_uid }, (err, result) => {
+    Core.Data.Application.table().one({ uid: app_uid },(err, result) => {
+        trace("Loading App.. " + app_uid);
         if (err) {
             return callback(err, undefined);
         }
@@ -90,13 +91,46 @@ export function UnloadApplication(app_uid: string, callback: Callback) {
     process.nextTick(callback);
 }
 
-export function GetAppList(callback) {
+export function Install(app_uid: string, manifest, appsig, callback: Callback) {
+    trace("Installing " + app_uid);
+    trace(manifest);
+    Core.Data.Application.table().one({ uid: app_uid },(err, result) => {
+        //Upgrade?
+        var upgrade = false;
+        var data = <any>{};
+        if (!err && result) {
+            upgrade = true;
+        }
+        data.appsig = appsig;
+        data.name = manifest.name;
+        data.uid = app_uid;
+        data.urlName = manifest.name; //TBC
+        if (upgrade) {
+            info("Upgrading " + app_uid);
+            result.save(data, callback);
+        } else {
+            info("Saving " + app_uid);
+            Core.Data.Application.table().create(data, callback);
+        }
+    });
+}
+
+export function GetPooledApps(callback) {
     var keys = Object.keys(_pool);
     var results = [];
     for (var i = 0; i < keys.length; i++) {
         results.push(_pool[keys[i]].GetSnapshot());
     }
     callback(undefined, results);
+}
+
+export function GetInstalledApps(callback: (err: Error, result: Core.Data._app.IApplication[]) => any) {
+    Core.Data.Application.table().all({},(err, results) => {
+        if (err) return callback(err, void 0);
+        else {
+            return callback(void 0, results);
+        }
+    });
 }
 
 export function GetLauncher() {
@@ -181,4 +215,4 @@ export function SetQuota(appid, target, callback) {
 (__API(GetQuota, "App.Manager.GetQuota", [Permission.AppCrossTalk]));
 (__API(SetQuota, "App.Manager.SetQuota", [Permission.System]));
 (__API(LoadApplication, "App.Manager.Load", [Permission.System]));
-(__API(GetAppList, "App.Manager.List", [Permission.AppCrossTalk]));
+(__API(GetPooledApps, "App.Manager.List", [Permission.AppCrossTalk]));

@@ -11,6 +11,8 @@ var db_devices: IDic<deviceData> = {};
 var hwaddr_map: IDic<KVSet> = {}; // <Bus<HWAddr>>
 var device_updates: KVSet = {};
 
+export var Events = new Node.events.EventEmitter();
+
 var not_saved = false;
 
 function LoadFromDB(callback: Callback) {
@@ -30,10 +32,11 @@ function LoadFromDB(callback: Callback) {
                             hwaddr: dev.hwaddr,
                             name: dev.busname
                         },
+                        owner: dev.ownership,
                         config: dev.config,
                         id: dev.uid,
                         //state: dev.state,
-                        state: 0, 
+                        state: 0,
                         time: dev.time
                     };
                     total++;
@@ -80,6 +83,7 @@ function SaveToDB(callback: Callback) {
                 devtmp.hwaddr = dev.bus.hwaddr;
                 devtmp.time = dev.time;
                 devtmp.busdata = dev.bus.data;
+                devtmp.ownership = dev.owner;
                 devtmp.busname = dev.bus.name;
                 devtmp.state = dev.state;
                 devtmp.assumptions = dev.assumptions;
@@ -112,6 +116,7 @@ function SaveToDB(callback: Callback) {
                             var DBDEV = db_devices[id];
                             DBDEV.time = dev.time;
                             DBDEV.hwaddr = dev.bus.hwaddr;
+                            DBDEV.ownership = dev.owner;
                             DBDEV.time = dev.time;
                             DBDEV.busdata = dev.bus.data;
                             DBDEV.busname = dev.bus.name;
@@ -194,7 +199,8 @@ function _OnDevice(bus: IBusData) {
             id: UUIDstr(),
             config: {},
             time: new Date(),
-            state: 1
+            state: 1,
+            owner: ""
         };
         busDelta = bus;
         trace(" Created " + dev.id.bold);
@@ -202,8 +208,10 @@ function _OnDevice(bus: IBusData) {
         if (!hwaddr_map[bus.name]) hwaddr_map[bus.name] = {};
         hwaddr_map[bus.name][bus.hwaddr] = dev.id;
     }
+    __EMIT("Device.up", dev.id, dev);
+    Events.emit("up", dev.id, dev);
     device_updates[devId] = 1;
-    DriverManager.DeviceChange(dev, undefined, undefined, busDelta, undefined, stateChange);
+    DriverManager.DeviceChange(dev, undefined, undefined, busDelta, undefined, undefined, stateChange);
     not_saved = true;
 }
 
@@ -229,7 +237,7 @@ export function Config(dev: IDevice, conf: any) {
         
         device_updates[devId] = 1;
         if (dev.state == 1) {
-            DriverManager.DeviceChange(dev, undefined, undefined, undefined, dt);
+            DriverManager.DeviceChange(dev, undefined, undefined, undefined, dt, undefined);
             //Only update when alive
         }
         not_saved = true;
@@ -261,9 +269,13 @@ function _OnDrop(bus: IBusData) {
         }
         DriverManager.DeviceDrop(dev, d);
         not_saved = true;
+        __EMIT("Device.down", dev.id, dev);
+        Events.emit("down", dev.id, dev);
     } else {
         warn("DEVICE NOT FOUND");
     }
+
+
 }
 
 export var Buses: IDic<IBus> = {
@@ -337,3 +349,77 @@ export function OrbitSync(devId, cb) {
         hwaddr: db_devices[devId].hwaddr
     }), cb);
 }
+
+export function List(ops: {
+    state?: number;
+    bus?: string | string[];
+    owner?: string
+}) {
+    
+    ops = ops || {};
+
+    var bus = Object.keys(hwaddr_map); //default
+    var owner = ops.owner;
+    var state = ops.state;
+    if (ops.bus) {
+        if (typeof bus === "string") {
+            bus = <any>[ops.bus];
+        } else if(Array.isArray(ops.bus)) {
+            bus = <any>ops.bus;
+        }
+    }
+    var r = {};
+    for (var i = 0; i < bus.length; i++) {
+        var b = bus[i];
+        if (!hwaddr_map[b]) continue;
+        for (var j in hwaddr_map[b]) {
+            var devId = hwaddr_map[b][j];
+            var dev = devices[devId];
+            if (devId && dev
+                && (state === undefined || state === dev.state)
+                && (owner === undefined || owner === dev.owner)) {
+                r[devId] = dev;
+            }
+        }
+    }
+    return r;
+
+}
+
+export function SetOwnership(devId, ownership) {
+
+    var devId = hwaddr_map[dev.bus.name][dev.bus.hwaddr];
+    var dev: IDevice;
+    if (devId && devices[devId]) {
+        //trace("Change : " + devId);
+        dev = devices[devId];
+        if (dev.owner === ownership) {
+            warn("Ownership Found No Change, Skipped");
+            return;
+        }
+
+        Events.emit("transfer", dev.id, dev, ownership, dev.owner);
+
+        dev.owner = ownership;
+        device_updates[devId] = 1;
+        if (dev.state == 1) {
+            DriverManager.DeviceChange(dev, undefined, undefined, undefined, undefined, ownership);
+            //Only update when alive
+        }
+        not_saved = true;
+    }
+    else {
+        warn("Device not found");
+    }
+}
+
+__EVENT("Device.down", [Permission.DeviceAccess]);
+__EVENT("Device.up", [Permission.DeviceAccess]);
+
+__API(withCb(Get), "Device.Get", [Permission.DeviceAccess]);
+__API(withCb(GetDevIdByHWAddr), "Device.GetByMAC", [Permission.DeviceAccess]);
+__API(withCb(Devices), "Device.All", [Permission.DeviceAccess]);
+__API(withCb(List), "Device.List", [Permission.DeviceAccess]);
+__API(withCb(FromBus), "Device.FromBus", [Permission.DeviceAccess]);
+__API(withCb(Config), "Device.Config", [Permission.DeviceAccess, Permission.System]);
+__API(withCb(SetOwnership), "Device.SetOnwership", [Permission.DeviceAccess, Permission.System]);

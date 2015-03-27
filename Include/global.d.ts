@@ -63,6 +63,7 @@ interface IDevice {
     config: IDeviceConfig;
     state: number;
     time: Date;
+    owner: string;
 }
 
 interface IDeviceAssumption {
@@ -71,7 +72,6 @@ interface IDeviceAssumption {
     actions?: KVSet;
     attributes?: KVSet;
     valid?: boolean;
-
     aux?: any;
 }
 
@@ -87,6 +87,7 @@ interface IDriverInterest_Part {
     all?: boolean;
     stateChange?: any;
     otherDriver?: any;
+    ownership?: boolean;
 }
 
 //TODO: this need to be done
@@ -103,6 +104,7 @@ interface IDriverDetla {
     bus;
     config: KVSet;
     otherDriver?: boolean;
+    ownership;
 }
 
 interface IDriver {

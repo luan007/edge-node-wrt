@@ -90,14 +90,18 @@ function InitNetwork(cb) {
     };
     Rules.DropIncomingRequests.Target = (CONF.IS_DEBUG && !CONF.BASE_FIREWALL) ? Iptables.Target_Type.ACCEPT : Iptables.Target_Type.DROP;
 
-    Rules.HttpTrafficProxy.Protocol = { TCP: true };
-    Rules.HttpTrafficProxy.Destination_Port = { Id: 80 };
-    Rules.HttpTrafficProxy.Target = Iptables.Target_Type.REDIRECT;
-    Rules.HttpTrafficProxy.TargetOptions = <Iptables.IRedirectOption>{
-        Port: {
-            Id: 3378
-        }
-    };
+    if (CONF.ENABLE_HTTPPROXY) {
+        Rules.HttpTrafficProxy.Protocol = { TCP: true };
+        Rules.HttpTrafficProxy.Destination_Port = { Id: 80 };
+        Rules.HttpTrafficProxy.Target = Iptables.Target_Type.REDIRECT;
+        Rules.HttpTrafficProxy.TargetOptions = <Iptables.IRedirectOption>{
+            Port: {
+                Id: 3378
+            }
+        };
+    } else {
+        Rules.HttpTrafficProxy.Target = Iptables.Target_Type.RETURN;
+    }
 
     Rules.UplinkNAT.Target = Iptables.Target_Type.MASQUERADE;
 
@@ -149,7 +153,6 @@ function InitNetwork(cb) {
         Iptables.Iptables.Filter.OUTPUT.Add.bind(null, c_filter_ot),
         Iptables.Iptables.Mangle.PREROUTING.Add.bind(null, s_account_i),
         Iptables.Iptables.Mangle.POSTROUTING.Add.bind(null, s_account_o),
-
         Iptables.Iptables.NAT.PREROUTING.Add.bind(null, Rules.HttpTrafficProxy),
         Iptables.Iptables.NAT.PREROUTING.Add.bind(null, s_nat_pre),
         Iptables.Iptables.NAT.POSTROUTING.Add.bind(null, s_nat_post),
@@ -334,6 +337,10 @@ class Configuration extends Abstract.Configurable {
             dnsmasq.Hosts[0]["wifi.network"] = mod.RouterIP;
             dnsmasq.Hosts[0]["ed.ge"] = mod.RouterIP;
             dnsmasq.Hosts[0]["wifi"] = mod.RouterIP;
+            dnsmasq.Config.Addresss[".wi.fi"] = mod.RouterIP;
+            dnsmasq.Config.Addresss[".wifi.network"] = mod.RouterIP;
+            dnsmasq.Config.Addresss[".ed.ge"] = mod.RouterIP;
+            dnsmasq.Config.Addresss[".wifi"] = mod.RouterIP;
             addr["Address"] = mod.RouterIP;
         }
         if (has(mod, "LocalNetmask")) {
@@ -383,7 +390,7 @@ class Configuration extends Abstract.Configurable {
             dnsmasq.Start(true);
             jobs.push(dnsmasq.StabilityCheck);
         } else if (dhcp_hotplug) {
-            jobs.push(dnsmasq.SIGHUP_Update);
+            jobs.push(dnsmasq.ApplyChange);
             jobs.push(dnsmasq.StabilityCheck);
         }
         if (jobs.length == 0) {

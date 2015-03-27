@@ -67,11 +67,10 @@ function LoginSuccess(req, res, expire, cookies, atoken, rtoken) {
 }
 
 app.get("/",(req, res) => {
-
-    var host = req.header("edge_host").toLowerCase();
+    var host = req.header("edge-host").toLowerCase();
     if (host !== AUTH_DOMAIN) {
         var target = "http://" + AUTH_DOMAIN + "/?";
-        var back = "http://" + req.header("edge_host") + req.originalUrl;
+        var back = "http://" + req.header("edge-host") + req.originalUrl;
         return res.redirect(target + querystring.stringify(
             {
                 r: back,
@@ -106,7 +105,7 @@ app.get("/",(req, res) => {
 });
 
 app.post("/auth",(req, res) => {
-    var host = req.header("edge_host").toLowerCase();
+    var host = req.header("edge-host").toLowerCase();
     if (host !== AUTH_DOMAIN) {
         return res.json({ err: { message: "outside authdomain" } });
     }
@@ -116,7 +115,7 @@ app.post("/auth",(req, res) => {
     var pass = req.body.pass;
     var r = req.body.r;
     var c = req.body.c;
-    var deviceid = req.header("edge_dev");
+    var deviceid = req.header("edge-dev");
     API.Launcher.Login(uore, pass, deviceid,(err, result) => {
         if (err) {
             res.json({ err: err, device: deviceid });
@@ -138,7 +137,7 @@ app.get("/renew",(req, res) => {
 app.post("/renew",(req, res) => {
     var expire = new Date();
     expire.setTime(new Date().getTime() + (60 * 1000 * 60 * 24));
-    var host = req.header("edge_host").toLowerCase();
+    var host = req.header("edge-host").toLowerCase();
     if (host !== AUTH_DOMAIN) {
         return res.redirect("http://" + AUTH_DOMAIN + "/?" + querystring.stringify(req.query));
     }
@@ -146,17 +145,17 @@ app.post("/renew",(req, res) => {
     var cookies = new Cookies(req, res);
     var atoken = cookies.get("edge_atoken");
     var rtoken = cookies.get("edge_rtoken");
-    var device_id = req.header("edge_dev");
+    var device_id = req.header("edge-dev");
     if (!(atoken && rtoken && device_id)) {
-        cookies.set("edge_atoken");
-        cookies.set("edge_atoken");
+        SetCookie(cookies, "", new Date(0), AUTH_DOMAIN);
+        SetRtoken(cookies, "", new Date(0));
         return res.redirect("http://" + AUTH_DOMAIN + "/?" + querystring.stringify(req.query));
     }
     API.Launcher.Renew(atoken, rtoken, device_id,(err, result) => {
         if (err || !result) {
             console.log("Renew Failed");
-            cookies.set("edge_atoken");
-            cookies.set("edge_atoken");
+            SetCookie(cookies, "", new Date(0), AUTH_DOMAIN);
+            SetRtoken(cookies, "", new Date(0));
             return res.redirect("http://" + AUTH_DOMAIN + "/?" + querystring.stringify(req.query));
         }
         else {
@@ -169,7 +168,7 @@ app.post("/renew",(req, res) => {
 app.get("/distribute",(req, res) => {
     var expire = new Date();
     expire.setTime(new Date().getTime() + (60 * 1000 * 60 * 24));
-    var host = req.header("edge_host").toLowerCase();
+    var host = req.header("edge-host").toLowerCase();
     var domains = ROUTER_LOCAL.concat(AUTH_DOMAIN);
     for (var i = 0; i < domains.length; i++) {
         if (domains[i] == host) {
@@ -187,7 +186,7 @@ app.get("*",(req, res) => {
     var cookies = new Cookies(req, res);
     var atoken = cookies.get("edge_atoken");
     var target = "http://" + AUTH_DOMAIN + ( /*atoken*/ true ? "/renew?" : "/?");
-    var back = "http://" + req.header("edge_host") + req.originalUrl;
+    var back = "http://" + req.header("edge-host") + req.originalUrl;
     res.redirect(target + querystring.stringify(
         {
             r: back,

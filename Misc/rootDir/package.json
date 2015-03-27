@@ -47,6 +47,8 @@
     "readline-sync":  "*",
     "pursuit": "*",
     "node-ssdp": "*",
-    "dbus-native":  "*"
+    "dbus-native": "*",
+    "mutter": "*",
+    "unzip":  "*"
   }
 }

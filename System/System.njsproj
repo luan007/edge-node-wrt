@@ -34,6 +34,7 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="Test\Deployment\views\index.ejs" />
     <TypeScriptCompile Include="API\EventHub.ts" />
     <TypeScriptCompile Include="API\FunctionExposer.ts" />
     <TypeScriptCompile Include="API\global.d.ts" />
@@ -175,6 +176,7 @@
     <TypeScriptCompile Include="SubSys\_Export.ts" />
     <TypeScriptCompile Include="SubSys\_Module.ts" />
     <TypeScriptCompile Include="Test\CLI.ts" />
+    <TypeScriptCompile Include="Test\Deployment\Server.ts" />
     <TypeScriptCompile Include="Test\Device\DBTest.ts" />
     <TypeScriptCompile Include="Test\FakeData\Generator.ts" />
     <TypeScriptCompile Include="Test\FakeServer\FakeRemote.ts" />
@@ -207,8 +209,10 @@
     <Folder Include="SubSys\FrontEnds\" />
     <Folder Include="SubSys\Network\" />
     <Folder Include="SubSys\Ports\" />
+    <Folder Include="Test\Deployment\views\" />
     <Folder Include="Test\FakeServer\" />
     <Folder Include="Test\Device\" />
+    <Folder Include="Test\Deployment\" />
     <Folder Include="Test\NGinx\" />
     <Folder Include="Test\Ports\" />
     <Folder Include="User\" />

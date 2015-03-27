@@ -21,7 +21,7 @@ route.get("/", function (req, res) {
 
 
 route.get("/Logout", function (req, res) {
-    var host = req.header("edge_host").toLowerCase();
+    var host = req.header("edge-host").toLowerCase();
     if (host !== global.AUTH_DOMAIN) {
         return res.redirect("http://" + global.AUTH_DOMAIN + "/Logout");
     }

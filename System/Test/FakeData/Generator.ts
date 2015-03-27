@@ -5,28 +5,27 @@ SYS_ON(SYS_EVENT_TYPE.LOADED, () => {
     warn("Test - Data Generator Starting..");
     warn(" YOU WILL LOSE DATA!!");
     warn("Now.. Clearing Application Table");
-    Core.Data.Tables.Application().clear().sync((err) => {
+
+    /*Core.Data.Tables.Application().clear().sync((err) => {
         if (err) throw err;
 
-        Core.Data.Tables.Application().create({
+        Core.Data.Tables.Application().create([{
             uid: "TestApp",
             name: "TestApp",
             urlName: "TestApp",
             appsig: "a"
-        }, (err, instance) => {
+        }, {
+                uid: CONF.CORE_PARTS["LAUNCHER"],
+                urlName: "",
+                name: "Launcher",
+                appsig: "a"
+            }
+        ],(err, instance) => {
                 warn("App Data Generated ... ");
-                Core.App.RuntimePool.LoadApplication("TestApp", (err, str) => { });
+                //         Core.App.RuntimePool.LoadApplication("TestApp", (err, str) => { });
+
         });
 
-        Core.Data.Tables.Application().create({
-            uid: CONF.CORE_PARTS["LAUNCHER"],
-            urlName: "",
-            name: "Launcher",
-            appsig: "a"
-        }, (err, instance) => {
-                warn("App Data Generated ... ");
-                Core.App.RuntimePool.LoadApplication(CONF.CORE_PARTS["LAUNCHER"], (err, str) => { });
-        });
 
         //Core.Data.Tables.Application().create({
         //    uid: "2",
@@ -64,9 +63,9 @@ SYS_ON(SYS_EVENT_TYPE.LOADED, () => {
         //        });
         //    });
 
-
+    */
         Orbit.Post("User", { name: "mikeluan", email: "1@emerge.cc", password: "1234567890" },(err, result) => {
 
         });
-    });
+    //});
 });

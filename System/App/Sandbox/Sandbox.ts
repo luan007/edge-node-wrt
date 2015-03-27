@@ -139,10 +139,10 @@ function _early_rpc(cb) {
 
 function _jail(cb) {
     require("../../../Modules/Shared/use");
-    Jail(); //NO MORE NETWORK
-    var mainServer = net.createServer();
+    var mainServer = http.createServer();
     global.Server = global.SERVER = mainServer;
     mainServer.listen(_env.main_socket,() => {
+        Jail(); //NO MORE NETWORK
         chroot(_env.target_dir, _env.runtime_id); // YOU ARE NOBODY FROM NOW - NO MORE NOTHING
         process.chdir("/");
         process.env = {};

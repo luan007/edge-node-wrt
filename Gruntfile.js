@@ -15,7 +15,7 @@ module.exports = function(grunt) {
                     }
                 },
                 staticFiles: {
-                    files: ['Applications/**/*.*', '!Applications/**/*.ts'],
+                    files: ['**/*.ejs', '**/*.lua', '**/*.css', '**/*.less', 'Applications/**/*.*', '!Applications/**/*.ts'],
                     tasks: ['copy', 'sync'],
                     options: {
                         spawn: false

@@ -14,7 +14,7 @@ export class Device {
     state: number = 0;
     time: Date = new Date();
     config: KVSet = {};
-
+    ownership: string = "";
     static table(): orm.Typed.TypedModel<IDevice> {
         if (!Table) {
             Table = <any>store.DefineTable("Device", Device, { id: ["uid"] });

@@ -17,10 +17,12 @@ export function InvalidateDrvInterest(drvId) {
 }
 
 export function LoadDriver(drv: IDriver, cb) {
-    if (drv /* && !has(Drivers, drv.id())*/ ) {
+    if (drv /* && !has(Drivers, drv.id())*/) {
+        var reload = false;
         if (!has(Drivers, drv.id())) {
             info("Loading Driver " + drv.name().bold + " to BUS(es) " + (''+JSON.stringify(drv.bus())).bold);
         } else {
+            reload = true;
             info("Reloading Driver " + drv.name().bold + " to BUS(es) " + (''+JSON.stringify(drv.bus())).bold);
         }
         drv.load((err) => {
@@ -40,14 +42,18 @@ export function LoadDriver(drv: IDriver, cb) {
             }
             //Don't care..
             info("UP - " + drv.name().bold);
-
+            if (reload) {
+                __EMIT("Driver.reload", drv.id());
+            } else {
+                __EMIT("Driver.up", drv.id());
+            }
             var devs = Core.Device.DeviceManager.Devices();
             for (var q in devs) {
                 _notify_driver(drv, devs[q], {
                     depth: 1,
                     root: drv.id(),
                     parent: undefined
-                }, undefined, undefined, undefined);
+                }, undefined, undefined, undefined, undefined);
             }
             cb(err);
         });
@@ -140,7 +146,7 @@ function _update_driver_data(drv: IDriver, dev: IDevice, assump: IDeviceAssumpti
         root: tracker.root
     };
     process.nextTick(() => {
-        DeviceChange(dev, ntracker, delta, undefined, undefined);
+        DeviceChange(dev, ntracker, delta, undefined, undefined, undefined);
     });
 }
 
@@ -150,7 +156,7 @@ export function DriverActiveUpdate(drv: IDriver, dev: IDevice, assump: IDeviceAs
     });
 }
 
-function _notify_driver(driver: IDriver, dev: IDevice, tracker: _tracker, delta: IDeviceAssumption, deltaBus: IBusData, deltaConf: KVSet, stateChange?) {
+function _notify_driver(driver: IDriver, dev: IDevice, tracker: _tracker, delta: IDeviceAssumption, deltaBus: IBusData, deltaConf: KVSet, deltaOwn, stateChange?) {
     process.nextTick(() => {
         var drvId = driver.id();
         var version = dev.time.getTime();
@@ -158,25 +164,27 @@ function _notify_driver(driver: IDriver, dev: IDevice, tracker: _tracker, delta:
         if (!_sanity_check(version, dev, driver)) return; //WTF??
         //console.log(JSON.stringify(dev));
         try {
-            if (myAssump && myAssump.valid && _is_interested_in(driver, dev, 1, tracker, delta, deltaBus, deltaConf, stateChange)) {
+            if (myAssump && myAssump.valid && _is_interested_in(driver, dev, 1, tracker, delta, deltaBus, deltaConf, deltaOwn, stateChange)) {
                 trace("Change -> " + driver.name());
                 //need change
                 driver.change(dev, {
                     assumption: delta,
                     bus: deltaBus,
-                    config: deltaConf
+                    config: deltaConf,
+                    ownership: deltaOwn
                 }, <any>once((err, assump) => {
                     if (!assump || !_sanity_check(version, dev, driver, err)) return;
                     _update_driver_data(driver, dev, assump, tracker);
                 }));
-            } else if (!(myAssump && myAssump.valid) && _is_interested_in(driver, dev, 0, tracker, delta, deltaBus, deltaConf, stateChange)) {
+            } else if (!(myAssump && myAssump.valid) && _is_interested_in(driver, dev, 0, tracker, delta, deltaBus, deltaConf, deltaOwn, stateChange)) {
                 trace("Match -> " + driver.name());
                 //need match/attach
                 //TODO: Verify EmitterizeCB's impact/influence on GC, to see if it solves the 'ghost CB' prob
                 driver.match(dev, {
                     assumption: delta,
                     bus: deltaBus,
-                    config: deltaConf
+                    config: deltaConf,
+                    ownership: deltaOwn
                 }, <any>must((err, data) => {
                     if (!data || !_sanity_check(version, dev, driver, err)) return;
                     try {
@@ -184,7 +192,8 @@ function _notify_driver(driver: IDriver, dev: IDevice, tracker: _tracker, delta:
                         driver.attach(dev, {
                             assumption: delta,
                             bus: deltaBus,
-                            config: deltaConf
+                            config: deltaConf,
+                            ownership: deltaOwn
                         }, data, <any>once((err, assump) => {
                             if (!assump || !_sanity_check(version, dev, driver, err)) return;
                             _update_driver_data(driver, dev, assump, tracker);
@@ -200,9 +209,8 @@ function _notify_driver(driver: IDriver, dev: IDevice, tracker: _tracker, delta:
     });
 }
 
-
 //TODO: Finish Driver Interest
-function _is_interested_in(drv: IDriver, dev: IDevice, currentStage, tracker: _tracker, d_assump, d_bus, d_conf, stateChange?) {
+function _is_interested_in(drv: IDriver, dev: IDevice, currentStage, tracker: _tracker, d_assump, d_bus, d_conf, d_ownership, stateChange?) {
 
     var interested = drv.interest();
 
@@ -228,6 +236,9 @@ function _is_interested_in(drv: IDriver, dev: IDevice, currentStage, tracker: _t
             }
             else if (c["stateChange"] && stateChange) {
                 result = 2;
+            }
+            else if (c["ownership"] && d_ownership) {
+                result = 10;
             }
             else if (c.delta) {
                 if (d_conf && c.delta.config && query.first([d_conf], c.delta.config)) {
@@ -266,11 +277,21 @@ function _is_interested_in(drv: IDriver, dev: IDevice, currentStage, tracker: _t
     return 1;
 }
 
-export function DeviceChange(dev: IDevice, tracker: _tracker, assump: IDeviceAssumption, busDelta: IBusData, config: KVSet, stateChange?) {
+export function DeviceChange(dev: IDevice, tracker: _tracker, assump: IDeviceAssumption, busDelta: IBusData, config: KVSet, ownership, stateChange?) {
 
     if (stateChange) {
         trace("Device Online - " + dev.bus.name + " [" + dev.bus.hwaddr + "] ");
     }
+
+    __EMIT("Device.change", dev.id, dev, {
+        tracker: tracker,
+        assumption: assump,
+        bus: busDelta,
+        config: config,
+        stateChange: stateChange,
+        ownership: ownership
+    });
+
 
     var tracker = tracker ? tracker : <_tracker>{
         depth: 0
@@ -313,7 +334,7 @@ export function DeviceChange(dev: IDevice, tracker: _tracker, assump: IDeviceAss
         
         //Preference? Sure
         //Almost done.
-        _notify_driver(Drivers[driver_id], dev, tracker, assump, busDelta, config, stateChange);
+        _notify_driver(Drivers[driver_id], dev, tracker, assump, busDelta, config, ownership, stateChange);
     }
 
 }
@@ -337,7 +358,8 @@ export function DeviceDrop(dev: IDevice, busDelta?) {
                     drv.detach(dev, {
                         assumption: undefined,
                         bus: busDelta,
-                        config: undefined
+                        config: undefined,
+                        ownership: undefined
                     }, <any>once((err, fin_assumption) => {
                         if (!_sanity_check(version, dev, drv, err) ||
                             !fin_assumption ||
@@ -367,3 +389,11 @@ export function Initialize(callback: Callback) {
         LoadDriver.bind(null,(require("./Driver/NameService")).Instance)
     ], callback);
 }
+
+
+
+
+__EVENT("Device.change", [Permission.DeviceAccess]);
+__EVENT("Driver.down", [Permission.Driver]);
+__EVENT("Driver.up", [Permission.Driver]); //not used
+__EVENT("Driver.reload", [Permission.Driver]);

@@ -14,6 +14,7 @@ export class CtrlInterface {
     //public InitLuaScript: nginx_conf.INginxConfNode;
     public APIPermissions: any[];
     public MainServer: nginx_conf.INginxConfNode;
+    public WSServer: nginx_conf.INginxConfNode;
     public ProxyServer: nginx_conf.INginxConfNode;
     public ZPushServer: nginx_conf.INginxConfNode;
 
@@ -39,16 +40,21 @@ export class CtrlInterface {
             this.Http = this.Nginx["http"];
             this.Http._add("include", "/etc/nginx/mime.types"); //to be changed
             this.Http._add("default_type", "application/octet-stream");
-            this.Http._add("gzip", "on");
+            this.Http._add("access_log", "off");
+            this.Http._add("gzip", "off");
             this.Http._add("gzip_min_length", "1024");
             this.Http._add("gzip_comp_level", "3");
+            this.Http._add("client_max_body_size", "10240m");
+            this.Http._add("proxy_buffering", "off");
+            this.Http._add("tcp_nopush", "on");
+            this.Http._add("tcp_nodelay", "on");
             this.Http._add("proxy_set_header", "Accept-Encoding \"\"");
             this.Http._add("lua_package_cpath", "'/opt/luajit/?.so;'");
             this.Http._add("lua_package_path", '"' + Node.path.join(CONF.MODULE_DIR, "Lua/?.lua") + ';"');
             this.Http._add("init_by_lua", this.GenerateStartupScript());
             //this.Http._add("init_by_lua", "'" + 'require("Nginx");' + "'");
             //this.InitLuaScript = this.Http["init_by_lua"];
-            
+
             this.Http._add("server");
             this.Http._add("server");
             this.Http._add("server");
@@ -57,9 +63,9 @@ export class CtrlInterface {
             this.ZPushServer = this.Http["server"][1];
             this.ProxyServer = this.Http["server"][2];
 
-            this.SetupServerNode(this.MainServer, 80, "localhost");
+            this.SetupServerNode(this.MainServer, 80, "localhost", "10240M");
             this.SetupServerNode(this.ZPushServer, 80, "wi-fi.exchange");
-            this.SetupServerNode(this.ProxyServer, 3378, "localhost", "1024M");
+            this.SetupServerNode(this.ProxyServer, 3378, "localhost", "10240M");
             this.inited = true;
             cb();
         });

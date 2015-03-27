@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <style>
+        body {
+            font-weight: lighter;
+        }
+        * {
+            font-family: "helvetica neue", "Microsoft Yahei";
+        }
+    </style>
+    <title>AO</title>
+</head>
+<body>
+    <div style="font-size:2em;">Edge - Deployment Server</div>
+    <br />
+    <div style="margin-left:30px; margin-top:10px;">
+        <b>In Pool</b>
+        <ul>
+            <% for(var i=0; i < Pooled.length; i++) { %>
+            <li>
+                <div><%= Pooled[i].App.uid %> &nbsp;&nbsp; <a href="/unload/<%= Pooled[i].App.uid %>">Unload</a></div>
+                <div><%= JSON.stringify(Pooled[i].Status, null, " ") %></div>
+                <br />
+                
+            </li>
+            <% } %>
+        </ul>
+    </div>
+
+    <div style="margin-left:30px; margin-top:40px;">
+        <b>Installed</b>
+        <ul>
+            <% for(var i=0; i < Installed.length; i++) { %>
+            <li>
+                <div><%= Installed[i].name %> &nbsp;&nbsp; <a href="/load/<%= Installed[i].uid %>">Load</a></div>
+            </li>
+            <% } %>
+        </ul>
+    </div>
+</body>
+</html>

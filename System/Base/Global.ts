@@ -42,7 +42,7 @@ class _sys_conf {
     ENABLE_EXEC_QUEUEING = true;
     PROCESS_DEBUG = false;
     BYPASS_APP_SIGCHECK = true;
-    SHOW_NGINX_CONF = false;
+    SHOW_NGINX_CONF = true;
     DEVICE_SAVE_INTERVAL = 30000;
     USERAUTH_PATROL_INTERVAL = 30000;
     MAX_DRIVERCHAIN_DEPTH = 30;
@@ -56,13 +56,14 @@ class _sys_conf {
     BLUETOOTH_MAXLIFE = 300 * 1000; //300 sec
     BLUETOOTH_SCAN_INTERVAL = 15 * 1000; //15 sec
     BLUETOOTH_DROPWAIT = 30 * 1000; //30 sec till dead
+    ENABLE_HTTPPROXY = false;
     CORE_PARTS = {
         LAUNCHER: "Launcher"
     };
     DEV = {
         WLAN: {
-            DEV_2G: "ap0",
-            DEV_5G: "ap1"
+            DEV_2G: "ap1",
+            DEV_5G: "ap0"
         },
         BLUETOOTH: {
             DEV_HCI: "hci0",

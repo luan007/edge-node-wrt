@@ -357,7 +357,7 @@ export interface IpAlias {
 }
 
 export interface ServerRule {
-    UpStreamDNS: string;
+    UpStreamDNS?: string;
     UpStreamPort?: string;
     Domains?: string[];
 

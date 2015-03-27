@@ -36,6 +36,13 @@ var conf = new ServerConfig();
 var LauncherMainPort;
 var LauncherAuthPort;
 
+export var PrefixTable = {
+    //owner_id: [ prefix, dest ]
+};
+export var HostnameTable = {
+    //owner_id: [ prefix, dest ]
+};
+
 export function Initialize(cb) {
 
     conf.Initialize(() => {
@@ -55,10 +62,18 @@ export function Initialize(cb) {
         AnyPage._add("access_by_lua", "'MainAccess()'");
         //AnyPage._add("proxy_cookie_path", "~.(.+) $_cookie_path/$1");
         //AnyPage._add("proxy_cookie_path", "~^\\Z $_cookie_path");
-        AnyPage._add("proxy_set_header", "edge_test 'OK'");
-        AnyPage._add("proxy_set_header", "edge_dev $_dev");
-        AnyPage._add("proxy_set_header", "edge_user $_user");
-        AnyPage._add("proxy_set_header", "edge_host $host");
+        AnyPage._add("proxy_set_header", "edge-test 'OK'");
+        AnyPage._add("proxy_set_header", "x-forwarded-for $remote_addr");
+        AnyPage._add("proxy_set_header", "x-real-ip $remote_addr");
+        AnyPage._add("proxy_set_header", "edge-dev $_dev");
+        AnyPage._add("proxy_set_header", "edge-user $_user");
+        AnyPage._add("proxy_set_header", "edge-host $host");
+        AnyPage._add("proxy_set_header", "Upgrade $http_upgrade");
+        AnyPage._add("proxy_set_header", "Connection 'upgrade'");
+        AnyPage._add("proxy_request_buffering", "off");
+        AnyPage._add("proxy_http_version", "1.1");
+        AnyPage._add("gzip", "off");
+
         AnyPage._add("proxy_pass", "$_target$is_args$args");
         AnyPage._add("header_filter_by_lua ", "'MainHeadFilter()'");
 
@@ -66,18 +81,43 @@ export function Initialize(cb) {
     });
 }
 
-function GetTarget(Uri: string, authenticated: string, cb) {
+function GetTarget(host: string, Uri: string, authenticated: string, cb) {
     var base = "";
     var cookie_affect_range = "/" + UUIDstr() + "/"; //safe heaven :p
     var uri = Uri;
-    trace(Uri);
+    var host = host;
+    var targetPrefix = "";
+    //trace(host + " :: " + Uri);
+
+    var hostsplit = host.toLowerCase().split(".");
+
     if (authenticated === "1") {
-        //info(Uri);
+
         cookie_affect_range = "";
         base = LauncherMainPort;
 
-        //TODO: Add more logic here :) 
-
+        if (hostsplit.length === 3) {
+            var h = hostsplit[0];
+            for (var i in HostnameTable) {
+                var prefix = HostnameTable[i][0].toLowerCase();
+                if (h == prefix) {
+                    base = HostnameTable[i][1];
+                    break;
+                }
+            }
+        } else {
+            var block1 = uri.split(/\?|\/|\#|\:/gmi)[1].toLowerCase();
+            for (var i in PrefixTable) {
+                var prefix = PrefixTable[i][0].toLowerCase();
+                if (block1 == prefix) {
+                    targetPrefix = prefix;
+                    base = PrefixTable[i][1];
+                    break;
+                }
+            }
+            uri = uri.substr(targetPrefix.length);
+        }
+        //TODO: Add more logic here :)
     } else {
         //trace(Uri);
         base = LauncherAuthPort;
@@ -85,7 +125,7 @@ function GetTarget(Uri: string, authenticated: string, cb) {
     }
     base = "http://unix:/" + base + ":";
     var result = base + uri;
-    //info(result);
+    info(result);
     cb(undefined, [result, cookie_affect_range]);
 }
 

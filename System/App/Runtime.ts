@@ -469,6 +469,21 @@ class Runtime {
             this._API_Endpoint = API;
             this.API = this._API_Endpoint.API;
             info("Package is Fully Up! : " + this.App.name.bold);
+
+            exec("chown nobody " + this._mainsock,() => { });
+            exec("chown nobody " + this._webexsock,() => { });
+
+            if (this.App.urlName && this.App.urlName.trim() !== "") {
+                Core.SubSys.FrontEnds.MainUI.HostnameTable[this.App.uid] = [
+                    this.App.urlName.toLowerCase(),
+                    this._mainsock
+                ];
+                Core.SubSys.FrontEnds.MainUI.PrefixTable[this.App.uid] = [
+                    this.App.urlName.toLowerCase(),
+                    this._mainsock
+                ];
+            }
+
             this._reset_launch_timeout();
             for (var i in this.Driver) {
                 Core.Device.DriverManager.LoadDriver(this.Driver[i],(err) => {

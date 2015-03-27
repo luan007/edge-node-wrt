@@ -10,6 +10,8 @@ export class User {
     uid: string = "";
     name: string = "";
     data: KVSet = {};
+    lastSeen: Date = new Date();
+
 
     static table(): orm.Typed.TypedModel<IUser> {
         if (!Table) {

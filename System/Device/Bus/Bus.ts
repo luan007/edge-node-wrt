@@ -53,7 +53,7 @@ class Bus extends Node.events.EventEmitter implements IBus {
 
     protected _on_drop = (dev: IBusData) => {
         dev.name = this.name();
-        dev.total_uptime = (!!dev.total_uptime ? dev.total_uptime : 0 ) + Date.now() - dev["stamp"];
+        dev.total_uptime = (dev.total_uptime !== undefined ? dev.total_uptime : 0 ) + Date.now() - dev["stamp"];
         if (dev.hwaddr) {
             dev.hwaddr = dev.hwaddr.toLowerCase();
         }
