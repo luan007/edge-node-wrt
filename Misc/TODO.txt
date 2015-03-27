@@ -31,7 +31,7 @@ ROUTER首页 磁盘使用率 这那？
 *. HOSTAPD with WPS support
 
 *. UPNP & SSDP      ----------------------------------------- ( Test Needed )
-   SSDP discovery / UPNP broadcast
+   SSDP discovery / UPNP broadcast -------------------------- ( Test Needed )
 
 *. Router Base Features
    Naming, Theming
@@ -68,7 +68,7 @@ ROUTER首页 磁盘使用率 这那？
    C) Yeelight's API
 	  -> Other Sensors go here (TBD)
    D) Light Control Application ? (TBD) / [The Home App]
-   *) Bluetooth OBDC/File Reciever + Samba Combination
+   *) Bluetooth OBDC/File Reciever + Samba Combination  ------ ( DONE )
 
 4.1 AUDIO
 	http://alsa.opensrc.org/Asoundrc
@@ -91,7 +91,7 @@ ROUTER首页 磁盘使用率 这那？
    *  The Light Example
    *  The Ink Carrage Example
 
-6. File Sender (APP)
+6. File Sender (APP)                 ----< UNDER DEVELOPMENT WITH GOOD PROGRESS
    A) Cached
    B) Streaming
 

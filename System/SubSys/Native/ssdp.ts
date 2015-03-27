@@ -91,10 +91,6 @@ class _ssdp_Browser extends events.EventEmitter {
 }
 
 
-
-
-
-
 interface SimpleUPNPRecord {
     versionMajor?: string;
     versionMinor?: string;

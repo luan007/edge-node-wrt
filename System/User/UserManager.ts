@@ -336,11 +336,8 @@ export function Initialize(callback: Callback) {
 }
 
 __API(Login, "Launcher.Login", [Permission.Launcher]);
-
 __API(Logout, "Launcher.Logout", [Permission.Launcher]);
-
 __API(Renew, "Launcher.Renew", [Permission.Launcher]);
-
 
 __API(withCb(GetOwnedDevices), "User.GetOwnedDevices", [Permission.UserAccess, Permission.DeviceAccess]);
 __API(withCb(List), "User.List", [Permission.UserAccess]);
