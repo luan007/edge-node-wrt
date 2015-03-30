@@ -145,6 +145,7 @@ function _jail(cb) {
         Jail(); //NO MORE NETWORK
         chroot(_env.target_dir, _env.runtime_id); // YOU ARE NOBODY FROM NOW - NO MORE NOTHING
         process.chdir("/");
+        global.API_JSON = _env.api_obj;
         process.env = {};
         process.argv = [];
         process.title = "";

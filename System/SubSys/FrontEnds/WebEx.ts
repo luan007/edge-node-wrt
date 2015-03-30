@@ -10,7 +10,7 @@ export function Initialize(cb) {
     ProxyServer._add("location", "/");
     ProxyServer["location"]._add("default_type", "'text/plain'");
     var AnyPage = ProxyServer["location"];
-    AnyPage._add("set", "$_target http://$http_host$uri$is_args$args");
+    AnyPage._add("set", "$_target http://$http_host"); //$uri$is_args$args
     AnyPage._add("resolver", "127.0.0.1");
     AnyPage._add("add_header", "X-Test 'EDGE'");
     AnyPage._add("proxy_pass", "$_target");

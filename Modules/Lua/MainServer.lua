@@ -49,7 +49,7 @@ function MainAccess()
 	if err then 
 		ngx.say("RPC Socket Error : " .. err)
 	end
-	local result, err = RPCCall(socket, "Proxy.GetTarget", ngx.var.host, ngx.var.uri, ngx.var._auth)
+	local result, err = RPCCall(socket, "Proxy.GetTarget", ngx.var.host, ngx.var.request_uri, ngx.var._auth)
 	if err then 
 		return ngx.say("GetTarget Call Error : " .. err)
 	end
