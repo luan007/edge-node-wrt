@@ -1,6 +1,26 @@
 ﻿var route = require("express").Router();
 var Cookies = require("cookies");
 
+function SetCookie(cookie, atoken, expire, d) {
+    cookie.set("edge_atoken", atoken,
+        {
+        httpOnly: true,
+        overwrite: true,
+        domain: d,
+        path: "/",
+        expires: expire
+    });
+}
+
+function SetRtoken(cookie, rtoken, expire) {
+    cookie.set("edge_rtoken", rtoken, {
+        httpOnly: true,
+        overwrite: true,
+        path: "/renew",
+        domain: AUTH_DOMAIN,
+        expires: expire
+    });
+}
 
 route.post("/", function (req, res) {
     if (req.query.r &&
@@ -30,8 +50,8 @@ route.get("/Logout", function (req, res) {
     var cookies = new Cookies(req, res);
     var atoken = cookies.get("edge_atoken");
     API.Launcher.Logout(atoken, function (err, result) {
-        cookies.set("edge_atoken");
-        cookies.set("edge_rtoken");
+        SetCookie(cookies, "", new Date(0), global.AUTH_DOMAIN);
+        SetRtoken(cookies, "", new Date(0));
         res.redirect("/");
     });
 });

@@ -56,6 +56,11 @@ class _mdns_Browser extends events.EventEmitter {
         } 
         dns.lookup(service.host,(err, ip, family) => {
             if (err) return warn(err);
+            else {
+                info(arguments);
+            }
+
+            //if (!ip) return;
             trace((event ? "+" : "-") + " " + service.type + "@" + ip);
             service.addresses = ip;
             var addrs = service.addresses;
