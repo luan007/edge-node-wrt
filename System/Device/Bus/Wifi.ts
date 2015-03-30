@@ -62,14 +62,12 @@ class Wifi extends Bus {
 
                     },(service, mine) => {
                         //del
-
                         this._on_device({
                             hwaddr: mac,
                             data: {
                                 MDNS: mine
                             }
                         });
-
                     });
 
 
@@ -81,7 +79,6 @@ class Wifi extends Bus {
                                 SSDP: mine
                             }
                         });
-
                     },(service, mine) => {
                         this._on_device({
                             hwaddr: mac,
@@ -89,7 +86,6 @@ class Wifi extends Bus {
                                 SSDP: mine
                             }
                         });
-
                     });
 
 

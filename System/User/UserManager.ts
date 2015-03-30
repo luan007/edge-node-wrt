@@ -138,6 +138,10 @@ export function Logout(
 
 }
 
+export function Register(name, email, password, cb) {
+    Orbit.Post("User", { name: name, email: email, password: password }, cb);
+}
+
 export function Renew(
     atoken: string,
     rtoken: string,
@@ -339,6 +343,7 @@ export function Initialize(callback: Callback) {
 }
 
 __API(Login, "Launcher.Login", [Permission.Launcher]);
+__API(Register, "Launcher.Register", [Permission.Launcher]);
 __API(Logout, "Launcher.Logout", [Permission.Launcher]);
 __API(Renew, "Launcher.Renew", [Permission.Launcher]);
 

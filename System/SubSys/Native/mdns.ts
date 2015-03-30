@@ -18,6 +18,7 @@ ad2.start();
 //http://www.iana.org/form/ports-services
 //Javascript alert
 var mdns = require('mdns');
+var dns = require("dns");
 import events = require("events");
 
 class _mdns_Browser extends events.EventEmitter {
@@ -45,48 +46,56 @@ class _mdns_Browser extends events.EventEmitter {
     }
 
     private eventProxy = (event, service) => {
-        trace((event ? "+" : "-") + " " + service.type);
+        //trace((event ? "+" : "-") + " " + service.type);
         //trace(service);
         var s = JSON.stringify(service);
         var typeString = mdns.makeServiceType(service.type).toString();
-        var addrs = service.addresses;
-        if (!Array.isArray(addrs)) return;
-        for (var i = 0; i < addrs.length; i++) {
-            var addr = addrs[i];
-            if (event == 1) { //up
-                if (!this.Alive[addr]) {
-                    this.Alive[addr] = {};
-                }
-                if (!this.Alive[addr][typeString]) {
-                    this.Alive[addr][typeString] = {};
-                }
-                this.Alive[addr][typeString][s] = service;
 
-                if (this.watch_addr[addr]) {
-                    this.watch_addr[addr][0](service, this.Alive[addr]);
-                }
-            }
-            else if (event == 0) {
-                if (this.Alive[addr] && this.Alive[addr][typeString]) {
-                    delete this.Alive[addr][typeString][s];
-                    if (Object.keys(this.Alive[addr][typeString]).length == 0) {
-                        delete this.Alive[addr][typeString];
-                        if (Object.keys(this.Alive[addr]).length == 0) {
-                            delete this.Alive[addr];
-                        }
+        if (!service.host) {
+            return warn("Record is broken, need hostname");
+        } 
+        dns.lookup(service.host,(err, ip, family) => {
+            if (err) return warn(err);
+            trace((event ? "+" : "-") + " " + service.type + "@" + ip);
+            service.addresses = ip;
+            var addrs = service.addresses;
+            for (var i = 0; i < addrs.length; i++) {
+                var addr = addrs[i];
+                if (event == 1) { //up
+                    if (!this.Alive[addr]) {
+                        this.Alive[addr] = {};
+                    }
+                    if (!this.Alive[addr][typeString]) {
+                        this.Alive[addr][typeString] = {};
+                    }
+                    this.Alive[addr][typeString][s] = service;
+
+                    if (this.watch_addr[addr]) {
+                        this.watch_addr[addr][0](service, this.Alive[addr]);
                     }
                 }
-                if (this.watch_addr[addr]) {
-                    this.watch_addr[addr][1](service, this.Alive[addr]);
+                else if (event == 0) {
+                    if (this.Alive[addr] && this.Alive[addr][typeString]) {
+                        delete this.Alive[addr][typeString][s];
+                        if (Object.keys(this.Alive[addr][typeString]).length == 0) {
+                            delete this.Alive[addr][typeString];
+                            if (Object.keys(this.Alive[addr]).length == 0) {
+                                delete this.Alive[addr];
+                            }
+                        }
+                    }
+                    if (this.watch_addr[addr]) {
+                        this.watch_addr[addr][1](service, this.Alive[addr]);
+                    }
                 }
             }
-        }
-        if (event == 1) {
-            this.emit("serviceUp", service);
-        }
-        else if (event == 0) {
-            this.emit("serviceDown", service);
-        }
+            if (event == 1) {
+                this.emit("serviceUp", service);
+            }
+            else if (event == 0) {
+                this.emit("serviceDown", service);
+            }
+        });
     };
 
     private browseService = (service) => {
@@ -94,11 +103,15 @@ class _mdns_Browser extends events.EventEmitter {
         if (!t) return;
         var string_ = mdns.makeServiceType(t).toString();
         if (this.manual[string_]) return;
-        this.manual[string_] = mdns.createBrowser(t);
+        this.manual[string_] = mdns.createBrowser(t, {
+            resolverSequence: [
+                mdns.rst.DNSServiceResolve()
+            ]
+        });
         this.manual[string_].on("serviceUp", this.eventProxy.bind(null, 1));
         this.manual[string_].on("serviceDown", this.eventProxy.bind(null, 0));
         this.manual[string_].on("error",(err) => {
-            //warn(err);
+            warn(err);
         });
         this.manual[string_].start();
         trace("STARTING BROWSER - " + string_);
