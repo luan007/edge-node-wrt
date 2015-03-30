@@ -36,6 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="views\index.ejs" />
+    <Content Include="views\result.ejs" />
     <TypeScriptCompile Include="app.ts" />
     <Content Include="manifest.json" />
     <Content Include="package.json" />

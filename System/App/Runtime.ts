@@ -315,7 +315,13 @@ class Runtime {
                 });
             },
             this._ensure_user,
-            Core.SubSys.FileSystem.IsolatedZone.SetOwner_Recursive.bind(null, this.GetAppRootPath(), this.RuntimeId),
+            (cb) => {
+                if (CONF.CODE_WRITE_LOCK) {
+                    Core.SubSys.FileSystem.IsolatedZone.SetOwner_Recursive(this.GetAppRootPath(), this.RuntimeId, cb);
+                } else {
+                    return cb();
+                }
+            },
             (cb) => {
                 Core.SubSys.FileSystem.IsolatedZone.SetupAppDataDir(this.App.uid, this.RuntimeId,
                     (err, p) => {

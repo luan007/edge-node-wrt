@@ -450,7 +450,7 @@ __API(GetCustomDNS, "Network.DNS.Get", [Permission.Network, Permission.Configura
 __API(SetCustomHost, "Network.Hosts.Set", [Permission.Network, Permission.Configuration]);
 __API(ClearCustomHost, "Network.Hosts.Clear", [Permission.Network, Permission.Configuration]);
 __API(GetCustomHost, "Network.Hosts.Get", [Permission.Network, Permission.Configuration]);
-__API(Config.Get, "Network.Config.Get", [Permission.Network, Permission.Configuration]);
+__API(withCb(Config.Get), "Network.Config.Get", [Permission.Network, Permission.Configuration]);
 __API(Config.Apply, "Network.Config.Apply", [Permission.Network, Permission.Configuration]);
 __API(Status, "Network.Status", [Permission.Network, Permission.Configuration]);
 __API(GetDeviceByIp, "Proxy.CurrentDevHeader", Core.SubSys.FrontEnds.HttpProxy.NGINX_PERM_ARR);

@@ -74,7 +74,7 @@ export function Initialize(cb) {
         AnyPage._add("proxy_http_version", "1.1");
         AnyPage._add("gzip", "off");
 
-        AnyPage._add("proxy_pass", "$_target$is_args$args");
+        AnyPage._add("proxy_pass", "$_target");
         AnyPage._add("header_filter_by_lua ", "'MainHeadFilter()'");
 
         cb();
@@ -119,7 +119,7 @@ function GetTarget(host: string, Uri: string, authenticated: string, cb) {
         }
         //TODO: Add more logic here :)
     } else {
-        //trace(Uri);
+        trace(Uri);
         base = LauncherAuthPort;
         cookie_affect_range = "";
     }
@@ -156,4 +156,3 @@ __API(function (atoken, cb) {
         cb(undefined, Core.User.UserManager.DB_Ticket[atoken].owner_uid);
     }
 }, "Proxy.AuthUser", HttpProxy.NGINX_PERM_ARR);
-

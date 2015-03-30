@@ -100,5 +100,5 @@ class Configuration extends Abstract.Configurable {
 
 export var Config = new Configuration();
 
-__API(Config.Get, "Network.Bluetooth.Config.Get", [Permission.Network, Permission.Configuration]);
+__API(withCb(Config.Get), "Network.Bluetooth.Config.Get", [Permission.Network, Permission.Configuration]);
 __API(Config.Apply, "Network.Bluetooth.Config.Apply", [Permission.Network, Permission.Configuration]);

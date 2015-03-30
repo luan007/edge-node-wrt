@@ -57,7 +57,6 @@ export function UserAppear(
                 }
                 DB_UserList[_u.uid] = usr;
                 info("USER " + _u.name.bold + " CREATED");
-                Core.Device.DeviceManager.SetOwnership(device, userid);
                 callback(null, usr);
             });
         });
@@ -79,6 +78,8 @@ export function UserAppear(
         });
     }
 
+    Core.Device.DeviceManager.SetOwnership(device, userid);
+
 }
 
 export function Login(
@@ -94,8 +95,10 @@ export function Login(
             error(err);
             if (err && err.code == ErrorCode.DEVICE_NOT_FOUND && !callback["retry"]) {
                 Core.Device.DeviceManager.OrbitSync(deviceid,(err, result) => {
-                    error(err);
-                    if (err) return callback(err);
+                    if (err) {
+                        error(err);
+                        return callback(err);
+                    }
                     callback["retry"] = true;
                     Login(identity, password, deviceid, callback);
                 });

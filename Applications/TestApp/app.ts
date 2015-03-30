@@ -16,8 +16,21 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.get("/",(req, res) => {
     res.render("index", {
-        API: global.API_JSON
+        APIJ: global.API_JSON
     });
 });
 
-app.listen(Server);
+app.post("/",(req, res) => {
+    var a = req.body.args;
+    var t = eval("[" + a + "]");
+    var f = eval("API" + "." + req.body.func);
+    t.push((err, result) => {
+        res.render("result", {
+            err: require("util").inspect(err, { depth: null }),
+            result: require("util").inspect(result, { depth: null })
+        });
+    });
+    f.apply(null, t);
+});
+
+Server.on("request", app);

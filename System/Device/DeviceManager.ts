@@ -390,7 +390,7 @@ export function SetOwnership(devId, ownership) {
 
     var dev: IDevice;
     if (devId && devices[devId]) {
-        //trace("Change : " + devId);
+        trace("Setting Ownership of : " + devId + " TO " + ownership);
         dev = devices[devId];
         if (dev.owner === ownership) {
             warn("Ownership Found No Change, Skipped");

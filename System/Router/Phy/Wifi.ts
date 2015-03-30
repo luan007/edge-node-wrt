@@ -210,5 +210,5 @@ class Configuration extends Abstract.Configurable {
 
 export var Config = new Configuration();
 
-__API(Config.Get, "Network.Wifi.Config.Get", [Permission.Network, Permission.Configuration]);
+__API(withCb(Config.Get), "Network.Wifi.Config.Get", [Permission.Network, Permission.Configuration]);
 __API(Config.Apply, "Network.Wifi.Config.Apply", [Permission.Network, Permission.Configuration]);

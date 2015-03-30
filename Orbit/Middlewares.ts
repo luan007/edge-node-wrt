@@ -34,12 +34,14 @@ export function ErrorHandler(err: Error, req: ExpressServerRequest, res: Express
 export function Authentication(req: ExpressServerRequest, res: ExpressServerResponse, next) {
     if (req.param("atoken")) {
         db.Models.Ticket.Table.get(req.param("atoken"),(err, ticket) => {
-            console.log(ticket.uid);
-            console.log(Date.now() + "/" + ticket.expire);
-            if (!err && Date.now() < ticket.expire) {
-                req.ticket = ticket;
-                ticket.accessTime = new Date();
-                ticket.save(); // dont wait
+            if (ticket) {
+                console.log(ticket.uid);
+                console.log(Date.now() + "/" + ticket.expire);
+                if (!err && Date.now() < ticket.expire) {
+                    req.ticket = ticket;
+                    ticket.accessTime = new Date();
+                    ticket.save(); // dont wait
+                }
             }
             return next();
         });
