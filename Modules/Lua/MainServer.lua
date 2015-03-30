@@ -40,7 +40,6 @@ function MainAuth()
 		ngx.var._auth = "1"
 		ngx.var._user = result
 	end
-
 end
 
 function MainAccess()

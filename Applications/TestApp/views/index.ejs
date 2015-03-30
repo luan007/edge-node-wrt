@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<% API = JSON.parse(APIJ) %>
+<% _api = JSON.parse(APIJ) %>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
@@ -25,7 +25,7 @@
         <input type="submit"/>
     </form>
     <div>
-        <% for(var i in API.f) { %>
+        <% for(var i in _api.f) { %>
         <div style="margin:5px; cursor:default;" onclick="document.getElementsByName('func')[0].value =this.innerHTML;"><%=i %></div>
         <% }%>
     </div>

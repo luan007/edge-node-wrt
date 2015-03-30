@@ -10,13 +10,13 @@ export class Configurable extends Node.events.EventEmitter {
         this.key = key;
     }
 
-    SubLevel() {
+    SubLevel = () => {
         return this.sub;
-    }
+    };
 
-    Get() {
+    Get = () => {
         return this._config;
-    }
+    };
 
     /**
      * Applies Delta to current config, triggers underlying _apply logic + emits change with mod (if there's any)
