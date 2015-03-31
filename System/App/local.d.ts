@@ -38,6 +38,7 @@ declare module local {
                 LaunchTime: number;
                 ExitTime: number;
                 Reason: any;
+                Error?: any;
             }[];
             StabilityRating: number;
             

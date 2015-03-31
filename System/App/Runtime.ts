@@ -17,7 +17,7 @@ import InAppDriver = require("../Device/Driver/InAppDriver");
  *  -3 >  Broken
  *  */
 
-var _FAIL_STACK_SIZE: number = 5;
+var _FAIL_STACK_SIZE: number = 30;
 
 var _LAUNCH_TIMEOUT: number = 15000;
 
@@ -123,13 +123,16 @@ class Runtime {
         }, _LAUNCH_TIMEOUT);
     };
 
-    private _push_fail = (reason) => {
+    private _push_fail = (reason, err?) => {
         error(JSON.stringify(reason));
         this._status.FailHistory.unshift({
             LaunchTime: this._status.LaunchTime < 0 ? Date.now() : this._status.LaunchTime,
             ExitTime: Date.now(),
             Reason: reason
         });
+        if (err) {
+            this._status.FailHistory[0].Error = err;
+        }
         if (this._status.FailHistory.length > _FAIL_STACK_SIZE) {
             this._status.FailHistory.pop();
         }
@@ -367,7 +370,10 @@ class Runtime {
                 });
                 trace("Process Started With PID " + (this._process.pid + "").bold);
                 this._process.on("error", this._proc_on_error);
-                this._process.on("message", () => { });
+                this._process.on("message",(e) => {
+                    this._push_fail("Error", e);
+                    this.Stop(true);
+                });
                 this._process.on("exit", this._proc_on_exit);
 
                 if (CONF.IS_DEBUG) {

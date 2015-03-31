@@ -1,4 +1,4 @@
-﻿import level = require("level");
+﻿import level = require("levelup");
 import sub = require("level-subkey");
 import codec = require("level-subkey/codec");
 import Node = require("Node");

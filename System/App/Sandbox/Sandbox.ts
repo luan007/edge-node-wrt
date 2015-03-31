@@ -56,11 +56,12 @@
 //                                                     // IO Opt is simply not allowed. 
 //     return publickey.verify(total, app_sig)
 
-process.on("uncaughtException", (err) => {
-    console.log(err);
-    //process.send({ message: err.message });
-    //TODO: log
-    process.exit();
+var _p = process;
+process.on("uncaughtException",(err) => {
+    console.log("ERROR:" + err.message);
+    console.log(err.stack);
+    _p.send(err);
+    _p.exit();
 });
 
 declare var sandbox: local.Sandbox.SandboxEnvironment; //global sandbox

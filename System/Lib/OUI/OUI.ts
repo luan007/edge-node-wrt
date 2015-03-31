@@ -69,7 +69,7 @@ export function OUI_Find(mac: string, callback) {
 }
 
 export function Initialize(cb) {
-    level = require("level");
+    level = require("levelup");
     var fs = require("fs");
     var rebulid = CONF.IS_DEBUG && CONF.ALWAYS_REBUILD_OUI;
     if (!fs.existsSync("./Lib/OUI/OUI")) {
