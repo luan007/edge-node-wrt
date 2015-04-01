@@ -1515,9 +1515,13 @@ export var Iptables_IPV6: Iptable_Base = new Iptable_Base();
 export function Initialize(cb) {
     Iptables.Load();
     Iptables.Loaded(() => {
-        Iptables_IPV6.SetExec("ip6tables");
-        Iptables_IPV6.Load();
-        Iptables_IPV6.Loaded(cb);
+        if (CONF.IPTABLES_6) {
+            Iptables_IPV6.SetExec("ip6tables");
+            Iptables_IPV6.Load();
+            Iptables_IPV6.Loaded(cb);
+        } else {
+            cb();
+        }
     });
 }
 //iptables -t nat -A POSTROUTING -p tcp -i ! eth+ -s 192.168.0.0/24 -j SNAT --to 172.16.4.6-192.168.1.1:10000-3999

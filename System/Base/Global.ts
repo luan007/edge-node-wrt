@@ -5,7 +5,7 @@ declare var path;
 class _sys_conf {
     LOADED = false; // don't touch
     IS_DEBUG = true; 
-    ALWAYS_REBUILD_OUI = true;
+    ALWAYS_REBUILD_OUI = false;
     INTERACTIVE_DEBUG = true;
     IPTABLES_GUARD_LOG = false;
     DISABLE_SAMBA = true;
@@ -22,7 +22,7 @@ class _sys_conf {
     BASE_PATH = path.join(__dirname, "../"); 
     SHADOW_BASE_PATH = "/SagittariusA/"
     SHADOW_DATA_PATH = path.join(this.SHADOW_BASE_PATH, "Data");
-    DEV_STORAGE = "/dev/sda1"; // system partition, as for onboard-emmc configuration: /dev/mmcblk0p1
+    DEV_STORAGE = "/dev/mmcblk0p1"; // system partition, as for onboard-emmc configuration: /dev/mmcblk0p1
     BASE_DATA_PATH = "/Data/";
     USER_DATA_PATH = path.join("/User/");
     APP_BASE_PATH = path.join(this.BASE_PATH, "../Applications/");
@@ -70,7 +70,7 @@ class _sys_conf {
             DEV_AUD: "hci1"
         },
         ETH: {
-            DEV_WAN: "eth0"
+            DEV_WAN: "eth2"
         }
     };
     BUS = { //DEV Reverse
@@ -85,7 +85,7 @@ class _sys_conf {
         DEFAULT_TIMEOUT: 20000
     };
     USER_IMMEDIATE_EXPIRE = false;
-
+    IPTABLES_6 = false;
 }
 
 

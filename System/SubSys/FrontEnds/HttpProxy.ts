@@ -16,8 +16,17 @@ function ConnectionHandler(
         trace("NO MATCH, Moving on.. " + credential.pid);
         return callback(undefined);
     }
-    exec("ps", "-p", credential.pid, "-o", "ppid=", (err, result) => {
-        if (!err && Number(result.trim()) == NginxInstance.Process.pid) {
+
+    //http://stackoverflow.com/questions/1525605/linux-programmatically-get-parent-pid-of-another-process
+    /*
+    I think the simplest thing would be to open "/proc" and parse the contents.
+    You'll find the ppid as the 4th parameter of /proc/pid/stat
+    */
+
+    try {
+        var content = Node.fs.readFileSync("/proc/" + credential.pid + "/stat").toString();
+        var ppid = Number(content.split(" ")[3].trim());
+        if (ppid == NginxInstance.Process.pid) {
             trace("Proxy Socket Inbound " + credential.pid);
             Core.API.Permission.SetPermission(nginx_runtime_id, NGINX_PERMISSION);
             //Start serving STUFF
@@ -25,15 +34,14 @@ function ConnectionHandler(
                 undefined);
             info("Proxy RPC is Bound with " + credential.pid);
         }
-        else if (err) {
-            warn("Error fetching parent pid " + credential.pid);
-            callback(undefined);
-        }
         else {
             trace("NO MATCH, Moving on.. " + credential.pid);
             callback(undefined);
         }
-    });
+    } catch (e) {
+        warn("Error fetching parent pid " + credential.pid);
+        warn(e);
+    }
 }
 
 

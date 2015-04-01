@@ -11,7 +11,7 @@ var HOTSWAP_NAME = "deltaV";
 
 var levelQuery :any = require('level-queryengine'),
     jsonqueryEngine :any = require('jsonquery-engine'),
-    levelup :any = require('level');
+    levelup :any = require('levelup');
 
 
 /*

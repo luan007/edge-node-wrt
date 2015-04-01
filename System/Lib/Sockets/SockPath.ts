@@ -27,6 +27,7 @@ export function Initialize() {
             } catch (e) { }
         }
     }
+    fs.chmodSync("/tmp/fdsock", "0755");
     global.getSock = getSock;
     global.clearSock = clearSock;
 }
