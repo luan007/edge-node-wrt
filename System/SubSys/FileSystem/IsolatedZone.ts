@@ -45,6 +45,7 @@ export function Initialize(cb) {
     //error("FIX CHMOD !! 711 IS NOT SECURE!!!!!!!!");
     
     async.series([
+        (cb) => { Node.fs.link(CONF.DEV_STORAGE, "/dev/root", <any>ignore_err(cb)); },
         (cb) => { exec("quotaoff", "-a", ignore_err(cb)); },
         (CONF.IS_DEBUG && !CONF.ROOT_LEVEL_SECURITY) ? (cb) => { cb(); } : exec.bind(null, "chmod", "005", "/"),
         (CONF.IS_DEBUG && !CONF.ROOT_LEVEL_SECURITY) ? (cb) => { cb(); } : exec.bind(null, "chmod", "005", "/bin"),
