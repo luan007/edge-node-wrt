@@ -74,7 +74,7 @@ import fs = require("fs");
 import http = require("http");
 
 //var contextify = require("contextify");
-var chroot = require("chroot");
+var chroot = require("./chroot");
 var ffi = require("ffi");
 var async = require("async");
 
@@ -86,6 +86,7 @@ var CLONE_NEWIPC = 0x08000000;
 var CLONE_NEWNS = 0x00020000;
 var CLONE_NEWUTS = 0x04000000;
 var CLONE_SYSVSEM = 0x00040000;
+
 
 var syscall = ffi.Library(null, {
     "prctl": ["int32", ["int32", "uint32"]],
@@ -100,13 +101,14 @@ process.on('SIGTERM', function () {
 });
 
 function Jail() {
+    //TODO: FIX SECURITY FLAW!!!!!!!
     var result = syscall.unshare(
-        CLONE_NEWIPC |
+        //CLONE_NEWIPC |
         CLONE_FS |
         CLONE_FILES |
-        CLONE_NEWNET |
+        //CLONE_NEWNET |
         //CLONE_NEWPID | //TODO: Fix this by calling clone(_PID) instead of doing node-fork
-        CLONE_NEWNS | 0); //BYEBYE
+        /*CLONE_NEWNS*/ /*| */ 0); //BYEBYE
     if (result < 0) {
         process.exit();
     }
@@ -144,9 +146,9 @@ function _jail(cb) {
     global.Server = global.SERVER = mainServer;
     mainServer.listen(_env.main_socket,() => {
         try {
-            //Jail(); //NO MORE NETWORK
+            Jail(); //NO MORE NETWORK
             chroot(_env.target_dir, _env.runtime_id); // YOU ARE NOBODY FROM NOW - NO MORE NOTHING
-            process.chdir("/");
+            //process.chdir("/");
             global.API_JSON = _env.api_obj;
             process.env = {};
             process.argv = [];

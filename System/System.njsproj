@@ -52,6 +52,7 @@
     <TypeScriptCompile Include="App\local.d.ts" />
     <TypeScriptCompile Include="App\Runtime.ts" />
     <TypeScriptCompile Include="App\RuntimePool.ts" />
+    <TypeScriptCompile Include="App\Sandbox\chroot.ts" />
     <TypeScriptCompile Include="App\Sandbox\Context.ts" />
     <TypeScriptCompile Include="App\Sandbox\Fork.ts" />
     <TypeScriptCompile Include="App\Sandbox\local.d.ts" />

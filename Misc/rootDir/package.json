@@ -53,6 +53,7 @@
         "node-ssdp": "*",
         "dbus-native": "*",
         "mutter": "*",
+        "posix": "*",
         "unzip": "*"
     }
 }
