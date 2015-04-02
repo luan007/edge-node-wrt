@@ -342,7 +342,7 @@ class Runtime {
             },
             mount_auto.bind(null, path, this.GetAppDataLn(), ["--bind"]),
             exec.bind(null, "chown", this.RuntimeId, this.GetAppDataLn()),
-            exec.bind(null, "chmod", "0711", this.GetAppDataLn()) //TODO: FIX THIS CHMOD 711 -> 701
+            exec.bind(null, "chmod", "-R", "0711", this.GetAppDataLn()) //TODO: FIX THIS CHMOD 711 -> 701
         ], (e, r) => {
                 if (e) { error(e); return this.ForceError(e); }
                 this._start_launch_timeout();

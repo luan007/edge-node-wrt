@@ -5,7 +5,11 @@
         require("./iptables").Initialize,
         require("./iw").Initialize,
         require("./user").ClearGenerated,
-        require("./mdns").Initialize,
-        require("./ssdp").Initialize,
     ], <any>callback);
 }
+
+
+SYS_ON(SYS_EVENT_TYPE.LOADED,() => {
+    require("./mdns").Initialize(() => { });
+    require("./ssdp").Initialize(() => { });
+});

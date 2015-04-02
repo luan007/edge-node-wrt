@@ -52,7 +52,7 @@ export function Initialize(cb) {
         (CONF.IS_DEBUG && !CONF.ROOT_LEVEL_SECURITY) ? (cb) => { cb(); } : exec.bind(null, "chmod", "005", "/usr"),
         //exec.bind(null, "chmod", "000", SHADOW_BASE_PATH),
         exec.bind(null, "chown", "root", "-R", CONF.SHADOW_DATA_PATH),
-        exec.bind(null, "chmod", "711", CONF.SHADOW_DATA_PATH), //TODO: USE GROUP!!! 711 VS 701
+        exec.bind(null, "chmod", "711", "-R", CONF.SHADOW_DATA_PATH), //TODO: USE GROUP!!! 711 VS 701
         (CONF.IS_DEBUG && !CONF.CODE_WRITE_LOCK) ? (cb) => { cb(); } : exec.bind(null, "chmod", "500", "-R", Node.path.join(CONF.BASE_PATH + "../")),
         (c) => {
             exec("umount", "-l", "-f", CONF.SHADOW_BASE_PATH, (err) => {
