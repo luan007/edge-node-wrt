@@ -26,13 +26,13 @@ export function ClearGenerated(cb) {
 export function Create(username, group, shell, cb) {
     var cb = cb || function () { };
     var useraddOpts = [];
-    if (group) useraddOpts = useraddOpts.concat(['-g', group]);
+    if (group) useraddOpts = useraddOpts.concat(['-G', group]);
     if (shell && shell !== "") useraddOpts = useraddOpts.concat(['-s', shell]);
     else useraddOpts = useraddOpts.concat(['-s', "/dev/null"]);
     //useraddOpts = useraddOpts.concat(['-p', pass]);
-    useraddOpts = useraddOpts.concat(['-d', "/nonexistent"]);
+    useraddOpts = useraddOpts.concat(['-h', "/nonexistent", "-D"]);
     useraddOpts.push(username);
-    var cmd = 'useradd';
+    var cmd = 'adduser';
     trace("ADD");
     trace(useraddOpts);
     var passwd = Node.child_process.spawn(cmd, useraddOpts);
@@ -43,7 +43,7 @@ export function Create(username, group, shell, cb) {
 
 export function Delete(username, cb) {
     var cb = cb || function () { };
-    var cmd = 'userdel';
+    var cmd = 'deluser';
     var args = [username];
     var passwd = Node.child_process.spawn(cmd, args);
     passwd.on('exit', function (code, signal) {

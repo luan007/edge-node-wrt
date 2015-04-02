@@ -1,4 +1,5 @@
-﻿import http = require("http");
+﻿
+import http = require("http");
 import fs = require("fs");
 import path = require("path");
 if (!global.EDGE) {

@@ -39,7 +39,7 @@ var temp_keystore = {};
 
 function Unsafe_SyncRSAEncrypt_Fast(keyname, content): Buffer {
     var pem = undefined;
-    if (temp_keystore[keyname] && (pem = temp_keystore[keyname].getPublicPEM())) {
+    if (temp_keystore[keyname] && (pem = temp_keystore[keyname].exportKey('public'))) {
 
         return forsake.encrypt(content, pem).toString("hex");
 

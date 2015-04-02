@@ -1,5 +1,13 @@
 ﻿@import "vars.less";
 
+#powered-by {
+    position:fixed;
+    bottom:10px;
+    left:10px;
+    font-size:13px;
+    color:rgba(255,255,255,0.5);
+}
+
 .main-text-shadow(@size: 20px, @opacity: 0.2) {
     -moz-text-shadow: 0px 3px @size rgba(0,0,0,@opacity);
     -webkit-text-shadow: 0px 3px @size rgba(0,0,0,@opacity);
@@ -76,14 +84,6 @@ body {
         transform-origin: left top;
         -webkit-transform-origin: left top;
     }
-}
-
-#powered-by {
-    position:fixed;
-    bottom:10px;
-    left:10px;
-    font-size:13px;
-    color:rgba(255,255,255,0.5);
 }
 
 #main-mask {

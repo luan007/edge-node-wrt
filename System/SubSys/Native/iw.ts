@@ -51,7 +51,7 @@ var WatchList: IDic<{ prev: STA; f: Function; }> = {};
 
 export var Devices: IDic<STA> = {};
 
-export var Inspect_Interval = 8000;
+export var Inspect_Interval = 15000;
 
 export var Stop = false;
 

@@ -23,15 +23,21 @@ export function SetQuota(options: IQuotaOption, cb, quota_fs = "/") {
         var queue = intoQueue("SETQUOTA",
             //untilNoError(
             async.series.bind(null, [
-                exec.bind(null, "setquota", options.user ? "-u" : "-g",
-                    options.user ? options.user : options.group,
-                    options.size_soft ? options.size_soft : 0,
-                    options.size_hard ? options.size_hard : 0,
-                    options.inode_soft ? options.inode_soft : 0,
-                    options.inode_hard ? options.inode_hard : 0,
-                    quota_fs),
-                exec.bind(null, "quotaoff", options.user ? "-u" : "-g", quota_fs),
-                exec.bind(null, "quotaon", options.user ? "-u" : "-g", quota_fs)
+                (cb) => {
+                    exec("setquota", options.user ? "-u" : "-g",
+                        options.user ? options.user : options.group,
+                        options.size_soft ? options.size_soft : 0,
+                        options.size_hard ? options.size_hard : 0,
+                        options.inode_soft ? options.inode_soft : 0,
+                        options.inode_hard ? options.inode_hard : 0,
+                        quota_fs, ignore_err(cb));
+                },
+                (cb) => {
+                    exec("quotaoff", options.user ? "-u" : "-g", quota_fs, ignore_err(cb));
+                },
+                (cb) => {
+                    exec("quotaon", options.user ? "-u" : "-g", quota_fs, ignore_err(cb));
+                },
             ]), cb);
         trace("SetQuota @ " + queue);
     }

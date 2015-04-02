@@ -73,7 +73,7 @@ import net = require("net");
 import fs = require("fs");
 import http = require("http");
 
-var contextify = require("contextify");
+//var contextify = require("contextify");
 var chroot = require("chroot");
 var ffi = require("ffi");
 var async = require("async");
@@ -143,16 +143,21 @@ function _jail(cb) {
     var mainServer = http.createServer();
     global.Server = global.SERVER = mainServer;
     mainServer.listen(_env.main_socket,() => {
-        Jail(); //NO MORE NETWORK
-        chroot(_env.target_dir, _env.runtime_id); // YOU ARE NOBODY FROM NOW - NO MORE NOTHING
-        process.chdir("/");
-        global.API_JSON = _env.api_obj;
-        process.env = {};
-        process.argv = [];
-        process.title = "";
-        _env = undefined;
-        chroot = syscall = ffi = undefined; //for .. sake
-        cb();
+        try {
+            //Jail(); //NO MORE NETWORK
+            chroot(_env.target_dir, _env.runtime_id); // YOU ARE NOBODY FROM NOW - NO MORE NOTHING
+            process.chdir("/");
+            global.API_JSON = _env.api_obj;
+            process.env = {};
+            process.argv = [];
+            process.title = "";
+            _env = undefined;
+            chroot = syscall = ffi = undefined; //for .. sake
+            cb();
+        } catch (e) {
+            console.log(e);
+            cb(e);
+        }
     });
 }
 

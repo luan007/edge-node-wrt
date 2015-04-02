@@ -1,6 +1,10 @@
 ﻿require("./SystemEvent");
 require("./Machine");
 
+var os = require("os");
+var arch = os.arch();
+
+
 declare var path;
 class _sys_conf {
     LOADED = false; // don't touch
@@ -80,7 +84,7 @@ class _sys_conf {
         hci1: "BLUETOOTH",
     };
     ORBIT = {
-        HOST: "127.0.0.1",
+        HOST: "192.168.31.154", //for test onboard
         PORT: 8080,
         DEFAULT_TIMEOUT: 20000
     };
@@ -88,9 +92,15 @@ class _sys_conf {
     IPTABLES_6 = false;
 }
 
-
 var CONF = new _sys_conf();
 global.CONF = CONF;
+
+
+if (arch !== "arm") {
+    CONF.ORBIT.HOST = "127.0.0.1";
+    CONF.DEV_STORAGE = "/dev/sda1";
+}
+
 
 enum SYS_EVENT_TYPE {
     LOADED,

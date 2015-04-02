@@ -152,8 +152,8 @@ while (true) {
                 }
                 _("Working.. \nGo grab some coffee and check back later..");
                 var r = new rsa({ b: B, e: E });
-                console.log(r.getPrivatePEM());
-                console.log(r.getPublicPEM());
+                console.log(r.exportKey());
+                console.log(r.exportKey('public'));
                 var t = rl.question("KEY NAME > ");
                 if (!t || t == "")
                     continue;
@@ -165,9 +165,9 @@ while (true) {
                     fs.mkdirSync(t);
                 }
                 _("Writing Public PEM into [" + t + "]");
-                fs.writeFileSync(t + "/" + "key.pb", r.getPublicPEM());
+                fs.writeFileSync(t + "/" + "key.pb", r.exportKey('public'));
                 _("Writing Private PEM into [" + t + "]");
-                fs.writeFileSync(t + "/" + "key.pr", r.getPrivatePEM());
+                fs.writeFileSync(t + "/" + "key.pr", r.exportKey());
                 _("Done.");
                 break;
         }
