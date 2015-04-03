@@ -525,6 +525,7 @@ class Runtime {
     };
 
     SafeQuit = () => {
+        this._reset_launch_timeout();
         if (this._status.State > 1) {
             this.Strobe_SafeQuit = true;
             this.Stop(false);
