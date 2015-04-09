@@ -29,7 +29,7 @@ var _api_server:net.Server = net.createServer({allowHalfOpen: true}, (socket) =>
             MountTable.SetRPC(mountInfo.moduleName, rpc);
 
             socket.removeAllListeners('error');
-            socket.on("error", (err) => {
+            socket.once("error", (err) => {
                 error(err);
                 socket.destroy();
                 MountTable.Restart(mountInfo.moduleName); // restart process
@@ -51,7 +51,7 @@ function onInvoke(funcid, param, cb) {
         return cb(new Error("Remote Client is down"));
 }
 function mountAll(socketPath) {
-    var modulesConfig = APIConfig.modulesConfig();
+    var modulesConfig = APIConfig.getModulesConfig();
     Object.keys(modulesConfig).forEach(function (moduleName) {
         var modulePath = modulesConfig[moduleName]['Path'];
 

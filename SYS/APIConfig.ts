@@ -3,17 +3,17 @@ import path = require('path');
 
 var cfgFileName = 'api.config.json';
 var filePath = path.join(process.cwd(), cfgFileName);
-global.APIConfig = null;
-global.modulesConfig = null;
+var APIConfig;
+var modulesConfig;
 
-export function modulesConfig() {
-    if (!global.modulesConfig) {
+export function getModulesConfig() {
+    if (!modulesConfig) {
         if (fs.existsSync(filePath)) {
             var contents = fs.readFileSync(filePath, {encoding: 'utf-8'});
-            global.modulesConfig = JSON.parse(contents);
+            modulesConfig = JSON.parse(contents);
             var moduleIndex = 1, funcIndex;
-            for (var moduleName in global.modulesConfig) {
-                var functions = global.modulesConfig[moduleName]['Functions'];
+            for (var moduleName in modulesConfig) {
+                var functions = modulesConfig[moduleName]['Functions'];
                 funcIndex = 1;
                 for (var funcName in functions) { // funcid = 1000 * moduleIndex + funcIndex;
                     functions[funcName].funcid = 1000 * moduleIndex + funcIndex;
@@ -23,17 +23,17 @@ export function modulesConfig() {
             }
         }
     }
-    return global.modulesConfig;
+    return modulesConfig;
 }
 
 /**
  * @returns { funcId: { moduleName, funcName, permission } [, ...] }
  *  funcid = 1000 * moduleIndex + funcIndex;
  */
-export function APIConfig() {
-    if (!global.APIConfig) {
+export function getAPIConfig() {
+    if (!APIConfig) {
         var result = {};
-        var config = modulesConfig();
+        var config = getModulesConfig();
         for (var moduleName in config) {
             var moduleConf = config[moduleName],
                 functions = moduleConf['Functions'];
@@ -46,9 +46,9 @@ export function APIConfig() {
                 };
             }
         }
-        global.APIConfig = result;
+        APIConfig = result;
     }
-    return global.APIConfig;
+    return APIConfig;
 }
 
 // watcher for api.config
@@ -57,10 +57,10 @@ function fileChanged(curr, prev) {
         console.log('api.config has been changed. curr mtime is: ',
             curr.mtime, 'prev mtime was: ' + prev.mtime);
         if (fs.existsSync(filePath)) {
-            global.modulesConfig = null;
-            global.APIConfig = null;
-            APIConfig();  // reload config & update global
-            console.log(global.APIConfig);
+            modulesConfig = null;
+            APIConfig = null;
+            getAPIConfig();  // reload config & update global
+            console.log(getAPIConfig);
         }
     }
 }

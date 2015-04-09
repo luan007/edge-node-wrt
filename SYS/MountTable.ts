@@ -36,7 +36,7 @@ export class MountTable {
     }
 
     public static Get(funcid) {
-        var funcInfo = APIConfig.APIConfig()[funcid];
+        var funcInfo = APIConfig.getAPIConfig()[funcid];
         if (funcInfo && funcInfo.moduleName) return MountTable.mapping[funcInfo.moduleName];
         return null;
     }

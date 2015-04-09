@@ -38,6 +38,7 @@ module.exports = function(grunt) {
                         {src: ['Modules/**/*.*', '!Modules/**/*.ts'], dest: destination},
                         {src: ['Orbit/**/*.*', '!Orbit/**/*.ts'], dest: destination},
                         {src: ['System/**/*.*', '!System/**/*.ts'], dest: destination},
+                        {src: ['SYS/**/*.*', '!SYS/**/*.ts'], dest: destination},
                     ],
                     verbose: true // Display log messages when copying files
                 }
