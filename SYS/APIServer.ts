@@ -8,7 +8,7 @@ import APIConfig = require('./APIConfig');
 import _MountTable = require('./MountTable');
 import MountTable = _MountTable.MountTable;
 
-var __SOCK_PATH:string; //socketPath
+//var __SOCK_PATH:string; //socketPath
 
 var _api_server:net.Server = net.createServer({allowHalfOpen: true}, (socket) => {
     socket.pause();
@@ -70,13 +70,13 @@ function mountAll(socketPath) {
 export function Initialize() {
     sockPath.Initialize();
 
-    __SOCK_PATH = getSock(UUIDstr());
-    _api_server.listen(__SOCK_PATH, () => {
-        exec("chown", "nobody", __SOCK_PATH, () => {
-            exec("chmod", "777", __SOCK_PATH, () => {
+    global.__SOCK_PATH = getSock(UUIDstr());
+    _api_server.listen(global.__SOCK_PATH, () => {
+        exec("chown", "nobody", global.__SOCK_PATH, () => {
+            exec("chmod", "777", global.__SOCK_PATH, () => {
                 trace("API Port Permission is set");
 
-                mountAll(__SOCK_PATH);
+                mountAll(global.__SOCK_PATH);
             });
         });
     });

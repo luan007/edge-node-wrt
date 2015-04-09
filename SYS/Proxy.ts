@@ -1,3 +1,4 @@
+require('./Env');
 import net = require("net");
 import APIConfig = require('./APIConfig');
 import RPC = require('../Modules/RPC/index');
@@ -7,7 +8,7 @@ var moduleName = process.argv[2]
     , socketPath = process.argv[4]
     , funcidSet = {}; // { fid: funName }
 
-console.log('argv', moduleName, modulePath, socketPath);
+info('proxy argv', moduleName, modulePath, socketPath);
 
 var moduleConfig = APIConfig.getModulesConfig()[moduleName],
     functions = moduleConfig['Functions'];
