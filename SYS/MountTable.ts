@@ -68,17 +68,17 @@ class Mount extends Process {
                 info("OK");
                 super.Start(forever);
             } else {
-                console.log('Mount.ProxyPath', Mount.ProxyPath);
+                trace('Mount.ProxyPath', Mount.ProxyPath);
                 this.Process = child_process.spawn('node'
                     , [Mount.ProxyPath
                         , this.moduleName
-                        , path.join(process.cwd(), this.modulePath)
+                        , path.join(__dirname, this.modulePath)
                         , this.socketPath]);
                 this.Process.stdout.on("data", function (data) {
                     info(data.toString());
                 });
-                this.Process.on('error', function (err) {
-                    error(err);
+                this.Process.stderr.on('data', function (data) {
+                    error(data.toString());
                 });
                 info("OK");
                 super.Start(forever);

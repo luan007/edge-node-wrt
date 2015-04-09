@@ -7,6 +7,8 @@ var moduleName = process.argv[2]
     , socketPath = process.argv[4]
     , funcidSet = {}; // { fid: funName }
 
+console.log('argv', moduleName, modulePath, socketPath);
+
 var moduleConfig = APIConfig.getModulesConfig()[moduleName],
     functions = moduleConfig['Functions'];
 if (functions) {
