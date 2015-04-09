@@ -18,9 +18,9 @@ export class MountTable {
         MountTable.SetProcess(moduleName, mount.Process.pid, mount);
     }
 
-    public static Restart(moduleName){
+    public static Restart(moduleName) {
         var mountInfo = MountTable.mapping[moduleName];
-        if(mountInfo) mountInfo.mount.Stop(true); // restart process
+        if (mountInfo) mountInfo.mount.Stop(true); // restart process
     }
 
     public static SetProcess(moduleName, pid, mount) {
@@ -51,6 +51,7 @@ class Mount extends Process {
     public moduleName:string;
     public modulePath:string;
     public socketPath:string;
+    private static ProxyPath = path.join(__dirname, 'Proxy');
 
     constructor(moduleName, modulePath, socketPath) {
         super(moduleName);
@@ -67,10 +68,17 @@ class Mount extends Process {
                 info("OK");
                 super.Start(forever);
             } else {
-                this.Process = child_process.spawn('./Proxy',
-                    [this.moduleName, path.join(process.cwd(), this.modulePath), this.socketPath]);
+                console.log('Mount.ProxyPath', Mount.ProxyPath);
+                this.Process = child_process.spawn('node'
+                    , [Mount.ProxyPath
+                        , this.moduleName
+                        , path.join(process.cwd(), this.modulePath)
+                        , this.socketPath]);
                 this.Process.stdout.on("data", function (data) {
                     info(data.toString());
+                });
+                this.Process.on('error', function (err) {
+                    error(err);
                 });
                 info("OK");
                 super.Start(forever);

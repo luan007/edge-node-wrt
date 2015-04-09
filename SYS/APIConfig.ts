@@ -2,16 +2,17 @@ import fs = require('fs');
 import path = require('path');
 
 var cfgFileName = 'api.config.json';
-var filePath = path.join(__dirname, cfgFileName);
-var APIConfig;
-var modulesConfig;
-var eventsConfig;
+var filePath = path.join(__dirname, '../' + cfgFileName);
+var APIConfig = undefined;
+var modulesConfig = undefined;
+var eventsConfig = undefined;
 
 export function getModulesConfig() {
     if (!modulesConfig) {
-        console.log('filePath', filePath);
+        console.log('api.config.json path:', filePath);
         if (fs.existsSync(filePath)) {
             var contents = fs.readFileSync(filePath, {encoding: 'utf-8'});
+            console.log('contents', filePath);
             modulesConfig = JSON.parse(contents);
             var moduleIndex = 1, funcIndex;
             for (var moduleName in modulesConfig) {

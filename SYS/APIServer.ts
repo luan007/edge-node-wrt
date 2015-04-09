@@ -1,6 +1,3 @@
-import child_process = require('child_process');
-import path = require('path');
-import events = require('events');
 import net = require("net");
 import uscred = require("unix-socket-credentials");
 import RPC = require('../Modules/RPC/index');
@@ -63,6 +60,7 @@ function onInvoke(funcid, param, cb) {
 }
 function mountAll(socketPath) {
     var modulesConfig = APIConfig.getModulesConfig();
+    trace('module config', modulesConfig);
     Object.keys(modulesConfig).forEach(function (moduleName) {
         var modulePath = modulesConfig[moduleName]['Path'];
 

@@ -1,1 +1,0 @@
-exports.UserManager = require("./UserManager");

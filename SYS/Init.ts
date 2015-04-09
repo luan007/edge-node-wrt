@@ -1,17 +1,27 @@
-import child_process = require("child_process");
+global.path = require("path");
+global.http = require("http");
+global.qs = require("querystring");
+global.async = require("async");
+require("colors");
+require('../System/Base/Global');
+require('../System/SubSys/Native/commands');
+require('../Modules/Shared/Basic/flowcontrol');
+require('../Modules/Shared/Crypto/UUID');
+require('../System/Lib/Log/Prelaunch');
+
 import APIServer = require('./APIServer');
 
-console.log(" * Init");
+info(" * Init");
 
-var target_node_modules = __dirname + ":" + process.argv[2];
+var target_node_modules = __dirname;
 process.env.NODE_PATH = target_node_modules;
-console.log(target_node_modules);
+info('process.env.NODE_PATH:', target_node_modules);
 
 require('colors');
 
 var domain = require('domain').create();
 domain.on('error', function (err) {
-    console.log(err);
+    error(err);
 });
 domain.run(function () {
     APIServer.Initialize();
