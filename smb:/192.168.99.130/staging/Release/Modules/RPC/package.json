@@ -1,0 +1,11 @@
+{
+  "name": "framedRpc",
+  "version": "0.0.0",
+  "description": "framedRpc",
+  "main": "app.js",
+  "author": {
+    "name": "emerge",
+    "email": ""
+  },
+  "dependencies": {}
+}

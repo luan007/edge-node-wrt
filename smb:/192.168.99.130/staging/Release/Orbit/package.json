@@ -1,0 +1,10 @@
+{
+  "name": "Orbit",
+  "version": "0.0.0",
+  "description": "Orbit",
+  "main": "app.js",
+  "author": {
+    "name": "luanc_000",
+    "email": ""
+  }
+}

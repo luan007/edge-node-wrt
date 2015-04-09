@@ -1,0 +1,12 @@
+﻿{
+    "name": "Launcher",
+    "permission": [ 1 ],
+    "drivers": {
+        "TestDriver": {
+            "Buses": [ "WLAN" ],
+            "Interest": { 
+                "all":  false
+            }
+        }
+    }
+}

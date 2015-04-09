@@ -1,0 +1,20 @@
+exports._app = require("./Models/Application");
+exports._testmodel = require("./Models/TestModel");
+exports._device = require("./Models/Device");
+exports._ticket = require("./Models/Ticket");
+exports._user = require("./Models/User");
+exports.Storage = require("./Storage");
+exports.Application = exports._app.Application;
+exports.TestModel = exports._testmodel.TestModel;
+exports.Device = exports._device.Device;
+exports.Ticket = exports._ticket.Ticket;
+exports.User = exports._user.User;
+var Tables;
+(function (Tables) {
+    Tables.Application = exports._app.Application.table;
+    Tables.TestModel = exports._testmodel.TestModel.table;
+    Tables.Device = exports._device.Device.table;
+    Tables.Ticket = exports._ticket.Ticket.table;
+    Tables.User = exports._user.User.table;
+})(Tables = exports.Tables || (exports.Tables = {}));
+exports.Registry = require("./Registry");

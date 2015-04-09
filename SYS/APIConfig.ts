@@ -2,12 +2,14 @@ import fs = require('fs');
 import path = require('path');
 
 var cfgFileName = 'api.config.json';
-var filePath = path.join(process.cwd(), cfgFileName);
+var filePath = path.join(__dirname, cfgFileName);
 var APIConfig;
 var modulesConfig;
+var eventsConfig;
 
 export function getModulesConfig() {
     if (!modulesConfig) {
+        console.log('filePath', filePath);
         if (fs.existsSync(filePath)) {
             var contents = fs.readFileSync(filePath, {encoding: 'utf-8'});
             modulesConfig = JSON.parse(contents);
@@ -49,6 +51,30 @@ export function getAPIConfig() {
         APIConfig = result;
     }
     return APIConfig;
+}
+
+/**
+ * @returns { event: { moduleName, permission } [, ...] }
+ *  funcid = 1000 * moduleIndex + funcIndex;
+ */
+export function getEventsConfig(){
+    if (!eventsConfig) {
+        var result = {};
+        var config = getModulesConfig();
+        for (var moduleName in config) {
+            var moduleConf = config[moduleName],
+                events = moduleConf['Events'];
+            for (var eventName in events) {
+                var evt = events[eventName];
+                result[eventName] = {
+                    moduleName: moduleName
+                    , permission: evt['Permission']
+                };
+            }
+        }
+        eventsConfig = result;
+    }
+    return eventsConfig;
 }
 
 // watcher for api.config

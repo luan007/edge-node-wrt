@@ -1,11 +1,16 @@
 {
-  "DataManager": {
-    "Path": "SYS/Services/UserManager/exports.js",
+  "FakeService": {
+    "Path": "SYS/Services/Sample/FakeService.js",
     "Functions": {
-      "DestroySub": {
-        "Permission": [1]
-      },
-      "Sector": {
+        "FakeA": {
+          "Permission": [1]
+        }
+    }
+  },
+  "CalcService":{
+    "Path": "SYS/Services/Sample/CalcService.js",
+    "Functions": {
+      "Calc": {
         "Permission": [1]
       }
     }
