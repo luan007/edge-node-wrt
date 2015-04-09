@@ -25,7 +25,7 @@ var _api_server:net.Server = net.createServer({allowHalfOpen: true}, (socket) =>
 
         var rpc = new RPC.RPCEndpoint(socket);
         var mountInfo = MountTable.GetByPid(res.pid);
-        if(mountInfo){
+        if (mountInfo) {
             MountTable.SetRPC(mountInfo.moduleName, rpc);
 
             socket.removeAllListeners('error');
@@ -39,13 +39,17 @@ var _api_server:net.Server = net.createServer({allowHalfOpen: true}, (socket) =>
     });
 });
 function onInvoke(funcid, param, cb) {
-    //var rpc:RPC.RPCEndpoint = this;
-    info("Incoming " + funcid);
+    var rpc:RPC.RPCEndpoint = this
+        , sender = rpc["remote"]; //from RPC call
+    if (!pm.Check(pm.GetPermission(sender), func._p)) {
+        return cb(new EvalError("Permission Denied"));
+    }
 
+    info("Incoming " + funcid);
     var mountInfo = MountTable.Get(funcid);
-    if(mountInfo && mountInfo['rpc']){
-        var rpc:RPC.RPCEndpoint = mountInfo['rpc'];
-        return rpc.Call(funcid, param, cb);
+    if (mountInfo && mountInfo['rpc']) {
+        var target:RPC.RPCEndpoint = mountInfo['rpc'];
+        return target.Call(funcid, param, cb);
     }
     else
         return cb(new Error("Remote Client is down"));

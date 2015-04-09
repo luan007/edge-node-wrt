@@ -1,6 +1,6 @@
 {
   "DataManager": {
-    "Path": "Data/Module.js",
+    "Path": "SYS/Services/UserManager/exports.js",
     "Functions": {
       "DestroySub": {
         "Permission": [1]
