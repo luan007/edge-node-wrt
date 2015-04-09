@@ -1,0 +1,13 @@
+{
+  "DataManager": {
+    "Path": "Data/Module.js",
+    "Functions": {
+      "DestroySub": {
+        "Permission": [1]
+      },
+      "Sector": {
+        "Permission": [1]
+      }
+    }
+  }
+}
