@@ -33,6 +33,7 @@ if (functions) {
         });
         if (events && _MODULE.on) {
             for (var eventName in events) {
+                info('_MODULE.on', eventName);
                 _MODULE.on(eventName, () => {
                     rpc.emit(eventName, arguments);
                 });

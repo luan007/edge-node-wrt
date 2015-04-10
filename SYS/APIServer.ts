@@ -60,6 +60,8 @@ var onEmit = (eventid, param) => {
     }
 };
 
+var RPCs = [];
+
 export class APIServer extends events.EventEmitter {
     private __SOCK_PATH:string;
     private modulesLoaded:number;
@@ -86,6 +88,12 @@ export class APIServer extends events.EventEmitter {
         return this.__SOCK_PATH;
     }
 
+    public Emit(eventId, ...data){
+        RPCs.forEach(function(rpc:RPC.RPCEndpoint){
+            rpc.Emit(eventId, data);
+        });
+    }
+
     private _api_server:net.Server = net.createServer({allowHalfOpen: true}, (socket) => {
         socket.pause();
         socket.on("error", (err) => {
@@ -104,6 +112,7 @@ export class APIServer extends events.EventEmitter {
             trace("New Socket Inbound, Entering loop - PID " + (res.pid + "").bold);
 
             var rpc = new RPC.RPCEndpoint(socket);
+            RPCs.push(rpc);
             var mountInfo = MountTable.GetByPid(res.pid);
             if (mountInfo) {// system modules
                 MountTable.SetRPC(mountInfo.moduleName, rpc);

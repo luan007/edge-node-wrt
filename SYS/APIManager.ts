@@ -134,7 +134,7 @@ export function GetAPI(rpc:RPC.RPCEndpoint):API_Endpoint {
     for (var eventId in eventsConfig) { // { eventId: { moduleName, eventName, permission } [, ...] }
         var moduleEntry = eventsConfig[eventId];
         var event_name = moduleEntry['eventName'];
-        var d = (<string>moduleEntry['moduleName'] + '.' + event_name).split('.');
+        var d = (<string>moduleEntry['moduleName']).split('.');
         //recur gen func tree
         var cur = API;
 
@@ -144,19 +144,15 @@ export function GetAPI(rpc:RPC.RPCEndpoint):API_Endpoint {
             }
             cur = cur[d[t]];
         }
-
-        trace('events shadow assembling', cur);
-
-        cur['subscribe'] = ((eventId) => {
-            return function () {
-                _event_shell(_API_Endpoint.rpc_endpoint, eventId, <any>arguments);
-            }
-        }) (eventId);
-
-        //ev;
-        //var ev = new events.EventEmitter();
-        //_event_tracker.push(ev);
-        //_API_Endpoint.event_lookup[eventId] = {emitter: ev, name: event_name};
+        var ev = new events.EventEmitter();
+        _event_tracker.push(ev);
+        cur = ev;
+        _API_Endpoint.event_lookup[eventId] = { emitter: cur, name: event_name };
+        //cur['subscribe'] = ((eventId) => {
+        //    return function () {
+        //        _event_shell(_API_Endpoint.rpc_endpoint, eventId, <any>arguments);
+        //    }
+        //}) (eventId);
     }
 
     for (var funcid in apiConfig) { //  { funcId: { moduleName, funcName, permission } [, ...] }
@@ -178,6 +174,8 @@ export function GetAPI(rpc:RPC.RPCEndpoint):API_Endpoint {
             }
         })(funcid);
     }
+
+    trace('events shadow assembling', require('util').inspect(API));
 
     rpc.SetEventHandler((event_id, paramArray:any[]) => {
         if (_API_Endpoint.event_lookup && _API_Endpoint.event_lookup[event_id] &&
