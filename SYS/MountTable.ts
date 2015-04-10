@@ -36,9 +36,15 @@ export class MountTable {
         MountTable.mapping[moduleName]['rpc'] = rpc;
     }
 
-    public static Get(funcid) {
+    public static GetByFuncId(funcid) {
         var funcInfo = APIConfig.getAPIConfig()[funcid];
         if (funcInfo && funcInfo.moduleName) return MountTable.mapping[funcInfo.moduleName];
+        return null;
+    }
+
+    public static GetByEventId(eventid){
+        var eventInfo = APIConfig.getEventsConfig()[eventid];
+        if (eventInfo && eventInfo.moduleName) return MountTable.mapping[eventInfo.moduleName];
         return null;
     }
 

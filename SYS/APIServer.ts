@@ -9,7 +9,7 @@ import APIConfig = require('./APIConfig');
 import _MountTable = require('./MountTable');
 import MountTable = _MountTable.MountTable;
 
-var onInvoke = (funcid, param, cb) => {
+var onCall = (funcid, param, cb) => {
     var rpc:RPC.RPCEndpoint = this
         , senderPid = process.pid
         , permission = APIConfig.getAPIConfig()[funcid]['permission']
@@ -20,13 +20,44 @@ var onInvoke = (funcid, param, cb) => {
     }
 
     info("Incoming " + funcid);
-    var mountInfo = MountTable.Get(funcid);
+    var mountInfo = MountTable.GetByFuncId(funcid);
     if (mountInfo && mountInfo['rpc']) {
         var target:RPC.RPCEndpoint = mountInfo['rpc'];
         return target.Call(funcid, param, cb);
     }
     else
         return cb(new Error("Remote Client is down"));
+};
+
+var onEmit = (eventid, param) => {
+    var rpc:RPC.RPCEndpoint = this
+        , senderPid = process.pid
+        , permission = APIConfig.getEventsConfig()[eventid]['permission']
+        , _p = pm.Encode(permission);
+    info('senderPid', senderPid, process.pid);
+    if (!pm.Check(pm.GetPermission(senderPid), _p)) {
+        return;
+    }
+
+    info("Emitting " + eventid);
+    var mountInfo = MountTable.GetByEventId(eventid);
+    if (mountInfo && mountInfo['rpc']) {
+        var target:RPC.RPCEndpoint = mountInfo['rpc'];
+
+        var cb:Function = undefined;
+        if (param.length > 0 && typeof (param[param.length - 1]) === 'function') {
+            cb = param[param.length - 1]; //fast op, remove last one as callback
+            param.length--;
+        }
+        var arr = [];
+        while (arr.length < param.length) arr.push(param[arr.length]);
+
+        var eventName = APIConfig.getEventsConfig()[eventid]['eventName'];
+        return target.on(eventName, () => {
+            var args = [].slice.call(arguments);
+            return cb.apply(null, args);
+        });
+    }
 };
 
 export class APIServer extends events.EventEmitter {
@@ -73,7 +104,6 @@ export class APIServer extends events.EventEmitter {
             trace("New Socket Inbound, Entering loop - PID " + (res.pid + "").bold);
 
             var rpc = new RPC.RPCEndpoint(socket);
-            pm.SetPermission(res.pid, [1]); // System privilege
             var mountInfo = MountTable.GetByPid(res.pid);
             if (mountInfo) {// system modules
                 MountTable.SetRPC(mountInfo.moduleName, rpc);
@@ -91,7 +121,8 @@ export class APIServer extends events.EventEmitter {
                     MountTable.Restart(mountInfo.moduleName); // restart process
                 });
             }
-            rpc.SetFunctionHandler(onInvoke);
+            rpc.SetFunctionHandler(onCall);
+            rpc.SetEventHandler(onEmit);
             socket.resume();
         });
     });
@@ -108,90 +139,3 @@ export class APIServer extends events.EventEmitter {
         });
     }
 }
-
-//var __SOCK_PATH:string
-//    , modulesLoaded = 0
-//    , modulesCount;
-//
-//var _api_server:net.Server = net.createServer({allowHalfOpen: true}, (socket) => {
-//    socket.pause();
-//    socket.on("error", (err) => {
-//        error(err);
-//        socket.destroy();
-//    });
-//    socket.on('close', (had_error) => {
-//        trace('socket closed', had_error);
-//        socket.destroy();
-//    });
-//
-//    uscred.getCredentials(socket, (err, res) => {
-//        if (err) {
-//            return socket.destroy();
-//        }
-//        trace("New Socket Inbound, Entering loop - PID " + (res.pid + "").bold);
-//
-//        var rpc = new RPC.RPCEndpoint(socket);
-//        rpc['remote'] = res.pid;
-//        var mountInfo = MountTable.GetByPid(res.pid);
-//        if (mountInfo) {// system modules
-//            pm.SetPermission(res.pid, [Permission.System]); // System privilege
-//            MountTable.SetRPC(mountInfo.moduleName, rpc);
-//
-//            socket.removeAllListeners('error');
-//            socket.on("error", (err) => {
-//                error(err);
-//                socket.destroy();
-//                MountTable.Restart(mountInfo.moduleName); // restart process
-//            });
-//        }
-//        rpc.SetFunctionHandler(onInvoke);
-//    });
-//});
-//function onInvoke(funcid, param, cb) {
-//    trace('onInvoke', funcid, param, cb);
-//    var rpc:RPC.RPCEndpoint = this
-//        , senderPid = rpc["remote"]
-//        , permission = APIConfig.getAPIConfig()[funcid]['permission']
-//        , _p = pm.Encode(permission);
-//    if (!pm.Check(pm.GetPermission(senderPid), _p)) {
-//        return cb(new EvalError("Permission Denied"));
-//    }
-//
-//    info("Incoming " + funcid);
-//    var mountInfo = MountTable.Get(funcid);
-//    if (mountInfo && mountInfo['rpc']) {
-//        var target:RPC.RPCEndpoint = mountInfo['rpc'];
-//        return target.Call(funcid, param, cb);
-//    }
-//    else
-//        return cb(new Error("Remote Client is down"));
-//}
-//function mountAll(socketPath) {
-//    var modulesConfig = APIConfig.getModulesConfig()
-//        , modulesConfigKeys = Object.keys(modulesConfig);
-//    modulesCount = modulesConfigKeys.length;
-//    trace('module config', modulesConfig, modulesCount);
-//    modulesConfigKeys.forEach(function (moduleName) {
-//        var modulePath = modulesConfig[moduleName]['Path'];
-//
-//        MountTable.MountNew(moduleName, modulePath, socketPath);
-//    });
-//}
-//
-//export function Initialize() {
-//    sockPath.Initialize();
-//
-//    __SOCK_PATH = getSock(UUIDstr());
-//    _api_server.listen(__SOCK_PATH, () => {
-//        exec("chown", "nobody", __SOCK_PATH, () => {
-//            exec("chmod", "777", __SOCK_PATH, () => {
-//                trace("API Port Permission is set");
-//
-//                mountAll(__SOCK_PATH);
-//            });
-//        });
-//    });
-//}
-//export function getSockPath(){
-//    return __SOCK_PATH;
-//}

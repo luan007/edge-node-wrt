@@ -3,7 +3,15 @@
     "Path": "Services/Sample/FakeService.js",
     "Functions": {
         "FakeA": {
-          "Permission": [1]
+          "Permission": ["System"]
+        }
+    },
+    "Events":{
+        "Fake.Up": {
+          "Permission": ["System"]
+        },
+        "Fake.Down": {
+          "Permission": ["System"]
         }
     }
   },
@@ -11,7 +19,7 @@
     "Path": "Services/Sample/CalcService.js",
     "Functions": {
       "Calc": {
-        "Permission": [1]
+        "Permission": ["System"]
       }
     }
   }

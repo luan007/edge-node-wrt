@@ -10,8 +10,9 @@ var moduleName = process.argv[2]
 
 info('proxy argv', moduleName, modulePath, socketPath);
 
-var moduleConfig = APIConfig.getModulesConfig()[moduleName],
-    functions = moduleConfig['Functions'];
+var moduleConfig = APIConfig.getModulesConfig()[moduleName]
+    , functions = moduleConfig['Functions']
+    , events = moduleConfig['Events'];
 if (functions) {
     var _MODULE = require(modulePath);
     for (var p in functions) {
@@ -29,6 +30,11 @@ if (functions) {
                 var args = param.concat(cb);
                 _MODULE[funcName].apply(null, args);
             }
+        });
+        events.forEach(function(eventName){ // register events
+            _MODULE.on(eventName, () => {
+                rpc.emit(eventName, arguments);
+            });
         });
     });
 

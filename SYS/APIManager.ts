@@ -81,6 +81,13 @@ export function ToJSON(func_filter?:(f:Function, path:string) => boolean,
     return JSON.stringify(result);
 }
 
+function _event_shell(rpc:RPC.RPCEndpoint, eventId, paramArray:any[]) {
+    if (paramArray) {
+        rpc.Emit(eventId, paramArray);
+    } else {
+        return;
+    }
+}
 
 function _method_shell(rpc:RPC.RPCEndpoint, funcId, paramArray:any[]) {
     if (paramArray) {
@@ -124,29 +131,31 @@ export function GetAPI(rpc:RPC.RPCEndpoint):API_Endpoint {
     var API = new events.EventEmitter();
     var _event_tracker = [API];
 
-    for (var i in eventsConfig) {
-        //i = API.System.Device.on("DummyEvent"); 
-        //i = API.System.Device.DummyEvent
-        var d = (<string>i).split('.');
+    for (var eventId in eventsConfig) { // { eventId: { moduleName, eventName, permission } [, ...] }
+        var moduleEntry = eventsConfig[eventId];
+        var event_name = moduleEntry['eventName'];
+        var d = (<string>moduleEntry['moduleName'] + '.' + event_name).split('.');
         //recur gen func tree
         var cur = API;
-        if (d.length > 1) {
-            for (var t = 0; t < d.length - 2; t++) {
-                if (!cur[d[t]]) {
-                    cur[d[t]] = {};
-                }
-                cur = cur[d[t]];
+
+        for (var t = 0, len = d.length; t < len; t++) {
+            if (!cur[d[t]]) {
+                cur[d[t]] = {};
             }
-            var ev = new events.EventEmitter();
-            _event_tracker.push(ev);
-            cur[d[d.length - 2]] = ev;
-            cur = cur[d[d.length - 2]];
+            cur = cur[d[t]];
         }
-        var event_name = d[d.length - 1] + "";
-        _API_Endpoint.event_lookup[i] = {emitter: cur, name: event_name};
+        cur[d.length - 1]['on'] = ((eventId) => {
+            return function () {
+                    _event_shell(_API_Endpoint.rpc_endpoint, eventId, <any>arguments);
+            }
+        }) (eventId);
+        //ev;
+        //var ev = new events.EventEmitter();
+        //_event_tracker.push(ev);
+        //_API_Endpoint.event_lookup[eventId] = {emitter: ev, name: event_name};
     }
 
-    for (var funcid in apiConfig) {
+    for (var funcid in apiConfig) { //  { funcId: { moduleName, funcName, permission } [, ...] }
         //i = API.System.Device.DummyFunc
         var moduleEntry = apiConfig[funcid];
         var d = (<string>moduleEntry['moduleName']).split('.');
@@ -161,7 +170,7 @@ export function GetAPI(rpc:RPC.RPCEndpoint):API_Endpoint {
         }
         cur[moduleEntry['funcName']] = ((funcid) => {
             return function () {
-                    _method_shell(_API_Endpoint.rpc_endpoint, funcid, <any>arguments);
+                _method_shell(_API_Endpoint.rpc_endpoint, funcid, <any>arguments);
             }
         })(funcid);
     }

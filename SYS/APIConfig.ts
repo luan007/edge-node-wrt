@@ -3,9 +3,10 @@ import path = require('path');
 
 var cfgFileName = 'api.config.json';
 var filePath = path.join(__dirname, '../' + cfgFileName);
-var APIConfig = undefined;
-var modulesConfig = undefined;
-var eventsConfig = undefined;
+var APIConfig:{} = undefined;
+var modulesConfig:{} = undefined;
+var eventsConfig:{} = undefined;
+
 
 export function getModulesConfig() {
     if (!modulesConfig) {
@@ -13,13 +14,19 @@ export function getModulesConfig() {
         if (fs.existsSync(filePath)) {
             var contents = fs.readFileSync(filePath, {encoding: 'utf-8'});
             modulesConfig = JSON.parse(contents);
-            var moduleIndex = 1, funcIndex;
+            var moduleIndex = 1, funcIndex, eventIndex;
             for (var moduleName in modulesConfig) {
-                var functions = modulesConfig[moduleName]['Functions'];
+                var functions = modulesConfig[moduleName]['Functions']
+                    , events = modulesConfig[moduleName]['Events'];
                 funcIndex = 1;
                 for (var funcName in functions) { // funcid = 1000 * moduleIndex + funcIndex;
                     functions[funcName].funcid = 1000 * moduleIndex + funcIndex;
                     funcIndex++;
+                }
+                eventIndex = 1;
+                for (var eventName in events) { // eventId = 1000 * moduleIndex + eventIndex;
+                    events[eventName].eventId = 1000 * moduleIndex + eventIndex;
+                    eventIndex++;
                 }
                 moduleIndex++;
             }
@@ -29,10 +36,10 @@ export function getModulesConfig() {
 }
 
 /**
- * @returns { funcId: { moduleName, funcName, permission } [, ...] }
- *  funcid = 1000 * moduleIndex + funcIndex;
+ * @returns
+ * { funcId: { moduleName, funcName, permission } [, ...] }
  */
-export function getAPIConfig() {
+export function getAPIConfig():{} {
     if (!APIConfig) {
         var result = {};
         var config = getModulesConfig();
@@ -44,7 +51,9 @@ export function getAPIConfig() {
                 result[func.funcid] = {
                     moduleName: moduleName
                     , funcName: funcName
-                    , permission: func['Permission']
+                    , permission: func['Permission'].map((p)=> {
+                        return Permission[p];
+                    })
                 };
             }
         }
@@ -54,10 +63,10 @@ export function getAPIConfig() {
 }
 
 /**
- * @returns { event: { moduleName, permission } [, ...] }
- *  funcid = 1000 * moduleIndex + funcIndex;
+ * @returns
+ * { eventId: { moduleName, eventName, permission } [, ...] }
  */
-export function getEventsConfig(){
+export function getEventsConfig() {
     if (!eventsConfig) {
         var result = {};
         var config = getModulesConfig();
@@ -66,9 +75,12 @@ export function getEventsConfig(){
                 events = moduleConf['Events'];
             for (var eventName in events) {
                 var evt = events[eventName];
-                result[eventName] = {
+                result[evt.eventId] = {
                     moduleName: moduleName
-                    , permission: evt['Permission']
+                    , eventName: eventName
+                    , permission: evt['Permission'].map((p)=> {
+                        return Permission[p];
+                    })
                 };
             }
         }

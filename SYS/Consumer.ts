@@ -4,15 +4,19 @@ import net = require('net');
 import APIServer = require('./APIServer');
 import APIManager = require('./APIManager');
 import util = require('util');
-import Permission = require('../System/API/Permission');
+require('../System/API/PermissionDef');
+import pm = require('../System/API/Permission');
 
 export function Initalize(sockPath:string) {
 
     var sock = net.connect(sockPath, () => {
-        Permission.SetPermission(process.pid, [1]);
+        pm.SetPermission(process.pid, [Permission.System]);
 
         var rpc = new RPC.RPCEndpoint(sock);
         var api = APIManager.GetAPI(rpc).API;
+        (<any>api).FakeService.on('Fake.Up', () => {
+            trace('EVENT: [Fake.Up]');
+        });
         (<any>api).FakeService.FakeA((err, res) => {
             if (err) error(err);
             info(res);
