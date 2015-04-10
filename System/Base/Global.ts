@@ -106,5 +106,5 @@ enum SYS_EVENT_TYPE {
     LOADED,
     ERROR,
 }
-console.log(CONF);
+//console.log(CONF);
 global.SYS_EVENT_TYPE = SYS_EVENT_TYPE;

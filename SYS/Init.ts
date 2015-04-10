@@ -1,6 +1,8 @@
 require('./Env');
 
-import APIServer = require('./APIServer');
+import _APIServer = require('./APIServer');
+import APIServer = _APIServer.APIServer;
+import Consumer = require('./Consumer');
 
 info(" * Init");
 
@@ -15,5 +17,9 @@ domain.on('error', function (err) {
     error(err);
 });
 domain.run(function () {
-    APIServer.Initialize();
+    var server = new APIServer();
+    server.on('loaded', () => {
+        info('modules all loaded.');
+        Consumer.Initalize(server.getSockPath());
+    });
 });

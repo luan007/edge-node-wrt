@@ -31,4 +31,9 @@ if (functions) {
             }
         });
     });
+
+    process.on('exit', function(){
+        trace('child process was exited, destory socket.');
+        if(sock) sock.destroy();
+    });
 }

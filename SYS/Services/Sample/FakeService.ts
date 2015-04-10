@@ -1,4 +1,4 @@
-export function FakeA(){
-    return 'FakeService.FakeA()';
+export function FakeA(cb){
+    cb(null, 'FakeService.FakeA()');
 }
 

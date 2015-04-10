@@ -5,7 +5,7 @@ import Process = require("../System/SubSys/Native/Process");
 
 /**
  * interior data structure:
- *  mapping: { moduleName: { pid, mount, rpc, [funcid...] } }
+ *  mapping: { moduleName: { moduleName, pid, mount, rpc, [funcid...] } }
  *  pidMapping: { pid: moduleName }
  */
 export class MountTable {
@@ -26,6 +26,7 @@ export class MountTable {
     public static SetProcess(moduleName, pid, mount) {
         var oldPid = MountTable.mapping[moduleName]['pid'];
         if (oldPid) delete MountTable.pidMapping[oldPid];
+        MountTable.mapping[moduleName]['moduleName'] = moduleName;
         MountTable.mapping[moduleName]['pid'] = pid;
         MountTable.mapping[moduleName]['mount'] = mount;
         MountTable.pidMapping[pid] = moduleName;

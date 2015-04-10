@@ -1,3 +1,3 @@
-export function Calc(){
-    return 'CalcService.Calc()';
+export function Calc(cb){
+    cb(null, 'CalcService.Calc()');
 }

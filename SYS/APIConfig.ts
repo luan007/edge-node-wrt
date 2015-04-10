@@ -12,7 +12,6 @@ export function getModulesConfig() {
         console.log('api.config.json path:', filePath);
         if (fs.existsSync(filePath)) {
             var contents = fs.readFileSync(filePath, {encoding: 'utf-8'});
-            console.log('contents', filePath);
             modulesConfig = JSON.parse(contents);
             var moduleIndex = 1, funcIndex;
             for (var moduleName in modulesConfig) {
@@ -87,7 +86,6 @@ function fileChanged(curr, prev) {
             modulesConfig = null;
             APIConfig = null;
             getAPIConfig();  // reload config & update global
-            console.log(getAPIConfig);
         }
     }
 }

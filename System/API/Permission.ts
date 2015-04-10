@@ -26,9 +26,11 @@ var PermissionTable = {};
 
 export function SetPermission(id, buffer: any[]) {
     PermissionTable[id] = Encode(Decode(buffer));
+    trace('SET PermissionTable[' + id + ']: ', PermissionTable[id]);
 }
 
 export function GetPermission(id): any[]{
+    trace('GET PermissionTable[' + id + ']: ', PermissionTable[id]);
     return PermissionTable[id];
 }
 
