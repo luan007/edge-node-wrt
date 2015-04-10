@@ -10,11 +10,11 @@ import pm = require('../System/API/Permission');
 export function Initalize(sockPath:string) {
 
     var sock = net.connect(sockPath, () => {
-        pm.SetPermission(process.pid, [Permission.System]);
+        pm.SetPermission(process.pid, pm.Encode([Permission.System]));
 
         var rpc = new RPC.RPCEndpoint(sock);
         var api = APIManager.GetAPI(rpc).API;
-        (<any>api).FakeService.on('Fake.Up', () => {
+        (<any>api).FakeService.Fake.Up.subscribe(() => {
             trace('EVENT: [Fake.Up]');
         });
         (<any>api).FakeService.FakeA((err, res) => {

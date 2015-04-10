@@ -144,11 +144,15 @@ export function GetAPI(rpc:RPC.RPCEndpoint):API_Endpoint {
             }
             cur = cur[d[t]];
         }
-        cur[d.length - 1]['on'] = ((eventId) => {
+
+        trace('events shadow assembling', cur);
+
+        cur['subscribe'] = ((eventId) => {
             return function () {
-                    _event_shell(_API_Endpoint.rpc_endpoint, eventId, <any>arguments);
+                _event_shell(_API_Endpoint.rpc_endpoint, eventId, <any>arguments);
             }
         }) (eventId);
+
         //ev;
         //var ev = new events.EventEmitter();
         //_event_tracker.push(ev);

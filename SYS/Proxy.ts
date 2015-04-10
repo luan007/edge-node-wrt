@@ -31,15 +31,17 @@ if (functions) {
                 _MODULE[funcName].apply(null, args);
             }
         });
-        events.forEach(function(eventName){ // register events
-            _MODULE.on(eventName, () => {
-                rpc.emit(eventName, arguments);
-            });
-        });
+        if (events && _MODULE.on) {
+            for (var eventName in events) {
+                _MODULE.on(eventName, () => {
+                    rpc.emit(eventName, arguments);
+                });
+            }
+        }
     });
 
-    process.on('exit', function(){
+    process.on('exit', function () {
         trace('child process was exited, destory socket.');
-        if(sock) sock.destroy();
+        if (sock) sock.destroy();
     });
 }

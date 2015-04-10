@@ -26,11 +26,9 @@ var PermissionTable = {};
 
 export function SetPermission(id, buffer: any[]) {
     PermissionTable[id] = Encode(Decode(buffer));
-    trace('SET PermissionTable[' + id + ']: ', PermissionTable[id]);
 }
 
 export function GetPermission(id): any[]{
-    trace('GET PermissionTable[' + id + ']: ', PermissionTable[id]);
     return PermissionTable[id];
 }
 
@@ -111,7 +109,7 @@ export function Check(owned: any[], required: any[]): boolean {
     if (!required) {
         return true; //space saving.
     }
-    
+
     for (var i = 0; i < required.length; i++) {
         if (required[i] == 0)
             continue;
