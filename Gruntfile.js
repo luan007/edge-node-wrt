@@ -4,6 +4,8 @@ module.exports = function (grunt) {
     var destination = './_Releases/';
     //var sambaFolder = '//192.168.99.154/Release'; //smb://serbver/folder/
     var sambaFolder = 'smb://192.168.99.130/staging/Release/'; //smb://serbver/folder/
+    // for grunt-ssh
+    var sftpDest = '/staging/_Releases/';
 
     function initGrunt(destination) {
         grunt.initConfig({
@@ -59,18 +61,42 @@ module.exports = function (grunt) {
             }
             , secret: grunt.file.readJSON('secret.json')
             , sftp: {
-                upload: {
+                entire: {
                     files: {
                         "./": "_Releases/**"
                     },
                     options: {
-                        path: '/staging/_Releases/',
+                        path: sftpDest,
                         host: '<%= secret.host %>',
                         username: '<%= secret.username %>',
                         password: '<%= secret.password %>',
                         showProgress: true,
                         srcBasePath: '_Releases/',
                         createDirectories: true
+                    }
+                },
+                partial: {
+                    files: {
+                        "./": "_Releases/SYS/**"
+                    },
+                    options: {
+                        path: sftpDest +'SYS/',
+                        host: '<%= secret.host %>',
+                        username: '<%= secret.username %>',
+                        password: '<%= secret.password %>',
+                        showProgress: true,
+                        srcBasePath: '_Releases/',
+                        createDirectories: true
+                    }
+                }
+            }
+            , sshexec: {
+                chown: {
+                    command: 'chown -R nobody ' + sftpDest + ' && chgrp -R nogroup ' + sftpDest,
+                    options: {
+                        host: '<%= secret.host %>',
+                        username: '<%= secret.username %>',
+                        password: '<%= secret.password %>'
                     }
                 }
             }
@@ -93,7 +119,7 @@ module.exports = function (grunt) {
         initGrunt(sambaFolder);
         grunt.task.run('debug');
     });
-    grunt.registerTask("ftp", ['clean', 'copy', 'sync', 'ts', 'sftp', 'watch']);
+    grunt.registerTask("ftp", ['clean', 'copy', 'sync', 'ts', 'sftp:entire', 'sshexec', 'watch']);
 
     //grunt.loadNpmTasks("grunt-ts");
     //grunt.registerTask("default", ["ts"]);
