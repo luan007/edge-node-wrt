@@ -38,3 +38,4 @@ obj/
 _Releases/
 *.ldb
 *.dat
+secret.json

@@ -1,4 +1,4 @@
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
     //target folder
     var destination = './_Releases/';
@@ -14,24 +14,24 @@ module.exports = function(grunt) {
                     options: {
                         spawn: false
                     }
-                },
-                staticFiles: {
+                }
+                , staticFiles: {
                     files: ['**/*.ejs', '**/*.lua', '**/*.css', '**/*.less', 'Applications/**/*.*', '!Applications/**/*.ts'],
                     tasks: ['copy', 'sync'],
                     options: {
                         spawn: false
                     }
                 }
-            },
-            clean: [destination],
-            copy: {
+            }
+            , clean: [destination]
+            , copy: {
                 main: {
                     files: [
                         {expand: true, src: ['Misc/rootDir/*.*'], flatten: true, dest: destination, filter: 'isFile'}
                     ]
                 }
-            },
-            sync: {
+            }
+            , sync: {
                 main: {
                     files: [
                         {src: ['Applications/**/*.*', '!Applications/**/*.ts'], dest: destination},
@@ -42,8 +42,8 @@ module.exports = function(grunt) {
                     ],
                     verbose: true // Display log messages when copying files
                 }
-            },
-            ts: {
+            }
+            , ts: {
                 default: {
                     src: ['**/*.ts', '!node_modules/**/*.ts'],
                     target: 'es5',
@@ -57,23 +57,43 @@ module.exports = function(grunt) {
                     }
                 }
             }
+            , secret: grunt.file.readJSON('secret.json')
+            , sftp: {
+                upload: {
+                    files: {
+                        "./": "_Releases/**"
+                    },
+                    options: {
+                        path: '/staging/_Releases/',
+                        host: '<%= secret.host %>',
+                        username: '<%= secret.username %>',
+                        password: '<%= secret.password %>',
+                        showProgress: true,
+                        srcBasePath: '_Releases/',
+                        createDirectories: true
+                    }
+                }
+            }
         });
     }
+
     initGrunt(destination);
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-sync');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks("grunt-ts");
+    grunt.loadNpmTasks("grunt-ssh");
 
     grunt.registerTask("default", ['clean', 'copy', 'sync', 'ts']);
-    grunt.registerTask("w", ['clean', 'copy','sync', 'ts', 'watch']);
+    grunt.registerTask("w", ['clean', 'copy', 'sync', 'ts', 'watch']);
     grunt.registerTask("build", ['copy', 'sync', 'ts']);
     grunt.registerTask("debug", ['copy', 'sync', 'ts', 'watch']);
-    grunt.registerTask("samba","samba deployment", function(){
+    grunt.registerTask("samba", "samba deployment", function () {
         initGrunt(sambaFolder);
         grunt.task.run('debug');
     });
+    grunt.registerTask("ftp", ['clean', 'copy', 'sync', 'ts', 'sftp', 'watch']);
 
     //grunt.loadNpmTasks("grunt-ts");
     //grunt.registerTask("default", ["ts"]);
