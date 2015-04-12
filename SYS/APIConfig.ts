@@ -1,15 +1,18 @@
 import fs = require('fs');
 import path = require('path');
+require("../System/API/PermissionDef");
 
-var cfgFileName = 'api.config.json';
-var filePath = path.join(__dirname, '../' + cfgFileName);
+//var cfgFileName = 'api.config.json';
+//var filePath = path.join(__dirname, '../' + cfgFileName);
+
 var APIConfig:{} = undefined;
 var modulesConfig:{} = undefined;
 var eventsConfig:{} = undefined;
-
+var eventsReverseConfig: {} = undefined;
 
 export function getModulesConfig() {
     if (!modulesConfig) {
+        var filePath = process.env.apiConfigFilePath;
         console.log('api.config.json path:', filePath);
         if (fs.existsSync(filePath)) {
             var contents = fs.readFileSync(filePath, {encoding: 'utf-8'});
@@ -89,16 +92,44 @@ export function getEventsConfig() {
     return eventsConfig;
 }
 
+/**
+ * @returns
+ * { eventName: { moduleName, eventId, permission} [, ...] }
+ */
+export function getEventsReverseConfig() {
+    if (!eventsReverseConfig) {
+        var result = {};
+        var config = getModulesConfig();
+        for (var moduleName in config) {
+            var moduleConf = config[moduleName],
+                events = moduleConf['Events'];
+            for (var eventName in events) {
+                var evt = events[eventName];
+                result[eventName] = {
+                    moduleName: moduleName
+                    , eventId: evt.eventId
+                    , permission: evt['Permission'].map((p)=> {
+                        return Permission[p];
+                    })
+                };
+            }
+        }
+        eventsReverseConfig = result;
+    }
+    trace('eventsReverseConfig--------', eventsReverseConfig);
+    return eventsReverseConfig;
+}
+
 // watcher for api.config
 function fileChanged(curr, prev) {
     if (curr.mtime !== prev.mtime) {
         console.log('api.config has been changed. curr mtime is: ',
             curr.mtime, 'prev mtime was: ' + prev.mtime);
-        if (fs.existsSync(filePath)) {
+        if (fs.existsSync(process.env.apiConfigFilePath)) {
             modulesConfig = null;
             APIConfig = null;
             getAPIConfig();  // reload config & update global
         }
     }
 }
-fs.watchFile(filePath, fileChanged);
+fs.watchFile(process.env.apiConfigFilePath, fileChanged);

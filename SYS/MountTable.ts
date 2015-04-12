@@ -80,7 +80,8 @@ class Mount extends Process {
                     , [Mount.ProxyPath
                         , this.moduleName
                         , path.join(__dirname, this.modulePath)
-                        , this.socketPath]);
+                        , this.socketPath
+                        , process.env.apiConfigFilePath ]);
                 this.Process.stdout.on("data", function (data) {
                     info(data.toString());
                 });

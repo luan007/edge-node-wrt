@@ -7,8 +7,9 @@ var moduleName = process.argv[2]
     , modulePath = process.argv[3]
     , socketPath = process.argv[4]
     , funcidSet = {}; // { fid: funName }
+process.env.apiConfigFilePath = process.argv[5];
 
-info('proxy argv', moduleName, modulePath, socketPath);
+trace('proxy argv', moduleName, modulePath, socketPath, process.env.apiConfigFilePath);
 
 var moduleConfig = APIConfig.getModulesConfig()[moduleName]
     , functions = moduleConfig['Functions']
@@ -31,14 +32,14 @@ if (functions) {
                 _MODULE[funcName].apply(null, args);
             }
         });
-        if (events && _MODULE.on) {
-            for (var eventName in events) {
-                info('_MODULE.on', eventName);
-                _MODULE.on(eventName, () => {
-                    rpc.emit(eventName, arguments);
-                });
+
+        global.__EMIT = (eventName, ...args) => {
+            var eventsReverseConfig = APIConfig.getEventsReverseConfig();
+            if(eventsReverseConfig && eventsReverseConfig[eventName]){
+                var eventId = eventsReverseConfig[eventName].eventId;
+                rpc.Emit(eventId, args);
             }
-        }
+        };
     });
 
     process.on('exit', function () {

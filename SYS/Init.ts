@@ -4,6 +4,9 @@ import _APIServer = require('./APIServer');
 import APIServer = _APIServer.APIServer;
 import Consumer = require('./Consumer');
 
+var cfgFileName = 'api.config.json';
+process.env.apiConfigFilePath = path.join(__dirname, '../' + cfgFileName);
+
 info(" * Init");
 
 var target_node_modules = __dirname;

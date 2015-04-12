@@ -14,7 +14,7 @@ export function Initalize(sockPath:string) {
 
         var rpc = new RPC.RPCEndpoint(sock);
         var api = APIManager.GetAPI(rpc).API;
-        (<any>api).FakeService.on('Fake.Up', () => {
+        (<any>api).FakeService.ON('Fake.Up', () => {
             trace('EVENT: [Fake.Up]');
         });
 

@@ -31,6 +31,7 @@ var onCall = (funcid, param, cb) => {
 };
 
 var onEmit = (eventid, param) => {
+    trace('onEmit', eventid, param);
     var rpc:RPC.RPCEndpoint = this
         , senderPid = process.pid
         , permission = APIConfig.getEventsConfig()[eventid]['permission']
@@ -40,25 +41,27 @@ var onEmit = (eventid, param) => {
         return;
     }
 
+    info('onEmit rpc', EventsHub.GetEventsCallbacks(eventid));
     info("Emitting " + eventid);
-    var mountInfo = MountTable.GetByEventId(eventid);
-    if (mountInfo && mountInfo['rpc']) {
-        var target:RPC.RPCEndpoint = mountInfo['rpc'];
-
-        var cb:Function = undefined;
-        if (param.length > 0 && typeof (param[param.length - 1]) === 'function') {
-            cb = param[param.length - 1]; //fast op, remove last one as callback
-            param.length--;
-        }
-        var arr = [];
-        while (arr.length < param.length) arr.push(param[arr.length]);
-
-        var eventName = APIConfig.getEventsConfig()[eventid]['eventName'];
-        return target.on(eventName, () => {
-            var args = [].slice.call(arguments);
-            return cb.apply(null, args);
-        });
-    }
+    //trace('APIServer side', rpc.GetEventCallbacks(eventid));
+    //var mountInfo = MountTable.GetByEventId(eventid);
+    //if (mountInfo && mountInfo['rpc']) {
+    //    var target:RPC.RPCEndpoint = mountInfo['rpc'];
+    //
+    //    var cb:Function = undefined;
+    //    if (param.length > 0 && typeof (param[param.length - 1]) === 'function') {
+    //        cb = param[param.length - 1]; //fast op, remove last one as callback
+    //        param.length--;
+    //    }
+    //    var arr = [];
+    //    while (arr.length < param.length) arr.push(param[arr.length]);
+    //
+    //    var eventName = APIConfig.getEventsConfig()[eventid]['eventName'];
+    //    return target.on(eventName, () => {
+    //        var args = [].slice.call(arguments);
+    //        return cb.apply(null, args);
+    //    });
+    //}
 };
 
 
@@ -69,6 +72,8 @@ export class APIServer extends events.EventEmitter {
 
     constructor() {
         super();
+
+        info('api.config.json path', process.env.apiConfigFilePath);
 
         sockPath.Initialize();
         this.modulesLoaded = 0;
@@ -106,7 +111,6 @@ export class APIServer extends events.EventEmitter {
             trace("New Socket Inbound, Entering loop - PID " + (res.pid + "").bold);
 
             var rpc = new RPC.RPCEndpoint(socket);
-            EventsHub.RegisterRPC(rpc);
             var mountInfo = MountTable.GetByPid(res.pid);
             if (mountInfo) {// system modules
                 MountTable.SetRPC(mountInfo.moduleName, rpc);

@@ -85,7 +85,7 @@ module.exports = function (grunt) {
                         username: '<%= secret.username %>',
                         password: '<%= secret.password %>',
                         showProgress: true,
-                        srcBasePath: '_Releases/',
+                        srcBasePath: '_Releases/SYS/',
                         createDirectories: true
                     }
                 }

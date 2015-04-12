@@ -4,7 +4,7 @@ import FramedSocket = require("../Lib/FramedSocket");
 import ExArray = require("../Lib/ExtendedArray");
 import APIError = require("../Lib/APIError");
 
-enum RPC_Message_Type { _REQUEST = 0, __RESPONSE = 1, __EVENT = 2, __READY = 3 }
+enum RPC_Message_Type { _REQUEST = 0, __RESPONSE = 1, __EVENT = 2, __READY = 3, __SUBSCRIBE = 4 }
 
 //Package Format:
 //[ MSG TYPE(number), TARGET_ID(number), PARAMS(object), ?TRACK_ID(number), ?GENERATION_, ... _LAST_CHK_SUM ]
@@ -27,6 +27,8 @@ export class RPCEndPoint extends events.EventEmitter {
         timer: number;
     }>(2048);
 
+    private _eventCallbacks:{[key: number]: Array<Function>} = {};
+
     public TimeOut: number = 10000;
 
     private _call_handler: Function;
@@ -47,6 +49,10 @@ export class RPCEndPoint extends events.EventEmitter {
         this._sock.on("close", () => {
             this.emit("close");
         });
+    }
+
+    public GetEventCallbacks(eventId){
+        return this._event_handler[eventId];
     }
 
     public SetEventHandler = (on_all_event) => {
@@ -98,6 +104,9 @@ export class RPCEndPoint extends events.EventEmitter {
                 break;
             case RPC_Message_Type.__READY:
                 this._on_ready(obj[2][0], obj[2][1]); //dummy
+                break;
+            case RPC_Message_Type.__SUBSCRIBE:
+                this._on_remote_subscribe(obj[1], obj[3]);
                 break;
         }
 
@@ -201,6 +210,22 @@ export class RPCEndPoint extends events.EventEmitter {
         if (this._event_handler) {
             this._event_handler(eventId, params);
         }
+    };
+
+    private _on_remote_subscribe = (eventId, trackid) => {
+        trace('_on_remote_subscribe', eventId, trackid);
+    };
+
+    public Subscribe = (remote_event_id, callback: Function) => {
+        if (callback !== undefined) {
+            callback = callback.bind({});
+        }
+        var track_id = remote_event_id;
+        var gen = track_id;
+        this._eventCallbacks[remote_event_id] = this._eventCallbacks[remote_event_id] || [];
+        this._eventCallbacks[remote_event_id].push(callback);
+
+        this.Send_Pack(RPC_Message_Type.__SUBSCRIBE, remote_event_id, [], track_id, gen);
     };
 
     public Call = (remote_func_id, params: any[], callback: Function) => {
