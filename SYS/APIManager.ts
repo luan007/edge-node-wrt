@@ -152,8 +152,8 @@ export function GetAPI(rpc:RPC.RPCEndpoint):API_Endpoint {
                     //remoteRPC.Subscribe(eventInfo.eventId, cb);
                     //EventsHub.RegisterEvent(eventInfo.eventId, _API_Endpoint.rpc_endpoint);
                     EventsHub.RegisterEventCallback(eventInfo.eventId, cb);
-                    _API_Endpoint.event_lookup[eventInfo.eventId] = _API_Endpoint.event_lookup[eventInfo.eventId] || [];
-                    _API_Endpoint.event_lookup[eventInfo.eventId].push(cb);
+                    //_API_Endpoint.event_lookup[eventInfo.eventId] = _API_Endpoint.event_lookup[eventInfo.eventId] || [];
+                    //_API_Endpoint.event_lookup[eventInfo.eventId].push(cb);
                 }
             };
         }
@@ -181,14 +181,14 @@ export function GetAPI(rpc:RPC.RPCEndpoint):API_Endpoint {
 
     trace('events shadow assembling', require('util').inspect(API));
 
-    rpc.SetEventHandler((event_id, paramArray:any[]) => {
-        if (_API_Endpoint.event_lookup && _API_Endpoint.event_lookup[event_id].length > 0) {
-            trace('Event handler triggered-----------', _API_Endpoint.event_lookup);
-            (<Array<Function>>_API_Endpoint.event_lookup[event_id]).forEach(function (cb:Function) {
-                cb.apply(null, paramArray);
-            });
-        }
-    });
+    //rpc.SetEventHandler((event_id, paramArray:any[]) => {
+    //    if (_API_Endpoint.event_lookup && _API_Endpoint.event_lookup[event_id].length > 0) {
+    //        trace('Event handler triggered-----------', _API_Endpoint.event_lookup);
+    //        (<Array<Function>>_API_Endpoint.event_lookup[event_id]).forEach(function (cb:Function) {
+    //            cb.apply(null, paramArray);
+    //        });
+    //    }
+    //});
 
     _API_Endpoint.API = API;
     _API_Endpoint.event_tracker = _event_tracker;
