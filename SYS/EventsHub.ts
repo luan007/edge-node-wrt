@@ -3,33 +3,27 @@ import RPC = require('../Modules/RPC/index');
 import _MountTable = require('./MountTable');
 import MountTable = _MountTable.MountTable;
 import pm = require('../System/API/Permission');
+import events = require('events');
 
 declare
 function __EMIT(path:string,
                 ...data);
 
-// { eventId : [cb, ...] }
-var eventCallbacks:{[key: number]: Array<any>} = {};
+// { eventId : eventEmitter }
+var localEventsTracker:{[key: number]: events.EventEmitter } = {};
 
-export function RegisterEventCallback(eventId, cb) {
-    eventCallbacks[eventId] = eventCallbacks[eventId] || [];
-    eventCallbacks[eventId].push(cb);
-}
-export function GetEventsCallbacks(eventId) {
-    return eventCallbacks[eventId];
-}
 
 // { eventid: [pid [, ...]] }
-var eventPidMapping:{[key: number]: Array<number>} = {};
+var remoteEventPidMapping:{[key: number]: Array<number>} = {};
 
-function mapEventAndProcess(eventid, pid){
-    if(!eventPidMapping[eventid]) eventPidMapping[eventid] = [];
-    if(eventPidMapping[eventid].indexOf(pid) === -1)
-        eventPidMapping[eventid].push(pid);
+function remoteMapEventAndProcess(eventid, pid){
+    if(!remoteEventPidMapping[eventid]) remoteEventPidMapping[eventid] = [];
+    if(remoteEventPidMapping[eventid].indexOf(pid) === -1)
+        remoteEventPidMapping[eventid].push(pid);
 }
 
-export function GetEventPids(event_id){
-    return eventPidMapping[event_id];
+export function RemoteGetEventPids(event_id){
+    return remoteEventPidMapping[event_id];
 };
 
 export function RemoteAddEventListener(senderPid, event_id_list, callback) {
@@ -53,7 +47,7 @@ export function RemoteAddEventListener(senderPid, event_id_list, callback) {
             continue;
         }
         suc.push(1);
-        mapEventAndProcess(eventId, senderPid);
+        remoteMapEventAndProcess(eventId, senderPid);
     }
     return callback(errs.length > 0 ? new Error(JSON.stringify(errs)) : undefined, suc);
 }

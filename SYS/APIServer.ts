@@ -45,12 +45,19 @@ var onEmit = function (eventid, param) {
         , senderPid = rpc['pid'];
     info("onEmit Incoming ", senderPid);
 
-    var pids = EventsHub.GetEventPids(eventid);
-    warn('onEmit pids', pids);
+    var pids = EventsHub.RemoteGetEventPids(eventid);
+    warn('onEmit pids', pids, 'senderPid', senderPid, 'process.pid', process.pid);
 
-    pids.forEach(function(pid:Number){
+    for(var i=0, len = pids.length; i< len; i++){
+        var pid = pids[i];
         MountTable.GetByPid(pid).rpc.Emit(eventid, param);
-    });
+    }
+
+    //pids.forEach(function(pid:Number){
+    //    var remoteRPC = MountTable.GetByPid(pid).rpc;
+    //    warn('pid', pid);
+    //    remoteRPC.Emit(eventid, param);
+    //});
 };
 
 
@@ -119,6 +126,8 @@ export class APIServer extends events.EventEmitter {
                     socket.destroy();
                     MountTable.Restart(mountInfo.moduleName); // restart process
                 });
+            } else { // non-system modules
+                MountTable.SetPidRPC(res.pid, rpc);
             }
             rpc.SetFunctionHandler(onCall);
             rpc.SetEventHandler(onEmit);
@@ -135,7 +144,7 @@ export class APIServer extends events.EventEmitter {
         modulesConfigKeys.forEach(function (moduleName) {
             var modulePath = modulesConfig[moduleName]['Path'];
 
-            MountTable.MountNew(moduleName, modulePath, socketPath);
+            MountTable.MountNewSystemModule(moduleName, modulePath, socketPath);
         });
     }
 }

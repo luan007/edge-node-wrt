@@ -185,13 +185,14 @@ export function GetAPI(rpc:RPC.RPCEndpoint):API_Endpoint {
     }
 
     rpc.SetEventHandler((event_id, paramArray: any[]) => {
+        warn('client received emiting', event_id, paramArray);
         if (_API_Endpoint.event_lookup && _API_Endpoint.event_lookup[event_id] &&
             _API_Endpoint.event_lookup[event_id].emitter && _API_Endpoint.event_lookup[event_id].name) {
-            (<events.EventEmitter>_API_Endpoint.event_lookup[event_id].emitter).emit.apply(
-                (<events.EventEmitter>_API_Endpoint.event_lookup[event_id].emitter),
-                [
-                    _API_Endpoint.event_lookup[event_id].name
-                ].concat(paramArray));
+            var event_found = _API_Endpoint.event_lookup[event_id];
+            var emitter = (<events.EventEmitter>event_found.emitter);
+            warn('client received emiting -------->', event_id, event_found.emitter, event_found.name);
+
+            emitter.emit.apply(emitter, [ event_found.name ].concat(paramArray));
         }
     });
 

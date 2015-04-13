@@ -12,7 +12,7 @@ export class MountTable {
     private static mapping = {};
     private static pidMapping = {};
 
-    public static MountNew(moduleName, modulePath, socketPath) {
+    public static MountNewSystemModule(moduleName, modulePath, socketPath) {
         MountTable.mapping[moduleName] = {};
         var mount = new Mount(moduleName, modulePath, socketPath);
         MountTable.SetProcess(moduleName, mount.Process.pid, mount);
@@ -42,15 +42,21 @@ export class MountTable {
         return null;
     }
 
-    public static GetByEventId(eventid){
-        var eventInfo = APIConfig.getEventsConfig()[eventid];
-        if (eventInfo && eventInfo.moduleName) return MountTable.mapping[eventInfo.moduleName];
-        return null;
+    public static GetByPid(pid) {
+        trace('GetByPid', pid);
+        var moduleName = MountTable.pidMapping[pid];
+        var rpc = MountTable.mapping[moduleName];
+        if (rpc) trace('GetByPid found', pid);
+        return rpc;
     }
 
-    public static GetByPid(pid) {
-        var moduleName = MountTable.pidMapping[pid];
-        return MountTable.mapping[moduleName];
+    public static SetPidRPC(pid, rpc) {
+        var moduleName = '__' + pid;
+        MountTable.pidMapping[pid] = moduleName;
+        MountTable.mapping[moduleName] = {
+            pid: pid
+            , rpc: rpc
+        };
     }
 }
 
@@ -81,7 +87,7 @@ class Mount extends Process {
                         , this.moduleName
                         , path.join(__dirname, this.modulePath)
                         , this.socketPath
-                        , process.env.apiConfigFilePath ]);
+                        , process.env.apiConfigFilePath]);
                 this.Process.stdout.on("data", function (data) {
                     info(data.toString());
                 });
