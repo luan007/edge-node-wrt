@@ -113,7 +113,6 @@ export function getEventsReverseConfig() {
         }
         eventsReverseConfig = result;
     }
-    trace('eventsReverseConfig--------', eventsReverseConfig);
     return eventsReverseConfig;
 }
 

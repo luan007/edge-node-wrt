@@ -2,6 +2,7 @@ require('./Env');
 import net = require("net");
 import APIConfig = require('./APIConfig');
 import RPC = require('../Modules/RPC/index');
+import APIManager = require('./APIManager');
 
 var moduleName = process.argv[2]
     , modulePath = process.argv[3]
@@ -33,15 +34,18 @@ if (functions) {
             }
         });
 
-        global.rpc = rpc;
-
+        // for unit-testing: inject api into global
+        global.api = APIManager.GetAPI(rpc).API;
+        // for unit-testing: inject __EMIT into global
         global.__EMIT = (eventName, ...args) => {
+            info('__EMIT remote - PID', process.pid);
             var eventsReverseConfig = APIConfig.getEventsReverseConfig();
             if(eventsReverseConfig && eventsReverseConfig[eventName]){
                 var eventId = eventsReverseConfig[eventName].eventId;
                 rpc.Emit(eventId, args);
             }
         };
+
     });
 
     process.on('exit', function () {

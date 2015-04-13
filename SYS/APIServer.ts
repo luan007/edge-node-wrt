@@ -10,36 +10,46 @@ import _MountTable = require('./MountTable');
 import MountTable = _MountTable.MountTable;
 import EventsHub = require('./EventsHub');
 
-var onCall = (funcid, param, cb) => {
+var onCall = function (funcid, param, callback) {
     var rpc:RPC.RPCEndpoint = this
-        , senderPid = process.pid
-        , permission = APIConfig.getAPIConfig()[funcid]['permission']
-        , _p = pm.Encode(permission);
-    if (!pm.Check(pm.GetPermission(senderPid), _p)) {
-        return cb(new EvalError("Permission Denied"));
-    }
+        , senderPid = rpc['pid'];
 
-    info("Incoming " + funcid);
-    var mountInfo = MountTable.GetByFuncId(funcid);
-    if (mountInfo && mountInfo['rpc']) {
-        var target:RPC.RPCEndpoint = mountInfo['rpc'];
-        return target.Call(funcid, param, cb);
+    warn('senderPid == ', senderPid);
+
+    if (funcid == 0) {//register event
+        warn('funcid == ', funcid, param);
+        if (!param ) {
+            return callback(new EvalError("Faulty Params"));
+        }
+        var event_id_list = (<Array<number>>param);
+        return EventsHub.RemoteAddEventListener(senderPid, event_id_list, callback);
+    } else { // remote call
+        var permission = APIConfig.getAPIConfig()[funcid]['permission']
+            , _p = pm.Encode(permission);
+        if (!pm.Check(pm.GetPermission(senderPid), _p)) {
+            return callback(new EvalError("Permission Denied"));
+        }
+        info("Incoming " + funcid);
+        var mountInfo = MountTable.GetByFuncId(funcid);
+        if (mountInfo && mountInfo['rpc']) {
+            var target:RPC.RPCEndpoint = mountInfo['rpc'];
+            return target.Call(funcid, param, callback);
+        }
+        else
+            return callback(new Error("Remote Client is down"));
     }
-    else
-        return cb(new Error("Remote Client is down"));
 };
 
-var onEmit = (eventid, param) => {
-    trace('onEmit', eventid, param);
-    var senderPid = process.pid
-        , permission = APIConfig.getEventsConfig()[eventid]['permission']
-        , _p = pm.Encode(permission);
-    if (!pm.Check(pm.GetPermission(senderPid), _p)) {
-        return;
-    }
+var onEmit = function (eventid, param) {
+    var rpc:RPC.RPCEndpoint = this
+        , senderPid = rpc['pid'];
+    info("onEmit Incoming ", senderPid);
 
-    EventsHub.GetEventsCallbacks(eventid).forEach(function(cb:Function){
-       cb.apply(null, param);
+    var pids = EventsHub.GetEventPids(eventid);
+    warn('onEmit pids', pids);
+
+    pids.forEach(function(pid:Number){
+        MountTable.GetByPid(pid).rpc.Emit(eventid, param);
     });
 };
 
@@ -90,13 +100,16 @@ export class APIServer extends events.EventEmitter {
             trace("New Socket Inbound, Entering loop - PID " + (res.pid + "").bold);
 
             var rpc = new RPC.RPCEndpoint(socket);
+            rpc['pid'] = res.pid;
             var mountInfo = MountTable.GetByPid(res.pid);
             if (mountInfo) {// system modules
+                pm.SetPermission(res.pid, pm.Encode([Permission.System]));
+
                 MountTable.SetRPC(mountInfo.moduleName, rpc);
                 this.modulesLoaded += 1;
                 trace('modulesLoaded', this.modulesLoaded);
 
-                if(this.modulesLoaded === this.modulesCount){
+                if (this.modulesLoaded === this.modulesCount) {
                     this.emit('loaded');
                 }
 
@@ -109,6 +122,7 @@ export class APIServer extends events.EventEmitter {
             }
             rpc.SetFunctionHandler(onCall);
             rpc.SetEventHandler(onEmit);
+
             socket.resume();
         });
     });

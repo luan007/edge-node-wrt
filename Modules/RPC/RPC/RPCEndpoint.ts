@@ -4,7 +4,7 @@ import FramedSocket = require("../Lib/FramedSocket");
 import ExArray = require("../Lib/ExtendedArray");
 import APIError = require("../Lib/APIError");
 
-enum RPC_Message_Type { _REQUEST = 0, __RESPONSE = 1, __EVENT = 2, __READY = 3 }
+enum RPC_Message_Type { __REQUEST = 0, __RESPONSE = 1, __EVENT = 2, __READY = 3 }
 
 //Package Format:
 //[ MSG TYPE(number), TARGET_ID(number), PARAMS(object), ?TRACK_ID(number), ?GENERATION_, ... _LAST_CHK_SUM ]
@@ -51,10 +51,6 @@ export class RPCEndPoint extends events.EventEmitter {
         });
     }
 
-    public GetEventCallbacks(eventId){
-        return this._event_handler[eventId];
-    }
-
     public SetEventHandler = (on_all_event) => {
         this._event_handler = on_all_event;
     }
@@ -93,7 +89,7 @@ export class RPCEndPoint extends events.EventEmitter {
             return this.emit("bad_obj", obj);
         }
         switch (obj[0]) {
-            case RPC_Message_Type._REQUEST:
+            case RPC_Message_Type.__REQUEST:
                 this._on_remote_call(obj[1], obj[2], obj[3], obj[4]);
                 break;
             case RPC_Message_Type.__RESPONSE:
@@ -221,7 +217,7 @@ export class RPCEndPoint extends events.EventEmitter {
         var gen = this._callbacks.age(track_id);
 
         callback_sig.timer = this._time_out_closure(track_id, gen);
-        this.Send_Pack(RPC_Message_Type._REQUEST, remote_func_id, params, track_id, gen);
+        this.Send_Pack(RPC_Message_Type.__REQUEST, remote_func_id, params, track_id, gen);
     };
 
     public Emit = (remote_event_id, params: any[]) => {

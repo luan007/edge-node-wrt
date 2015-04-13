@@ -4,6 +4,7 @@ import RPC = require('../Modules/RPC/index');
 import APIConfig = require('./APIConfig');
 import EventsHub = require('./EventsHub');
 import _MountTable = require('./MountTable');
+import pm = require('../System/API/Permission');
 import MountTable = _MountTable.MountTable;
 
 export interface API_Endpoint {
@@ -116,7 +117,6 @@ function _method_shell(rpc:RPC.RPCEndpoint, funcId, paramArray:any[]) {
 export function GetAPI(rpc:RPC.RPCEndpoint):API_Endpoint {
     var apiConfig = APIConfig.getAPIConfig();
     var eventsConfig = APIConfig.getEventsConfig();
-    var eventsReverseConfig = APIConfig.getEventsReverseConfig();
 
     var _API_Endpoint:any = {};
     _API_Endpoint.rpc_endpoint = rpc;
@@ -135,18 +135,33 @@ export function GetAPI(rpc:RPC.RPCEndpoint):API_Endpoint {
     var API = new events.EventEmitter();
     var _event_tracker = [API];
 
-    for (var eventId in eventsConfig) { // { eventId: { moduleName, eventName, permission } [, ...] }
-        var moduleEntry = eventsConfig[eventId];
-        var moduleName = moduleEntry['moduleName'];
-        if (!API[moduleName]) {
-            API[moduleName] = {};
-            API[moduleName]['ON'] = (eventName:string, cb:Function) => {
-                var eventInfo = eventsReverseConfig[eventName];
-                if (eventInfo) {
-                    EventsHub.RegisterEventCallback(eventInfo.eventId, cb);
+    //for (var eventId in eventsConfig) { // { eventId: { moduleName, eventName, permission } [, ...] }
+    //    var moduleEntry = eventsConfig[eventId];
+    //    var moduleName = moduleEntry['moduleName'];
+    //    if (!API[moduleName]) {
+    //        API[moduleName] = new events.EventEmitter();
+    //    }
+    //}
+
+    for (var eventId in eventsConfig) {
+        var fullPath = eventsConfig[eventId].moduleName  + '.' + eventsConfig[eventId].eventName;
+        var d = (<string>fullPath).split('.');
+        //recur gen func tree
+        var cur = API;
+        if (d.length > 1) {
+            for (var t = 0; t < d.length - 2; t++) {
+                if (!cur[d[t]]) {
+                    cur[d[t]] = {};
                 }
-            };
+                cur = cur[d[t]];
+            }
+            var ev = new events.EventEmitter();
+            _event_tracker.push(ev);
+            cur[d[d.length - 2]] = ev;
+            cur = cur[d[d.length - 2]];
         }
+        var event_name = d[d.length - 1] + "";
+        _API_Endpoint.event_lookup[eventId] = { emitter: cur, name: event_name };
     }
 
     for (var funcid in apiConfig) { //  { funcId: { moduleName, funcName, permission } [, ...] }
@@ -169,11 +184,35 @@ export function GetAPI(rpc:RPC.RPCEndpoint):API_Endpoint {
         })(funcid);
     }
 
+    rpc.SetEventHandler((event_id, paramArray: any[]) => {
+        if (_API_Endpoint.event_lookup && _API_Endpoint.event_lookup[event_id] &&
+            _API_Endpoint.event_lookup[event_id].emitter && _API_Endpoint.event_lookup[event_id].name) {
+            (<events.EventEmitter>_API_Endpoint.event_lookup[event_id].emitter).emit.apply(
+                (<events.EventEmitter>_API_Endpoint.event_lookup[event_id].emitter),
+                [
+                    _API_Endpoint.event_lookup[event_id].name
+                ].concat(paramArray));
+        }
+    });
+
+    API['RegisterEvent'] = (event_name_list: Array<string>, callback:Function) => {
+        var eventsReverseConfig = APIConfig.getEventsReverseConfig();
+        var event_id_list = [];
+        for(var i=0, len = event_name_list.length; i < len; i++){
+            var eventInfo = eventsReverseConfig[event_name_list[i]];
+            if(eventInfo)
+                event_id_list.push(eventInfo.eventId);
+        }
+        if(event_id_list.length > 0)
+            rpc.Call(0, event_id_list, callback);
+        else
+            callback(new Error('Faulty Params'));
+    }
+
     _API_Endpoint.API = API;
     _API_Endpoint.event_tracker = _event_tracker;
     return _API_Endpoint;
 }
-
 
 export function ServeAPI(rpc:RPC.RPCEndpoint) {
     rpc.SetFunctionHandler(_incoming_function);
