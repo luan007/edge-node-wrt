@@ -6,24 +6,9 @@ import MountTable = _MountTable.MountTable;
 // eventId : [rpc, ...]
 var eventsMapping = {};
 
-declare function EMIT(
+declare function __EMIT(
     path: string,
     ...data);
-
-//export function EMIT(eventName, params:any[]) {
-//    var eventsReverseConfig = APIConfig.getEventsReverseConfig();
-//    if((process.env.rpc && eventsReverseConfig && eventsReverseConfig[eventName]) {
-//        var eventId = eventsReverseConfig[eventName].eventId;
-//        process.env.rpc.
-//    }
-//
-//    //if(eventInfo && eventsMapping[eventInfo.eventId]) {
-//    //    var rpcs = eventsMapping[eventInfo.eventId];
-//    //    rpcs.forEach(function (rpc:RPC.RPCEndpoint) {
-//    //        rpc.Emit(eventInfo.eventId, params);
-//    //    });
-//    //}
-//}
 
 var eventCallbacks:{[key: number]: Array<Function>} = {};
 

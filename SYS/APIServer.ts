@@ -15,7 +15,6 @@ var onCall = (funcid, param, cb) => {
         , senderPid = process.pid
         , permission = APIConfig.getAPIConfig()[funcid]['permission']
         , _p = pm.Encode(permission);
-    info('senderPid', senderPid, process.pid);
     if (!pm.Check(pm.GetPermission(senderPid), _p)) {
         return cb(new EvalError("Permission Denied"));
     }
@@ -35,7 +34,6 @@ var onEmit = (eventid, param) => {
     var senderPid = process.pid
         , permission = APIConfig.getEventsConfig()[eventid]['permission']
         , _p = pm.Encode(permission);
-    info('senderPid', senderPid, process.pid);
     if (!pm.Check(pm.GetPermission(senderPid), _p)) {
         return;
     }

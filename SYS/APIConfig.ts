@@ -2,9 +2,6 @@ import fs = require('fs');
 import path = require('path');
 require("../System/API/PermissionDef");
 
-//var cfgFileName = 'api.config.json';
-//var filePath = path.join(__dirname, '../' + cfgFileName);
-
 var APIConfig:{} = undefined;
 var modulesConfig:{} = undefined;
 var eventsConfig:{} = undefined;
