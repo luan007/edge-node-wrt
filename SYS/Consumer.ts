@@ -26,11 +26,11 @@ export function Initalize(sockPath:string) {
                 info('EVENT: [Fake.Up] has called back.');
             });
 
-            trace('FakeService.Fake', (<any>api).FakeService.Fake);
-
             (<any>api).FakeService.Fake.on('Down', () => {
                 info('EVENT: [Fake.Down] has called back.');
             });
+
+            trace('api.FakeService.Fake', (<any>api).FakeService.Fake);
 
             (<any>api).FakeService.FakeA((err, res) => {
                 if (err) error(err);

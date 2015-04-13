@@ -12,6 +12,13 @@ function __EMIT(path:string,
 // { eventId : eventEmitter }
 var localEventsTracker:{[key: number]: events.EventEmitter } = {};
 
+export function LocalSetEventTracker(eventId:number, emitter:events.EventEmitter){
+    localEventsTracker[eventId] = emitter;
+}
+export  function LocalGetEventTracker(eventId:number){
+    trace('localEventsTracker', localEventsTracker);
+    return localEventsTracker[eventId];
+}
 
 // { eventid: [pid [, ...]] }
 var remoteEventPidMapping:{[key: number]: Array<number>} = {};
