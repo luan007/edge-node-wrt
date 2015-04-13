@@ -18,7 +18,7 @@ export function Initalize(sockPath:string) {
             trace('EVENT: [Fake.Up] has called back.');
         });
 
-        (<any>api).FakeService.FakeA((err, res) => {
+        (<any>api).CalcService.Calc((err, res) => {
             if (err) error(err);
             info(res);
         });

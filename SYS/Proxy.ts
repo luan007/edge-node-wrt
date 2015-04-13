@@ -33,6 +33,8 @@ if (functions) {
             }
         });
 
+        global.rpc = rpc;
+
         global.__EMIT = (eventName, ...args) => {
             var eventsReverseConfig = APIConfig.getEventsReverseConfig();
             if(eventsReverseConfig && eventsReverseConfig[eventName]){
