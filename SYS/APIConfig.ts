@@ -10,7 +10,7 @@ var eventsReverseConfig: {} = undefined;
 export function getModulesConfig() {
     if (!modulesConfig) {
         var filePath = process.env.apiConfigFilePath;
-        console.log('api.config.json path:', filePath);
+        //console.log('api.config.json path:', filePath);
         if (fs.existsSync(filePath)) {
             var contents = fs.readFileSync(filePath, {encoding: 'utf-8'});
             modulesConfig = JSON.parse(contents);

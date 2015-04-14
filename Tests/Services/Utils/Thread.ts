@@ -1,13 +1,15 @@
 import child_process = require('child_process');
 import path = require('path');
-import Process = require("../../System/SubSys/Native/Process");
+import Process = require("../../../System/SubSys/Native/Process");
+import pm = require('../../../System/API/Permission');
+require('../../../System/API/PermissionDef');
 
 export class Thread extends Process {
     public modulePath:string;
     public sockPath:string;
 
     constructor(modulePath, sockPath) {
-        super();
+        super('');
         this.modulePath = modulePath;
         this.sockPath = sockPath;
         this.Start(true);
@@ -20,8 +22,11 @@ export class Thread extends Process {
                 info("OK");
                 super.Start(forever);
             } else {
-                trace('Thread.modulePath', this.modulePath);
                 this.Process = child_process.spawn('node', [this.modulePath, this.sockPath]);
+
+                // set permission
+                pm.SetPermission(this.Process.pid, pm.Encode([Permission.System]));
+
                 this.Process.stdout.on("data", function (data) {
                     info(data.toString());
                 });

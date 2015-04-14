@@ -221,7 +221,7 @@ export class RPCEndPoint extends events.EventEmitter {
     };
 
     public Emit = (remote_event_id, params: any[]) => {
-        trace('Emit', remote_event_id, params);
+        //trace('Emit', remote_event_id, params);
         this.Send_Pack(RPC_Message_Type.__EVENT, remote_event_id, params);
     };
 

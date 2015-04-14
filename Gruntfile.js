@@ -135,6 +135,7 @@ module.exports = function (grunt) {
         grunt.task.run('debug');
     });
     grunt.registerTask("ftp", ['clean', 'copy', 'sync', 'ts', 'sftp:entire', 'sshexec', 'watch']);
+    grunt.registerTask("t", ['sftp:partial', 'sftp:tests', 'sshexec']);
 
     //grunt.loadNpmTasks("grunt-ts");
     //grunt.registerTask("default", ["ts"]);

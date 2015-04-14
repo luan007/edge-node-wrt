@@ -1,9 +1,11 @@
 require('./Env');
 require('colors');
+require('../System/API/PermissionDef');
 
 import _APIServer = require('./APIServer');
 import APIServer = _APIServer.APIServer;
 import Consumer = require('./Consumer');
+import pm = require('../System/API/Permission');
 
 //for injection
 var cfgFileName = 'api.config.json';
@@ -23,6 +25,7 @@ domain.run(function () {
     var server = new APIServer();
     server.on('loaded', () => {
         info('modules all loaded.');
+        pm.SetPermission(process.pid, pm.Encode([Permission.System]));
         Consumer.Initalize(server.getSockPath());
     });
 });

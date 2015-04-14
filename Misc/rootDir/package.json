@@ -8,7 +8,7 @@
         "url": "git://github.com/emerge/edge.git"
     },
     "scripts": {
-        "test": "mocha --recursive --timeout 15000 -R spec --require should --harmony Tests/ --bail"
+        "test": "mocha --recursive --timeout 3600000 -R spec --require should --harmony Tests/Test*.js --bail"
     },
     "dependencies": {
         "async": "*",
@@ -42,7 +42,7 @@
         "ip": "*",
         "ipaddr.js": "*",
         "wait.for": "*",
-        "fiber": "*",
+        "fibers": "*",
         "validator": "*",
         "connect": "*",
         "morgan": "~1.5.1",

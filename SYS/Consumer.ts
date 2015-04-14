@@ -12,8 +12,6 @@ export function Initalize(sockPath:string) {
     warn('consumer - PID', process.pid);
 
     var sock = net.connect(sockPath, () => {
-        pm.SetPermission(process.pid, pm.Encode([Permission.System]));
-
         var rpc = new RPC.RPCEndpoint(sock);
         var api = APIManager.GetAPI(rpc).API;
 
