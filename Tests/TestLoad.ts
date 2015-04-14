@@ -27,7 +27,7 @@ describe('load testing', () => {
 
                 for (var i = 0, len = 100 * 1000; i < len; i++) {
                     trace('foreach spawn consumer:', i + 1);
-                    FiberUtils.Sleep(1000); // sleep 1s
+                    FiberUtils.Sleep(2000); // sleep 1s
                     new Thread(consumerPath, sockPath);
                 }
 

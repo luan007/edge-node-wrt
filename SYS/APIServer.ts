@@ -23,7 +23,7 @@ var onCall = function (funcid, param, callback) {
     } else { // remote call
         var permission = APIConfig.getAPIConfig()[funcid]['permission']
             , _p = pm.Encode(permission);
-        warn('remote call', funcid);
+        //warn('remote call', funcid);
         if (!pm.Check(pm.GetPermission(senderPid), _p)) {
             return callback(new EvalError("Permission Denied [" + senderPid + "]"));
         }

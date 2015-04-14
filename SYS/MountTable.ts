@@ -85,9 +85,10 @@ class Mount extends Process {
                 this.Process = child_process.spawn('node'
                     , [Mount.ProxyPath
                         , this.moduleName
-                        , path.join(process.env.NODE_PATH, this.modulePath)
+                        , this.modulePath
                         , this.socketPath
-                        , process.env.apiConfigFilePath]);
+                        , process.env.apiConfigFilePath
+                        , process.env.NODE_PATH]);
                 this.Process.stdout.on("data", function (data) {
                     info(data.toString());
                 });

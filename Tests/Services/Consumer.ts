@@ -31,7 +31,6 @@ export function Initalize(sockPath:string) {
                 info('HugeParamsEmitter.Howl executing result:', res);
             });
         });
-
     });
     sock.on('error', function (err) {
         error(err);
