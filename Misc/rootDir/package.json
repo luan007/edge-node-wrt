@@ -55,5 +55,11 @@
         "multer": "*",
         "posix": "*",
         "unzip": "*"
+    },
+    "devDependencies": {
+        "istanbul-harmony": "*",
+        "coveralls": "*",
+        "should": "*",
+        "mocha": "*"
     }
 }

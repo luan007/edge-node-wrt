@@ -5,14 +5,6 @@ import MountTable = _MountTable.MountTable;
 import pm = require('../System/API/Permission');
 import events = require('events');
 
-declare
-function __EMIT(path:string,
-                ...data);
-
-// { eventId : eventEmitter }
-var localEventsTracker:{[key: number]: events.EventEmitter } = {};
-
-
 // { eventid: [pid [, ...]] }
 var remoteEventPidMapping:{[key: number]: Array<number>} = {};
 
