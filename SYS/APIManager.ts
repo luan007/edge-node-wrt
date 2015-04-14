@@ -135,16 +135,8 @@ export function GetAPI(rpc:RPC.RPCEndpoint):API_Endpoint {
     var API = new events.EventEmitter();
     var _event_tracker = [API];
 
-    //for (var eventId in eventsConfig) { // { eventId: { moduleName, eventName, permission } [, ...] }
-    //    var moduleEntry = eventsConfig[eventId];
-    //    var moduleName = moduleEntry['moduleName'];
-    //    if (!API[moduleName]) {
-    //        API[moduleName] = new events.EventEmitter();
-    //    }
-    //}
-
     for (var eventId in eventsConfig) {
-        var fullPath = eventsConfig[eventId].moduleName  + '.' + eventsConfig[eventId].eventName;
+        var fullPath = eventsConfig[eventId].moduleName + '.' + eventsConfig[eventId].eventName;
         var d = (<string>fullPath).split('.');
         //recur gen func tree
         var cur = API;
@@ -155,17 +147,22 @@ export function GetAPI(rpc:RPC.RPCEndpoint):API_Endpoint {
                 }
                 cur = cur[d[t]];
             }
-            var ev = new events.EventEmitter();
-            _event_tracker.push(ev);
-            cur[d[d.length - 2]] = ev;
-            cur = cur[d[d.length - 2]];
+            if(!cur[d[d.length - 2]]) {
+                var ev = new events.EventEmitter();
+                _event_tracker.push(ev);
+                cur[d[d.length - 2]] = ev;
+                cur = cur[d[d.length - 2]];
+            }
+            else{
+                cur = cur[d[d.length - 2]];
+            }
         }
         var event_name = d[d.length - 1] + "";
-        _API_Endpoint.event_lookup[eventId] = { emitter: cur, name: event_name };
+        _API_Endpoint.event_lookup[eventId] = {emitter: cur, name: event_name};
     }
 
-    for (var funcid in apiConfig) { //  { funcId: { moduleName, funcName, permission } [, ...] }
-        //i = API.System.Device.DummyFunc
+    for (var funcid in apiConfig) {
+        //  { funcId: { moduleName, funcName, permission } [, ...] }
         var moduleEntry = apiConfig[funcid];
         var d = (<string>moduleEntry['moduleName']).split('.');
         //recur gen func tree
@@ -184,27 +181,32 @@ export function GetAPI(rpc:RPC.RPCEndpoint):API_Endpoint {
         })(funcid);
     }
 
-    rpc.SetEventHandler((event_id, paramArray: any[]) => {
-        warn('client received emiting', event_id, paramArray);
-        if (_API_Endpoint.event_lookup && _API_Endpoint.event_lookup[event_id] &&
-            _API_Endpoint.event_lookup[event_id].emitter && _API_Endpoint.event_lookup[event_id].name) {
-            var event_found = _API_Endpoint.event_lookup[event_id];
+    rpc.SetEventHandler((event_id, paramArray:any[]) => {
+        var event_found = _API_Endpoint.event_lookup[event_id];
+        if (event_found) {
             var emitter = (<events.EventEmitter>event_found.emitter);
-            warn('client received emiting -------->', event_id, event_found.emitter, event_found.name);
-
-            emitter.emit.apply(emitter, [ event_found.name ].concat(paramArray));
+            var eventName = event_found.name;
+            emitter.emit.apply(emitter, [eventName].concat(paramArray));
         }
     });
 
-    API['RegisterEvent'] = (event_name_list: Array<string>, callback:Function) => {
+    function _destory_events_tracker(){
+        for(var i=0, len= _event_tracker.length; i< len ;i++){
+            _event_tracker[i].removeAllListeners();
+        }
+    }
+    rpc.once('error', _destory_events_tracker);
+    rpc.once('close', _destory_events_tracker);
+
+    API['RegisterEvent'] = (event_name_list:Array<string>, callback:Function) => {
         var eventsReverseConfig = APIConfig.getEventsReverseConfig();
         var event_id_list = [];
-        for(var i=0, len = event_name_list.length; i < len; i++){
+        for (var i = 0, len = event_name_list.length; i < len; i++) {
             var eventInfo = eventsReverseConfig[event_name_list[i]];
-            if(eventInfo)
+            if (eventInfo)
                 event_id_list.push(eventInfo.eventId);
         }
-        if(event_id_list.length > 0)
+        if (event_id_list.length > 0)
             rpc.Call(0, event_id_list, callback);
         else
             callback(new Error('Faulty Params'));

@@ -20,13 +20,13 @@ export function Initalize(sockPath:string) {
         api.RegisterEvent(['Fake.Up', 'Fake.Down'], (errs, sucs)=> {
             if (errs) fatal('RegisterEvent errors:', errs);
 
-            trace('api.RegisterEvent', sucs);
+            //trace('api.RegisterEvent', sucs);
 
             (<any>api).FakeService.Fake.on('Up', () => {
                 info('EVENT: [Fake.Up] has called back.');
             });
 
-            trace('FakeService.Fake', (<any>api).FakeService.Fake);
+            //trace('FakeService.Fake', (<any>api).FakeService.Fake);
 
             (<any>api).FakeService.Fake.on('Down', () => {
                 info('EVENT: [Fake.Down] has called back.');

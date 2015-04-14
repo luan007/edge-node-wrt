@@ -14,11 +14,8 @@ var onCall = function (funcid, param, callback) {
     var rpc:RPC.RPCEndpoint = this
         , senderPid = rpc['pid'];
 
-    warn('senderPid == ', senderPid);
-
-    if (funcid == 0) {//register event
-        warn('funcid == ', funcid, param);
-        if (!param ) {
+    if (funcid === 0) {//register event
+        if (!param) {
             return callback(new EvalError("Faulty Params"));
         }
         var event_id_list = (<Array<number>>param);
@@ -29,7 +26,6 @@ var onCall = function (funcid, param, callback) {
         if (!pm.Check(pm.GetPermission(senderPid), _p)) {
             return callback(new EvalError("Permission Denied"));
         }
-        info("Incoming " + funcid);
         var mountInfo = MountTable.GetByFuncId(funcid);
         if (mountInfo && mountInfo['rpc']) {
             var target:RPC.RPCEndpoint = mountInfo['rpc'];
@@ -43,21 +39,14 @@ var onCall = function (funcid, param, callback) {
 var onEmit = function (eventid, param) {
     var rpc:RPC.RPCEndpoint = this
         , senderPid = rpc['pid'];
-    info("onEmit Incoming ", senderPid);
 
     var pids = EventsHub.RemoteGetEventPids(eventid);
-    warn('onEmit pids', pids, 'senderPid', senderPid, 'process.pid', process.pid);
+    //warn('onEmit pids', pids, 'senderPid', senderPid, 'process.pid', process.pid);
 
-    for(var i=0, len = pids.length; i< len; i++){
+    for (var i = 0, len = pids.length; i < len; i++) {
         var pid = pids[i];
         MountTable.GetByPid(pid).rpc.Emit(eventid, param);
     }
-
-    //pids.forEach(function(pid:Number){
-    //    var remoteRPC = MountTable.GetByPid(pid).rpc;
-    //    warn('pid', pid);
-    //    remoteRPC.Emit(eventid, param);
-    //});
 };
 
 
