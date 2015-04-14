@@ -33,6 +33,11 @@ if (functions) {
                 _MODULE[funcName].apply(null, args);
             }
         });
+        function destory(){
+            process.kill(process.pid);
+        }
+        rpc.on('close', destory);
+        rpc.on('error', destory);
 
         // for unit-testing: inject api into global
         global.api = APIManager.GetAPI(rpc).API;

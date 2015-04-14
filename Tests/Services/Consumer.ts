@@ -39,3 +39,8 @@ export function Initalize(sockPath:string) {
         error(err);
     });
 }
+
+(function(){
+    var sockPath = process.argv[2];
+    Initalize(sockPath);
+})();
