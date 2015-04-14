@@ -1,0 +1,26 @@
+{
+  "HugeParamsEmitter": {
+    "Path": "Services/HugeParamsEmitter.js",
+    "Functions": {
+      "Howl": {
+        "Permission": ["System"]
+      }
+    },
+    "Events":{
+        "Huge.Come": {
+          "Permission": ["System"]
+        },
+        "Huge.Go": {
+          "Permission": ["System"]
+        }
+    }
+  },
+  "NoReturnService":{
+    "Path": "Services/NoReturnService.js",
+    "Functions": {
+      "Fake": {
+        "Permission": ["System"]
+      }
+    }
+  }
+}

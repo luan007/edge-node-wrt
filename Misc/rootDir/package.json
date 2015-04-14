@@ -7,6 +7,9 @@
         "type": "git",
         "url": "git://github.com/emerge/edge.git"
     },
+    "scripts": {
+        "test": "mocha --recursive --timeout 15000 -R spec --require should --harmony Tests/ --bail"
+    },
     "dependencies": {
         "async": "*",
         "log4js": "*",

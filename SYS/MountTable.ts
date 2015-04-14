@@ -43,10 +43,10 @@ export class MountTable {
     }
 
     public static GetByPid(pid) {
-        trace('GetByPid', pid);
+        //trace('GetByPid', pid);
         var moduleName = MountTable.pidMapping[pid];
         var rpc = MountTable.mapping[moduleName];
-        if (rpc) trace('GetByPid found', pid);
+        //if (rpc) trace('GetByPid found', pid);
         return rpc;
     }
 
@@ -85,7 +85,7 @@ class Mount extends Process {
                 this.Process = child_process.spawn('node'
                     , [Mount.ProxyPath
                         , this.moduleName
-                        , path.join(__dirname, this.modulePath)
+                        , path.join(process.env.NODE_PATH, this.modulePath)
                         , this.socketPath
                         , process.env.apiConfigFilePath]);
                 this.Process.stdout.on("data", function (data) {

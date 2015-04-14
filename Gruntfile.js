@@ -41,6 +41,7 @@ module.exports = function (grunt) {
                         {src: ['Orbit/**/*.*', '!Orbit/**/*.ts'], dest: destination},
                         {src: ['System/**/*.*', '!System/**/*.ts'], dest: destination},
                         {src: ['SYS/**/*.*', '!SYS/**/*.ts'], dest: destination},
+                        {src: ['Tests/**/*.*', '!Tests/**/*.ts'], dest: destination},
                     ],
                     verbose: true // Display log messages when copying files
                 }
@@ -86,6 +87,20 @@ module.exports = function (grunt) {
                         password: '<%= secret.password %>',
                         showProgress: true,
                         srcBasePath: '_Releases/SYS/',
+                        createDirectories: true
+                    }
+                },
+                tests: {
+                    files: {
+                        "./": "_Releases/Tests/**"
+                    },
+                    options: {
+                        path: sftpDest +'Tests/',
+                        host: '<%= secret.host %>',
+                        username: '<%= secret.username %>',
+                        password: '<%= secret.password %>',
+                        showProgress: true,
+                        srcBasePath: '_Releases/Tests/',
                         createDirectories: true
                     }
                 }

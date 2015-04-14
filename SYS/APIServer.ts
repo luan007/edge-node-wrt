@@ -37,8 +37,8 @@ var onCall = function (funcid, param, callback) {
 };
 
 var onEmit = function (eventid, param) {
-    var rpc:RPC.RPCEndpoint = this
-        , senderPid = rpc['pid'];
+    //var rpc:RPC.RPCEndpoint = this
+    //    , senderPid = rpc['pid'];
 
     var pids = EventsHub.RemoteGetEventPids(eventid);
     //warn('onEmit pids', pids, 'senderPid', senderPid, 'process.pid', process.pid);
