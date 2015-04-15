@@ -8,12 +8,14 @@ import _Thread = require('./Services/Utils/Thread');
 import FiberUtils = require('./Services/Utils/FiberUtil');
 import Thread = _Thread.Thread;
 
+
 describe('Stress Testing', () => {
     var cfgFileName = 'api.config.json';
     var entry_dir = __dirname;
     var server:APIServer;
-    var maxThreads = 3
+    var maxThreads = 500
         , successThreads = 0
+        , sleepMillSeconds = 0
         , beginTime;
 
     before(()=> {
@@ -23,34 +25,48 @@ describe('Stress Testing', () => {
         info('process.env.NODE_PATH:', process.env.NODE_PATH);
     });
 
-    beforeEach(function(){
+    beforeEach(function () {
         beginTime = new Date();
         successThreads = 0;
         info('max Threads:', maxThreads);
     })
 
     it('Concurrent Throughput Probe', (done) => {
-        server = new APIServer();
 
-        server.on('loaded', () => {
-            info('modules all loaded.');
-            var consumerPath = path.join(process.env.NODE_PATH, 'Services/Consumers/Concurrent.js');
-            var sockPath = server.getSockPath();
+        process.on('uncaughtException', function (err) {
+            error(err);
+            error(err.stack);
+        });
 
-            FiberUtils.Fiber(function() {
-                for (var i = 0; i < maxThreads; i++) {
-                    trace('Spawn consumer: #', i + 1);
-                    FiberUtils.Sleep(10); // sleep 2s
-                    var thread = new Thread(consumerPath, sockPath);
-                    thread.on('SUCCESS', () => { //thread success
-                        successThreads += 1;
-                        if (successThreads === maxThreads) {
-                            server.ShutDown();
-                            done();
-                        }
-                    });
-                }
-            }).run();
+        var domain = require('domain').create();
+        domain.on('error', function (err) {
+            error(err);
+            error(err.stack);
+        });
+        domain.run(function () {
+            server = new APIServer();
+
+            server.on('loaded', () => {
+                info('modules all loaded.');
+                var consumerPath = path.join(process.env.NODE_PATH, 'Services/Consumers/Concurrent.js');
+                var sockPath = server.getSockPath();
+
+                FiberUtils.Fiber(function () {
+                    for (var i = 0; i < maxThreads; i++) {
+                        trace('Spawn consumer: #', i + 1);
+                        FiberUtils.Sleep(sleepMillSeconds); // sleep
+                        var thread = new Thread(consumerPath, sockPath);
+                        thread.on('SUCCESS', () => { //thread success
+                            successThreads += 1;
+                            if (successThreads === maxThreads) {
+                                server.ShutDown();
+                                done();
+                            }
+                        });
+                    }
+                }).run();
+            });
+
         });
     });
 
@@ -81,7 +97,7 @@ describe('Stress Testing', () => {
     //});
 
     afterEach(() => {
-        if(successThreads < maxThreads){
+        if (successThreads < maxThreads) {
             server.ShutDown();
         }
         trace('==================== after testing');

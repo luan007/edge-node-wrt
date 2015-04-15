@@ -12,7 +12,7 @@ export class Thread extends Process {
         super('');
         this.modulePath = modulePath;
         this.sockPath = sockPath;
-        this.Start(true);
+        this.Start(false);
     }
 
     Start(forever:boolean = true) {
@@ -30,8 +30,11 @@ export class Thread extends Process {
                 ((__this) => {
                     this.Process.stdout.on("data", function (data) {
                         var str = data.toString();
-                        if (/RESULT: SUCCESS/.test(str))
+                        if (/RESULT: SUCCESS/.test(str)) {
                             __this.emit('SUCCESS'); // thread success.
+                            __this.removeAllListeners();
+                            __this.Stop();
+                        }
                         else
                             info(str);
                     });

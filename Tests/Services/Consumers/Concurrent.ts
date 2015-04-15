@@ -14,37 +14,47 @@ export function Initalize(sockPath:string) {
     var sock = net.connect(sockPath, () => {
         var rpc = new RPC.RPCEndpoint(sock);
         var api = APIManager.GetAPI(rpc).API;
-        var successCount = 3, count = 0;
+        var eventGo = 0, eventCome = 0, howl = 0;
 
-        function selfCount(){
-            count++;
-            if(successCount === count){
-                console.log('RESULT: SUCCESS');
+        function selfCount() {
+            if (eventGo == 1 && eventCome == 1 && howl == 1) {
+                api.UnRegisterEvent(['Huge.Come', 'Huge.Go'], ()=> {
+                    console.log('RESULT: SUCCESS');
+                });
             }
         }
 
         api.RegisterEvent(['Huge.Come', 'Huge.Go'], (errs, sucs)=> {
             if (errs) fatal('RegisterEvent errors:', errs);
 
-            (<any>api).HugeParamsEmitter.Huge.on('Come', () => {
-                info('EVENT: [Huge.Come] has called back.');
-                selfCount();
+            (<any>api).HugeParamsEmitter.Huge.on('Come', (...args) => {
+                if (eventCome == 0) {
+                    info('EVENT: [Huge.Come] has called back.');
+                    eventCome = 1;
+                    selfCount();
+                }
             });
 
-            (<any>api).HugeParamsEmitter.Huge.on('Go', () => {
-                info('EVENT: [Huge.Go] has called back.');
-                selfCount();
+            (<any>api).HugeParamsEmitter.Huge.on('Go', (...args) => {
+                if (eventGo == 0) {
+                    eventGo = 1;
+                    info('EVENT: [Huge.Go] has called back.');
+                    selfCount();
+                }
             });
 
             (<any>api).HugeParamsEmitter.Howl((err, res) => {
                 if (err) error(err);
-                info('HugeParamsEmitter.Howl executing result:', res);
-                selfCount();
+                if (howl == 0) {
+                    info('HugeParamsEmitter.Howl executing result:', res);
+                    howl = 1;
+                    selfCount();
+                }
             });
         });
 
         // quit mechanism
-        function destory(){
+        function destory() {
             fatal('process [' + process.pid + '] exiting');
             process.kill(process.pid);
         }
@@ -57,7 +67,7 @@ export function Initalize(sockPath:string) {
     });
 }
 
-(function(){
+(function () {
     var sockPath = process.argv[2];
     trace('socketPath', sockPath);
     Initalize(sockPath);

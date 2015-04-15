@@ -20,7 +20,14 @@ var onCall = function (funcid, param, callback) {
         }
         var event_id_list = (<Array<number>>param);
         return EventsHub.RemoteAddEventListener(senderPid, event_id_list, callback);
-    } else { // remote call
+    } else if (funcid === -1) {//unregister event
+        if (!param) {
+            return callback(new EvalError("Faulty Params"));
+        }
+        var event_id_list = (<Array<number>>param);
+        return EventsHub.RemoteRemoveEventPid(senderPid, event_id_list, callback);
+    }
+    else { // remote call
         var permission = APIConfig.getAPIConfig()[funcid]['permission']
             , _p = pm.Encode(permission);
         //warn('remote call', funcid);
@@ -42,14 +49,13 @@ var onEmit = function (eventid, param) {
     //    , senderPid = rpc['pid'];
 
     var pids = EventsHub.RemoteGetEventPids(eventid);
-    warn('onEmit pids', pids, 'process.pid', process.pid);
+    //warn('onEmit pids', pids, 'process.pid', process.pid);
 
     for (var i = 0, len = pids.length; i < len; i++) {
         var pid = pids[i];
         MountTable.GetByPid(pid).rpc.Emit(eventid, param);
     }
 };
-
 
 export class APIServer extends events.EventEmitter {
     private __SOCK_PATH:string;
@@ -72,6 +78,10 @@ export class APIServer extends events.EventEmitter {
                     this.mountAll(this.__SOCK_PATH);
                 });
             });
+        });
+        this._api_server.on('error', (err) => {
+            error(err);
+            error(err.stack);
         });
     }
 
@@ -96,10 +106,10 @@ export class APIServer extends events.EventEmitter {
             error(err);
             socket.destroy();
         });
-        socket.on('close', (had_error) => {
-            trace('socket closed', had_error);
-            socket.destroy();
-        });
+        //socket.on('close', (had_error) => {
+        //    trace('socket closed', had_error);
+        //    socket.destroy();
+        //});
 
         uscred.getCredentials(socket, (err, res) => {
             if (err) {
@@ -120,15 +130,19 @@ export class APIServer extends events.EventEmitter {
                 if (this.modulesLoaded === this.modulesCount) {
                     this.emit('loaded');
                 }
-
                 socket.removeAllListeners('error');
                 socket.on("error", (err) => {
                     error(err);
-                    socket.destroy();
+                    rpc.Destroy();
                     MountTable.Restart(mountInfo.moduleName); // restart process
                 });
             } else { // non-system modules
                 MountTable.SetPidRPC(res.pid, rpc);
+                socket.removeAllListeners('error');
+                socket.on("error", (err) => {
+                    error(err);
+                    rpc.Destroy();
+                });
             }
             rpc.SetFunctionHandler(onCall);
             rpc.SetEventHandler(onEmit);

@@ -8,7 +8,7 @@ var arch = os.arch();
 declare var path;
 class _sys_conf {
     LOADED = false; // don't touch
-    IS_DEBUG = true; 
+    IS_DEBUG = true;
     ALWAYS_REBUILD_OUI = false;
     INTERACTIVE_DEBUG = true;
     IPTABLES_GUARD_LOG = false;

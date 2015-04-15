@@ -212,6 +212,20 @@ export function GetAPI(rpc:RPC.RPCEndpoint):API_Endpoint {
             callback(new Error('Faulty Params'));
     }
 
+    API['UnRegisterEvent'] = (event_name_list:Array<string>, callback:Function) => {
+        var eventsReverseConfig = APIConfig.getEventsReverseConfig();
+        var event_id_list = [];
+        for (var i = 0, len = event_name_list.length; i < len; i++) {
+            var eventInfo = eventsReverseConfig[event_name_list[i]];
+            if (eventInfo)
+                event_id_list.push(eventInfo.eventId);
+        }
+        if (event_id_list.length > 0)
+            rpc.Call(-1, event_id_list, callback);
+        else
+            callback(new Error('Faulty Params'));
+    }
+
     _API_Endpoint.API = API;
     _API_Endpoint.event_tracker = _event_tracker;
     return _API_Endpoint;
