@@ -8,7 +8,7 @@ var blobPath = path.join(process.env.NODE_PATH
 export function Howl() {
     fs.readFile(blobPath, (err, blob) => {
         __EMIT('Huge.Come', blob);
-        __EMIT('Huge.Go', blob);
+        __EMIT('Huge.Go', ''); // don't send blob simultaneously
     });
 
     var args = [].slice.call(arguments);

@@ -11,40 +11,46 @@ import Thread = _Thread.Thread;
 describe('Stress Testing', () => {
     var cfgFileName = 'api.config.json';
     var entry_dir = __dirname;
-    var maxThreads = 1024
+    var server:APIServer;
+    var maxThreads = 3
         , successThreads = 0
         , beginTime;
 
     before(()=> {
         process.env.apiConfigFilePath = path.join(entry_dir, 'Services/' + cfgFileName);
         process.env.NODE_PATH = entry_dir;
-        //info('api.config.json path:', process.env.apiConfigFilePath);
-        //info('process.env.NODE_PATH:', entry_dir);
+        info('api.config.json path:', process.env.apiConfigFilePath);
+        info('process.env.NODE_PATH:', process.env.NODE_PATH);
     });
 
     beforeEach(function(){
         beginTime = new Date();
+        successThreads = 0;
+        info('max Threads:', maxThreads);
     })
 
     it('Concurrent Throughput Probe', (done) => {
-        var server = new APIServer();
+        server = new APIServer();
 
         server.on('loaded', () => {
             info('modules all loaded.');
             var consumerPath = path.join(process.env.NODE_PATH, 'Services/Consumers/Concurrent.js');
             var sockPath = server.getSockPath();
 
-            for (var i = 0; i < maxThreads; i++) {
-                trace('Spawn consumer: #', i + 1);
-                var thread = new Thread(consumerPath, sockPath);
-                thread.on('SUCCESS', () => { //thread success
-                    successThreads += 1;
-                    if(successThreads === maxThreads){
-                        server.ShutDown();
-                        done();
-                    }
-                });
-            }
+            FiberUtils.Fiber(function() {
+                for (var i = 0; i < maxThreads; i++) {
+                    trace('Spawn consumer: #', i + 1);
+                    FiberUtils.Sleep(10); // sleep 2s
+                    var thread = new Thread(consumerPath, sockPath);
+                    thread.on('SUCCESS', () => { //thread success
+                        successThreads += 1;
+                        if (successThreads === maxThreads) {
+                            server.ShutDown();
+                            done();
+                        }
+                    });
+                }
+            }).run();
         });
     });
 
@@ -75,10 +81,13 @@ describe('Stress Testing', () => {
     //});
 
     afterEach(() => {
-        info('==================== after testing');
+        if(successThreads < maxThreads){
+            server.ShutDown();
+        }
+        trace('==================== after testing');
         var milliseconds = moment().diff(beginTime);
-        info('total seconds:', (milliseconds / 1000) >> 0);
-        info('success', successThreads, 'total', maxThreads
+        trace('total seconds:', (milliseconds / 1000) >> 0);
+        trace('success', successThreads, 'total', maxThreads
             , ((successThreads / maxThreads * 100) >> 0) + '%');
     });
 });

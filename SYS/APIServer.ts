@@ -42,7 +42,7 @@ var onEmit = function (eventid, param) {
     //    , senderPid = rpc['pid'];
 
     var pids = EventsHub.RemoteGetEventPids(eventid);
-    //warn('onEmit pids', pids, 'senderPid', senderPid, 'process.pid', process.pid);
+    warn('onEmit pids', pids, 'process.pid', process.pid);
 
     for (var i = 0, len = pids.length; i < len; i++) {
         var pid = pids[i];

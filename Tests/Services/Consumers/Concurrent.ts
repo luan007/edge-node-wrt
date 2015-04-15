@@ -18,8 +18,9 @@ export function Initalize(sockPath:string) {
 
         function selfCount(){
             count++;
-            if(successCount === count)
+            if(successCount === count){
                 console.log('RESULT: SUCCESS');
+            }
         }
 
         api.RegisterEvent(['Huge.Come', 'Huge.Go'], (errs, sucs)=> {

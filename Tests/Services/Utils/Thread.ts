@@ -29,9 +29,11 @@ export class Thread extends Process {
 
                 ((__this) => {
                     this.Process.stdout.on("data", function (data) {
-                        if (/^RESULT: SUCCESS/.test(data))
+                        var str = data.toString();
+                        if (/RESULT: SUCCESS/.test(str))
                             __this.emit('SUCCESS'); // thread success.
-                        info(data.toString());
+                        else
+                            info(str);
                     });
                     this.Process.stderr.on('data', function (data) {
                         error(data.toString());
