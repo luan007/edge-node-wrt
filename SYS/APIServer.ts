@@ -79,6 +79,17 @@ export class APIServer extends events.EventEmitter {
         return this.__SOCK_PATH;
     }
 
+    public ShutDown() {
+        this._api_server.close((err) => {
+            MountTable.ClearAll();
+            EventsHub.ClearAll();
+            if (err)
+                fatal(err);
+            else
+                trace('Server was closed');
+        });
+    }
+
     private _api_server:net.Server = net.createServer({allowHalfOpen: true}, (socket) => {
         socket.pause();
         socket.on("error", (err) => {

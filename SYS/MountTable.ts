@@ -58,6 +58,13 @@ export class MountTable {
             , rpc: rpc
         };
     }
+
+    public static ClearAll(){
+        for(var k in MountTable.mapping)
+            delete MountTable.mapping[k];
+        for(var k in MountTable.mapping)
+            delete MountTable.mapping[k];
+    }
 }
 
 class Mount extends Process {

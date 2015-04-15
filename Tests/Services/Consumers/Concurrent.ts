@@ -1,11 +1,11 @@
-require('../../SYS/Env');
+require('../../../SYS/Env');
 import net = require('net');
 import util = require('util');
-import RPC = require("../../Modules/RPC/index");
-import APIServer = require('../../SYS/APIServer');
-import APIManager = require('../../SYS/APIManager');
-import pm = require('../../System/API/Permission');
-require('../../System/API/PermissionDef');
+import RPC = require("../../../Modules/RPC/index");
+import APIServer = require('../../../SYS/APIServer');
+import APIManager = require('../../../SYS/APIManager');
+import pm = require('../../../System/API/Permission');
+require('../../../System/API/PermissionDef');
 
 export function Initalize(sockPath:string) {
 
@@ -14,23 +14,42 @@ export function Initalize(sockPath:string) {
     var sock = net.connect(sockPath, () => {
         var rpc = new RPC.RPCEndpoint(sock);
         var api = APIManager.GetAPI(rpc).API;
+        var successCount = 3, count = 0;
+
+        function selfCount(){
+            count++;
+            if(successCount === count)
+                console.log('RESULT: SUCCESS');
+        }
 
         api.RegisterEvent(['Huge.Come', 'Huge.Go'], (errs, sucs)=> {
             if (errs) fatal('RegisterEvent errors:', errs);
 
             (<any>api).HugeParamsEmitter.Huge.on('Come', () => {
                 info('EVENT: [Huge.Come] has called back.');
+                selfCount();
             });
 
             (<any>api).HugeParamsEmitter.Huge.on('Go', () => {
                 info('EVENT: [Huge.Go] has called back.');
+                selfCount();
             });
 
             (<any>api).HugeParamsEmitter.Howl((err, res) => {
                 if (err) error(err);
                 info('HugeParamsEmitter.Howl executing result:', res);
+                selfCount();
             });
         });
+
+        // quit mechanism
+        function destory(){
+            fatal('process [' + process.pid + '] exiting');
+            process.kill(process.pid);
+        }
+
+        rpc.on('error', destory);
+        rpc.on('close', destory);
     });
     sock.on('error', function (err) {
         error(err);

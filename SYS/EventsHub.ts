@@ -18,6 +18,11 @@ export function RemoteGetEventPids(event_id){
     return remoteEventPidMapping[event_id];
 };
 
+export function ClearAll(){
+    for(var k in remoteEventPidMapping)
+        delete remoteEventPidMapping[k];
+}
+
 export function RemoteAddEventListener(senderPid, event_id_list, callback) {
     if (!event_id_list && !Array.isArray(event_id_list)) {
         return callback(new EvalError("Faulty Params"));

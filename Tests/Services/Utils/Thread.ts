@@ -27,12 +27,16 @@ export class Thread extends Process {
                 // set permission
                 pm.SetPermission(this.Process.pid, pm.Encode([Permission.System]));
 
-                this.Process.stdout.on("data", function (data) {
-                    info(data.toString());
-                });
-                this.Process.stderr.on('data', function (data) {
-                    error(data.toString());
-                });
+                ((__this) => {
+                    this.Process.stdout.on("data", function (data) {
+                        if (/^RESULT: SUCCESS/.test(data))
+                            __this.emit('SUCCESS'); // thread success.
+                        info(data.toString());
+                    });
+                    this.Process.stderr.on('data', function (data) {
+                        error(data.toString());
+                    });
+                })(this);
                 info("OK");
                 super.Start(forever);
             }

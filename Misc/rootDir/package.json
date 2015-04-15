@@ -8,7 +8,7 @@
         "url": "git://github.com/emerge/edge.git"
     },
     "scripts": {
-        "test": "mocha --recursive --timeout 3600000 -R spec --require should --harmony Tests/Test*.js --bail"
+        "test": "mocha --recursive --timeout 86400000 -R spec --require should --harmony Tests/Test*.js --bail"
     },
     "dependencies": {
         "async": "*",
@@ -63,6 +63,7 @@
         "istanbul-harmony": "*",
         "coveralls": "*",
         "should": "*",
-        "mocha": "*"
+        "mocha": "*",
+        "moment": "*"
     }
 }
