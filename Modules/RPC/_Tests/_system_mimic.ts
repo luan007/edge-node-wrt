@@ -1,41 +1,44 @@
 ﻿import net = require("net");
 import process = require("child_process");
 import APIManager = require("../API/APIManager");
-import RPCEndpoint = require("../RPC/RPCEndpoint");
+import RPCEndpoint = require("../RPC/BinaryRPCEndpoint");
 import child_process = require("child_process");
+import uuid = require("uuid");
 
-function Test(callback) {
-    console.log("Server.Test got Fired");
-    console.log(this);
-    callback(null, " Good ");
-    callback(null, " Good ");
-    callback(null, " Good ");
-    callback(null, " Good ");
-    callback(null, " Good ");
+global.UUIDstr = function (short = true): string {
+    if (!short) return uuid.v4();
+    var buf = new Buffer(16);
+    uuid.v4(null, buf, 0);
+    return buf.toString("hex");
 }
 
-APIManager.RegisterFunction(Test, "Server.Test.A.B.C");
-APIManager.CreateEvent({}, "Server.testevent");
+global.UUID = function(): NodeBuffer {
+    var buf = new Buffer(16);
+    uuid.v4(null, buf, 0);
+    return buf;
+}
 
-
-var json = APIManager.ToJSON();
 
 var api_server = net.createServer({ allowHalfOpen: true }, (sock) => {
     console.log("Client Connected");
-    var rpc = new RPCEndpoint.RPCEndPoint(sock);
-    APIManager.ServeAPI(rpc);
-    
-    setTimeout(() => {
-        APIManager.EmitEvent(rpc, "Server.testevent", []);
+    var rpc = new RPCEndpoint.BinaryRPCEndpoint(sock);
+
+    rpc.SetFunctionHandler(console.log);
+    rpc.SetEventHandler(console.log);
+    setInterval(()=>{
+        rpc.Emit(0, []);
+        rpc.Call(14, ["hello"], (err, result)=>{
+            console.log('< ' + result);
+        });
     }, 1000);
     console.log(sock.remotePort);
 
 }).listen(9999);
 
 
-process.fork("_child_process.js", [], {
-    env: {
-        API : JSON.stringify(json)
-    }
-});
+//process.fork("_child_process.js", [], {
+//    env: {
+//        API : JSON.stringify(json)
+//    }
+//});
 

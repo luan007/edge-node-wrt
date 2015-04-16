@@ -13,7 +13,7 @@ describe('Stress Testing', () => {
     var cfgFileName = 'api.config.json';
     var entry_dir = __dirname;
     var server:APIServer;
-    var maxThreads = 500
+    var maxThreads = 4096
         , successThreads = 0
         , sleepMillSeconds = 0
         , beginTime;

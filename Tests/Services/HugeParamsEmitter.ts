@@ -6,7 +6,10 @@ var blobPath = path.join(process.env.NODE_PATH
     , '../Applications/Launcher/Main_Staging/public/images/bg/aji.jpg');
 
 export function Howl(cb) {
-    cb(null, 'HugeParamsEmitter.Howl()');
+    //fs.readFile(blobPath, (err, data) => {
+        cb(null, new Array(312 * 1024));
+            //'HugeParamsEmitter.Howl()' );
+    //});
 }
 
 global.__module__.on('loaded', ()=>{

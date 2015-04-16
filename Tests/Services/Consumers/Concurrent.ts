@@ -46,7 +46,7 @@ export function Initalize(sockPath:string) {
             (<any>api).HugeParamsEmitter.Howl((err, res) => {
                 if (err) error(err);
                 if (howl == 0) {
-                    info('HugeParamsEmitter.Howl executing result:', res);
+                    info('HugeParamsEmitter.Howl executing result:');
                     howl = 1;
                     selfCount();
                 }
