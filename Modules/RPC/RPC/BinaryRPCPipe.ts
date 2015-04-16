@@ -9,17 +9,17 @@ export class BinaryRPCPipe extends events.EventEmitter {
 
     private _sock: BinaryFramedSocket;
 
-    private _callbacks = new ExArray<{
+    private static _callbacks = new ExArray<{
         callback: Function;
         timer: number;
         peer: BinaryRPCPipe;
         trackid;
         ageid;
-    }>(2048);
+    }>(4096);
 
     //private _eventCallbacks:{[key: number]: Array<Function>} = {};
 
-    public TimeOut: number = 10000;
+    public TimeOut: number = 100000;
 
     private _call_handler: Function;
 
@@ -65,16 +65,29 @@ export class BinaryRPCPipe extends events.EventEmitter {
         this._sock = undefined;
     };
 
+    public Reply(funcId, trackid, age, err, res){
+        var args = [ ];
+        if(err) {
+            args[0] = Definition.ConvertError(err);
+            if(res) args.push(res);
+        }
+        else
+            args = [ undefined, res];
+        this.Send_Pack(Definition.RPC_Message_Type.__RESPONSE, funcId, args, trackid, age);
+    }
+
     private _sock_on_header = (header: Buffer, frame: events.EventEmitter) => {
         //console.log("RPC_I < " + obj);
+        var length = header.readInt32LE(0);
         var type = <Definition.RPC_Message_Type>header.readInt8(4);
-        var resourceid = header.readUInt32LE(5);
-        var trackid = header.readUInt32LE(9);
-        var ageid = header.readUInt32LE(13);
+        var resourceid = header.readInt32LE(5);
+        var trackid = header.readInt32LE(9);
+        var ageid = header.readInt32LE(13);
         var rewire_target : BinaryRPCPipe = undefined;
+
         switch (type) {
             case Definition.RPC_Message_Type.__REQUEST:
-                rewire_target = this._on_remote_call(resourceid, trackid, ageid);
+                rewire_target = this._on_remote_call(resourceid, trackid, ageid, frame);
                 this.ForwardCall(rewire_target, header, frame);
                 break;
             case Definition.RPC_Message_Type.__RESPONSE:
@@ -90,18 +103,22 @@ export class BinaryRPCPipe extends events.EventEmitter {
                 break;
         }
     };
-    
+
     private Send_Pack = (type: Definition.RPC_Message_Type, func_or_event_id: number, params: any, trackId = 0, gen = 0) => {
         if (!this._sock) return;
         params = Array.isArray(params) ? params : [];
         //create header
         var header = new Buffer(1 + 4 + 4 + 4);
         header.writeInt8(type, 0);
-        header.writeUInt32LE(func_or_event_id, 1);
-        header.writeUInt32LE(trackId, 1);
-        header.writeUInt32LE(gen, 1);
+        header.writeInt32LE(func_or_event_id, 1);
+        header.writeInt32LE(trackId, 5);
+        header.writeInt32LE(gen, 9);
         var body = params;
         var data = JSON.stringify(body);
+        if (data.length > CONF.RPC_MAX_PACKET) {
+            warn('packet length > MAX', data.length, CONF.RPC_MAX_PACKET);
+            return this._on_remote_reply(func_or_event_id, trackId, gen, [new Error('Packet is too large.'), undefined]);
+        }
         this._sock.Send(header, data);
     };
 
@@ -110,16 +127,16 @@ export class BinaryRPCPipe extends events.EventEmitter {
         return undefined;
     };
 
-    private _on_remote_call = (funcId, trackid, age) => {
+    private _on_remote_call = (funcId, trackid, age, frame) => {
         if(this._call_handler) {
-            return this._call_handler(funcId, trackid, age);
+            return this._call_handler(funcId, trackid, age, frame);
         }
         return undefined;
     };
 
     private _on_remote_reply = (header, frame, trackid, age) => {
-        if (this._callbacks.age(trackid) == age) {
-            var _cb = this._callbacks.pop(trackid);
+        if (BinaryRPCPipe._callbacks.age(trackid) == age) {
+            var _cb = BinaryRPCPipe._callbacks.pop(trackid);
             if (_cb && _cb.callback) {
                 this.ForwardReply(_cb.peer, header, frame, _cb.trackid, _cb.ageid);
                 clearTimeout(_cb.timer);
@@ -139,8 +156,8 @@ export class BinaryRPCPipe extends events.EventEmitter {
 
     private _time_out_closure = (track_id, gen) => {
         var timer = setTimeout(() => {
-            if (this._callbacks.age(track_id) == gen) {
-                var obj = this._callbacks.pop(track_id);
+            if (BinaryRPCPipe._callbacks.age(track_id) == gen) {
+                var obj = BinaryRPCPipe._callbacks.pop(track_id);
                 if (obj && obj.callback) {
                     obj.callback(new Error("Proxy Time-out"), undefined);
                 }
@@ -153,16 +170,18 @@ export class BinaryRPCPipe extends events.EventEmitter {
     private ForwardReply = (peer : BinaryRPCPipe, header, frame, originalTrack, originalAge) => {
         if(!(peer && peer._sock && this._sock)) return;
         var type = <Definition.RPC_Message_Type>header.readInt8(4);
-        var resourceid = header.readUInt32LE(5);
-        var trackid = header.readUInt32LE(9);
-        var ageid = header.readUInt32LE(13);
+        var resourceid = header.readInt32LE(5);
+        var trackid = header.readInt32LE(9);
+        var ageid = header.readInt32LE(13);
         //MASQR
-        header.writeUInt32LE(originalTrack, 9);
-        header.writeUInt32LE(originalAge, 13);
+        header.writeInt32LE(originalTrack, 9);
+        header.writeInt32LE(originalAge, 13);
         intoQueue(peer._sock.Id, (sent) => {
-            peer._sock.RawWrite(header);
+            peer.RawWrite(header);
+            //console.log('FORWARD HEADER ', header.toJSON());
             frame.on('data', function(buf){
-                peer._sock.RawWrite(buf);
+                peer.RawWrite(buf);
+                //console.log('>>>');
             });
             frame.on('end', sent);
         }, ()=>{});
@@ -170,10 +189,11 @@ export class BinaryRPCPipe extends events.EventEmitter {
 
     private ForwardCall = (peer : BinaryRPCPipe, header, frame) => {
         if(!(peer && peer._sock && this._sock)) return;
-        var resourceid = header.readUInt32LE(5);
-        var trackid = header.readUInt32LE(9);
-        var ageid = header.readUInt32LE(13);
+        var resourceid = header.readInt32LE(5);
+        var trackid = header.readInt32LE(9);
+        var ageid = header.readInt32LE(13);
         var callback = (err) => {
+            //console.log('proxy timeout callback ', trackid, ageid);
             return this.Send_Pack(Definition.RPC_Message_Type.__RESPONSE, resourceid, [Definition.ConvertError(err)], trackid, ageid);
         };
         var callback_sig = {
@@ -181,43 +201,48 @@ export class BinaryRPCPipe extends events.EventEmitter {
             timer: undefined,
             trackid: trackid, //original
             ageid: ageid, //original
-            peer: peer
+            peer: this
         };
-        var track_id = this._callbacks.push(callback_sig);
-        var gen = this._callbacks.age(track_id);
-
+        var track_id = BinaryRPCPipe._callbacks.push(callback_sig);
+        var gen = BinaryRPCPipe._callbacks.age(track_id);
         callback_sig.timer = this._time_out_closure(track_id, gen);
 
         //MASQR
-        header.writeUInt32LE(track_id, 9);
-        header.writeUInt32LE(gen, 13);
+        header.writeInt32LE(track_id, 9);
+        header.writeInt32LE(gen, 13);
 
         intoQueue(peer._sock.Id, (sent) => {
-            peer._sock.RawWrite(header);
+            peer.RawWrite(header);
             frame.on('data', function(buf){
-                peer._sock.RawWrite(buf);
+                peer.RawWrite(buf);
             });
             frame.on('end', sent);
         }, ()=>{});
     };
 
-    private ForwardEvent = (peer : BinaryRPCPipe[], header, frame) => {
-        if((this._sock && peer)) return;
-        var resourceid = header.readUInt32LE(5);
-        var trackid = header.readUInt32LE(9);
-        var ageid = header.readUInt32LE(13);
-
-        for(var i = 0; i < peer.length; i++) {
-            if(!peer[i]._sock) continue;
-            intoQueue(peer[i]._sock.Id, (sent) => {
-                peer[i]._sock.RawWrite(header);
-                frame.on('data', function (buf) {
-                    peer[i]._sock.RawWrite(buf);
-                });
-                frame.on('end', sent);
-            }, ()=> {
-            });
-        }
+    private RawWrite = (data) => {
+        if(this._sock)
+            this._sock.RawWrite(data);
     };
 
+    private ForwardEvent = (peer : BinaryRPCPipe[], header, frame) => {
+        if(!(this._sock && peer)) return;
+        var resourceid = header.readInt32LE(5);
+        var trackid = header.readInt32LE(9);
+        var ageid = header.readInt32LE(13);
+
+        for(var i = 0; i < peer.length; i++) {
+            if (!peer[i]._sock) continue;
+            ((p)=> {
+                intoQueue(p._sock.Id, (sent) => {
+                    p.RawWrite(header);
+                    frame.on('data', function (buf) {
+                        p.RawWrite(buf);
+                    });
+                    frame.on('end', sent);
+                }, ()=> {
+                });
+            })(peer[i]);
+        }
+    };
 }

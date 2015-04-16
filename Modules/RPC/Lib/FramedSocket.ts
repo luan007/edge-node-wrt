@@ -68,7 +68,7 @@ class FramedSocket extends events.EventEmitter {
                     cursor += frag;
                     this.frag_read_len += frag;
                     if (this.frag_read_len == 4) {
-                        this.len_remain = this.frag_header.readUInt32LE(0);
+                        this.len_remain = this.frag_header.readInt32LE(0);
                         this.frag_read_len = 0;
                         this.frag_header = undefined;
                         //log("Fragmented Len = " + this.len_remain);
@@ -77,7 +77,7 @@ class FramedSocket extends events.EventEmitter {
                         continue;
                     }
                 } else {
-                    this.len_remain = data.readUInt32LE(cursor);
+                    this.len_remain = data.readInt32LE(cursor);
                     cursor += 4;
                 }
                 //log("Len:" + this.len_remain);
@@ -146,7 +146,7 @@ class FramedSocket extends events.EventEmitter {
             }
 
             var data = new Buffer(4 + bodyLen);
-            data.writeUInt32LE(bodyLen, 0);
+            data.writeInt32LE(bodyLen, 0);
             data.write(json, 4, bodyLen, encoding);
             //console.log("OUT");
             this.socket.write(data, callback);

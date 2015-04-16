@@ -12,7 +12,7 @@ export function Initalize(sockPath:string) {
     //console.log('consumer - PID', process.pid);
 
     var sock = net.connect(sockPath, () => {
-        var rpc = new RPC.RPCEndpoint(sock);
+        var rpc = new RPC.BinaryRPCEndpoint(sock);
         var api = APIManager.GetAPI(rpc).API;
 
         api.RegisterEvent(['Huge.Come', 'Huge.Go'], (errs, sucs)=> {

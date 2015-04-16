@@ -13,7 +13,7 @@ describe('Stress Testing', () => {
     var cfgFileName = 'api.config.json';
     var entry_dir = __dirname;
     var server:APIServer;
-    var maxThreads = 4096
+    var maxThreads = 1
         , successThreads = 0
         , sleepMillSeconds = 0
         , beginTime;
@@ -31,13 +31,12 @@ describe('Stress Testing', () => {
         info('max Threads:', maxThreads);
     })
 
-    it('Concurrent Throughput Probe', (done) => {
+    process.on('uncaughtException', function (err) {
+        error(err);
+        error(err.stack);
+    });
 
-        process.on('uncaughtException', function (err) {
-            error(err);
-            error(err.stack);
-        });
-
+    it.skip('Concurrent Throughput Probe', (done) => {
         var domain = require('domain').create();
         domain.on('error', function (err) {
             error(err);
@@ -51,10 +50,12 @@ describe('Stress Testing', () => {
                 var consumerPath = path.join(process.env.NODE_PATH, 'Services/Consumers/Concurrent.js');
                 var sockPath = server.getSockPath();
 
-                FiberUtils.Fiber(function () {
-                    for (var i = 0; i < maxThreads; i++) {
-                        trace('Spawn consumer: #', i + 1);
-                        FiberUtils.Sleep(sleepMillSeconds); // sleep
+                //FiberUtils.Fiber(function () {
+                for (var i = 0; i < maxThreads; i++) {
+                    trace('Spawn consumer: #', i + 1);
+
+                    process.nextTick(() => {
+                        //FiberUtils.Sleep(sleepMillSeconds); // sleep
                         var thread = new Thread(consumerPath, sockPath);
                         thread.on('SUCCESS', () => { //thread success
                             successThreads += 1;
@@ -63,38 +64,38 @@ describe('Stress Testing', () => {
                                 done();
                             }
                         });
-                    }
-                }).run();
+                    });
+                }
+                //}).run();
             });
 
         });
     });
 
+    it('Complex tasks', (done) => {
+        var domain = require('domain').create();
+        domain.on('error', function (err) {
+            error(err);
+            error(err.stack);
+        });
+        domain.run(function () {
+            server = new APIServer();
 
-    //it('100 thousands sequential connection', (done) => {
-    //    var server = new APIServer();
-    //    server.on('loaded', () => {
-    //
-    //        FiberUtils.Fiber(function() {
-    //            info('modules all loaded.');
-    //            var consumerPath = path.join(process.env.NODE_PATH, 'Services/Consumers/Sequential.js');
-    //            var sockPath = server.getSockPath();
-    //
-    //            for (var i = 0, len = 100 * 1000; i < len; i++) {
-    //                trace('Spawn consumer: #', i + 1);
-    //                FiberUtils.Sleep(2000); // sleep 2s
-    //                new Thread(consumerPath, sockPath);
-    //            }
-    //
-    //            FiberUtils.Sleep(1000); // sleep 1s
-    //
-    //            server.ShutDown();
-    //            done();
-    //        }).run();
-    //
-    //
-    //    });
-    //});
+            server.on('loaded', () => {
+                info('modules all loaded.');
+                var consumerPath = path.join(process.env.NODE_PATH, 'Services/Consumers/ComplexTasks.js');
+                var sockPath = server.getSockPath();
+
+                var thread = new Thread(consumerPath, sockPath);
+                thread.on('SUCCESS', () => { //thread success
+                    server.ShutDown();
+                    done();
+                });
+
+            });
+
+        });
+    });
 
     afterEach(() => {
         if (successThreads < maxThreads) {

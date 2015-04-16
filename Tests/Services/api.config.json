@@ -15,10 +15,26 @@
         }
     }
   },
-  "NoReturnService":{
-    "Path": "Services/NoReturnService.js",
+  "NetworkService":{
+    "Path": "Services/NetworkService.js",
     "Functions": {
-      "Fake": {
+      "Crawl": {
+        "Permission": ["System"]
+      }
+    }
+  },
+  "Parser":{
+    "Path": "Services/Parser.js",
+    "Functions": {
+      "ExtractLinks": {
+        "Permission": ["System"]
+      }
+    }
+  },
+  "ConfigReader":{
+    "Path": "Services/ConfigReader.js",
+    "Functions": {
+      "ReadConfig": {
         "Permission": ["System"]
       }
     }

@@ -27,11 +27,11 @@ if (moduleFunctions) {
     }
 
     var sock = net.connect(socketPath, () => {
-        var rpc = new RPC.RPCEndpoint(sock);
+        var rpc = new RPC.BinaryRPCEndpoint(sock);
         rpc.SetFunctionHandler((fid, param, cb) => {
             if (funcidSet[fid]) {
                 var funcName = funcidSet[fid];
-                console.log(funcName + '[' + fid + '] is called - ' + process.pid);
+                //console.log(funcName + '[' + fid + '] was called - ' + process.pid);
                 var args = param.concat(cb);
                 _MODULE[funcName].apply(null, args);
             }
@@ -46,7 +46,7 @@ if (moduleFunctions) {
         global.api = APIManager.GetAPI(rpc).API;
         // for unit-testing: inject __EMIT into global
         global.__EMIT = (eventName, ...args) => {
-            //info('__EMIT remote - PID', process.pid, 'eventName', eventName);
+            info('__EMIT remote - PID', process.pid, 'eventName', eventName);
             var eventsReverseConfig = APIConfig.getEventsReverseConfig();
             if(eventsReverseConfig && eventsReverseConfig[eventName]){
                 var eventId = eventsReverseConfig[eventName].eventId;

@@ -2,6 +2,7 @@ import child_process = require('child_process');
 import path = require('path');
 import APIConfig = require('./APIConfig');
 import Process = require("../System/SubSys/Native/Process");
+import RPC = require('../Modules/RPC/index');
 
 /**
  * interior data structure:
@@ -32,7 +33,7 @@ export class MountTable {
         MountTable.pidMapping[pid] = moduleName;
     }
 
-    public static SetRPC(moduleName, rpc) {
+    public static SetRPC(moduleName, rpc:RPC.BinaryRPCPipe) {
         MountTable.mapping[moduleName]['rpc'] = rpc;
     }
 
@@ -50,7 +51,7 @@ export class MountTable {
         return rpc;
     }
 
-    public static SetPidRPC(pid, rpc) {
+    public static SetPidRPC(pid, rpc:RPC.BinaryRPCPipe) {
         var moduleName = '__' + pid;
         MountTable.pidMapping[pid] = moduleName;
         MountTable.mapping[moduleName] = {
@@ -97,7 +98,7 @@ class Mount extends Process {
                         , process.env.apiConfigFilePath
                         , process.env.NODE_PATH]);
                 this.Process.stdout.on("data", function (data) {
-                    info(data.toString());
+                    console.log(data.toString());
                 });
                 this.Process.stderr.on('data', function (data) {
                     error(data.toString());

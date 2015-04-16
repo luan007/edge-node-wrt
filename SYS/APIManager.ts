@@ -93,7 +93,7 @@ function _event_shell(rpc:RPC.RPCEndpoint, eventId, paramArray:any[]) {
     }
 }
 
-function _method_shell(rpc:RPC.RPCEndpoint, funcId, paramArray:any[]) {
+function _method_shell(rpc:RPC.BinaryRPCEndpoint, funcId, paramArray:any[]) {
     if (paramArray) {
         //check for callback if there's any
         var cb:Function = undefined;
@@ -103,6 +103,7 @@ function _method_shell(rpc:RPC.RPCEndpoint, funcId, paramArray:any[]) {
         }
         var arr = [];
         while (arr.length < paramArray.length) arr.push(paramArray[arr.length]);
+        //trace('_method_shell', cb.toString());
         //cb CAN be undefined.
         rpc.Call(funcId, arr, cb);
     } else {
@@ -114,7 +115,7 @@ function _method_shell(rpc:RPC.RPCEndpoint, funcId, paramArray:any[]) {
 //event_id -> emitter + eventname
 
 //Returns Shadow
-export function GetAPI(rpc:RPC.RPCEndpoint):API_Endpoint {
+export function GetAPI(rpc:RPC.BinaryRPCEndpoint):API_Endpoint {
     var apiConfig = APIConfig.getAPIConfig();
     var eventsConfig = APIConfig.getEventsConfig();
 
@@ -190,15 +191,17 @@ export function GetAPI(rpc:RPC.RPCEndpoint):API_Endpoint {
         }
     });
 
-    function _destory_events_tracker(){
+    function _destory(){
         for(var i=0, len= _event_tracker.length; i< len ;i++){
             _event_tracker[i].removeAllListeners();
         }
+        //rpc.Destroy();
     }
-    rpc.once('error', _destory_events_tracker);
-    rpc.once('close', _destory_events_tracker);
+    rpc.once('error', _destory);
+    rpc.once('close', _destory);
 
     API['RegisterEvent'] = (event_name_list:Array<string>, callback:Function) => {
+        warn('client RegisterEvent', event_name_list);
         var eventsReverseConfig = APIConfig.getEventsReverseConfig();
         var event_id_list = [];
         for (var i = 0, len = event_name_list.length; i < len; i++) {
@@ -213,6 +216,7 @@ export function GetAPI(rpc:RPC.RPCEndpoint):API_Endpoint {
     }
 
     API['UnRegisterEvent'] = (event_name_list:Array<string>, callback:Function) => {
+        warn('client UnRegisterEvent', event_name_list);
         var eventsReverseConfig = APIConfig.getEventsReverseConfig();
         var event_id_list = [];
         for (var i = 0, len = event_name_list.length; i < len; i++) {

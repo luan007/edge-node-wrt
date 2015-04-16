@@ -7,24 +7,24 @@ import Definition = require('./Definition');
 
 export class BinaryRPCEndpoint extends events.EventEmitter {
 
-    private _sock: BinaryFramedSocket;
+    private _sock:BinaryFramedSocket;
 
     private _callbacks = new ExArray<{
         callback: Function;
         timer: number;
-    }>(2048);
+    }>(1024);
 
     //private _eventCallbacks:{[key: number]: Array<Function>} = {};
 
-    public TimeOut: number = 10000;
+    public TimeOut:number = 100000;
 
-    private _call_handler: Function;
+    private _call_handler:Function;
 
-    private _event_handler: Function;
+    private _event_handler:Function;
 
     private _is_ready = -1;
 
-    constructor(socket: net.Socket) {
+    constructor(socket:net.Socket) {
         super();
         this._sock = new BinaryFramedSocket(socket);
         this._sock.on("frame", this._sock_on_frame);
@@ -61,7 +61,7 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
         this._sock = undefined;
     };
 
-    private _pkg_check = (pkg): boolean => {
+    private _pkg_check = (pkg):boolean => {
         if (Array.isArray(pkg)) {
             //TODO: Add More logic here
             return true;
@@ -69,21 +69,23 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
         return false;
     };
 
-    private _sock_on_frame = (header: Buffer, obj) => {
+    private _sock_on_frame = (header:Buffer, obj) => {
         if (!this._pkg_check(obj)) {
             return this.emit("bad_obj", obj);
         }
 
-        console.log(header.readInt8(4));
+
+        //console.log(obj);
+        //console.log(header.readInt8(4));
         switch (header.readInt8(4)) {
             case Definition.RPC_Message_Type.__REQUEST:
-                this._on_remote_call(header.readUInt32LE(5), header.readUInt32LE(9), header.readUInt32LE(13), obj);
+                this._on_remote_call(header.readInt32LE(5), header.readInt32LE(9), header.readInt32LE(13), obj);
                 break;
             case Definition.RPC_Message_Type.__RESPONSE:
-                this._on_remote_reply(header.readUInt32LE(5), header.readUInt32LE(9), header.readUInt32LE(13), obj);
+                this._on_remote_reply(header.readInt32LE(5), header.readInt32LE(9), header.readInt32LE(13), obj);
                 break;
             case Definition.RPC_Message_Type.__EVENT:
-                this._on_emit_event(header.readUInt32LE(5), obj);
+                this._on_emit_event(header.readInt32LE(5), obj);
                 break;
             case Definition.RPC_Message_Type.__READY:
                 this._on_ready(obj[0], obj[1]); //dummy
@@ -112,15 +114,15 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
         return timer;
     };
 
-    private Send_Pack = (type: Definition.RPC_Message_Type, func_or_event_id: number, params: any, trackId = 0, gen = 0) => {
+    private Send_Pack = (type:Definition.RPC_Message_Type, func_or_event_id:number, params:any, trackId = 0, gen = 0) => {
         if (!this._sock) return;
         params = Array.isArray(params) ? params : [];
         //create header
         var header = new Buffer(1 + 4 + 4 + 4);
         header.writeInt8(type, 0);
-        header.writeUInt32LE(func_or_event_id, 1);
-        header.writeUInt32LE(trackId, 5);
-        header.writeUInt32LE(gen, 9);
+        header.writeInt32LE(func_or_event_id, 1);
+        header.writeInt32LE(trackId, 5);
+        header.writeInt32LE(gen, 9);
         var body = params;
         var data = JSON.stringify(body);
         this._sock.Send(header, data);
@@ -153,7 +155,7 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
 
     private _on_remote_call = (funcId, trackid, age, params) => {
         var timeout;
-        var cb = (err: Error, result) => {
+        var cb = (err:Error, result) => {
             if (timeout !== undefined) {
                 clearTimeout(timeout);
             }
@@ -170,10 +172,15 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
         }
     };
 
-    private _on_remote_reply = (funcId,  trackid, age, params) => {
+    private _on_remote_reply = (funcId, trackid, age, params) => {
+        //console.log('OUT Cb ', trackid, age);
+        //console.log(this._callbacks);
         if (this._callbacks.age(trackid) == age) {
+            //console.log('IN Cb ');
             var _cb = this._callbacks.pop(trackid);
             if (_cb && _cb.callback) {
+                //console.log('CALLING Cb');
+                //console.log(_cb.callback.toString());
                 _cb.callback(params[0], params[1]);
                 clearTimeout(_cb.timer);
             }
@@ -188,9 +195,14 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
         }
     };
 
-    public Call = (remote_func_id, params: any[], callback: Function) => {
+    public Call = (remote_func_id, params:any[], callback:Function) => {
         if (callback !== undefined) {
             callback = callback.bind({});
+        }
+        var data = JSON.stringify(params);
+        if (data.length > CONF.RPC_MAX_PACKET) {
+            warn('packet length > MAX', data.length, CONF.RPC_MAX_PACKET);
+            return callback(new Error('Packet is too large.'), undefined);
         }
         var callback_sig = {
             callback: callback,
@@ -198,12 +210,11 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
         };
         var track_id = this._callbacks.push(callback_sig);
         var gen = this._callbacks.age(track_id);
-
         callback_sig.timer = this._time_out_closure(track_id, gen);
         this.Send_Pack(Definition.RPC_Message_Type.__REQUEST, remote_func_id, params, track_id, gen);
     };
 
-    public Emit = (remote_event_id, params: any[]) => {
+    public Emit = (remote_event_id, params:any[]) => {
         //trace('Emit', remote_event_id, params);
         this.Send_Pack(Definition.RPC_Message_Type.__EVENT, remote_event_id, params);
     };

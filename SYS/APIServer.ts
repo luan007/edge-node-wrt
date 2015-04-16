@@ -10,50 +10,71 @@ import _MountTable = require('./MountTable');
 import MountTable = _MountTable.MountTable;
 import EventsHub = require('./EventsHub');
 
-var onCall = function (funcid, param, callback) {
-    var rpc:RPC.RPCEndpoint = this
+var onCall = function (funcid, trackid, ageid, frame) {
+    var rpc:RPC.BinaryRPCPipe = this
         , senderPid = rpc['pid'];
 
     if (funcid === 0) {//register event
-        if (!param) {
-            return callback(new EvalError("Faulty Params"));
-        }
-        var event_id_list = (<Array<number>>param);
-        return EventsHub.RemoteAddEventListener(senderPid, event_id_list, callback);
+        var t = '';
+        frame.on('data', function(d){
+            t = t + d.toString();
+        }).on('end', function(){
+            var param = JSON.parse(t);
+            var event_id_list = (<Array<number>>param);
+            trace('event_id_list ========1', event_id_list);
+            EventsHub.RemoteAddEventListener(senderPid, event_id_list, (errs, sucs) => {
+                trace('event_id_list ========2', event_id_list);
+                rpc.Reply(funcid, trackid, ageid, errs, sucs);
+            });
+        });
+
     } else if (funcid === -1) {//unregister event
-        if (!param) {
-            return callback(new EvalError("Faulty Params"));
-        }
-        var event_id_list = (<Array<number>>param);
-        return EventsHub.RemoteRemoveEventPid(senderPid, event_id_list, callback);
+        var t = '';
+        frame.on('data', function(d){
+            t = t + d.toString();
+        }).on('end', function(){
+            var param = JSON.parse(t);
+            var event_id_list = (<Array<number>>param);
+            EventsHub.RemoteRemoveEventPid(senderPid, event_id_list, () => {
+                rpc.Reply(funcid, trackid, ageid, null, '');
+            });
+        });
+        //return EventsHub.RemoteRemoveEventPid(senderPid, event_id_list, callback);
     }
     else { // remote call
         var permission = APIConfig.getAPIConfig()[funcid]['permission']
             , _p = pm.Encode(permission);
         //warn('remote call', funcid);
         if (!pm.Check(pm.GetPermission(senderPid), _p)) {
-            return callback(new EvalError("Permission Denied [" + senderPid + "]"));
+            rpc.Reply(funcid, trackid, ageid, new EvalError('Permission Denied [' + senderPid + ']'), undefined);
         }
         var mountInfo = MountTable.GetByFuncId(funcid);
         if (mountInfo && mountInfo['rpc']) {
-            var target:RPC.RPCEndpoint = mountInfo['rpc'];
-            return target.Call(funcid, param, callback);
+            var target:RPC.BinaryRPCPipe = mountInfo['rpc'];
+            //console.log('Target -> ', target);
+            return target;
         }
         else
-            return callback(new Error("Remote Client is down"));
+            rpc.Reply(funcid, trackid, ageid, new Error('Remote Client is down'), null);
     }
 };
 
-var onEmit = function (eventid, param) {
+var onEmit = function (eventid) {
     //var rpc:RPC.RPCEndpoint = this
     //    , senderPid = rpc['pid'];
 
     var pids = EventsHub.RemoteGetEventPids(eventid);
-    //warn('onEmit pids', pids, 'process.pid', process.pid);
+    if(pids && Array.isArray(pids)) {
+        //warn('onEmit pids', pids, 'process.pid', process.pid);
+        var rpcs = [];
 
-    for (var i = 0, len = pids.length; i < len; i++) {
-        var pid = pids[i];
-        MountTable.GetByPid(pid).rpc.Emit(eventid, param);
+        for (var i = 0, len = pids.length; i < len; i++) {
+            var pid = pids[i];
+            var rpc = <RPC.BinaryRPCPipe>MountTable.GetByPid(pid).rpc;
+            //trace('onEmit push ----- rpc', rpc);
+            rpcs.push(rpc);
+        }
+        return rpcs;
     }
 };
 
@@ -93,6 +114,7 @@ export class APIServer extends events.EventEmitter {
         this._api_server.close((err) => {
             MountTable.ClearAll();
             EventsHub.ClearAll();
+            this.removeAllListeners();
             if (err)
                 fatal(err);
             else
@@ -117,7 +139,7 @@ export class APIServer extends events.EventEmitter {
             }
             trace("New Socket Inbound, Entering loop - PID " + (res.pid + "").bold);
 
-            var rpc = new RPC.RPCEndpoint(socket);
+            var rpc = new RPC.BinaryRPCPipe(socket);
             rpc['pid'] = res.pid;
             var mountInfo = MountTable.GetByPid(res.pid);
             if (mountInfo) {// system modules

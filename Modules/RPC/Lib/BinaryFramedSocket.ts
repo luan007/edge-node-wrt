@@ -7,7 +7,7 @@ import events = require("events");
 class BinaryFramedSocket extends events.EventEmitter {
 
 
-    public Id = UUID();
+    public Id = UUID().toString('hex');
 
     private frag_header: Buffer;
     private frag_read_len: number = 0;
@@ -19,7 +19,7 @@ class BinaryFramedSocket extends events.EventEmitter {
     public  HEADER_LENGTH = 1 + 4 + 4 + 4; //msgtype, resourceid, trackid, ageid
     private header_length = 4 + this.HEADER_LENGTH; //framelength
 
-    public MAX_PACKET: number = 2048 * 1024;
+    public MAX_PACKET: number = CONF.RPC_MAX_PACKET;
     public socket: net.Socket;
 
     public FrameOutput = true;
@@ -73,7 +73,7 @@ class BinaryFramedSocket extends events.EventEmitter {
                         this.cur_emitter = undefined;
                     }
                     if (this.cur_pack != undefined) {
-                        console.log("Frame: " + this.cur_pack.length);
+                        //console.log("Frame: " + this.cur_pack.length);
                         this._on_frame(this.frag_header, this.cur_pack);
                         this.cur_pack = undefined;
                     }
@@ -86,14 +86,14 @@ class BinaryFramedSocket extends events.EventEmitter {
                 this.frag_read_len += frag;
 
                 if (this.frag_read_len == this.header_length) {
-                    this.len_remain = this.frag_header.readUInt32LE(0);
+                    this.len_remain = this.frag_header.readInt32LE(0);
                     this.frag_read_len = 0;
                 }
                 else {
                     continue;
                 }
                 //else {
-                //    this.len_remain = data.readUInt32LE(cursor);
+                //    this.len_remain = data.readInt32LE(cursor);
                 //    cursor += this.header_length;
                 //}
                 //log("Len:" + this.len_remain);
@@ -107,7 +107,7 @@ class BinaryFramedSocket extends events.EventEmitter {
                     this.cur_emitter = new events.EventEmitter();
                     this._on_header(this.frag_header, this.cur_emitter);
                     if(this.FrameOutput) {
-                        this.cur_pack = new Buffer(this.frag_header.readUInt32LE(0) - this.HEADER_LENGTH);
+                        this.cur_pack = new Buffer(this.frag_header.readInt32LE(0) - this.HEADER_LENGTH);
                     }
                     this.actual_data_length = 0;
                     this.len_remain -=  this.HEADER_LENGTH;
@@ -171,7 +171,7 @@ class BinaryFramedSocket extends events.EventEmitter {
                 return this._on_data_error(new Error("Packet is too long : " + bodyLen + 4));
             }
             var lenbuf = new Buffer(4);
-            lenbuf.writeUInt32LE(bodyLen, 0);
+            lenbuf.writeInt32LE(bodyLen, 0);
             this.socket.write(lenbuf);
             this.socket.write(header);
             this.socket.write(<Buffer>buffer, callback);
