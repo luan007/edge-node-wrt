@@ -4,6 +4,7 @@ import BinaryFramedSocket = require("../Lib/BinaryFramedSocket");
 import ExArray = require("../Lib/ExtendedArray");
 import APIError = require("../Lib/APIError");
 import Definition = require('./Definition');
+import msgpack = require('msgpack');
 
 export class BinaryRPCPipe extends events.EventEmitter {
 
@@ -114,11 +115,8 @@ export class BinaryRPCPipe extends events.EventEmitter {
         header.writeInt32LE(trackId, 5);
         header.writeInt32LE(gen, 9);
         var body = params;
-        var data = JSON.stringify(body);
-        if (data.length > CONF.RPC_MAX_PACKET) {
-            warn('packet length > MAX', data.length, CONF.RPC_MAX_PACKET);
-            return this._on_remote_reply(func_or_event_id, trackId, gen, [new Error('Packet is too large.'), undefined]);
-        }
+        var data = msgpack.pack(body);
+        //var data = JSON.stringify(body);
         this._sock.Send(header, data);
     };
 
@@ -135,6 +133,7 @@ export class BinaryRPCPipe extends events.EventEmitter {
     };
 
     private _on_remote_reply = (header, frame, trackid, age) => {
+        console.log('ON REMOTE REPLY!');
         if (BinaryRPCPipe._callbacks.age(trackid) == age) {
             var _cb = BinaryRPCPipe._callbacks.pop(trackid);
             if (_cb && _cb.callback) {
@@ -177,6 +176,7 @@ export class BinaryRPCPipe extends events.EventEmitter {
         header.writeInt32LE(originalTrack, 9);
         header.writeInt32LE(originalAge, 13);
         intoQueue(peer._sock.Id, (sent) => {
+            console.log('do forward reply for ', peer._sock.Id);
             peer.RawWrite(header);
             //console.log('FORWARD HEADER ', header.toJSON());
             frame.on('data', function(buf){
@@ -184,7 +184,9 @@ export class BinaryRPCPipe extends events.EventEmitter {
                 //console.log('>>>');
             });
             frame.on('end', sent);
-        }, ()=>{});
+        }, ()=>{
+            console.log('DONE forward reply for ', peer._sock.Id);
+        });
     };
 
     private ForwardCall = (peer : BinaryRPCPipe, header, frame) => {
@@ -212,12 +214,15 @@ export class BinaryRPCPipe extends events.EventEmitter {
         header.writeInt32LE(gen, 13);
 
         intoQueue(peer._sock.Id, (sent) => {
+            console.log('[', process.pid, '] do forward call for ', peer._sock.Id);
             peer.RawWrite(header);
             frame.on('data', function(buf){
                 peer.RawWrite(buf);
             });
             frame.on('end', sent);
-        }, ()=>{});
+        }, ()=>{
+            console.log('[', process.pid, '] DONE forward call for ', peer._sock.Id);
+        });
     };
 
     private RawWrite = (data) => {

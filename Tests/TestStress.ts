@@ -13,7 +13,7 @@ describe('Stress Testing', () => {
     var cfgFileName = 'api.config.json';
     var entry_dir = __dirname;
     var server:APIServer;
-    var maxThreads = 1
+    var maxThreads = 4
         , successThreads = 0
         , failedThreads = 0
         , sleepMillSeconds = 0
@@ -29,6 +29,7 @@ describe('Stress Testing', () => {
     beforeEach(function () {
         beginTime = new Date();
         successThreads = 0;
+        failedThreads = 0;
         info('max Threads:', maxThreads);
     });
 
@@ -99,17 +100,24 @@ describe('Stress Testing', () => {
             var consumerPath = path.join(process.env.NODE_PATH, 'Services/Consumers/SendBigPacket.js');
             var sockPath = server.getSockPath();
 
-            var thread = new Thread(consumerPath, sockPath);
-            thread.on('SUCCESS', () => { //thread success
-                successThreads += 1;
-                server.ShutDown();
-                done();
-            });
-            thread.on('FAILED', () => {
-                failedThreads += 1;
-                server.ShutDown();
-                throw new Error('artificial ERROR.');
-            });
+            for (var i = 0; i < maxThreads; i++) {
+                trace('Spawn consumer: #', i + 1);
+
+                var thread = new Thread(consumerPath, sockPath);
+                thread.on('SUCCESS', () => { //thread success
+                    successThreads += 1;
+                    if ((successThreads + failedThreads) == maxThreads) {
+                        server.ShutDown();
+                        done();
+                    }
+                });
+                thread.on('FAILED', () => {
+                    failedThreads += 1;
+                    server.ShutDown();
+                    throw new Error('artificial ERROR.');
+                });
+
+            }
 
         });
     });
@@ -121,7 +129,7 @@ describe('Stress Testing', () => {
         trace('==================== after testing');
         var milliseconds = moment().diff(beginTime);
         trace('total seconds:', (milliseconds / 1000) >> 0);
-        trace('success', successThreads, 'failed', failedThreads,  'total', maxThreads
+        trace('success', successThreads, 'failed', failedThreads, 'total', maxThreads
             , ((successThreads / maxThreads * 100) >> 0) + '%');
     });
 });

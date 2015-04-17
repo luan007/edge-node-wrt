@@ -10,20 +10,23 @@ require('../../../System/API/PermissionDef');
 import fs = require('fs');
 import path = require('path');
 
-// blob size: 1.7M
+global.CONSUMER = 1;
+
+// blob size: 312K
 var blobPath = path.join(process.env.NODE_PATH
-    , '../Applications/Launcher/Main_Staging/public/images/bg/asd.jpg');
+    , '../Applications/Launcher/Main_Staging/public/images/bg/aji.jpg');
 
 export function Initalize(sockPath:string) {
 
     trace('loading blob...');
-    var blob = fs.readFileSync(blobPath);
+    //var blob = fs.readFileSync(blobPath);
+    var blob = new Buffer(1024*300);
     trace('blob size(k):', blob.length / 1024);
 
     APIManager.Connect(sockPath, (err, api) => {
         if (err) throw err;
         var timeOut = 100 * 1000;
-        var turns = 100 * 1000;
+        var turns = 1 * 1000;
         var letterCount = 0, turnCount = 0;
 
         function selfCount(data) {
@@ -53,10 +56,10 @@ export function Initalize(sockPath:string) {
 
         process.nextTick(oneJob);
 
-        var timer = setTimeout(() => {
-            process.emit('exit');
-            clearTimeout(timer);
-        }, timeOut);
+        //var timer = setTimeout(() => {
+        //    process.emit('exit');
+        //    clearTimeout(timer);
+        //}, timeOut);
     });
 }
 

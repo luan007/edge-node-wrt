@@ -86,6 +86,8 @@ export class APIServer extends events.EventEmitter {
     constructor() {
         super();
 
+        global.SERVER = 1;
+
         info('api.config.json path', process.env.apiConfigFilePath);
 
         sockPath.Initialize();

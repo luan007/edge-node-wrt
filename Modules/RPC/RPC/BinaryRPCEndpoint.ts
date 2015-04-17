@@ -4,6 +4,7 @@ import BinaryFramedSocket = require("../Lib/BinaryFramedSocket");
 import ExArray = require("../Lib/ExtendedArray");
 import APIError = require("../Lib/APIError");
 import Definition = require('./Definition');
+import msgpack = require('msgpack');
 
 export class BinaryRPCEndpoint extends events.EventEmitter {
 
@@ -124,7 +125,8 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
         header.writeInt32LE(trackId, 5);
         header.writeInt32LE(gen, 9);
         var body = params;
-        var data = JSON.stringify(body);
+        var data = msgpack.pack(body);
+        //var data = JSON.stringify(body);
         this._sock.Send(header, data);
     };
 
@@ -198,11 +200,6 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
     public Call = (remote_func_id, params:any[], callback:Function) => {
         if (callback !== undefined) {
             callback = callback.bind({});
-        }
-        var data = JSON.stringify(params);
-        if (data.length > CONF.RPC_MAX_PACKET) {
-            warn('packet length > MAX', data.length, CONF.RPC_MAX_PACKET);
-            return callback(new Error('Packet is too large.'), undefined);
         }
         var callback_sig = {
             callback: callback,

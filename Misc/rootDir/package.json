@@ -57,7 +57,8 @@
         "dbus-native": "*",
         "multer": "*",
         "posix": "*",
-        "unzip": "*"
+        "unzip": "*",
+        "msgpack": "*"
     },
     "devDependencies": {
         "istanbul-harmony": "*",

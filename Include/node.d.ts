@@ -66,6 +66,7 @@ declare var Buffer: {
     new (size: number): Buffer;
     new (size: Uint8Array): Buffer;
     new (array: any[]): Buffer;
+    new (array: Buffer): Buffer;
     prototype: Buffer;
     isBuffer(obj: any): boolean;
     byteLength(string: string, encoding?: string): number;

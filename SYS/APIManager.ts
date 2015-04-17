@@ -104,7 +104,7 @@ function _method_shell(rpc:RPC.BinaryRPCEndpoint, funcId, paramArray:any[]) {
         }
         var arr = [];
         while (arr.length < paramArray.length) arr.push(paramArray[arr.length]);
-        //trace('_method_shell', cb.toString());
+
         //cb CAN be undefined.
         rpc.Call(funcId, arr, cb);
     } else {

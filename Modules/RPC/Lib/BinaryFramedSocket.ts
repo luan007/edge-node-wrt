@@ -3,6 +3,15 @@
  */
 import net = require("net");
 import events = require("events");
+import msgpack = require('msgpack');
+
+var endInfo = () => {
+    var end = global.SERVER ? '[SERVER]' : '[ENDPOINT]';
+    end += global.CONSUMER ? '[CONSUMER]': ' ';
+    end += global.SERVICE ? '[SERVICE]' : ' ';
+    end = '[' + process.pid + ']' + end;
+    return end;
+};
 
 class BinaryFramedSocket extends events.EventEmitter {
 
@@ -26,9 +35,10 @@ class BinaryFramedSocket extends events.EventEmitter {
 
     private _on_frame = (header: Buffer, frame: Buffer) => {
         try {
-            var obj = JSON.parse(frame.toString('utf8'));
+            //var obj = JSON.parse(frame.toString('utf8'));
+            var obj = msgpack.unpack(frame);
             process.nextTick(()=>{
-                this.emit("frame", header, obj);
+                this.emit("frame", new Buffer(header), obj);
             });
         } catch (e) {
             //error('_on_frame ->', header, frame.toString('utf8'));
@@ -39,7 +49,7 @@ class BinaryFramedSocket extends events.EventEmitter {
     };
 
     private _on_header = (header: Buffer, emitter: events.EventEmitter) => {
-        this.emit('header', header, emitter);
+        this.emit('header', new Buffer(header), emitter);
     };
 
     private _on_error = (err: Error) => {
@@ -69,17 +79,19 @@ class BinaryFramedSocket extends events.EventEmitter {
     }
 
     private _sock_on_data = (data: Buffer) => {
+
         var cursor = 0;
-        while (cursor < data.length) {
+        while (this.len_remain >= 0 && cursor < data.length) {
             if (this.len_remain == 0) {
                 if(this.frag_read_len === 0) {
                     if (this.cur_emitter) {
+                        console.log('EMIT BOOOM');
                         this.cur_emitter.emit('end');
                         this.cur_emitter.removeAllListeners();
                         this.cur_emitter = undefined;
                     }
                     if (this.cur_pack != undefined) {
-                        //console.log("Frame: " + this.cur_pack.length);
+                        console.log("Frame: " + this.cur_pack.length, ' REM ', cursor, '/', data.length);
                         this._on_frame(this.frag_header, this.cur_pack);
                         this.cur_pack = undefined;
                     }
@@ -90,9 +102,11 @@ class BinaryFramedSocket extends events.EventEmitter {
                         ? (data.length) : (cursor + (this.header_length - this.frag_read_len)));
                 cursor += frag;
                 this.frag_read_len += frag;
-
+                console.log('fRAG', frag);
                 if (this.frag_read_len == this.header_length) {
                     this.len_remain = this.frag_header.readInt32LE(0);
+                    console.log('REM', this.len_remain);
+                    console.log(endInfo(), this.frag_header.toJSON());
                     this.frag_read_len = 0;
                 }
                 else {
@@ -117,6 +131,10 @@ class BinaryFramedSocket extends events.EventEmitter {
                     }
                     this.actual_data_length = 0;
                     this.len_remain -=  this.HEADER_LENGTH;
+                    console.log('l', this.len_remain);
+                    if(this.len_remain < 0){
+                        console.log(data.slice(cursor).toJSON());
+                    }
                 }
                 if (cursor >= data.length)
                     break;
@@ -124,7 +142,6 @@ class BinaryFramedSocket extends events.EventEmitter {
             var data_len_remain = data.length - cursor;
             var copy_length = data_len_remain < this.len_remain ? data_len_remain : this.len_remain;
             var copied;
-
 
             if (this.cur_pack) {
                 copied = data.copy(this.cur_pack, this.actual_data_length, cursor, cursor + copy_length);
@@ -138,10 +155,16 @@ class BinaryFramedSocket extends events.EventEmitter {
             this.actual_data_length += copied;
             cursor += copied;
             this.len_remain -= copied;
+            console.log(this.len_remain);
+        }
+        if (this.len_remain < 0){
+           console.log('BOOOOOm', this.len_remain);
         }
         if (this.len_remain == 0) {
             if (this.cur_emitter) {
+                console.log(global.SERVER, 'emit yi ge', this.cur_emitter.listeners('end').length);
                 this.cur_emitter.emit('end');
+
                 this.cur_emitter.removeAllListeners();
                 this.cur_emitter = undefined;
             }
@@ -172,6 +195,8 @@ class BinaryFramedSocket extends events.EventEmitter {
 
     public Send = (header:Buffer, buffer: string | Buffer, callback?: (err, result) => any) => {
         if (this.socket) {
+            console.log(endInfo(), header);
+
             var bodyLen = header.length + ((typeof buffer === 'string') ? Buffer.byteLength(<string>buffer, 'utf8') : buffer.length);
             if (bodyLen + 4 > this.MAX_PACKET) {
                 return this._on_data_error(new Error("Packet is too long : " + bodyLen + 4));

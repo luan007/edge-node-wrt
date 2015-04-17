@@ -90,7 +90,7 @@ class _sys_conf {
     };
     USER_IMMEDIATE_EXPIRE = false;
     IPTABLES_6 = false;
-    RPC_MAX_PACKET: number = 2 * 1024 * 1024;
+    RPC_MAX_PACKET: number = 5 * 1024 * 1024;
 }
 
 var CONF = new _sys_conf();
