@@ -1,4 +1,5 @@
 ﻿import util = require("util");
+import net = require('net');
 import events = require("events");
 import RPC = require('../Modules/RPC/index');
 import APIConfig = require('./APIConfig');
@@ -235,6 +236,18 @@ export function GetAPI(rpc:RPC.BinaryRPCEndpoint):API_Endpoint {
     _API_Endpoint.event_tracker = _event_tracker;
     return _API_Endpoint;
 }
+
+export function Connect(sockPath, cb){
+    try{
+        var sock = net.connect(sockPath, () => {
+            var rpc = new RPC.BinaryRPCEndpoint(sock);
+            var api = GetAPI(rpc).API;
+            cb(null, api);
+        });
+    } catch (err){
+        cb(err, null);
+    }
+};
 
 export function ServeAPI(rpc:RPC.RPCEndpoint) {
     rpc.SetFunctionHandler(_incoming_function);

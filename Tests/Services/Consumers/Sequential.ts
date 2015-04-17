@@ -11,9 +11,7 @@ export function Initalize(sockPath:string) {
 
     //console.log('consumer - PID', process.pid);
 
-    var sock = net.connect(sockPath, () => {
-        var rpc = new RPC.BinaryRPCEndpoint(sock);
-        var api = APIManager.GetAPI(rpc).API;
+    APIManager.Connect(sockPath, (err, api) => {
 
         api.RegisterEvent(['Huge.Come', 'Huge.Go'], (errs, sucs)=> {
             if (errs) fatal('RegisterEvent errors:', errs);
@@ -38,11 +36,6 @@ export function Initalize(sockPath:string) {
             process.kill(process.pid);
         }
 
-        rpc.on('error', destory);
-        rpc.on('close', destory);
-    });
-    sock.on('error', function (err) {
-        error(err);
     });
 }
 

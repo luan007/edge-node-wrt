@@ -7,19 +7,29 @@ import APIManager = require('../../../SYS/APIManager');
 import pm = require('../../../System/API/Permission');
 require('../../../System/API/PermissionDef');
 
+import fs = require('fs');
+import path = require('path');
+
+// blob size: 1.7M
+var blobPath = path.join(process.env.NODE_PATH
+    , '../Applications/Launcher/Main_Staging/public/images/bg/asd.jpg');
+
 export function Initalize(sockPath:string) {
 
+    trace('loading blob...');
+    var blob = fs.readFileSync(blobPath);
+    trace('blob size(k):', blob.length / 1024);
+
     APIManager.Connect(sockPath, (err, api) => {
-    //var sock = net.connect(sockPath, () => {
-    //    var rpc = new RPC.BinaryRPCEndpoint(sock);
-    //    var api = APIManager.GetAPI(rpc).API;
+        if (err) throw err;
+        var timeOut = 100 * 1000;
         var turns = 100 * 1000;
         var letterCount = 0, turnCount = 0;
 
-        function selfCount(linkstr, bytes) {
+        function selfCount(data) {
             //info('RESULT:', linkstr, 'letters:', letterCount, 'bytes', bytes, 'turnCount', turnCount + 1);
-            info('letters:', letterCount, 'total bytes', bytes, 'turnCount', turnCount + 1);
-            letterCount += linkstr.length;
+            info('total bytes', data.length, 'turnCount', turnCount + 1);
+            letterCount += data.length;
             turnCount += 1;
             if (turnCount === turns) {
                 console.log('RESULT: SUCCESS');
@@ -30,24 +40,23 @@ export function Initalize(sockPath:string) {
         }
 
         function oneJob() {
-            var parseTask = (err, html) => {
+            var echoTask = (err, data) => {
                 if (err) {
                     error('NetworkService.Crawl ERROR ->', err);
-                    selfCount(err, 0);
+                    selfCount('');
                 } else {
-                    (<any>api).Parser.ExtractLinks(html, (err, linkstr)=> {
-                        selfCount(linkstr, html.length);
-                    });
+                    selfCount(data);
                 }
             };
-            (<any>api).NetworkService.Crawl('www.baidu.com', parseTask);
+            (<any>api).EchoService.Echo(blob, echoTask);
         }
 
         process.nextTick(oneJob);
 
-        //for(var i = 0; i<turns; i++) {
-        //    process.nextTick(oneJob);
-        //}
+        var timer = setTimeout(() => {
+            process.emit('exit');
+            clearTimeout(timer);
+        }, timeOut);
     });
 }
 

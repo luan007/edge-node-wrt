@@ -38,5 +38,13 @@
         "Permission": ["System"]
       }
     }
+  },
+  "EchoService":{
+    "Path": "Services/EchoService.js",
+    "Functions": {
+      "Echo": {
+        "Permission": ["System"]
+      }
+    }
   }
 }

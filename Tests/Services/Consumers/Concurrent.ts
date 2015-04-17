@@ -9,9 +9,7 @@ require('../../../System/API/PermissionDef');
 
 export function Initalize(sockPath:string) {
 
-    var sock = net.connect(sockPath, () => {
-        var rpc = new RPC.BinaryRPCEndpoint(sock);
-        var api = APIManager.GetAPI(rpc).API;
+    APIManager.Connect(sockPath, (err, api) => {
         var eventGo = 0, eventCome = 0, howl = 0;
 
         function selfCount() {
@@ -50,18 +48,6 @@ export function Initalize(sockPath:string) {
                 }
             });
         });
-
-        // quit mechanism
-        function destory() {
-            fatal('process [' + process.pid + '] is exiting');
-            process.kill(process.pid);
-        }
-
-        rpc.on('error', destory);
-        rpc.on('close', destory);
-    });
-    sock.on('error', function (err) {
-        error(err);
     });
 }
 

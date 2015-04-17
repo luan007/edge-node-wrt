@@ -68,12 +68,35 @@ describe('Stress Testing', () => {
         });
     });
 
-    it('Complex tasks', (done) => {
+    it.skip('Complex tasks', (done) => {
         server = new APIServer();
 
         server.on('loaded', () => {
             info('modules all loaded.');
             var consumerPath = path.join(process.env.NODE_PATH, 'Services/Consumers/ComplexTasks.js');
+            var sockPath = server.getSockPath();
+
+            var thread = new Thread(consumerPath, sockPath);
+            thread.on('SUCCESS', () => { //thread success
+                successThreads += 1;
+                server.ShutDown();
+                done();
+            });
+            thread.on('FAILED', () => {
+                failedThreads += 1;
+                server.ShutDown();
+                throw new Error('artificial ERROR.');
+            });
+
+        });
+    });
+
+    it('Sending blob', (done) => {
+        server = new APIServer();
+
+        server.on('loaded', () => {
+            info('modules all loaded.');
+            var consumerPath = path.join(process.env.NODE_PATH, 'Services/Consumers/SendBigPacket.js');
             var sockPath = server.getSockPath();
 
             var thread = new Thread(consumerPath, sockPath);

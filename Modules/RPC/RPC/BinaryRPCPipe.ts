@@ -19,7 +19,7 @@ export class BinaryRPCPipe extends events.EventEmitter {
 
     //private _eventCallbacks:{[key: number]: Array<Function>} = {};
 
-    public TimeOut: number = 100000;
+    public TimeOut: number = 10 * 60 * 1000;
 
     private _call_handler: Function;
 
