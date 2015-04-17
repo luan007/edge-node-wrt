@@ -12,14 +12,17 @@ export function Initalize(sockPath:string) {
     var sock = net.connect(sockPath, () => {
         var rpc = new RPC.BinaryRPCEndpoint(sock);
         var api = APIManager.GetAPI(rpc).API;
-        var turns = 10 * 1000;
+        var turns = 100 * 1000;
         var letterCount = 0, turnCount = 0;
 
-        function selfCount(linkstr) {
-            info('RESULT:', linkstr, 'letters:', letterCount, 'trunCount', turnCount + 1);
+        function selfCount(linkstr, bytes) {
+            //info('RESULT:', linkstr, 'letters:', letterCount, 'bytes', bytes, 'turnCount', turnCount + 1);
+            info('letters:', letterCount, 'total bytes', bytes, 'turnCount', turnCount + 1);
             letterCount += linkstr.length;
             turnCount += 1;
-            if(turnCount === turns){
+            //if(turnCount > 100)
+            //    destory();
+            if (turnCount === turns) {
                 console.log('RESULT: SUCCESS');
                 return;
             }
@@ -27,16 +30,18 @@ export function Initalize(sockPath:string) {
             process.nextTick(oneJob);
         }
 
-        function oneJob(){
-            (<any>api).NetworkService.Crawl((err, html) => {
-                if (err){
-                    error(err);
-                    selfCount(err);
+        function oneJob() {
+            var parseTask = (err, html) => {
+                if (err) {
+                    error('NetworkService.Crawl ERROR ->', err);
+                    selfCount(err, html.length);
+                } else {
+                    (<any>api).Parser.ExtractLinks(html, (err, linkstr)=> {
+                        selfCount(linkstr, html.length);
+                    });
                 }
-                (<any>api).Parser.ExtractLinks(html, (err, linkstr)=>{
-                    selfCount(linkstr);
-                });
-            });
+            };
+            (<any>api).NetworkService.Crawl('www.baidu.com', parseTask);
         }
 
         process.nextTick(oneJob);
@@ -46,16 +51,17 @@ export function Initalize(sockPath:string) {
         //}
 
         // quit mechanism
-        function destory() {
-            fatal('process [' + process.pid + '] is exiting');
-            process.kill(process.pid);
-        }
-
-        rpc.on('error', destory);
-        rpc.on('close', destory);
-    });
-    sock.on('error', function (err) {
-        error(err);
+        //function destory() {
+        //    fatal('process [' + process.pid + '] is exiting');
+        //    console.log('RESULT: FAILED');
+        //    process.kill(process.pid);
+        //}
+        //
+        //rpc.on('error', (err) => {
+        //    error('rpc ERROR ->', err);
+        //    destory();
+        //});
+        //rpc.on('close', destory);
     });
 }
 

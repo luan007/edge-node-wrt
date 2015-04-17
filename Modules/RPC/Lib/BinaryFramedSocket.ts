@@ -28,6 +28,7 @@ class BinaryFramedSocket extends events.EventEmitter {
         try {
             this.emit("frame", header, JSON.parse(frame.toString('utf8')));
         } catch (e) {
+            error('_on_frame ->', header, frame.toString('utf8'));
             this.emit("error", new Error("bad packet"));
         }
     };

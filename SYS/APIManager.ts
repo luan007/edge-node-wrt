@@ -195,7 +195,8 @@ export function GetAPI(rpc:RPC.BinaryRPCEndpoint):API_Endpoint {
         for(var i=0, len= _event_tracker.length; i< len ;i++){
             _event_tracker[i].removeAllListeners();
         }
-        //rpc.Destroy();
+        rpc.Destroy();
+        process.kill(process.pid);
     }
     rpc.once('error', _destory);
     rpc.once('close', _destory);

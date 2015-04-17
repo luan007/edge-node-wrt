@@ -35,12 +35,20 @@ export class Thread extends Process {
                             __this.removeAllListeners();
                             __this.Stop();
                         }
+                        //else if(/RESULT: FAILED/.test(str)) {
+                        //    __this.emit('FAILED'); // thread success.
+                        //    __this.removeAllListeners();
+                        //    __this.Stop();
+                        //}
                         else
                             info(str);
                     });
                     this.Process.stderr.on('data', function (data) {
                         error(data.toString());
                     });
+                    this.Process.on('exit', () => {
+                        __this.emit('FAILED'); // thread success.
+                    })
                 })(this);
                 info("OK");
                 super.Start(forever);

@@ -15,6 +15,7 @@ describe('Stress Testing', () => {
     var server:APIServer;
     var maxThreads = 1
         , successThreads = 0
+        , failedThreads = 0
         , sleepMillSeconds = 0
         , beginTime;
 
@@ -29,11 +30,6 @@ describe('Stress Testing', () => {
         beginTime = new Date();
         successThreads = 0;
         info('max Threads:', maxThreads);
-    })
-
-    process.on('uncaughtException', function (err) {
-        error(err);
-        error(err.stack);
     });
 
     it.skip('Concurrent Throughput Probe', (done) => {
@@ -73,38 +69,36 @@ describe('Stress Testing', () => {
     });
 
     it('Complex tasks', (done) => {
-        var domain = require('domain').create();
-        domain.on('error', function (err) {
-            error(err);
-            error(err.stack);
-        });
-        domain.run(function () {
-            server = new APIServer();
+        server = new APIServer();
 
-            server.on('loaded', () => {
-                info('modules all loaded.');
-                var consumerPath = path.join(process.env.NODE_PATH, 'Services/Consumers/ComplexTasks.js');
-                var sockPath = server.getSockPath();
+        server.on('loaded', () => {
+            info('modules all loaded.');
+            var consumerPath = path.join(process.env.NODE_PATH, 'Services/Consumers/ComplexTasks.js');
+            var sockPath = server.getSockPath();
 
-                var thread = new Thread(consumerPath, sockPath);
-                thread.on('SUCCESS', () => { //thread success
-                    server.ShutDown();
-                    done();
-                });
-
+            var thread = new Thread(consumerPath, sockPath);
+            thread.on('SUCCESS', () => { //thread success
+                successThreads += 1;
+                server.ShutDown();
+                done();
+            });
+            thread.on('FAILED', () => {
+                failedThreads += 1;
+                server.ShutDown();
+                throw new Error('artificial ERROR.');
             });
 
         });
     });
 
     afterEach(() => {
-        if (successThreads < maxThreads) {
+        if ((successThreads + failedThreads) < maxThreads) {
             server.ShutDown();
         }
         trace('==================== after testing');
         var milliseconds = moment().diff(beginTime);
         trace('total seconds:', (milliseconds / 1000) >> 0);
-        trace('success', successThreads, 'total', maxThreads
+        trace('success', successThreads, 'failed', failedThreads,  'total', maxThreads
             , ((successThreads / maxThreads * 100) >> 0) + '%');
     });
 });
