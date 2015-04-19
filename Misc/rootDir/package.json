@@ -58,7 +58,8 @@
         "multer": "*",
         "posix": "*",
         "unzip": "*",
-        "msgpack": "*"
+        "msgpack": "*",
+        "frap": "*"
     },
     "devDependencies": {
         "istanbul-harmony": "*",
