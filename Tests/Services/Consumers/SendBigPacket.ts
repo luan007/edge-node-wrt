@@ -26,7 +26,7 @@ export function Initalize(sockPath:string) {
     APIManager.Connect(sockPath, (err, api) => {
         if (err) throw err;
         var timeOut = 100 * 1000;
-        var turns = 1 * 1000;
+        var turns = 1 * 1;
         var letterCount = 0, turnCount = 0;
 
         function selfCount(data) {

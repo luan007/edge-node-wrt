@@ -36,7 +36,9 @@ export class BinaryRPCPipe extends events.EventEmitter {
         this._sock = new Frap(socket);
         this._sock['Id'] = UUID().toString('hex');
         //this._sock.FrameOutput = false;
-        this._sock.on("header", this._find_header);
+        this._sock.on('header', this._parse_header);
+        //this._sock.on('data', this._find_header);
+        //this._sock.on("part", this._find_header);
         this._sock.on("error", (err) => {
             if (this._sock) {
                 this.emit("error", err);
@@ -47,23 +49,38 @@ export class BinaryRPCPipe extends events.EventEmitter {
         });
     }
 
-    private _find_header = (rstream, framelen) => {
+    private _parse_header = (frameLen) => {
+        trace('1. Frame Length', frameLen);
 
+        var rstream = this._sock.createReadFrameStream(frameLen);
+        rstream.pause();
+
+        this._find_header(rstream, frameLen);
+    }
+
+    private _find_header = (rstream, framelen) => {
+        trace('1. _find_header', framelen);
         var headerLength = 1 + 4 + 4 + 4;
         var headerBuffer = new Buffer(headerLength);
         var headerPos = 0;
         var beforeStart:Buffer = undefined;
         rstream.on('data', (d:Buffer) => {
+            rstream.pause();
+            rstream.removeAllListeners('data');
+            fatal('1.2 on data ', d, '\n buffer length', d.length);
             var cursor = d.copy(headerBuffer, headerPos, 0, d.length >= (headerLength - headerPos) ? (headerLength - headerPos) : d.length);
             headerPos += cursor;
             if (headerPos === headerLength) {
                 rstream.pause();
                 beforeStart = d.slice(cursor);
 
+                warn('2. stream stopped.', headerBuffer, '\n before length', beforeStart.length);
+
                 //emit old header event
                 this._sock_on_header(headerBuffer, rstream, beforeStart, framelen);
             }
         });
+        rstream.resume();
     };
 
     public SetEventHandler = (on_all_event) => {
@@ -101,13 +118,13 @@ export class BinaryRPCPipe extends events.EventEmitter {
         this.Send_Pack(Definition.RPC_Message_Type.__RESPONSE, funcId, args, trackid, age);
     }
 
-    private _sock_on_header = (header:Buffer, frame:events.EventEmitter, firstPack:Buffer, frameLength) => {
-        //console.log("RPC_I < " + obj);
+    private _sock_on_header = (header:Buffer, frame, firstPack:Buffer, frameLength) => {
         var type = <Definition.RPC_Message_Type>header.readInt8(0);
         var resourceid = header.readInt32LE(1);
         var trackid = header.readInt32LE(5);
         var ageid = header.readInt32LE(9);
         var rewire_target:BinaryRPCPipe = undefined;
+        trace("3. RPC_I < ", type, resourceid, trackid, ageid);
 
         switch (type) {
             case Definition.RPC_Message_Type.__REQUEST:
@@ -210,6 +227,7 @@ export class BinaryRPCPipe extends events.EventEmitter {
                 //console.log('>>>');
             });
             frame.on('end', sent);
+            frame.resume();
         }, ()=> {
             console.log('DONE forward reply for ', peer._sock['Id']);
         });
@@ -248,14 +266,15 @@ export class BinaryRPCPipe extends events.EventEmitter {
                 peer.RawWrite(buf);
             });
             frame.on('end', sent);
+            frame.resume();
         }, ()=> {
             console.log('[', process.pid, '] DONE forward call for ', peer._sock['Id']);
         });
     };
 
-    private RawWrite = (data) => {
-        if (this._sock)
-            this._sock.sk.write(data);
+    private RawWrite = (data, callback?: (err, result) => any) =>{
+        if (this._sock && this._sock.sk)
+            this._sock.sk.write(data, callback);
     };
 
     private ForwardEvent = (peer:BinaryRPCPipe[], header, frame, firstPack, frameLength) => {
@@ -275,6 +294,7 @@ export class BinaryRPCPipe extends events.EventEmitter {
                         p.RawWrite(buf);
                     });
                     frame.on('end', sent);
+                    frame.resume();
                 }, ()=> {
                 });
             })(peer[i]);

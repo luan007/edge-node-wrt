@@ -31,7 +31,9 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
         super();
         this._sock = new Frap(socket);
         //this._sock = new BinaryFramedSocket(socket);
-        this._sock.on("frame", this._sock_on_frame);
+        this._sock.on("header", this._parse_header);
+        this._sock.on("end", this._on_end);
+        //this._sock.on("frame", this._parse_frame);
         this._sock.on("error", (err) => {
             if (this._sock) {
                 this.emit("error", err);
@@ -74,7 +76,82 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
         return false;
     };
 
+    private _on_end = () => {
+        trace('_on_end');
+    }
+
+    private _parse_header = (frameLen) => {
+        trace('[', process.pid, '] 1. Endpoint Frame Length', frameLen);
+        var headerLength = 1 + 4 + 4 + 4;
+        var headerBuffer = new Buffer(headerLength);
+        var bufs = [];
+
+        var rstream = this._sock.createReadFrameStream(frameLen);
+        rstream.pause();
+
+        if(frameLen === headerLength){
+            rstream.on('data', (d:Buffer) => {
+                headerBuffer = new Buffer(d);
+            });
+            rstream.resume();
+        } else {
+            rstream.on('data', (d:Buffer) => {
+                bufs.push(new Buffer(d));
+            });
+        }
+        rstream.on('end', () => {
+            rstream.removeAllListeners();
+            trace('[', process.pid, '] 1. end', bufs, headerBuffer);
+        });
+        rstream.resume();
+        //var rstream = this._sock.createReadFrameStream(frameLen);
+        //rstream.pause();
+
+        //this._find_header(rstream, frameLen);
+    }
+
+    private _find_header = (rstream, framelen) => {
+        var headerLength = 1 + 4 + 4 + 4;
+        var headerBuffer = new Buffer(headerLength);
+        var headerPos = 0;
+        var beforeStart:Buffer = undefined;
+        rstream.on('data', (d:Buffer) => {
+            rstream.pause();
+            rstream.removeAllListeners('data');
+            var cursor = d.copy(headerBuffer, headerPos, 0, d.length >= (headerLength - headerPos) ? (headerLength - headerPos) : d.length);
+            headerPos += cursor;
+            if (headerPos === headerLength) {
+                rstream.pause();
+                beforeStart = d.slice(cursor);
+
+                //emit old header event
+                this._read_last(headerBuffer, rstream, beforeStart, framelen);
+            }
+        });
+        rstream.resume();
+    };
+
+    private _read_last = (headerBuffer, rstream, beforesStart, framelen) => {
+        var bufs = [];
+        if(beforesStart) bufs.push(beforesStart);
+        rstream.on('data', (buf) => {
+            bufs.push(buf);
+        });
+        rstream.on('end', () => {
+            rstream.removeAllListeners();
+            this._sock_on_frame(headerBuffer, bufs);
+        });
+    };
+
+    private _parse_frame = (bufs, framelen) => {
+        trace('[', process.pid, '] 1. Endpoint Frame Length', framelen);
+
+        var headerBuffer = bufs.shift();
+        this._sock_on_frame(headerBuffer, bufs);
+    };
+
     private _sock_on_frame = (header:Buffer, obj) => {
+
         if (!this._pkg_check(obj)) {
             return this.emit("bad_obj", obj);
         }
@@ -132,6 +209,8 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
         var data = msgpack.pack(body);
         //var data = JSON.stringify(body);
         this._sock.sendFrame(header, data);
+        //this._sock.sendFrame( data);
+
         //this._sock.Send(header, data);
     };
 
