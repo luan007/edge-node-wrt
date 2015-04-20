@@ -1,14 +1,16 @@
 ﻿import net = require("net");
 import events = require("events");
-import BinaryFramedSocket = require("../Lib/BinaryFramedSocket");
+//import BinaryFramedSocket = require("../Lib/BinaryFramedSocket");
 import ExArray = require("../Lib/ExtendedArray");
 import APIError = require("../Lib/APIError");
 import Definition = require('./Definition');
 import msgpack = require('msgpack');
+import Frap = require('frap');
 
 export class BinaryRPCEndpoint extends events.EventEmitter {
 
-    private _sock:BinaryFramedSocket;
+    //private _sock:BinaryFramedSocket;
+    private _sock;
 
     private _callbacks = new ExArray<{
         callback: Function;
@@ -27,7 +29,8 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
 
     constructor(socket:net.Socket) {
         super();
-        this._sock = new BinaryFramedSocket(socket);
+        this._sock = new Frap(socket);
+        //this._sock = new BinaryFramedSocket(socket);
         this._sock.on("frame", this._sock_on_frame);
         this._sock.on("error", (err) => {
             if (this._sock) {
@@ -58,7 +61,8 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
             return;
         }
         this.removeAllListeners();
-        this._sock.Unbind();
+        this._sock.destroySoon();
+        //this._sock.Unbind();
         this._sock = undefined;
     };
 
@@ -127,7 +131,8 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
         var body = params;
         var data = msgpack.pack(body);
         //var data = JSON.stringify(body);
-        this._sock.Send(header, data);
+        this._sock.sendFrame(header, data);
+        //this._sock.Send(header, data);
     };
 
     private _on_ready = (chk1, chk2) => {

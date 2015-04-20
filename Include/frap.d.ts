@@ -1,57 +1,50 @@
-import Stream = require("stream");
-import events = require("events");
-import EventEmitter = events.EventEmitter;
+///<reference path="node.d.ts"/>
+declare module 'frap' {
+    import stream = require("stream");
+    import net = require('net');
 
-interface Frap extends FrapReader {
-    destroy();
-    destroySoon();
-    pipe(dst);
-    sendFrame
-    sendFrame();
-    setSrcDrainWatcher();
-    sendHeader(framelen);
-    sendPart(buf);
-    createWriteFrameStream(framelen):WriteFrameStream;
-    createReadFrameStream(framelen):ReadFrameStream;
-}
+    interface Frap extends FrapReader {
+        new (sk, opts?): Frap;
+        destroy();
+        destroySoon();
+        /**
+         * sendFrame(buf0, buf1, ..., bufN)   //send a list of bufs
+         */
+        sendFrame(...args);
+        setSrcDrainWatcher();
+        sendHeader(framelen);
+        sendPart(buf);
+        createWriteFrameStream(framelen): WriteFrameStream;
+        createReadFrameStream(framelen): ReadFrameStream;
 
-interface FrapReader extends Stream {
-    parse(buf);
-    _submit(event, framelen, pbuf, pos);
-    dispatchOne(event, framelen, pbuf, pos);
-    dispatch();
-    setEncoding(encoding);
-    write(buf, enc);
-    pause();
-    resume();
+        sk: net.Socket;
+    }
 
-    static listenerCount(emitter:EventEmitter, event:string): number;
-    addListener(event:string, listener:Function): EventEmitter;
-    on(event:string, listener:Function): EventEmitter;
-    once(event:string, listener:Function): EventEmitter;
-    removeListener(event:string, listener:Function): EventEmitter;
-    removeAllListeners(event?:string): EventEmitter;
-    setMaxListeners(n:number): void;
-    listeners(event:string): Function[];
-    emit(event:string, ...args:any[]): boolean;
-}
+    interface FrapReader extends stream.Stream {
+        parse(buf);
+        _submit(event, framelen, pbuf, pos);
+        dispatchOne(event, framelen, pbuf, pos);
+        dispatch();
+        setEncoding(encoding);
+        write(buf, enc);
+        pause();
+        resume();
+    }
 
-interface ReadFrameStream extends Stream {
-    constructor(frap, framelen);
-    setEncoding(encoding);
-    pause();
-    resume();
-    destroy();
-}
+    interface ReadFrameStream extends stream.Stream {
+        setEncoding(encoding);
+        pause();
+        resume();
+        destroy();
+    }
 
-interface WriteFrameStream extends Stream {
-    constructor(frap, framelen);
-    write(buf, enc);
-    end(buf, enc);
-    destroy();
-    destroySoon();
-}
+    interface WriteFrameStream extends stream.Stream {
+        write(buf, enc);
+        end(buf, enc);
+        destroy();
+        destroySoon();
+    }
 
-declare module "frap" {
-    export = Frap;
+    var _frap: Frap;
+    export = _frap;
 }
