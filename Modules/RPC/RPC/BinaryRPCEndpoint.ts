@@ -29,11 +29,12 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
 
     constructor(socket:net.Socket) {
         super();
-        this._sock = new Frap(socket);
+        this._sock = new Frap(socket, {emit:'data'});
         //this._sock = new BinaryFramedSocket(socket);
+        this._sock.on('data', this._parse_data);
         //this._sock.on("header", this._parse_header);
-        this._sock.on("end", this._on_end);
-        this._sock.on("frame", this._parse_frame);
+        //this._sock.on("end", this._on_end);
+        //this._sock.on("frame", this._parse_frame);
         this._sock.on("error", (err) => {
             if (this._sock) {
                 this.emit("error", err);
@@ -63,7 +64,7 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
             return;
         }
         this.removeAllListeners();
-        this._sock.destroySoon();
+        this._sock.destroy();
         //this._sock.Unbind();
         this._sock = undefined;
     };
@@ -78,6 +79,26 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
 
     private _on_end = () => {
         trace('_on_end');
+    }
+
+    private _parse_end = () => {
+        trace('_parse_end');
+    }
+
+    private _parse_data = (fullpack) =>{
+        var headerLength = 1 + 4 + 4 + 4;
+        var header = fullpack.slice(0, headerLength);
+        var data = fullpack.slice(headerLength);
+        var params = msgpack.unpack(data);
+
+        this._sock_on_frame(header, params);
+    };
+
+    private _parse_header = (framelen) => {
+        trace('[clienbt] _parse_header Frame Length', framelen);
+
+        //var rstream = this._sock.createReadFrameStream(framelen);
+        //rstream.pause();
     }
 
     private _parse_frame =  (bufs, framelen) => {
@@ -138,7 +159,7 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
     };
 
     private Send_Pack = (type:Definition.RPC_Message_Type, func_or_event_id:number, params:any, trackId = 0, gen = 0) => {
-        trace('[client] 2.Send_Pack: ', func_or_event_id, '\n trackId: ', trackId);
+        //trace('[client] 2.Send_Pack: ', func_or_event_id, '\n trackId: ', trackId);
         if (!this._sock) return;
         params = Array.isArray(params) ? params : [];
         //create header

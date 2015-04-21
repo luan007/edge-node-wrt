@@ -33,7 +33,7 @@ export class BinaryRPCPipe extends events.EventEmitter {
     constructor(socket:net.Socket) {
         super();
         //this._sock = new BinaryFramedSocket(socket);
-        this._sock = new Frap(socket);
+        this._sock = new Frap(socket, {emit: 'basic'});
         this._sock['Id'] = UUID().toString('hex');
         //this._sock.FrameOutput = false;
         this._sock.on('header', this._parse_header);
@@ -50,8 +50,7 @@ export class BinaryRPCPipe extends events.EventEmitter {
     }
 
     private _parse_header = (frameLen) => {
-        trace('1. Frame Length', frameLen);
-
+        //trace('1. Frame Length', frameLen);
         var rstream = this._sock.createReadFrameStream(frameLen);
         rstream.pause();
 
@@ -59,7 +58,7 @@ export class BinaryRPCPipe extends events.EventEmitter {
     }
 
     private _find_header = (rstream, framelen) => {
-        trace('1. _find_header', framelen);
+        //trace('1. _find_header', framelen);
         var headerLength = 1 + 4 + 4 + 4;
         var headerBuffer = new Buffer(headerLength);
         var headerPos = 0;
@@ -67,14 +66,14 @@ export class BinaryRPCPipe extends events.EventEmitter {
         rstream.on('data', (d:Buffer) => {
             rstream.pause();
             rstream.removeAllListeners('data');
-            fatal('1.2 on data ', d, '\n buffer length', d.length);
+            //fatal('1.2 on data ', d, '\n buffer length', d.length);
             var cursor = d.copy(headerBuffer, headerPos, 0, d.length >= (headerLength - headerPos) ? (headerLength - headerPos) : d.length);
             headerPos += cursor;
             if (headerPos === headerLength) {
                 rstream.pause();
                 beforeStart = d.slice(cursor);
 
-                warn('2. stream stopped.', headerBuffer, '\n before length', beforeStart.length);
+                //warn('2. stream stopped.', headerBuffer, '\n before length', beforeStart.length);
 
                 //emit old header event
                 this._sock_on_header(headerBuffer, rstream, beforeStart, framelen);
@@ -103,7 +102,7 @@ export class BinaryRPCPipe extends events.EventEmitter {
         }
         this.removeAllListeners();
         //this._sock.Unbind();
-        this._sock.destroySoon();
+        this._sock.destroy();
         this._sock = undefined;
     };
 
@@ -124,7 +123,7 @@ export class BinaryRPCPipe extends events.EventEmitter {
         var trackid = header.readInt32LE(5);
         var ageid = header.readInt32LE(9);
         var rewire_target:BinaryRPCPipe = undefined;
-        trace("3. RPC_I < ", type, resourceid, trackid, ageid);
+        //trace("3. RPC_I < ", type, resourceid, trackid, ageid);
 
         switch (type) {
             case Definition.RPC_Message_Type.__REQUEST:
@@ -176,8 +175,10 @@ export class BinaryRPCPipe extends events.EventEmitter {
     private _on_remote_reply = (header, frame, trackid, age, firstPack, frameLength) => {
         trace('4. ON REMOTE REPLY!', trackid, age);
         if (BinaryRPCPipe._callbacks.age(trackid) == age) {
+            trace('4.1 ON REMOTE REPLY .age(trackid) == age', trackid, age);
             var _cb = BinaryRPCPipe._callbacks.pop(trackid);
             if (_cb && _cb.callback) {
+                trace('4.2 ON REMOTE REPLY _cb.callback', trackid, age);
                 this.ForwardReply(_cb.peer, header, frame, _cb.trackid, _cb.ageid, firstPack, frameLength);
                 clearTimeout(_cb.timer);
             }
@@ -217,34 +218,71 @@ export class BinaryRPCPipe extends events.EventEmitter {
         header.writeInt32LE(originalTrack, 5);
         header.writeInt32LE(originalAge, 9);
 
+        //var newHeader = new Buffer(4 + 1 + 4 + 4 + 4);
+        //newHeader.writeInt32LE(frameLength + 4, 0);
+        //newHeader.writeInt8(type, 4);
+        //newHeader.writeInt32LE(resourceid, 5);
+        //newHeader.writeInt32LE(trackid, 9);
+        //newHeader.writeInt32LE(ageid, 13);
+
         var bufs = [];
 
-        //intoQueue(peer._sock['Id'], (sent) => {
-            console.log('do forward reply for ', peer._sock['Id']);
+
+        intoQueue(peer._sock['Id'], (sent) => {
+
+            //console.log('creating raw');
+            var raw = peer._sock.createWriteFrameStream(frameLength);
+
+            //console.log('[', process.pid, '] do forward reply for ', peer._sock['Id']);
             //peer.RawWrite(header);
-            bufs.push(header);
-            if(firstPack)
-                bufs.push(firstPack);
-                //peer.RawWrite(firstPack);
-            //console.log('FORWARD HEADER ', header.toJSON());
-            frame.on('data', function (buf) {
-                bufs.push(buf);
-                //peer.RawWrite(buf);
-                //console.log('>>>');
-            });
-            frame.on('end', ()=> {
-                peer._sock.sendFrame.apply(peer._sock, bufs);
-                console.log('DONE forward reply for ', peer._sock['Id']);
-            });
-            frame.resume();
-        //}, ()=> {
-        //    peer._sock.sendFrame.apply(peer._sock, bufs);
-        //    console.log('DONE forward reply for ', peer._sock['Id']);
-        //});
+            //bufs.push(header);
+            //if (firstPack)
+            //    raw.write(firstPack);
+            ////bufs.push(firstPack);
+            ////peer.RawWrite(firstPack);
+            //frame.pipe(raw);
+            ////frame.on('data', function (buf) {
+            ////    //bufs.push(buf);
+            ////    //peer.RawWrite(buf);
+            ////    raw.write(buf);
+            ////});
+            //frame.on('end', ()=>{
+            //    raw.destroy();
+            //});
+            //raw.on('close', ()=>{
+            //    this._sock.resume();
+            //    sent();
+            //});
+            //frame.resume();
+
+
+            frame.once('end', ()=> {
+                this._sock.pause()
+            })
+
+            frame.once('close', ()=> {
+                //wstream.destroySoon() //strangely faster WTF?!?
+                raw.destroy()
+            })
+
+            raw.once('close', ()=> {
+                console.log('raw closed');
+                this._sock.resume();
+                sent();
+            })
+
+            raw.write(header);
+            raw.write(firstPack);
+            frame.pipe(raw)
+        }, ()=> {
+            //    peer._sock.sendFrame.apply(peer._sock, bufs);
+            console.log('[', process.pid, '] DONE forward reply for ', peer._sock['Id']);
+        });
     };
 
     private ForwardCall = (peer:BinaryRPCPipe, header, frame, firstPack, frameLength) => {
         if (!(peer && peer._sock && this._sock)) return;
+        var type = header.readInt8(0);
         var resourceid = header.readInt32LE(1);
         var trackid = header.readInt32LE(5);
         var ageid = header.readInt32LE(9);
@@ -267,49 +305,94 @@ export class BinaryRPCPipe extends events.EventEmitter {
         header.writeInt32LE(track_id, 5);
         header.writeInt32LE(gen, 9);
 
-        var bufs = [];
+        //var newHeader = new Buffer(4 + 1 + 4 + 4 + 4);
+        //newHeader.writeInt32LE(frameLength + 4, 0);
+        //newHeader.writeInt8(type, 4);
+        //newHeader.writeInt32LE(resourceid, 5);
+        //newHeader.writeInt32LE(trackid, 9);
+        //newHeader.writeInt32LE(ageid, 13);
+
+        //var bufs = [];
 
         trace('before intoQueue [', process.pid, '] ');
 
-        //intoQueue(peer._sock['Id'], (sent) => {
-            console.log('[', process.pid, '] do forward call for ', peer._sock['Id']);
-            //peer._sock.sendFrame(header);
-            bufs.push(header);
-            if (firstPack)
-                bufs.push(firstPack);
-                //peer._sock.sendFrame(firstPack);
-            frame.on('data', function (buf) {
-                bufs.push(buf);
-                //peer._sock.sendFrame(buf);
-            });
-            frame.on('end', ()=> {
-                peer._sock.sendFrame.apply(peer._sock, bufs);
-                console.log('[', process.pid, '] DONE forward call for ', peer._sock['Id']);
-            });
-            frame.resume();
-        //}, ()=> {
-        //    peer._sock.sendFrame.apply(peer._sock, bufs);
-        //    console.log('[', process.pid, '] DONE forward call for ', peer._sock['Id']);
-        //});
+        intoQueue(peer._sock['Id'], (sent) => {
+
+            //console.log('creating raw');9
+            var raw = peer._sock.createWriteFrameStream(frameLength);
+
+            //console.log('[', process.pid, '] do forward call for ', peer._sock['Id']);
+            //peer.RawWrite(header);
+            //bufs.push(header);
+            //if (firstPack)
+            //    raw.write(firstPack);
+            ////bufs.push(firstPack);
+            ////peer.RawWrite(firstPack);
+            //frame.pipe(raw);
+            ////frame.on('data', function (buf) {
+            ////    //bufs.push(buf);
+            ////    //peer.RawWrite(buf);
+            ////    raw.write(buf);
+            ////});
+            //frame.on('end', ()=>{
+            //    raw.destroy();
+            //});
+            //raw.on('close', ()=>{
+            //    this._sock.resume();
+            //    sent();
+            //});
+            //frame.resume();
+
+
+            frame.once('end', ()=> {
+                this._sock.pause()
+            })
+
+            frame.once('close', ()=> {
+                //wstream.destroySoon() //strangely faster WTF?!?
+                raw.destroy();
+            })
+
+            raw.once('close', ()=> {
+                console.log('raw closed');
+                this._sock.resume();
+                sent();
+            })
+
+            raw.write(header);
+            raw.write(firstPack);
+            frame.pipe(raw)
+        }, ()=> {
+            //    peer._sock.sendFrame.apply(peer._sock, bufs);
+            console.log('[', process.pid, '] DONE forward call for ', peer._sock['Id']);
+        });
     };
 
-    private RawWrite = (data, callback?: (err, result) => any) =>{
-        if (this._sock && this._sock.sk)
-            this._sock.sk.write(data, callback);
+    private RawWrite = (data, callback?:(err, result) => any) => {
+        if (this._sock)
+            this._sock.write(data, callback);
     };
 
     private ForwardEvent = (peer:BinaryRPCPipe[], header, frame, firstPack, frameLength) => {
         if (!(this._sock && peer)) return;
+        var type = header.readInt8(0);
         var resourceid = header.readInt32LE(1);
         var trackid = header.readInt32LE(5);
         var ageid = header.readInt32LE(9);
+
+        //var newHeader = new Buffer(4 + 1 + 4 + 4 + 4);
+        //newHeader.writeInt32LE(frameLength + 4, 0);
+        //newHeader.writeInt8(type, 4);
+        //newHeader.writeInt32LE(resourceid, 5);
+        //newHeader.writeInt32LE(trackid, 9);
+        //newHeader.writeInt32LE(ageid, 13);
 
         for (var i = 0; i < peer.length; i++) {
             if (!peer[i]._sock) continue;
             ((p)=> {
                 intoQueue(p._sock.Id, (sent) => {
                     p.RawWrite(header);
-                    if(firstPack)
+                    if (firstPack)
                         p.RawWrite(firstPack);
                     frame.on('data', function (buf) {
                         p.RawWrite(buf);

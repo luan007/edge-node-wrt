@@ -20,15 +20,15 @@ export function Initalize(sockPath:string) {
 
     trace('loading blob...');
     //var blob = fs.readFileSync(blobPath);
-    //var blob = new Buffer(1024*300);
-    var blob = new Buffer('1244567890');
+    var blob = new Buffer(1024*300);
+    //var blob = new Buffer('1234567890');
     trace('blob size:', blob.length);
     //trace('blob size(k):', blob.length / 1024);
 
     APIManager.Connect(sockPath, (err, api) => {
         if (err) throw err;
         var timeOut = 100 * 1000;
-        var turns = 10 * 1000;
+        var turns = 1 * 10;
         var letterCount = 0, turnCount = 0;
 
         function selfCount(data) {
@@ -50,7 +50,7 @@ export function Initalize(sockPath:string) {
                     error('NetworkService.Crawl ERROR ->', err);
                     selfCount('');
                 } else {
-                    info('[Consumer] received data', data);
+                    info('[Consumer] received data', data.length);
                     selfCount(data);
                 }
             };

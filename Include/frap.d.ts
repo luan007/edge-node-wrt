@@ -39,8 +39,8 @@ declare module 'frap' {
     }
 
     interface WriteFrameStream extends stream.Stream {
-        write(buf, enc);
-        end(buf, enc);
+        write(buf, enc?);
+        end(buf, enc?);
         destroy();
         destroySoon();
     }
