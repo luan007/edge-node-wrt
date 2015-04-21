@@ -28,7 +28,7 @@ export function Initalize(sockPath:string) {
     APIManager.Connect(sockPath, (err, api) => {
         if (err) throw err;
         var timeOut = 100 * 1000;
-        var turns = 1 * 1;
+        var turns = 1 * 10;
         var letterCount = 0, turnCount = 0;
 
         function selfCount(data) {
@@ -50,6 +50,7 @@ export function Initalize(sockPath:string) {
                     error('NetworkService.Crawl ERROR ->', err);
                     selfCount('');
                 } else {
+                    info('[Consumer] received data', data);
                     selfCount(data);
                 }
             };

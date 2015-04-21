@@ -174,7 +174,7 @@ export class BinaryRPCPipe extends events.EventEmitter {
     };
 
     private _on_remote_reply = (header, frame, trackid, age, firstPack, frameLength) => {
-        console.log('ON REMOTE REPLY!');
+        trace('4. ON REMOTE REPLY!', trackid, age);
         if (BinaryRPCPipe._callbacks.age(trackid) == age) {
             var _cb = BinaryRPCPipe._callbacks.pop(trackid);
             if (_cb && _cb.callback) {
@@ -235,7 +235,7 @@ export class BinaryRPCPipe extends events.EventEmitter {
             frame.on('end', sent);
             frame.resume();
         }, ()=> {
-            peer._sock.sendFrame.call(peer._sock, bufs);
+            peer._sock.sendFrame.apply(peer._sock, bufs);
             console.log('DONE forward reply for ', peer._sock['Id']);
         });
     };
