@@ -219,7 +219,7 @@ export class BinaryRPCPipe extends events.EventEmitter {
 
         var bufs = [];
 
-        intoQueue(peer._sock['Id'], (sent) => {
+        //intoQueue(peer._sock['Id'], (sent) => {
             console.log('do forward reply for ', peer._sock['Id']);
             //peer.RawWrite(header);
             bufs.push(header);
@@ -232,12 +232,15 @@ export class BinaryRPCPipe extends events.EventEmitter {
                 //peer.RawWrite(buf);
                 //console.log('>>>');
             });
-            frame.on('end', sent);
+            frame.on('end', ()=> {
+                peer._sock.sendFrame.apply(peer._sock, bufs);
+                console.log('DONE forward reply for ', peer._sock['Id']);
+            });
             frame.resume();
-        }, ()=> {
-            peer._sock.sendFrame.apply(peer._sock, bufs);
-            console.log('DONE forward reply for ', peer._sock['Id']);
-        });
+        //}, ()=> {
+        //    peer._sock.sendFrame.apply(peer._sock, bufs);
+        //    console.log('DONE forward reply for ', peer._sock['Id']);
+        //});
     };
 
     private ForwardCall = (peer:BinaryRPCPipe, header, frame, firstPack, frameLength) => {
@@ -266,7 +269,9 @@ export class BinaryRPCPipe extends events.EventEmitter {
 
         var bufs = [];
 
-        intoQueue(peer._sock['Id'], (sent) => {
+        trace('before intoQueue [', process.pid, '] ');
+
+        //intoQueue(peer._sock['Id'], (sent) => {
             console.log('[', process.pid, '] do forward call for ', peer._sock['Id']);
             //peer._sock.sendFrame(header);
             bufs.push(header);
@@ -277,12 +282,15 @@ export class BinaryRPCPipe extends events.EventEmitter {
                 bufs.push(buf);
                 //peer._sock.sendFrame(buf);
             });
-            frame.on('end', sent);
+            frame.on('end', ()=> {
+                peer._sock.sendFrame.apply(peer._sock, bufs);
+                console.log('[', process.pid, '] DONE forward call for ', peer._sock['Id']);
+            });
             frame.resume();
-        }, ()=> {
-            peer._sock.sendFrame.apply(peer._sock, bufs);
-            console.log('[', process.pid, '] DONE forward call for ', peer._sock['Id']);
-        });
+        //}, ()=> {
+        //    peer._sock.sendFrame.apply(peer._sock, bufs);
+        //    console.log('[', process.pid, '] DONE forward call for ', peer._sock['Id']);
+        //});
     };
 
     private RawWrite = (data, callback?: (err, result) => any) =>{
