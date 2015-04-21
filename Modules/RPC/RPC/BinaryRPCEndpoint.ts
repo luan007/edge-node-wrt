@@ -84,33 +84,31 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
         var headerLength = 1 + 4 + 4 + 4;
         var headerBuffer = new Buffer(headerLength);
 
-        trace('[client] _parse_frame', framelen);
         var entireBuffer = Buffer.concat(bufs);
         entireBuffer.copy(headerBuffer, 0, 0, headerLength);
-        entireBuffer.slice(headerLength);
+        entireBuffer = entireBuffer.slice(headerLength);
 
         var params = msgpack.unpack(entireBuffer);
         this._sock_on_frame(headerBuffer, params);
     }
 
     private _sock_on_frame = (header:Buffer, obj) => {
-
         if (!this._pkg_check(obj)) {
             return this.emit("bad_obj", obj);
         }
 
-
         //console.log(obj);
         //console.log(header.readInt8(4));
-        switch (header.readInt8(4)) {
+        //switch (header.readInt8(4)) {
+        switch (header.readInt8(0)) {
             case Definition.RPC_Message_Type.__REQUEST:
-                this._on_remote_call(header.readInt32LE(5), header.readInt32LE(9), header.readInt32LE(13), obj);
+                this._on_remote_call(header.readInt32LE(1), header.readInt32LE(5), header.readInt32LE(9), obj);
                 break;
             case Definition.RPC_Message_Type.__RESPONSE:
-                this._on_remote_reply(header.readInt32LE(5), header.readInt32LE(9), header.readInt32LE(13), obj);
+                this._on_remote_reply(header.readInt32LE(1), header.readInt32LE(5), header.readInt32LE(9), obj);
                 break;
             case Definition.RPC_Message_Type.__EVENT:
-                this._on_emit_event(header.readInt32LE(5), obj);
+                this._on_emit_event(header.readInt32LE(1), obj);
                 break;
             case Definition.RPC_Message_Type.__READY:
                 this._on_ready(obj[0], obj[1]); //dummy
@@ -150,6 +148,7 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
         header.writeInt32LE(trackId, 5);
         header.writeInt32LE(gen, 9);
         var body = params;
+        trace('[client] 2. check array', Array.isArray(params));
         var data = msgpack.pack(body);
         //var data = JSON.stringify(body);
         this._sock.sendFrame(header, data);
@@ -184,6 +183,7 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
     };
 
     private _on_remote_call = (funcId, trackid, age, params) => {
+        trace('[client] _on_remote_call', funcId, trackid, age);
         var timeout;
         var cb = (err:Error, result) => {
             if (timeout !== undefined) {

@@ -20,8 +20,10 @@ export function Initalize(sockPath:string) {
 
     trace('loading blob...');
     //var blob = fs.readFileSync(blobPath);
-    var blob = new Buffer(1024*300);
-    trace('blob size(k):', blob.length / 1024);
+    //var blob = new Buffer(1024*300);
+    var blob = new Buffer('1244567890');
+    trace('blob size:', blob.length);
+    //trace('blob size(k):', blob.length / 1024);
 
     APIManager.Connect(sockPath, (err, api) => {
         if (err) throw err;
