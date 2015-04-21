@@ -26,7 +26,7 @@ declare module 'frap' {
         dispatchOne(event, framelen, pbuf, pos);
         dispatch();
         setEncoding(encoding);
-        write(buf, enc);
+        write(buf, enc?);
         pause();
         resume();
     }

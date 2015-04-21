@@ -216,19 +216,26 @@ export class BinaryRPCPipe extends events.EventEmitter {
         //MASQR
         header.writeInt32LE(originalTrack, 5);
         header.writeInt32LE(originalAge, 9);
+
+        var bufs = [];
+
         intoQueue(peer._sock['Id'], (sent) => {
             console.log('do forward reply for ', peer._sock['Id']);
-            peer.RawWrite(header);
+            //peer.RawWrite(header);
+            bufs.push(header);
             if(firstPack)
-                peer.RawWrite(firstPack);
+                bufs.push(firstPack);
+                //peer.RawWrite(firstPack);
             //console.log('FORWARD HEADER ', header.toJSON());
             frame.on('data', function (buf) {
-                peer.RawWrite(buf);
+                bufs.push(buf);
+                //peer.RawWrite(buf);
                 //console.log('>>>');
             });
             frame.on('end', sent);
             frame.resume();
         }, ()=> {
+            peer._sock.sendFrame.call(peer._sock, bufs);
             console.log('DONE forward reply for ', peer._sock['Id']);
         });
     };
@@ -257,17 +264,23 @@ export class BinaryRPCPipe extends events.EventEmitter {
         header.writeInt32LE(track_id, 5);
         header.writeInt32LE(gen, 9);
 
+        var bufs = [];
+
         intoQueue(peer._sock['Id'], (sent) => {
             console.log('[', process.pid, '] do forward call for ', peer._sock['Id']);
-            peer.RawWrite(header);
+            //peer._sock.sendFrame(header);
+            bufs.push(header);
             if (firstPack)
-                peer.RawWrite(firstPack);
+                bufs.push(firstPack);
+                //peer._sock.sendFrame(firstPack);
             frame.on('data', function (buf) {
-                peer.RawWrite(buf);
+                bufs.push(buf);
+                //peer._sock.sendFrame(buf);
             });
             frame.on('end', sent);
             frame.resume();
         }, ()=> {
+            peer._sock.sendFrame.apply(peer._sock, bufs);
             console.log('[', process.pid, '] DONE forward call for ', peer._sock['Id']);
         });
     };

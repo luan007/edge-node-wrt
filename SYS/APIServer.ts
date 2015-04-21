@@ -16,9 +16,9 @@ var onCall = function (funcid, trackid, ageid, frame) {
 
     if (funcid === 0) {//register event
         var t = '';
-        frame.on('data', function(d){
+        frame.on('data', function (d) {
             t = t + d.toString();
-        }).on('end', function(){
+        }).on('end', function () {
             var param = JSON.parse(t);
             var event_id_list = (<Array<number>>param);
             trace('event_id_list ========1', event_id_list);
@@ -30,9 +30,9 @@ var onCall = function (funcid, trackid, ageid, frame) {
 
     } else if (funcid === -1) {//unregister event
         var t = '';
-        frame.on('data', function(d){
+        frame.on('data', function (d) {
             t = t + d.toString();
-        }).on('end', function(){
+        }).on('end', function () {
             var param = JSON.parse(t);
             var event_id_list = (<Array<number>>param);
             EventsHub.RemoteRemoveEventPid(senderPid, event_id_list, () => {
@@ -42,6 +42,7 @@ var onCall = function (funcid, trackid, ageid, frame) {
         //return EventsHub.RemoteRemoveEventPid(senderPid, event_id_list, callback);
     }
     else { // remote call
+        trace('[server] on remote call');
         var permission = APIConfig.getAPIConfig()[funcid]['permission']
             , _p = pm.Encode(permission);
         //warn('remote call', funcid);
@@ -52,6 +53,7 @@ var onCall = function (funcid, trackid, ageid, frame) {
         if (mountInfo && mountInfo['rpc']) {
             var target:RPC.BinaryRPCPipe = mountInfo['rpc'];
             //console.log('Target -> ', target);
+            trace('[server] on remote call [', mountInfo.pid, ']', mountInfo.moduleName);
             return target;
         }
         else
@@ -64,7 +66,7 @@ var onEmit = function (eventid) {
     //    , senderPid = rpc['pid'];
 
     var pids = EventsHub.RemoteGetEventPids(eventid);
-    if(pids && Array.isArray(pids)) {
+    if (pids && Array.isArray(pids)) {
         //warn('onEmit pids', pids, 'process.pid', process.pid);
         var rpcs = [];
 

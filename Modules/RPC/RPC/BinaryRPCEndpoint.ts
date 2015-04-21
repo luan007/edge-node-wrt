@@ -31,9 +31,9 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
         super();
         this._sock = new Frap(socket);
         //this._sock = new BinaryFramedSocket(socket);
-        this._sock.on("header", this._parse_header);
+        //this._sock.on("header", this._parse_header);
         this._sock.on("end", this._on_end);
-        //this._sock.on("frame", this._parse_frame);
+        this._sock.on("frame", this._parse_frame);
         this._sock.on("error", (err) => {
             if (this._sock) {
                 this.emit("error", err);
@@ -80,75 +80,18 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
         trace('_on_end');
     }
 
-    private _parse_header = (frameLen) => {
-        trace('[', process.pid, '] 1. Endpoint Frame Length', frameLen);
+    private _parse_frame =  (bufs, framelen) => {
         var headerLength = 1 + 4 + 4 + 4;
         var headerBuffer = new Buffer(headerLength);
-        var bufs = [];
 
-        var rstream = this._sock.createReadFrameStream(frameLen);
-        rstream.pause();
+        trace('[client] _parse_frame', framelen);
+        var entireBuffer = Buffer.concat(bufs);
+        entireBuffer.copy(headerBuffer, 0, 0, headerLength);
+        entireBuffer.slice(headerLength);
 
-        if(frameLen === headerLength){
-            rstream.on('data', (d:Buffer) => {
-                headerBuffer = new Buffer(d);
-            });
-            rstream.resume();
-        } else {
-            rstream.on('data', (d:Buffer) => {
-                bufs.push(new Buffer(d));
-            });
-        }
-        rstream.on('end', () => {
-            rstream.removeAllListeners();
-            trace('[', process.pid, '] 1. end', bufs, headerBuffer);
-        });
-        rstream.resume();
-        //var rstream = this._sock.createReadFrameStream(frameLen);
-        //rstream.pause();
-
-        //this._find_header(rstream, frameLen);
+        var params = msgpack.unpack(entireBuffer);
+        this._sock_on_frame(headerBuffer, params);
     }
-
-    private _find_header = (rstream, framelen) => {
-        var headerLength = 1 + 4 + 4 + 4;
-        var headerBuffer = new Buffer(headerLength);
-        var headerPos = 0;
-        var beforeStart:Buffer = undefined;
-        rstream.on('data', (d:Buffer) => {
-            rstream.pause();
-            rstream.removeAllListeners('data');
-            var cursor = d.copy(headerBuffer, headerPos, 0, d.length >= (headerLength - headerPos) ? (headerLength - headerPos) : d.length);
-            headerPos += cursor;
-            if (headerPos === headerLength) {
-                rstream.pause();
-                beforeStart = d.slice(cursor);
-
-                //emit old header event
-                this._read_last(headerBuffer, rstream, beforeStart, framelen);
-            }
-        });
-        rstream.resume();
-    };
-
-    private _read_last = (headerBuffer, rstream, beforesStart, framelen) => {
-        var bufs = [];
-        if(beforesStart) bufs.push(beforesStart);
-        rstream.on('data', (buf) => {
-            bufs.push(buf);
-        });
-        rstream.on('end', () => {
-            rstream.removeAllListeners();
-            this._sock_on_frame(headerBuffer, bufs);
-        });
-    };
-
-    private _parse_frame = (bufs, framelen) => {
-        trace('[', process.pid, '] 1. Endpoint Frame Length', framelen);
-
-        var headerBuffer = bufs.shift();
-        this._sock_on_frame(headerBuffer, bufs);
-    };
 
     private _sock_on_frame = (header:Buffer, obj) => {
 
@@ -197,6 +140,7 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
     };
 
     private Send_Pack = (type:Definition.RPC_Message_Type, func_or_event_id:number, params:any, trackId = 0, gen = 0) => {
+        trace('[client] 2.Send_Pack: ', func_or_event_id, '\n trackId: ', trackId);
         if (!this._sock) return;
         params = Array.isArray(params) ? params : [];
         //create header
@@ -282,6 +226,7 @@ export class BinaryRPCEndpoint extends events.EventEmitter {
     };
 
     public Call = (remote_func_id, params:any[], callback:Function) => {
+        trace('[client] 1.Call: ', remote_func_id, '\n parmas: ', params);
         if (callback !== undefined) {
             callback = callback.bind({});
         }
