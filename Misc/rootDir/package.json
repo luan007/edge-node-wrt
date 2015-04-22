@@ -59,7 +59,10 @@
         "posix": "*",
         "unzip": "*",
         "msgpack": "*",
-        "frap": "*"
+        "frap": "*",
+        "engine.io",
+        "engine.io-client",
+        "eureca.io"
     },
     "devDependencies": {
         "istanbul-harmony": "*",

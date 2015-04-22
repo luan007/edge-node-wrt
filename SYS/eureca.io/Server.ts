@@ -4,6 +4,10 @@ import uscred = require("unix-socket-credentials");
 import uuid = require("uuid");
 var Eureca = require('eureca.io');
 
+require('../Env');
+require('colors');
+require('../../System/API/PermissionDef');
+
 function getSock(id, root?): string {
     if (process.platform === "win32") {
         return "\\\\.\\pipe\\" + id;
