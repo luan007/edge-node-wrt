@@ -2,9 +2,12 @@
 global.http = require("http");
 global.qs = require("querystring");
 global.async = require("async");
+require("./Base/SystemEvent");
+require("./Base/Global");
+require("./Lib/Log/Prelaunch");
 require("colors");
 require("Node");
-require("Core");
+//require("Core");
 import Loader = require("./loader");
 
 //Loader.Load(["Base", "Lib", "Data", "API", "SubSys", "App", "Test"], (err, result) => {
