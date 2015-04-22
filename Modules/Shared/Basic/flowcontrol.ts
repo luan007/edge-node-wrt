@@ -101,14 +101,14 @@ var _queue: IDic<Array<any>> = {};
 
 function runQueue(name) {
     if (!_queue[name] || _queue[name].length == 0) {
-        console.log(' ( / ) ', name);
+        //console.log(' ( / ) ', name);
         _queue[name] = undefined; //ended
     } else {
-        console.log(' (RUN) ', name, _queue[name] ? _queue[name].length - 1 : 0);
+        //console.log(' (RUN) ', name, _queue[name] ? _queue[name].length - 1 : 0);
         var step = _queue[name].shift();
         step[0](() => {
             //console.log(bane
-            console.log(' ( - ) ', name, _queue[name] ? _queue[name].length : 0);
+            //console.log(' ( - ) ', name, _queue[name] ? _queue[name].length : 0);
             step[1].apply(undefined, arguments);
             runQueue(name);
         });
@@ -116,7 +116,7 @@ function runQueue(name) {
 }
 
 global.intoQueue = function (name, job, cb) {
-     console.log(' ( + ) ', name, _queue[name] ? _queue[name].length : 0);
+     //console.log(' ( + ) ', name, _queue[name] ? _queue[name].length : 0);
     if (!_queue[name]) {
         _queue[name] = [];
         _queue[name].push([job, cb]);

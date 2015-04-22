@@ -1,0 +1,18 @@
+{
+  "SerivceA": {
+    "Path": "Services/SerivceA.js",
+    "Functions": {
+      "FakeA": {
+        "Permission": ["System"]
+      }
+    }
+  },
+  "ServiceB":{
+    "Path": "Services/ServiceB.js",
+    "Functions": {
+      "FakeB": {
+        "Permission": ["System"]
+      }
+    }
+  }
+}

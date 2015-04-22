@@ -60,9 +60,7 @@
         "unzip": "*",
         "msgpack": "*",
         "frap": "*",
-        "engine.io",
-        "engine.io-client",
-        "eureca.io"
+        "axon": "*"
     },
     "devDependencies": {
         "istanbul-harmony": "*",
