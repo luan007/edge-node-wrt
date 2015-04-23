@@ -1,6 +1,7 @@
 ﻿var level = require("levelup");
 import sub = require("level-subkey");
-var codec = require("level-subkey/lib/codec");
+//var codec = require("level-subkey/lib/codec");
+var codec = require("level-subkey/codec");  // VERSION???
 import Node = require("Node");
 
 var join = Node.path.join;
