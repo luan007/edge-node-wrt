@@ -1,5 +1,4 @@
-﻿var func_e = require("./FunctionExposer");
-import rpc = require("../../Modules/RPC/index");
+﻿import rpc = require("../../Modules/RPC/index");
 import pm = require("./Permission");
 import async = require("async");
 

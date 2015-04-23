@@ -10,6 +10,6 @@
 
 
 SYS_ON(SYS_EVENT_TYPE.LOADED,() => {
-    require("./mdns").Initialize(() => { });
+    require("./mdns_").Initialize(() => { });
     require("./ssdp").Initialize(() => { });
 });

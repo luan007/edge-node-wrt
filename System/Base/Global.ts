@@ -1,5 +1,4 @@
-﻿require("./SystemEvent");
-require("./Machine");
+﻿require("./Machine");
 
 var os = require("os");
 var arch = os.arch();
@@ -101,10 +100,4 @@ if (arch !== "arm") {
     CONF.DEV_STORAGE = "/dev/sda1";
 }
 
-
-enum SYS_EVENT_TYPE {
-    LOADED,
-    ERROR,
-}
 console.log(CONF);
-global.SYS_EVENT_TYPE = SYS_EVENT_TYPE;

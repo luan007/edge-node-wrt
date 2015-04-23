@@ -1,14 +1,4 @@
-﻿global.path = require("path");
-global.http = require("http");
-global.qs = require("querystring");
-global.async = require("async");
-require("./Base/SystemEvent");
-require("./Base/Global");
-require("./Lib/Log/Prelaunch");
-require("./Lib/Sockets/SockPath");
-require("../Modules/Shared/_Module");
-require("colors");
-require("Node");
+﻿require("./Env");
 //require("Core");
 import Loader = require("./loader");
 

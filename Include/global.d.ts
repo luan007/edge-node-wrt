@@ -16,6 +16,10 @@
 ///<reference path="nginx-conf.d.ts"/>
 ///<reference path="underscore.d.ts"/>
 ///<reference path="validator.d.ts"/>
+///<reference path="mdns.d.ts"/>
+///<reference path="mocha.d.ts"/>
+///<reference path="msgpack.d.ts"/>
+///<reference path="should.d.ts"/>
 
 interface Callback{
     (err?, result?): any;
