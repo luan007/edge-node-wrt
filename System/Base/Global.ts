@@ -1,6 +1,4 @@
-﻿require("./Machine");
-
-var os = require("os");
+﻿var os = require("os");
 var arch = os.arch();
 
 
@@ -101,3 +99,17 @@ if (arch !== "arm") {
 }
 
 console.log(CONF);
+
+class _mac_conf {
+    ROUTERID = "TEST_ROUTER_0";
+    ModelName = "Edge Dev";
+    ModelNumber = " _D_E_V_ ";
+    Serial = "______";
+    Major = "0";
+    Minor = "0";
+    ModelUrl = "http://edge.network";
+    DefaultUrl = "http://wifi.network";
+}
+
+var MACHINE = new _mac_conf();
+global.MACHINE = MACHINE;

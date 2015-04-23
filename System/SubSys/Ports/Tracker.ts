@@ -1,7 +1,4 @@
-﻿import Node = require("Node");
-import Core = require("Core");
-
-export interface PortStatus {
+﻿export interface PortStatus {
     Port: string;
     Priority: number;
     Stop: (cb: Callback) => any;

@@ -4,4 +4,5 @@
 ///<reference path="Core.ts"/> //a hack, yes it is
 ///<reference path="Node.ts"/> //another hack, yes it is
 ///<reference path="./Base/Global.ts"/>
-///<reference path="./Base/Machine.ts"/>
+///<reference path="./Base/SystemEvent.ts"/>
+///<reference path="Env.ts"/> //another hack, yes it is

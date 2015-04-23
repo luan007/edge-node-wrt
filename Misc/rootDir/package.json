@@ -19,7 +19,6 @@
         "sqlite3": "*",
         "levelup": "*",  //npm install rvagg/node-levelup   + on target
         "leveldown": "*",//npm install rvagg/node-leveldown + on target
-        //"level-subkey": "7.9.1",
         "levelup-sync":  "*",
         "leveldown-sync":  "*",
         "level-subkey":  "*",

@@ -1,5 +1,4 @@
 ﻿require("./Env");
-//require("Core");
 import Loader = require("./loader");
 
 Loader.Load(["Base", "Lib", "Data", "API", "SubSys", "Device", "User", "App", "Router", "Test"], (err, result) => {
