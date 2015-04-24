@@ -7,6 +7,9 @@
         "type": "git",
         "url": "git://github.com/emerge/edge.git"
     },
+    "scripts": {
+        "test": "mocha --recursive --timeout 86400000 -R spec --require should --harmony Tests/Test*.js --bail"
+    },
     "dependencies": {
         "async": "*",
         "log4js": "*",
@@ -17,8 +20,8 @@
         "chroot": "*",
         "orm": "*",
         "sqlite3": "*",
-        "levelup": "*",  //npm install rvagg/node-levelup   + on target
-        "leveldown": "*",//npm install rvagg/node-leveldown + on target
+        "levelup": "*",
+        "leveldown": "*",
         "levelup-sync":  "*",
         "leveldown-sync":  "*",
         "level-subkey":  "*",
@@ -54,5 +57,12 @@
         "mutter": "*",
         "posix": "*",
         "unzip": "*"
+    },
+    "devDependencies": {
+        "istanbul-harmony": "*",
+        "coveralls": "*",
+        "should": "*",
+        "mocha": "*",
+        "moment": "*"
     }
 }

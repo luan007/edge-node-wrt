@@ -3,9 +3,9 @@ import events = require('events');
 import _Config = require('./Config');
 import Config = _Config.Config;
 
-var CONFIG_PATH = "/var/status";
-
 class ConfMgr extends events.EventEmitter {
+    public CONFIG_PATH = "/var/status";
+
     private _configs:{ [key: string]: KVSet; } = {};
     private _handlers: { [key: string]: Config; } = {};
     private _buffers:KVSet = {};
@@ -70,14 +70,16 @@ class ConfMgr extends events.EventEmitter {
     }
 
     private _save = () => {
-        fs.writeFile(CONFIG_PATH, JSON.stringify(this._configs), (err)=> {
+        fs.writeFile(this.CONFIG_PATH, JSON.stringify(this._configs), (err)=> {
             if (err) console.log(err);
         });
     }
 
     private _load = () => {
-        var data = fs.readFileSync(CONFIG_PATH);
-        this._configs = JSON.parse(data.toString('utf8'));
+        if(fs.existsSync(this.CONFIG_PATH)) {
+            var data = fs.readFileSync(this.CONFIG_PATH);
+            this._configs = JSON.parse(data.toString('utf8'));
+        }
     }
 }
 

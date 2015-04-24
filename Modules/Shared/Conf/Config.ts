@@ -19,7 +19,6 @@ export class Config extends events.EventEmitter {
     Error = (err) => {
         if (error) error(err);
         else console.log(err);
-
     }
 
     Destory = () => {
