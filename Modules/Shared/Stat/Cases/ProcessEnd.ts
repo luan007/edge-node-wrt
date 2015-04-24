@@ -3,7 +3,7 @@ import Status = _Status.Status;
 import ConfMgr = require('../ConfMgr');
 
 (() => {
-    ConfMgr.on('network', (oldValue:Status, current:Status) => {
+    ConfMgr.on('network', (current:Status, oldValue?:Status) => {
         // some ops...
         var network = {
             NetworkName: "edge-dev",
@@ -22,6 +22,6 @@ import ConfMgr = require('../ConfMgr');
         };
 
         // notify StatusMgr
-        current.Changed(network);
+        current.Change(network);
     });
 })();

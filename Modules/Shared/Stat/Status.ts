@@ -16,7 +16,7 @@ export class Status {
         ConfMgr.Set(this.key, this);
     }
 
-    Changed = (newValue?) => {
+    Change = (newValue?) => {
         if(newValue) this.value = newValue;
         StatusMgr.Set(this.key, this);
     }

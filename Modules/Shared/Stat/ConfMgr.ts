@@ -13,13 +13,11 @@ class ConfMgr extends events.EventEmitter {
     }
 
     Set = (k:string, v:Status) => {
-        var args:Array<any> = [k];
+        var args:Array<any> = [k, v.value];
         if (this._statusCollection[k]) {
-            if(this._statusCollection[k].Equal(v))
-                return;
+            if(this._statusCollection[k].Equal(v)) return;
             args.push(this._statusCollection[k]);
         }
-        args.push(v.value);
         this._statusCollection[k] = v;
         this.emit.apply(null, args);
         this._save();
@@ -38,6 +36,9 @@ class ConfMgr extends events.EventEmitter {
      */
     Initialize = () => {
         this._load();
+        for(var key in this._statusCollection){
+            this.emit(key, this._statusCollection[key]);
+        }
     }
 
     Destory = () => {
