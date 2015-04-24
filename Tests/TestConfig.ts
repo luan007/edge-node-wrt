@@ -27,7 +27,7 @@ describe('Configuration Manager Testing', () => {
             trace('oldAll', original);
             applyOkAlways(() => {
 
-                confWifi.Flush();
+                confWifi.Flush(); // persistance
 
                 setTimeout(()=> { // check file
                     fs.existsSync(ConfMgr.CONFIG_PATH).should.be.true;
@@ -37,14 +37,24 @@ describe('Configuration Manager Testing', () => {
                     confOnDisk.should.be.ok;
 
                     confOnDisk['wifi'].should.be.ok;
-                    confOnDisk['wifi'].should.eql(default_conf);
-
-                    done();
-                }, 1000);
+                    //confOnDisk['wifi'].should.eql(default_conf);
+                }, 10);
             });
         });
 
+        // change request
         ConfMgr.Set('wifi', {'NetworkName': 'edge-DEV', 'RouterIP': '12.12.12.12'});
         ConfMgr.Commit();
+
+        for (var i = 0; i < 99; i++) {
+            ((_i) => {
+                ConfMgr.Set('wifi', {'LocalNetmask': _i});
+                ConfMgr.Commit();
+            })(i);
+        }
+
+        setTask('test', () => {
+            done();
+        }, 2000);
     });
 });
