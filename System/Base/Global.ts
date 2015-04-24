@@ -58,6 +58,8 @@ class _sys_conf {
     BLUETOOTH_SCAN_INTERVAL = 15 * 1000; //15 sec
     BLUETOOTH_DROPWAIT = 30 * 1000; //30 sec till dead
     ENABLE_HTTPPROXY = false;
+    CONFIG_DELAY = 100; //delay 100ms before write to disk
+    CONFIG_PATH = '/var/config';
     CORE_PARTS = {
         LAUNCHER: "Launcher"
     };

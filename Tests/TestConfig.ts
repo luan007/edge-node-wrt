@@ -1,17 +1,17 @@
 var fs = require('fs');
 require('../System/Env');
-var ConfMgr = require('../Modules/Shared/Conf/ConfMgr');
+var ConfMgr = require('../System/Conf/ConfMgr');
 
 describe('Configuration Manager Testing', () => {
     var applyOkAlways = (cb:Function) => {
         cb();
     }
 
-    before(()=>{
+    before(()=> {
         ConfMgr.Initialize();
     });
 
-    it('Default config updating mock', (done) => {
+    it('mock default config updating', (done) => {
         var default_conf = {
             NetworkName: "edge-dev",
             RouterIP: "192.168.133.1",
@@ -20,24 +20,31 @@ describe('Configuration Manager Testing', () => {
             DHCPHosts: {}
         };
 
-        var conf = ConfMgr.Register('wifi', default_conf);
-        conf.should.be.ok;
+        var confWifi = ConfMgr.Register('wifi', default_conf);
+        confWifi.should.be.ok;
+        confWifi.on('commit', (delta, original) => {
+            info('delta:', delta);
+            trace('oldAll', original);
+            applyOkAlways(() => {
 
-        applyOkAlways(() => {
-            conf.Flush();
+                confWifi.Flush();
 
-            setTimeout(()=> { // check file
-                fs.existsSync(ConfMgr.CONFIG_PATH).should.be.true;
+                setTimeout(()=> { // check file
+                    fs.existsSync(ConfMgr.CONFIG_PATH).should.be.true;
 
-                var confOnDisk = JSON.parse(fs.readFileSync(ConfMgr.CONFIG_PATH));
-                confOnDisk.should.be.ok;
+                    var json = fs.readFileSync(ConfMgr.CONFIG_PATH);
+                    var confOnDisk = JSON.parse(json.toString('utf8'));
+                    confOnDisk.should.be.ok;
 
-                confOnDisk['wifi'].should.be.ok;
-                confOnDisk['wifi'].should.eql(default_conf);
+                    confOnDisk['wifi'].should.be.ok;
+                    confOnDisk['wifi'].should.eql(default_conf);
 
-                done();
-            }, 1000);
-
+                    done();
+                }, 1000);
+            });
         });
+
+        ConfMgr.Set('wifi', {'NetworkName': 'edge-DEV', 'RouterIP': '12.12.12.12'});
+        ConfMgr.Commit();
     });
 });

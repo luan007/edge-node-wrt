@@ -1,5 +1,4 @@
 import events = require('events');
-import ConfMgr = require('./ConfMgr');
 
 export class Config extends events.EventEmitter {
     public key:string;
@@ -13,7 +12,11 @@ export class Config extends events.EventEmitter {
     }
 
     Flush = () => {
-        ConfMgr.emit('flush', this.key);
+        require('./ConfMgr').emit('flush', this.key);
+    }
+
+    Get = () => {
+        return require('./ConfMgr').Get(this.key);
     }
 
     Error = (err) => {

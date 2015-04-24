@@ -4,10 +4,10 @@ import _Config = require('./Config');
 import Config = _Config.Config;
 
 class ConfMgr extends events.EventEmitter {
-    public CONFIG_PATH = "/var/status";
+    public CONFIG_PATH = CONF.CONFIG_PATH;
 
     private _configs:{ [key: string]: KVSet; } = {};
-    private _handlers: { [key: string]: Config; } = {};
+    private _handlers:{ [key: string]: Config; } = {};
     private _buffers:KVSet = {};
 
     constructor() {
@@ -20,7 +20,7 @@ class ConfMgr extends events.EventEmitter {
 
     Register = (k:string, conf:any) => {
         this._configs[k] = this._configs[k] || conf;
-        this._handlers[k] = new Config(k, conf);
+        this._handlers[k] = this._handlers[k] || new Config(k, conf);
         return this._handlers[k];
     }
 
@@ -34,7 +34,7 @@ class ConfMgr extends events.EventEmitter {
     }
 
     Commit = () => {
-        for(var k in this._buffers){
+        for (var k in this._buffers) {
             this._handlers[k].emit('commit', this._buffers[k], this._configs[k]);
         }
     }
@@ -47,6 +47,10 @@ class ConfMgr extends events.EventEmitter {
         this.removeAllListeners();
     }
 
+    Get = (key?) => {
+        return key ? this._configs : this._configs[key];
+    }
+
     private _equal = (a, b) => {
         var ta = typeof a,
             tb = typeof b;
@@ -56,11 +60,11 @@ class ConfMgr extends events.EventEmitter {
     }
 
     private _flush = (key) => {
-        if(this._buffers[key]){
+        if (this._buffers[key]) {
 
-            this.emit('flush', key, this._buffers[key], this._configs[key]);
+            this.emit('changed', key, this._buffers[key], this._configs[key]);
 
-            for(var k in this._buffers[key]){
+            for (var k in this._buffers[key]) {
                 this._configs[key][k] = this._buffers[key][k];
             }
 
@@ -70,18 +74,18 @@ class ConfMgr extends events.EventEmitter {
     }
 
     private _save = () => {
-        fs.writeFile(this.CONFIG_PATH, JSON.stringify(this._configs), (err)=> {
-            if (err) console.log(err);
-        });
+        setTask('write_config', () => {
+            fs.writeFile(this.CONFIG_PATH, JSON.stringify(this._configs), (err)=> {
+                if (err) console.log(err);
+            });
+        }, CONF.CONFIG_DELAY);
     }
 
-    private _load = () => {
-        if(fs.existsSync(this.CONFIG_PATH)) {
-            var data = fs.readFileSync(this.CONFIG_PATH);
-            this._configs = JSON.parse(data.toString('utf8'));
-        }
+    private _load = () => { // TODO: need bash to create CONFIG
+        var data = fs.readFileSync(this.CONFIG_PATH);
+        this._configs = JSON.parse(data.toString('utf8'));
     }
 }
 
-var _ConfMgr = new ConfMgr();
-export = _ConfMgr;
+var confMgr = new ConfMgr();
+export = confMgr;

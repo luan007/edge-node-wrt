@@ -18,16 +18,14 @@ class ProcessEnd {
     constructor() {
         var conf = ConfMgr.Register('wifi', this.default_conf);
 
-        conf.on('commit',  (mod, _old) => {
+        conf.on('commit', (mod, _old) => {
             this.apply(mod, (err) => {
                 if (err) conf.Error(err);
                 else conf.Flush();
             });
         });
 
-        this.apply(conf, (err) => {
-            if (err) conf.Error(err);
-            else conf.Flush();
+        this.apply(conf.Get(), ()=> {
         });
     }
 
