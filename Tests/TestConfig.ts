@@ -14,7 +14,7 @@ describe('Configuration Manager Testing', () => {
         ConfMgr.Initialize();
     });
 
-    it('mock default config updating', (done) => {
+    it ('mock default config updating', (done) => {
         var default_conf = {
             NetworkName: "edge-dev",
             RouterIP: "192.168.133.1",
@@ -26,8 +26,6 @@ describe('Configuration Manager Testing', () => {
         var confWifi = ConfMgr.Register('wifi', default_conf);
         confWifi.should.be.ok;
         confWifi.on('commit', (delta, original) => {
-            info('delta:', delta);
-            trace('oldAll', original);
             applyOkAlways(() => {
 
                 confWifi.Flush(); // persistance

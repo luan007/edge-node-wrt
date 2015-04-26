@@ -6,15 +6,16 @@ describe('Status Manager Testing', () => {
 
     it('pub/sub pattern', (done) => {
 
-        StatMgr.Sub('device.up', (num1, num2) => {
+        var emitter = StatMgr.Pub('device.up');  //Service-end
+
+        StatMgr.Sub('device.up', (num1, num2) => { // Consumer-end
             num1.should.be.eql(1);
             num2.should.be.eql(2);
 
             done();
         });
 
-        var emitter = StatMgr.Pub('device.up');
-        emitter.Emit(1, 2); // Emit overload ver.
+        emitter.Emit(1, 2); //Service-end:  Emit overload ver.
     });
 });
 

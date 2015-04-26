@@ -10,8 +10,9 @@ class StatMgr{
     }
 
     Sub = (k:string, cb:Function) => {
-        if(this._statuses[k])
+        if(this._statuses[k]){
             this._statuses[k].on(k, cb);
+        }
     }
 
     Destory = () => {

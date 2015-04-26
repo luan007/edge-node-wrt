@@ -10,9 +10,7 @@ export class Status extends events.EventEmitter {
     }
 
     Emit = (...args) => {
-        trace(args);
-        var emit = this.emit.bind(null, this.eventName);
-        emit(args);
+        this.emit.apply(this, [this.eventName].concat(args));
     }
 
     Destory = () => {
