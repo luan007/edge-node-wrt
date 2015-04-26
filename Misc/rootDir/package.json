@@ -54,7 +54,7 @@
         "pursuit": "*",
         "node-ssdp": "*",
         "dbus-native": "*",
-        "mutter": "*",
+        "multer": "*",
         "posix": "*",
         "unzip": "*"
     },
