@@ -17,5 +17,18 @@ describe('Status Manager Testing', () => {
 
         emitter.Emit(1, 2); //Service-end:  Emit overload ver.
     });
+
+    it('pub/sub Buffer pattern', (done) => {
+        StatMgr.Sub('holly.crap', (str1, str2) => { // Consumer-end
+            str1.should.be.eql('ok');
+            str2.should.be.eql('yeah');
+
+            done();
+        });
+
+        var emitter = StatMgr.Pub('holly.crap');  //Service-end
+
+        emitter.Emit('ok', 'yeah'); //Service-end:  Emit overload ver.
+    });
 });
 
