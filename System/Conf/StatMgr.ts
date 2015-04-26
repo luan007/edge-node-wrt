@@ -5,8 +5,8 @@ class StatMgr{
     private _statuses :{ [key: string]: Status; } = {};
     private _subBuffer : {[key: string]: Array<Function>} = {};
 
-    Pub = (k:string) => {
-        this._statuses[k] = this._statuses[k] || new Status(k);
+    Pub = (k:string, desc?:string) => {
+        this._statuses[k] = this._statuses[k] || new Status(k, desc);
 
         if(this._subBuffer[k]){ // for Sub buffer
             while(this._subBuffer[k].length > 0){

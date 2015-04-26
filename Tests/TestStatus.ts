@@ -6,9 +6,9 @@ describe('Status Manager Testing', () => {
 
     it('pub/sub pattern', (done) => {
 
-        var emitter = StatMgr.Pub('device.up');  //Service-end
+        var emitter = StatMgr.Pub('device.status', 'device status transition notification.');  //Service-end
 
-        StatMgr.Sub('device.up', (num1, num2) => { // Consumer-end
+        StatMgr.Sub('device.status', (num1, num2) => { // Consumer-end
             num1.should.be.eql(1);
             num2.should.be.eql(2);
 
@@ -26,7 +26,7 @@ describe('Status Manager Testing', () => {
             done();
         });
 
-        var emitter = StatMgr.Pub('holly.crap');  //Service-end
+        var emitter = StatMgr.Pub('holly.crap', 'just a crap.');  //Service-end
 
         emitter.Emit('ok', 'yeah'); //Service-end:  Emit overload ver.
     });

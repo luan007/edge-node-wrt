@@ -2,11 +2,13 @@ import events = require('events');
 
 export class Status extends events.EventEmitter {
     private eventName:string;
+    private description:string;
 
-    constructor(eventName){
+    constructor(eventName:string, description?:string) {
         super();
 
         this.eventName = eventName;
+        this.description = description || '';
     }
 
     Emit = (...args) => {
