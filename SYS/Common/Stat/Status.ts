@@ -13,8 +13,8 @@ export class Status extends events.EventEmitter {
         this.description = description || '';
     }
 
-    Emit = (...args) => {
-        var args2 = [this.statusName, this.moduleName].concat(args);
+    Emit = (obj) => {
+        var args2 = [this.statusName, this.moduleName, obj];
         this.emit.apply(this, args2);
         this.emit.apply(this, ['statusChanged'].concat(args2));
     }

@@ -134,21 +134,21 @@ export function SetupAppDataDir(app_id, runtime_id, cb) {
     };
     error("CHMOD 711 IS NOT SECURE!!!!!!");
     if (Node.fs.exists(path, (exist) => {
-        if (!exist) {
-            Node.fs.mkdir(path, (err) => {
-                if (err) return done(err, path);
+            if (!exist) {
+                Node.fs.mkdir(path, (err) => {
+                    if (err) return done(err, path);
+                    exec("chmod", "-R", "0711", path, (err) => { //TODO: FIX THIS CHMOD 711 -> 701
+                        if (err) return done(err, path);
+                        SetOwner_Recursive(path, runtime_id, done);
+                    });
+                });
+            } else {
                 exec("chmod", "-R", "0711", path, (err) => { //TODO: FIX THIS CHMOD 711 -> 701
                     if (err) return done(err, path);
                     SetOwner_Recursive(path, runtime_id, done);
                 });
-            });
-        } else {
-            exec("chmod", "-R", "0711", path, (err) => { //TODO: FIX THIS CHMOD 711 -> 701
-                if (err) return done(err, path);
-                SetOwner_Recursive(path, runtime_id, done);
-            });
-        }
-    }));
+            }
+        }));
 
 }
 

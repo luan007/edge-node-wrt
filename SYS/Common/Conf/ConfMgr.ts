@@ -1,4 +1,5 @@
 import fs = require('fs');
+import path = require('path');
 import events = require('events');
 import _Config = require('./Config');
 import Config = _Config.Config;
@@ -69,14 +70,14 @@ class ConfMgr extends events.EventEmitter {
             }
 
             delete this._buffers[key];
-            this._save();
+            this._save(key);
         }
     }
 
-    private _save = () => {
+    private _save = (key) => {
         setTask('write_config', () => {
             trace('write_config executed.', new Date().toLocaleTimeString());
-            fs.writeFile(this.CONFIG_PATH, JSON.stringify(this._configs), (err)=> {
+            fs.writeFile(path.join(this.CONFIG_PATH, key), JSON.stringify(this._configs), (err)=> {
                 if (err) console.log(err);
             });
         }, CONF.CONFIG_DELAY);

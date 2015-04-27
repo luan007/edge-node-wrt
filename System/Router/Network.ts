@@ -309,6 +309,7 @@ class Configuration extends Abstract.Configurable {
         };
 
         if (has(mod, "NetworkName")) {
+
             if (Core.Router.Phy.Wifi.WLAN_2G4 && Core.Router.Phy.Wifi.Config.Get()._2G4 && Core.Router.Phy.Wifi.Config.Get()._2G4.AutoSSID) {
                 Core.Router.Phy.Wifi.WLAN_2G4.Config.SSID = mod.NetworkName;
                 if (Core.Router.Phy.Wifi.Config.Get()._2G4.Power) {

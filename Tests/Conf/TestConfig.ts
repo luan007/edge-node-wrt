@@ -1,6 +1,6 @@
+require('../../System/Env');
 var fs = require('fs');
-require('../System/Env');
-var ConfMgr = require('../System/Conf/ConfMgr');
+var ConfMgr = require('../../SYS/Common/Conf/ConfMgr');
 
 describe('Configuration Manager Testing', () => {
     var applyOkAlways = (cb:Function) => {
@@ -56,6 +56,6 @@ describe('Configuration Manager Testing', () => {
 
         setTask('test', () => {
             done();
-        }, 2000);
+        }, 500);
     });
 });

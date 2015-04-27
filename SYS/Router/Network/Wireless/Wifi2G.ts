@@ -1,0 +1,124 @@
+import Node = require("Node");
+import Core = require("Core");
+import Native = Core.SubSys.Native;
+import Iptables = Native.iptables;
+import Abstract = Core.Lib.Abstract;
+import Network = require("../Network");
+
+export var WLAN_2G4 = new Native.hostapd.hostapd(CONF.DEV.WLAN.DEV_2G);
+export var Rules = {
+    NAT_2G4: new Iptables.Rule(),
+};
+
+export function Initialize(cb) {
+    Rules.NAT_2G4.Target =  Iptables.Target_Type.ACCEPT;
+    Rules.NAT_2G4.Iface_In = {
+        Prefix: CONF.DEV.WLAN.DEV_2G,
+        Id: <any>"" //SKIP
+    };
+    async.series([
+        Native.iptables.Iptables.NAT.PREROUTING.Add.bind(null, Rules.NAT_2G4),
+        Config.Initialize
+    ], cb);
+}
+
+class Configuration extends Abstract.Configurable {
+    //TODO: Optimize 5G7's Config (VF* Configs - Hostapd 80211AC)
+    Default = {
+        _2G4: {
+            Power: true,
+            SSID: "EdgeRouter",
+            AutoSSID: false,
+            Visible: true,
+            Channel: 2,
+            Password: "testtest",
+            NAT: 1,
+            Isolation: 0, //Not Used, reserved for VLAN,
+            Aux: { //GuestWifi
+                "0": {
+                    Power: false,
+                    SSID: undefined,
+                    Password: undefined,
+                    Visible: false,
+                    NAT: 1,
+                    Isolation: 0, //Not Used, reserved for VLAN,
+                }
+            }
+        }
+    };
+
+    constructor() {
+        super();
+    }
+
+    private _apply2G4 = (mod, cb) => {
+        if (!mod || Object.keys(mod).length == 0) return cb();
+        if (!has(mod, "_2G4")) {
+            return cb();
+        }
+        mod = mod._2G4;
+        //console.log(mod);
+        if (has(mod, "SSID")) {
+            WLAN_2G4.Config.SSID = mod.SSID;
+        }
+        if (has(mod, "AutoSSID")) {
+            if (mod.AutoSSID) {
+                WLAN_2G4.Config.SSID = Network.Config.Get().NetworkName; //override :p
+            } else {
+                WLAN_2G4.Config.SSID = mod.SSID ? mod.SSID : this.Get()._2G4.SSID; //override :p
+            }
+        }
+        if (has(mod, "Visible")) {
+            WLAN_2G4.Config.BroadcastSSID = mod.Visible;
+        }
+        if (has(mod, "Password")) {
+            WLAN_2G4.Config.Password = mod.Password;
+        }
+        if (has(mod, "Channel")) {
+            WLAN_2G4.Config.Channel = mod.Channel;
+        }
+        if (has(mod, "NAT")) {
+            Rules.NAT_2G4.Target = mod.NAT == 1 ? Iptables.Target_Type.ACCEPT : Iptables.Target_Type.DROP;
+            Rules.NAT_2G4.Save(() => { });
+        }
+        if (mod.Power == false) {
+            //Arrrrhhhhhhhhhhhhhhhhhhooooouuuuuchh..
+            WLAN_2G4.Stop(false);
+            return cb();
+        }
+        else if (this.Get()._2G4.Power){
+            //apply
+            WLAN_2G4.Start(true);
+            var pid;
+
+            var job1 = setTimeout(() => {
+                if (WLAN_2G4.Process) {
+                    pid = WLAN_2G4.Process.pid;
+                }
+                clearTimeout(job1);
+            }, 1000);
+
+            var job2 = setTimeout(() => {
+                clearTimeout(job2);
+                if (WLAN_2G4.Process && WLAN_2G4.Process.pid == pid) {
+                    return cb();
+                }
+                cb(new Error("Failed to Config WLAN_2G4"));
+            }, 3000);
+        }
+    };
+
+    protected _apply = (mod, raw, cb: Callback) => {
+        async.series([
+            this._apply2G4.bind(this, mod),
+        ], cb);
+    };
+
+    public Initialize = (cb) => {
+        this.sub = Core.Data.Registry.Sector(Core.Data.Registry.RootKeys.Network, "WIFI");
+        this.Reload(this.Default, cb);
+    };
+
+}
+
+export var Config = new Configuration();

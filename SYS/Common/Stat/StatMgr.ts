@@ -5,7 +5,7 @@ import Status = _Status.Status;
 class StatMgr{
     private _statuses :{ [key: string]: Status; } = {};
     private _subBuffer : {[key: string]: Array<Function>} = {};
-    private _moduleStatus : { [key:string]: IDic<Array<any>> } = {};
+    private _moduleStatus : { [key:string]: any } = {};
 
     Pub = (k:string, m:string, desc?:string) => {
         this._statuses[k] = this._statuses[k] || new Status(k, m, desc);
@@ -18,9 +18,11 @@ class StatMgr{
             delete this._subBuffer[k];
         }
 
-        this._statuses[k].on('statusChanged', (statusName, moduleName, ...args) => { // status changed event.
+        this._statuses[k].on('statusChanged', (statusName, moduleName, obj) => { // status changed event.
             this._moduleStatus[moduleName] = this._moduleStatus[moduleName] || {};
-            this._moduleStatus[moduleName][statusName] = args;
+            this._moduleStatus[moduleName][statusName] = this._moduleStatus[moduleName][statusName] || {};
+            for(var k in obj)
+                this._moduleStatus[moduleName][statusName][k] = obj[k];
         });
 
         return this._statuses[k];

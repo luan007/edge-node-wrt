@@ -59,7 +59,7 @@ class _sys_conf {
     BLUETOOTH_DROPWAIT = 30 * 1000; //30 sec till dead
     ENABLE_HTTPPROXY = false;
     CONFIG_DELAY = 100; //delay 100ms before write to disk
-    CONFIG_PATH = '/var/config';
+    CONFIG_PATH = '/var/';
     CORE_PARTS = {
         LAUNCHER: "Launcher"
     };
