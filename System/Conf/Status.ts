@@ -1,18 +1,22 @@
 import events = require('events');
 
 export class Status extends events.EventEmitter {
-    private eventName:string;
+    private statusName:string;
     private description:string;
+    private moduleName:string;
 
-    constructor(eventName:string, description?:string) {
+    constructor(eventName:string, moduleName:string, description?:string) {
         super();
 
-        this.eventName = eventName;
+        this.statusName = eventName;
+        this.moduleName = moduleName;
         this.description = description || '';
     }
 
     Emit = (...args) => {
-        this.emit.apply(this, [this.eventName].concat(args));
+        var args2 = [this.statusName, this.moduleName].concat(args);
+        this.emit.apply(this, args2);
+        this.emit.apply(this, ['statusChanged'].concat(args2));
     }
 
     Destory = () => {
