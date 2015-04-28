@@ -41,7 +41,6 @@ class ConfMgr extends events.EventEmitter {
     }
 
     Initialize = () => {
-        this._load();
     }
 
     Destory = () => {
@@ -49,6 +48,8 @@ class ConfMgr extends events.EventEmitter {
     }
 
     Get = (key?) => {
+        if (key && !this._configs[key])
+            this._load(key);
         return key ? this._configs : this._configs[key];
     }
 
@@ -83,9 +84,9 @@ class ConfMgr extends events.EventEmitter {
         }, CONF.CONFIG_DELAY);
     }
 
-    private _load = () => { // TODO: need bash to create CONFIG
-        var data = fs.readFileSync(this.CONFIG_PATH);
-        this._configs = JSON.parse(data.toString('utf8'));
+    private _load = (key) => { // TODO: need bash to create CONFIG
+        var data = fs.readFileSync(path.join(this.CONFIG_PATH, key));
+        this._configs[key] = JSON.parse(data.toString('utf8'));
     }
 }
 

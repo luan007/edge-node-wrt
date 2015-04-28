@@ -10,8 +10,6 @@ describe('Configuration Manager Testing', () => {
     before(()=> {
         if(!fs.existsSync(ConfMgr.CONFIG_PATH))
             fs.writeFileSync(ConfMgr.CONFIG_PATH, '{}');
-
-        ConfMgr.Initialize();
     });
 
     it ('mock default config updating', (done) => {

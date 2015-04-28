@@ -1,30 +1,23 @@
 ﻿import Node = require("Node");
 import bluez = require('../../../Common/Native/bluez');
-import Configurable = require('../../../Common/Abstract/Configurable');
+import ConfMgr = require('../../../Common/Conf/ConfMgr');
+import _Config = require('../../../Common/Conf/Config');
+import Config = _Config.Config;
+import StatMgr = require('../../../Common/Stat/StatMgr');
+import Status = require('../../../Common/Stat/Status');
 
 export var BluezInstance = new bluez.Bluez();
 
 export function Initialize(cb) {
-    Config.Initialize(cb);
+    configBluez.Initialize(cb);
 }
 
-class Configuration extends Configurable {
+class Configuration extends Config {
 
-    Default = {
-        HCI: {
-            Power: true,
-            Name: "Edge-Router",
-            Hidden: false
-        },
-        Audio: {
-            Power: true,
-            Name: "Edge-Router-Audio",
-            Hidden: false
-        }
-    };
+    constructor(moduleName:string, defaultConfig:any) {
+        super(moduleName, defaultConfig);
 
-    constructor() {
-        super();
+        this.Initialize(()=>{});
     }
 
     private _applyHCI = (mod, cb) => {
@@ -91,13 +84,23 @@ class Configuration extends Configurable {
     };
 
     public Initialize = (cb) => {
-        this.sub = Core.Data.Registry.Sector(Core.Data.Registry.RootKeys.Network, "BLUETOOTH");
-        this.Reload(this.Default, cb);
+        var _default = this.Get();
+        this.Reload(_default, cb);
     };
 
 }
+var defaultConfig = {
+    HCI: {
+        Power: true,
+        Name: "Edge-Router",
+        Hidden: false
+    },
+    Audio: {
+        Power: true,
+        Name: "Edge-Router-Audio",
+        Hidden: false
+    }
+};
+export var configBluez = new Configuration(SECTION.BLUETOOTH, defaultConfig);
 
-export var Config = new Configuration();
-
-__API(withCb(Config.Get), "Network.Bluetooth.Config.Get", [Permission.Network, Permission.Configuration]);
-__API(Config.Apply, "Network.Bluetooth.Config.Apply", [Permission.Network, Permission.Configuration]);
+__API(withCb(configBluez.Get), "Network.Bluetooth.Config.Get", [Permission.Network, Permission.Configuration]);

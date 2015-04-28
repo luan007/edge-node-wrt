@@ -5,13 +5,13 @@ var arch = os.arch();
 declare var path;
 class _sys_conf {
     LOADED = false; // don't touch
-    IS_DEBUG = true; 
+    IS_DEBUG = true;
     ALWAYS_REBUILD_OUI = false;
     INTERACTIVE_DEBUG = true;
     IPTABLES_GUARD_LOG = false;
     DISABLE_SAMBA = true;
     IW_LOG = false;
-    RPC_FUNC_LOG = true; 
+    RPC_FUNC_LOG = true;
     SKIP_QUOTA_CHECK = false; // = true if your boot is too slow, however Runtime.ts will be unstable
     CMD_DEBUG = true; // turn this on if you want to see iptables, chmod, chroot and such being printed
     ROOT_LEVEL_SECURITY = false; // = true will lead to a recursive chmod 0005 on '/', be warned - NOT TESTED
@@ -20,7 +20,7 @@ class _sys_conf {
     TIMER_LOG = false; //enable this to see all active timers (setInterval)
     TIMEOUT_LOG = false; //enable this to see all setTimeout calls
     ARP_TIMEOUT = 100000; //ARP Cache timeout, ARP-Rescan can be slow (worst case = ping)
-    BASE_PATH = path.join(__dirname, "../"); 
+    BASE_PATH = path.join(__dirname, "../");
     SHADOW_BASE_PATH = "/SagittariusA/"
     SHADOW_DATA_PATH = path.join(this.SHADOW_BASE_PATH, "Data");
     DEV_STORAGE = "/dev/mmcblk0p1"; // system partition, as for onboard-emmc configuration: /dev/mmcblk0p1
@@ -34,12 +34,12 @@ class _sys_conf {
     GRAPHD_LOCATION = path.join(this.BASE_PATH, "Device/Graphd/deltaV");
     GRAPHD_UPGRADE_LOCATION = path.join(this.BASE_PATH, "Device/Graphd");
     MAIN_REGISTRY_PATH = path.join(this.DATA_DIR, "reg");
-    APP_TRUST_LIFE = 5; 
+    APP_TRUST_LIFE = 5;
     APP_SPAN_SCALER = 1.5; // Max = 10 ^ 1.5 = 316sec
     APP_RESP_SCAN_INTERVAL = 5000; // Max = 10 ^ 2.5 = 316sec
     AUTO_LOAD_APPS = false;
     ISO_DEFAULT_LIMIT = 1024 * 1500; //1500MB
-    DO_NOT_DETACH = true; 
+    DO_NOT_DETACH = true;
     ENABLE_EXEC_QUEUEING = true;
     PROCESS_DEBUG = false;
     BYPASS_APP_SIGCHECK = true;
@@ -89,10 +89,21 @@ class _sys_conf {
     };
     USER_IMMEDIATE_EXPIRE = false;
     IPTABLES_6 = false;
+
+}
+
+class _section {
+    NETWORK ='NETWORK';
+    WLAN5G = 'WLAN5G';
+    WLAN2G = 'WLAN2G';
+    BLUETOOTH = 'BLUETOOTH';
 }
 
 var CONF = new _sys_conf();
 global.CONF = CONF;
+
+var SECTION = new _section();
+global.SECTION = SECTION;
 
 
 if (arch !== "arm") {
