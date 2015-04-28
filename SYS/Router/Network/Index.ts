@@ -3,7 +3,7 @@ import StatMgr = require('../../Common/Stat/StatMgr');
 import Dnsmasq = require('../../Common/Native/Dnsmasq');
 export var dnsmasq = new Dnsmasq.dnsmasq();
 
-var default_conf = {
+var defaultConfig = {
     NetworkName: "edge-dev",
     RouterIP: "192.168.133.1",
     LocalNetmask: 24,
@@ -20,9 +20,9 @@ var default_conf = {
 };
 
 
-var config = ConfMgr.Register('network', default_conf);
-config.on('commit', () => {
-
+var config = ConfMgr.Register('network', defaultConfig);
+config.on('commit', (delta, original) => {
+    //TODO: fill out apply logic.
 });
 
-var emitter = StatMgr.Pub('network', 'network', '');
+var emitter = StatMgr.Pub('network', 'network', 'network status');
