@@ -51,7 +51,7 @@ export class Config extends events.EventEmitter {
                     for(var k in config_delta)
                         this.conf[k] = config_delta[k];
                     this.Flush();
-                    trace("Applied");
+                    trace(this.key, "Applied");
                 }
             });
         }, ()=> {

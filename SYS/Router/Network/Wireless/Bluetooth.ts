@@ -1,5 +1,4 @@
-﻿import Node = require("Node");
-import bluez = require('../../../Common/Native/bluez');
+﻿import bluez = require('../../../Common/Native/bluez');
 import ConfMgr = require('../../../Common/Conf/ConfMgr');
 import _Config = require('../../../Common/Conf/Config');
 import Config = _Config.Config;

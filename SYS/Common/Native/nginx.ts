@@ -1,10 +1,16 @@
 ﻿import nginx_conf = require("nginx-conf");
-import Node = require("Node");
 import Process = require("./Process");
 import RPC = require("../../../Modules/RPC/index");
 import API = require("../../API/_Export");
 var nginxconf = nginx_conf.NginxConfFile;
-
+import path = require("path");
+import child_process = require("child_process");
+import fs = require("fs");
+import net = require("net");
+import util = require("util");
+import os = require("os");
+import events = require("events");
+import crypto = require("crypto");
 
 export class CtrlInterface {
 
@@ -51,7 +57,7 @@ export class CtrlInterface {
             this.Http._add("tcp_nodelay", "on");
             this.Http._add("proxy_set_header", "Accept-Encoding \"\"");
             this.Http._add("lua_package_cpath", "'/opt/luajit/?.so;'");
-            this.Http._add("lua_package_path", '"' + Node.path.join(CONF.MODULE_DIR, "Lua/?.lua") + ';"');
+            this.Http._add("lua_package_path", '"' + path.join(CONF.MODULE_DIR, "Lua/?.lua") + ';"');
             this.Http._add("init_by_lua", this.GenerateStartupScript());
             //this.Http._add("init_by_lua", "'" + 'require("Nginx");' + "'");
             //this.InitLuaScript = this.Http["init_by_lua"];
@@ -173,15 +179,15 @@ export class nginx extends Process {
                     error(err);
                 } else {
                     var conf = this.Ctrl.ToConfig();
-                    if (Node.fs.existsSync(this.confPath)) {
-                        Node.fs.unlinkSync(this.confPath);
+                    if (fs.existsSync(this.confPath)) {
+                        fs.unlinkSync(this.confPath);
                     }
-                    Node.fs.writeFileSync(this.confPath, conf);
+                    fs.writeFileSync(this.confPath, conf);
                     if (this.Process) {
                         trace("Reload!");
                         this.Process.kill("SIGHUP");
                     } else {
-                        this.Process = Node.child_process.spawn("nginx", [
+                        this.Process = child_process.spawn("nginx", [
                             "-c", this.confPath
                         ], {
                                 env: {

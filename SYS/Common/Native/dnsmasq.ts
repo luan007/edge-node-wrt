@@ -1,6 +1,13 @@
-﻿import Node = require("Node");
-var unix: any = require("unix-dgram");
+﻿var unix: any = require("unix-dgram");
 import Process = require("./Process");
+import path = require("path");
+import child_process = require("child_process");
+import fs = require("fs");
+import net = require("net");
+import util = require("util");
+import os = require("os");
+import events = require("events");
+import crypto = require("crypto");
 
 /*
  * 
@@ -205,7 +212,7 @@ interface ILeaseEventPacket {
     Action: string;
 }
 
-export class DHCPLeaseManager extends Node.events.EventEmitter {
+export class DHCPLeaseManager extends events.EventEmitter {
 
     /*
      * root@ubuntu:/var/lib/misc# cat dnsmasq.leases 
@@ -253,17 +260,17 @@ export class DHCPLeaseManager extends Node.events.EventEmitter {
         //});
 
 
-        if (Node.fs.existsSync(this.relay_path) && Node.fs.unlinkSync(this.relay_path));
-        if (Node.fs.existsSync(sock) && Node.fs.unlinkSync(sock));
+        if (fs.existsSync(this.relay_path) && fs.unlinkSync(this.relay_path));
+        if (fs.existsSync(sock) && fs.unlinkSync(sock));
         var d = "#!/bin/bash\necho \"{ \\\"Action\\\":\\\"$1\\\", \\\"Lease\\\": { \\\"Mac\\\":\\\"$2\\\", \\\"Address\\\":\\\"$3\\\", \\\"Hostname\\\":\\\"$4\\\", \\\"VendorClass\\\":\\\"$DNSMASQ_VENDOR_CLASS\\\", \\\"Interface\\\":\\\"$DNSMASQ_INTERFACE\\\" }}\" | socat - UNIX-SENDTO:" + sock;
-        Node.fs.writeFileSync(this.relay_path, d);
+        fs.writeFileSync(this.relay_path, d);
         info("Relay Generated at " + this.relay_path);
-        Node.fs.chmodSync(this.relay_path, 777); //woo
+        fs.chmodSync(this.relay_path, 777); //woo
         info("Relay getting +0777 - wooo");
         var client = unix.createSocket('unix_dgram', this._onrawdata); //well well
         this._socketclient = client;
         client.bind(sock);
-        Node.fs.chmodSync(sock, 777); //woo
+        fs.chmodSync(sock, 777); //woo
         client.on('error', (err) => {
             error("DNSMASQ ERROR");
             error(err);
@@ -622,9 +629,9 @@ export class dnsmasq extends Process {
                 exec.bind(null, "rm -rf " + this.hosts_path),
                 exec.bind(null, "rm -rf " + this.dns_path),
                 exec.bind(null, "rm -rf " + this.dhcp_host_path),
-                Node.fs.writeFile.bind(null, this.hosts_path, _hosts),
-                Node.fs.writeFile.bind(null, this.dns_path, _dns),
-                Node.fs.writeFile.bind(null, this.dhcp_host_path, _dhcp_hosts)
+                fs.writeFile.bind(null, this.hosts_path, _hosts),
+                fs.writeFile.bind(null, this.dns_path, _dns),
+                fs.writeFile.bind(null, this.dhcp_host_path, _dhcp_hosts)
             ], cb);
     };
 
@@ -657,7 +664,7 @@ export class dnsmasq extends Process {
                     this.Process.kill();
                 }
                 this.flush(() => {
-                    this.Process = Node.child_process.spawn("dnsmasq", ConfigToArg(this.Config, this.relay_path).concat(
+                    this.Process = child_process.spawn("dnsmasq", ConfigToArg(this.Config, this.relay_path).concat(
                         [
                             "--addn-hosts=" + this.hosts_path,
                             "--dhcp-hostsfile=" + this.dhcp_host_path,

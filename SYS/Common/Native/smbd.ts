@@ -1,5 +1,4 @@
-﻿import Node = require("Node");
-import fs = require("fs");
+﻿import fs = require("fs");
 import child_process = require("child_process");
 import Process = require("./Process");
 var _ = require("underscore");;

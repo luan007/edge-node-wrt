@@ -1,5 +1,3 @@
-import Node = require("Node");
-import fs = require("fs");
 import util = require("util");
 import child_process = require("child_process");
 import events = require("events");

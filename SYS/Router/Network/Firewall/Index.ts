@@ -1,4 +1,4 @@
-import Node = require("Node");
+export import dns = require('dns');
 import ConfMgr = require('../../../Common/Conf/ConfMgr');
 import _Config = require('../../../Common/Conf/Config');
 import Config = _Config.Config;
@@ -66,7 +66,7 @@ class Configuration extends Config {
 
         if (has(delta, "BlockedRemoteAddresses") && Array.isArray(delta.BlockedRemoteAddresses)) {
             delta.BlockedRemoteAddresses.forEach((hostname) => {
-                Node.dns.resolve4(hostname, (err, addresses)=> {
+                dns.resolve4(hostname, (err, addresses)=> {
                     if (!err){
                         addresses.forEach((address) => {
                             exec(ipset, 'add', 'block_remote_addresses', address);

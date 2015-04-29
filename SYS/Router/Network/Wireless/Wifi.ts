@@ -1,4 +1,3 @@
-import Node = require("Node");
 import hostapd = require('../../../Common/Native/hostapd');
 import Iptables = require('../../../Common/Native/iptables');
 import ConfMgr = require('../../../Common/Conf/ConfMgr');

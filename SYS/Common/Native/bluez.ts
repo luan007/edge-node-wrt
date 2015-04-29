@@ -317,6 +317,7 @@ export class Bluez extends Process {
 
                     adapter.RegisterAgent(this.agentPath, "DisplayYesNo");
                     conn.FindAdapter(this.AudioIface,(err, final) => {
+                        if(CONF.IS_DEBUG && err) return;
                         this.bus.getInterface("org.bluez", final, "org.bluez.Adapter",(err, adapter) => {
                             adapter.RegisterAgent(this.audioPath, "DisplayYesNo");
                         });

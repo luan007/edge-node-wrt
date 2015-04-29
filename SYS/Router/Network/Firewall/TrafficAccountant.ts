@@ -1,5 +1,4 @@
-﻿import Node = require("Node");
-import ipCore = require("../../../Common/Native/iproute2");
+﻿import ipCore = require("../../../Common/Native/iproute2");
 import iptables = require("../../../Common/Native/iptables");
 /*http://code.google.com/p/wrtbwmon/*/
 

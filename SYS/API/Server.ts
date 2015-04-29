@@ -5,7 +5,7 @@ import evhub = require("./EventHub");
 import events = require("events");
 import async = require("async");
 import uscred = require("unix-socket-credentials");
-import Node = require("Node");
+import util = require("util");
 
 export interface TypedRPCEndpoint extends rpc.RPCEndpoint {
     type: string;
@@ -115,7 +115,7 @@ export function Initialize() {
     SYS_ON(SYS_EVENT_TYPE.LOADED, () => {
         if (CONF.IS_DEBUG) {
             trace(" ** API DUMP ** ");
-            trace("\n" + Node.util.inspect(JSON.parse(rpc.APIManager.ToJSON().toString())));
+            trace("\n" + util.inspect(JSON.parse(rpc.APIManager.ToJSON().toString())));
         } trace(" ** -------- ** ");
     });
 

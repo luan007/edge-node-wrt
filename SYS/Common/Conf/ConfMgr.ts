@@ -85,7 +85,9 @@ class ConfMgr extends events.EventEmitter {
     }
 
     private _load = (key) => { // TODO: need bash to create CONFIG
-        var data = fs.readFileSync(path.join(this.CONFIG_PATH, key));
+        var filePath = path.join(this.CONFIG_PATH, key);
+        if(!fs.existsSync(filePath)) fs.writeFileSync(filePath, '{}');
+        var data = fs.readFileSync(filePath);
         this._configs[key] = JSON.parse(data.toString('utf8'));
     }
 }

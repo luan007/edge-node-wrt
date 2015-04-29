@@ -1,4 +1,11 @@
-﻿import Node = require("Node");
+﻿import path = require("path");
+import child_process = require("child_process");
+import fs = require("fs");
+import net = require("net");
+import util = require("util");
+import os = require("os");
+import events = require("events");
+import crypto = require("crypto");
 
 export interface OSUser {
     username : string;
@@ -35,7 +42,7 @@ export function Create(username, group, shell, cb) {
     var cmd = 'adduser';
     trace("ADD");
     trace(useraddOpts);
-    var passwd = Node.child_process.spawn(cmd, useraddOpts);
+    var passwd = child_process.spawn(cmd, useraddOpts);
     passwd.on('exit', function (code, signal) {
         cb(code);
     });
@@ -45,7 +52,7 @@ export function Delete(username, cb) {
     var cb = cb || function () { };
     var cmd = 'deluser';
     var args = [username];
-    var passwd = Node.child_process.spawn(cmd, args);
+    var passwd = child_process.spawn(cmd, args);
     passwd.on('exit', function (code, signal) {
         cb(code);
     });
@@ -68,7 +75,7 @@ export function Get(username, cb: (err, user: OSUser) => any) {
 }
 
 export function List(cb: (err, users: OSUser[]) => any){
-    Node.fs.readFile('/etc/passwd', function (err, users) {
+    fs.readFile('/etc/passwd', function (err, users) {
         if (err) {
             cb(err, undefined);
         } else {
