@@ -20,9 +20,9 @@ var defaultConfig = {
 };
 
 
-var config = ConfMgr.Register('network', defaultConfig);
+var config = ConfMgr.Register(SECTION.NETWORK, defaultConfig);
 config.on('commit', (delta, original) => {
     //TODO: fill out apply logic.
 });
 
-var emitter = StatMgr.Pub('network', 'network', 'network status');
+var emitter = StatMgr.Pub(SECTION.NETWORK, SECTION.NETWORK, 'network status');

@@ -65,15 +65,17 @@ class _sys_conf {
     };
     DEV = {
         WLAN: {
-            DEV_2G: "ap1",
-            DEV_5G: "ap0"
+            DEV_2G: process.env.DEV_2G || "ap1",
+            DEV_5G: process.env.DEV_5G || "ap0",
+            DEV_GUEST_2G: process.env.DEV_GUEST_2G || "guest0",
+            DEV_GUEST_5G: process.env.DEV_GUEST_5G || "guest1"
         },
         BLUETOOTH: {
             DEV_HCI: "hci0",
             DEV_AUD: "hci1"
         },
         ETH: {
-            DEV_WAN: "eth2"
+            DEV_WAN: process.env.DEV_WAN || "eth2"
         }
     };
     BUS = { //DEV Reverse
@@ -97,6 +99,7 @@ class _section {
     WLAN5G = 'WLAN5G';
     WLAN2G = 'WLAN2G';
     BLUETOOTH = 'BLUETOOTH';
+    FIREWALL = "FIREWALL";
 }
 
 var CONF = new _sys_conf();

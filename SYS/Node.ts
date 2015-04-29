@@ -6,3 +6,4 @@ export import util = require("util");
 export import os = require("os");
 export import events = require("events");
 export import crypto = require("crypto");
+export import dns = require('dns');
