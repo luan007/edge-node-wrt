@@ -3,6 +3,7 @@ import events = require('events');
 export class Config extends events.EventEmitter {
     public key:string;
     public conf:any;
+    public configHandler: any;
 
     constructor(key:string, conf:any) {
         super();
@@ -10,7 +11,8 @@ export class Config extends events.EventEmitter {
         this.key = key;
         this.conf = conf;
 
-        this.on('commit', this.Apply);
+        this.configHandler = require('./ConfMgr').Register(this.key, this);
+        this.configHandler.on('commit', this.Apply);
     }
 
     Flush = () => {

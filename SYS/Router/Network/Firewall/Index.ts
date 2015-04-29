@@ -1,4 +1,4 @@
-export import dns = require('dns');
+import dns = require('dns');
 import ConfMgr = require('../../../Common/Conf/ConfMgr');
 import _Config = require('../../../Common/Conf/Config');
 import Config = _Config.Config;
@@ -68,6 +68,7 @@ class Configuration extends Config {
             delta.BlockedRemoteAddresses.forEach((hostname) => {
                 dns.resolve4(hostname, (err, addresses)=> {
                     if (!err){
+                        trace('ban hostname:', hostname, addresses);
                         addresses.forEach((address) => {
                             exec(ipset, 'add', 'block_remote_addresses', address);
                         });
@@ -104,7 +105,10 @@ var defaultConfig = {
     //ClientPortMap: [], ---> need PortMapper.ts with its own config & logic
     EnableNginxProxy: true
 };
+
+
 var configFirewall = new Configuration(SECTION.FIREWALL, defaultConfig);
+
 StatMgr.Sub(SECTION.NETWORK, (moduleName, delta) => {
     var statuses = StatMgr.GetByModule(moduleName),
         routerIP = statuses.RouterIP,
@@ -118,7 +122,6 @@ StatMgr.Sub(SECTION.NETWORK, (moduleName, delta) => {
     var conf:any = ConfMgr.Get(SECTION.FIREWALL);
     if (has(conf, "VLAN_Isolation")) {
         var iptables:string = "iptables",
-            ipset:string = "ipset",
             dev2G = CONF.DEV.WLAN.DEV_2G,
             dev5G = CONF.DEV.WLAN.DEV_5G,
             devGuest2G = CONF.DEV.WLAN.DEV_GUEST_2G,

@@ -19,9 +19,9 @@ class ConfMgr extends events.EventEmitter {
         });
     }
 
-    Register = (k:string, conf:any) => {
-        this._configs[k] = this._configs[k] || conf;
-        this._handlers[k] = this._handlers[k] || new Config(k, conf);
+    Register = (k:string, config:Config) => {
+        this._configs[k] = this._configs[k] || config.conf;
+        this._handlers[k] = this._handlers[k] || config;
         return this._handlers[k];
     }
 
@@ -35,6 +35,7 @@ class ConfMgr extends events.EventEmitter {
     }
 
     Commit = () => {
+        trace(this._buffers, this._handlers);
         for (var k in this._buffers) {
             this._handlers[k].emit('commit', this._buffers[k], this._configs[k]);
         }

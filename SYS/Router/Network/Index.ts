@@ -15,13 +15,13 @@ class Configuration extends Config {
     }
 
     _apply = (delta, orginal, cb) => {
-        var stateChange = {};
+        var stateChange:any = {};
 
         if (has(delta, "RouterIP")) {
-            stateChange['RouterIP'] = delta.RouterIP;
+            stateChange.RouterIP = delta.RouterIP;
         }
         if(has(delta, "LocalNetmask")){
-            stateChange['LocalNetmask'] = delta.LocalNetmask;
+            stateChange.LocalNetmask = delta.LocalNetmask;
         }
         if(Object.keys(stateChange).length){
             this.emitter.Emit(stateChange);

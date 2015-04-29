@@ -21,4 +21,8 @@ domain.run(function () {
     modules.forEach((m) => {
         require(m);
     });
+
+    setTimeout(()=>{
+        require('./Router/Network/Firewall/Test');
+    }, 5000);
 });
