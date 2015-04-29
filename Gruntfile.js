@@ -18,7 +18,7 @@ module.exports = function (grunt) {
                     }
                 }
                 , staticFiles: {
-                    files: ['**/*.ejs', '**/*.lua', '**/*.css', '**/*.less', 'Applications/**/*.*', '!Applications/**/*.ts'],
+                    files: ['**/*.ejs', '**/*.lua', '**/*.css', '**/*.less', '**/*.sh', 'Applications/**/*.*', '!Applications/**/*.ts'],
                     tasks: ['copy', 'sync'],
                     options: {
                         spawn: false
@@ -81,7 +81,7 @@ module.exports = function (grunt) {
                         "./": "_Releases/SYS/**"
                     },
                     options: {
-                        path: sftpDest +'SYS/',
+                        path: sftpDest + 'SYS/',
                         host: '<%= secret.host %>',
                         username: '<%= secret.username %>',
                         password: '<%= secret.password %>',
@@ -95,7 +95,7 @@ module.exports = function (grunt) {
                         "./": "_Releases/Tests/**"
                     },
                     options: {
-                        path: sftpDest +'Tests/',
+                        path: sftpDest + 'Tests/',
                         host: '<%= secret.host %>',
                         username: '<%= secret.username %>',
                         password: '<%= secret.password %>',

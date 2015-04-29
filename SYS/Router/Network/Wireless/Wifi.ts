@@ -144,5 +144,5 @@ var defconfig5G7 = {
 var config5G7 = new Configuration(SECTION.WLAN5G, WLAN_5G7, defconfig5G7);
 
 
-__API(withCb(config2G4.ConfigHandler.Get), "Network.Wifi2G.Config.Get", [Permission.Network, Permission.Configuration]);
-__API(withCb(config5G7.ConfigHandler.Get), "Network.Wifi5G.Config.Get", [Permission.Network, Permission.Configuration]);
+__API(withCb(config2G4.Get), "Network.Wifi2G.Config.Get", [Permission.Network, Permission.Configuration]);
+__API(withCb(config5G7.Get), "Network.Wifi5G.Config.Get", [Permission.Network, Permission.Configuration]);

@@ -77,7 +77,7 @@ class ConfMgr extends events.EventEmitter {
 
     private _save = (key) => {
         setTask('write_config', () => {
-            trace('write_config executed.', new Date().toLocaleTimeString());
+            trace('write_config executed.', JSON.stringify(this._configs), new Date().toLocaleTimeString());
             fs.writeFile(path.join(this.CONFIG_PATH, key), JSON.stringify(this._configs), (err)=> {
                 if (err) console.log(err);
             });

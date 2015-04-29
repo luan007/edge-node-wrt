@@ -105,4 +105,42 @@ var defaultConfig = {
     EnableNginxProxy: true
 };
 var configFirewall = new Configuration(SECTION.FIREWALL, defaultConfig);
-__API(withCb(configFirewall.ConfigHandler.Get), "Network.Firewall.Config.Get", [Permission.Network, Permission.Configuration]);
+StatMgr.Sub(SECTION.NETWORK, (moduleName, delta) => {
+    var statuses = StatMgr.GetByModule(moduleName),
+        routerIP = statuses.RouterIP,
+        localNetmask = statuses.LocalNetmask;
+    if (has(delta, "RouterIP")) {
+        routerIP= delta.RouterIP;
+    }
+    if(has(delta, "LocalNetmask")){
+        localNetmask = delta.LocalNetmask;
+    }
+    var conf:any = ConfMgr.Get(SECTION.FIREWALL);
+    if (has(conf, "VLAN_Isolation")) {
+        var iptables:string = "iptables",
+            ipset:string = "ipset",
+            dev2G = CONF.DEV.WLAN.DEV_2G,
+            dev5G = CONF.DEV.WLAN.DEV_5G,
+            devGuest2G = CONF.DEV.WLAN.DEV_GUEST_2G,
+            devGuest5G = CONF.DEV.WLAN.DEV_GUEST_5G,
+            dev2GVlanIsolation = false,
+            dev5GVlanIsolation = false,
+            devGuest2GVlanIsolation = false,
+            devGuest5GVlanIsolation = false,
+            newworkAddress = routerIP + '/' + localNetmask;
+        if (has(conf.VLAN_Isolation, "WLAN2G") && conf.VLAN_Isolation.WLAN2G) dev2GVlanIsolation = true;
+        if (has(conf.VLAN_Isolation, "WLAN5G") && conf.VLAN_Isolation.WLAN5G) dev5GVlanIsolation = true;
+        if (has(conf.VLAN_Isolation, "WLAN2G_Guest") && conf.VLAN_Isolation.WLAN2G_Guest) devGuest2GVlanIsolation = true;
+        if (has(conf.VLAN_Isolation, "WLAN5G_Guest") && conf.VLAN_Isolation.WLAN5G_Guest) devGuest5GVlanIsolation = true;
+
+        exec(iptables, '-w', '-t', 'nat', '-R', 'vlan_isolation', '1', '-s', newworkAddress, '-i', dev2G, '-j', dev2GVlanIsolation ? 'RETURN' : 'DROP');
+        exec(iptables, '-w', '-t', 'nat', '-R', 'vlan_isolation', '2', '-d', newworkAddress, '-i', dev2G, '-j', dev2GVlanIsolation ? 'RETURN' : 'DROP');
+        exec(iptables, '-w', '-t', 'nat', '-R', 'vlan_isolation', '3', '-s', newworkAddress, '-i', dev5G, '-j', dev5GVlanIsolation ? 'RETURN' : 'DROP');
+        exec(iptables, '-w', '-t', 'nat', '-R', 'vlan_isolation', '4', '-d', newworkAddress, '-i', dev5G, '-j', dev5GVlanIsolation ? 'RETURN' : 'DROP');
+        exec(iptables, '-w', '-t', 'nat', '-R', 'vlan_isolation', '5', '-s', newworkAddress, '-i', devGuest2G, '-j', devGuest2GVlanIsolation ? 'RETURN' : 'DROP');
+        exec(iptables, '-w', '-t', 'nat', '-R', 'vlan_isolation', '6', '-d', newworkAddress, '-i', devGuest2G, '-j', devGuest2GVlanIsolation ? 'RETURN' : 'DROP');
+        exec(iptables, '-w', '-t', 'nat', '-R', 'vlan_isolation', '7', '-s', newworkAddress, '-i', devGuest5G, '-j', devGuest5GVlanIsolation ? 'RETURN' : 'DROP');
+        exec(iptables, '-w', '-t', 'nat', '-R', 'vlan_isolation', '8', '-d', newworkAddress, '-i', devGuest5G, '-j', devGuest5GVlanIsolation ? 'RETURN' : 'DROP');
+    }
+});
+__API(withCb(configFirewall.Get), "Network.Firewall.Config.Get", [Permission.Network, Permission.Configuration]);

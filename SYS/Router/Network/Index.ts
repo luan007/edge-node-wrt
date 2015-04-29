@@ -1,7 +1,33 @@
 import ConfMgr = require('../../Common/Conf/ConfMgr');
+import _Config = require('../../Common/Conf/Config');
+import Config = _Config.Config;
 import StatMgr = require('../../Common/Stat/StatMgr');
-import Dnsmasq = require('../../Common/Native/Dnsmasq');
-export var dnsmasq = new Dnsmasq.dnsmasq();
+import _Status = require('../../Common/Stat/Status');
+import Status = _Status.Status;
+
+class Configuration extends Config {
+    private emitter:Status;
+
+    constructor(moduleName:string, defaultConfig:any, emitter:Status) {
+        super(moduleName, defaultConfig);
+
+        this.emitter = emitter;
+    }
+
+    _apply = (delta, orginal, cb) => {
+        var stateChange = {};
+
+        if (has(delta, "RouterIP")) {
+            stateChange['RouterIP'] = delta.RouterIP;
+        }
+        if(has(delta, "LocalNetmask")){
+            stateChange['LocalNetmask'] = delta.LocalNetmask;
+        }
+        if(Object.keys(stateChange).length){
+            this.emitter.Emit(stateChange);
+        }
+    }
+}
 
 var defaultConfig = {
     NetworkName: "edge-dev",
@@ -19,10 +45,5 @@ var defaultConfig = {
     DHCPHosts: {}
 };
 
-
-var config = ConfMgr.Register(SECTION.NETWORK, defaultConfig);
-config.on('commit', (delta, original) => {
-    //TODO: fill out apply logic.
-});
-
 var emitter = StatMgr.Pub(SECTION.NETWORK, SECTION.NETWORK, 'network status');
+new Configuration(SECTION.NETWORK, defaultConfig, emitter);

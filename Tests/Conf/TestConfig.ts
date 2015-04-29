@@ -3,16 +3,12 @@ var fs = require('fs');
 var ConfMgr = require('../../SYS/Common/Conf/ConfMgr');
 
 describe('Configuration Manager Testing', () => {
-    var applyOkAlways = (cb:Function) => {
-        cb();
-    }
-
     before(()=> {
-        if(!fs.existsSync(ConfMgr.CONFIG_PATH))
+        if (!fs.existsSync(ConfMgr.CONFIG_PATH))
             fs.writeFileSync(ConfMgr.CONFIG_PATH, '{}');
     });
 
-    it ('mock default config updating', (done) => {
+    it('mock default config updating', (done) => {
         var default_conf = {
             NetworkName: "edge-dev",
             RouterIP: "192.168.133.1",
@@ -21,39 +17,29 @@ describe('Configuration Manager Testing', () => {
             DHCPHosts: {}
         };
 
-        var confWifi = ConfMgr.Register('wifi', default_conf);
+        var confWifi:any = ConfMgr.Register(SECTION.NETWORK, default_conf);
         confWifi.should.be.ok;
-        confWifi.on('commit', (delta, original) => {
-            applyOkAlways(() => {
-
-                confWifi.Flush(); // persistance
-
-                setTimeout(()=> { // check file
-                    fs.existsSync(ConfMgr.CONFIG_PATH).should.be.true;
-
-                    //var json = fs.readFileSync(ConfMgr.CONFIG_PATH);
-                    //var confOnDisk = JSON.parse(json.toString('utf8'));
-                    //confOnDisk.should.be.ok;
-
-                    //confOnDisk['wifi'].should.be.ok;
-                    //confOnDisk['wifi'].should.eql(default_conf);
-                }, 10);
-            });
-        });
+        confWifi._apply = (delta, original) => {
+            info(JSON.stringify(delta), JSON.stringify(original));
+            confWifi.Flush(); // persist
+        }
 
         // change request
-        ConfMgr.Set('wifi', {'NetworkName': 'edge-DEV', 'RouterIP': '12.12.12.12'});
-        ConfMgr.Commit();
+        ConfMgr.Set(SECTION.NETWORK, {'NetworkName': 'edge-DEV', 'RouterIP': '12.12.12.12'});
 
-        for (var i = 0; i < 99; i++) {
+        for (var i = 1; i < 99; i++) {
             ((_i) => {
-                ConfMgr.Set('wifi', {'LocalNetmask': _i});
+                ConfMgr.Set(SECTION.NETWORK, {'LocalNetmask': _i});
                 ConfMgr.Commit();
             })(i);
         }
 
         setTask('test', () => {
+            var conf = ConfMgr.Get(SECTION.NETWORK);
+            conf[SECTION.NETWORK]['LocalNetmask'].should.be.ok;
+            trace('LocalNetmask', conf[SECTION.NETWORK]['LocalNetmask']);
+
             done();
-        }, 500);
+        }, 1000);
     });
 });

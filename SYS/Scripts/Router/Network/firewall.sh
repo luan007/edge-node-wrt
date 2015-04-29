@@ -1,5 +1,11 @@
 #!/bin/bash
 
+#pre-set env
+if [ -z $DEV_2G ]; then export DEV_2G=ap1; fi
+if [ -z $DEV_5G ]; then export DEV_5G=ap0; fi
+if [ -z $DEV_GUEST_2G ]; then export DEV_GUEST_2G=guest0; fi
+if [ -z $DEV_GUEST_5G ]; then export DEV_GUEST_5G=guest1; fi
+
 #clean
 iptables -F -t filter
 iptables -X -t filter
@@ -49,7 +55,7 @@ iptables -w -t filter -A vlan_isolation -s 192.168.33.1/24 -i $DEV_GUEST_5G -j R
 iptables -w -t filter -A vlan_isolation -d 192.168.33.1/24 -i $DEV_GUEST_5G -j RETURN
 
 #block
-iptables -w -t filter -A INPUT -m set --match-set block_remote_addresses dst
+iptables -w -t filter -A INPUT -m set --match-set block_remote_addresses dst -j DROP
 
 iptables -w -t mangle -A PREROUTING -j pre_traffic
 iptables -w -t mangle -A POSTROUTING -j post_traffic

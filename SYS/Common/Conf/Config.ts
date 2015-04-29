@@ -3,7 +3,6 @@ import events = require('events');
 export class Config extends events.EventEmitter {
     public key:string;
     public conf:any;
-    public ConfigHandler: any;
 
     constructor(key:string, conf:any) {
         super();
@@ -11,8 +10,7 @@ export class Config extends events.EventEmitter {
         this.key = key;
         this.conf = conf;
 
-        this.ConfigHandler= require('./ConfMgr').Register(this.key, this.conf);
-        this.ConfigHandler.on('commit', this.Apply);
+        this.on('commit', this.Apply);
     }
 
     Flush = () => {
@@ -39,7 +37,6 @@ export class Config extends events.EventEmitter {
      * @param override Defaults to TRUE
      */
     Apply = (config_delta, config_previous) => {
-        info(JSON.stringify(config_previous));
         intoQueue("_CONFIG_" + this.key, () => {
             var _backup = JSON.stringify(this.conf);
             trace("Applying.. [" + Object.keys(config_delta).length + "]");
@@ -51,6 +48,8 @@ export class Config extends events.EventEmitter {
                         warn("Reloading last config..");
                     });
                 } else {
+                    for(var k in config_delta)
+                        this.conf[k] = config_delta[k];
                     this.Flush();
                     trace("Applied");
                 }
