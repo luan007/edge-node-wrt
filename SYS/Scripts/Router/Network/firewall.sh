@@ -55,7 +55,7 @@ iptables -w -t filter -A vlan_isolation -s 192.168.33.1/24 -i $DEV_GUEST_5G -j R
 iptables -w -t filter -A vlan_isolation -d 192.168.33.1/24 -i $DEV_GUEST_5G -j RETURN
 
 #block
-iptables -w -t filter -A INPUT -m set --match-set block_remote_addresses dst -j DROP
+iptables -w -t filter -I INPUT -m set --match-set block_remote_addresses dst -j REJECT
 
 iptables -w -t mangle -A PREROUTING -j pre_traffic
 iptables -w -t mangle -A POSTROUTING -j post_traffic
