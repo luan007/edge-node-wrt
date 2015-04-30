@@ -19,9 +19,9 @@ class ConfMgr extends events.EventEmitter {
         });
     }
 
-    Register = (k:string, config:Config) => {
-        this._configs[k] = this._configs[k] || config.conf;
-        this._handlers[k] = this._handlers[k] || config;
+    Register = (k:string, config) => {
+        this._configs[k] = this._configs[k] || config;
+        this._handlers[k] = this._handlers[k] || new Config(k, config);
         return this._handlers[k];
     }
 
@@ -35,7 +35,6 @@ class ConfMgr extends events.EventEmitter {
     }
 
     Commit = () => {
-        trace(this._buffers, this._handlers);
         for (var k in this._buffers) {
             this._handlers[k].emit('commit', this._buffers[k], this._configs[k]);
         }
@@ -48,10 +47,14 @@ class ConfMgr extends events.EventEmitter {
         this.removeAllListeners();
     }
 
-    Get = (key?) => {
+    Get = (key) => {
         if (key && !this._configs[key])
             this._load(key);
-        return key ? this._configs : this._configs[key];
+        return this._configs[key];
+    }
+
+    GetAll = () => {
+        return this._configs;
     }
 
     private _equal = (a, b) => {
@@ -87,7 +90,7 @@ class ConfMgr extends events.EventEmitter {
 
     private _load = (key) => { // TODO: need bash to create CONFIG
         var filePath = path.join(this.CONFIG_PATH, key);
-        if(!fs.existsSync(filePath)) fs.writeFileSync(filePath, '{}');
+        if (!fs.existsSync(filePath)) fs.writeFileSync(filePath, '{}');
         var data = fs.readFileSync(filePath);
         this._configs[key] = JSON.parse(data.toString('utf8'));
     }

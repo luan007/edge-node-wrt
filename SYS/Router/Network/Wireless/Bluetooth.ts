@@ -4,6 +4,8 @@ import _Config = require('../../../Common/Conf/Config');
 import Config = _Config.Config;
 import StatMgr = require('../../../Common/Stat/StatMgr');
 import Status = require('../../../Common/Stat/Status');
+import _Configurable = require('../../../Common/Conf/Configurable');
+import Configurable = _Configurable.Configurable;
 
 export var BluezInstance = new bluez.Bluez();
 
@@ -11,12 +13,14 @@ export function Initialize(cb) {
     configBluez.Initialize(cb);
 }
 
-class Configuration extends Config {
+class Configuration extends Configurable {
 
     constructor(moduleName:string, defaultConfig:any) {
         super(moduleName, defaultConfig);
 
-        this.Initialize(()=>{});
+        this.Initialize(()=>{
+            info(moduleName, 'Set.');
+        });
     }
 
     private _applyHCI = (mod, cb) => {
@@ -83,7 +87,7 @@ class Configuration extends Config {
     };
 
     public Initialize = (cb) => {
-        var _default = this.Get();
+        var _default = this.ConfigHandler.Get();
         this.Reload(_default, cb);
     };
 
@@ -102,4 +106,4 @@ var defaultConfig = {
 };
 export var configBluez = new Configuration(SECTION.BLUETOOTH, defaultConfig);
 
-__API(withCb(configBluez.Get), "Network.Bluetooth.Config.Get", [Permission.Network, Permission.Configuration]);
+__API(withCb(configBluez.ConfigHandler.Get), "Network.Bluetooth.Config.Get", [Permission.Network, Permission.Configuration]);

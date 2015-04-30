@@ -4,8 +4,10 @@ import Config = _Config.Config;
 import StatMgr = require('../../Common/Stat/StatMgr');
 import _Status = require('../../Common/Stat/Status');
 import Status = _Status.Status;
+import _Configurable = require('../../Common/Conf/Configurable');
+import Configurable = _Configurable.Configurable;
 
-class Configuration extends Config {
+class Configuration extends Configurable {
     private emitter:Status;
 
     constructor(moduleName:string, defaultConfig:any, emitter:Status) {
@@ -26,6 +28,8 @@ class Configuration extends Config {
         if(Object.keys(stateChange).length){
             this.emitter.Emit(stateChange);
         }
+
+        cb();
     }
 }
 

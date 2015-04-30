@@ -35,13 +35,16 @@ ipset -N block_remote_addresses iphash
 #rules
 iptables -w -t filter -A INPUT -j in_sys
 iptables -w -t filter -A INPUT -j in_custom
-iptables -w -t filter -A INPUT -m state --state NEW -j DROP #ACCEPT?
+iptables -w -t filter -A INPUT -m state --state NEW -j ACCEPT #TODO: DROP
 
 iptables -w -t filter -A FORWARD -j fw_sys
 iptables -w -t filter -A FORWARD -j fw_custom
 
 iptables -w -t filter -A OUTPUT -j ot_sys
 iptables -w -t filter -A OUTPUT -j ot_custom
+
+#block
+iptables -w -t filter -A ot_sys -m set --match-set block_remote_addresses dst -j REJECT
 
 #vlan isolation
 iptables -w -t filter -A INPUT -j vlan_isolation
@@ -53,9 +56,6 @@ iptables -w -t filter -A vlan_isolation -s 192.168.33.1/24 -i $DEV_GUEST_2G -j R
 iptables -w -t filter -A vlan_isolation -d 192.168.33.1/24 -i $DEV_GUEST_2G -j RETURN
 iptables -w -t filter -A vlan_isolation -s 192.168.33.1/24 -i $DEV_GUEST_5G -j RETURN
 iptables -w -t filter -A vlan_isolation -d 192.168.33.1/24 -i $DEV_GUEST_5G -j RETURN
-
-#block
-iptables -w -t filter -A OUTPUT -m set --match-set block_remote_addresses dst -j REJECT
 
 iptables -w -t mangle -A PREROUTING -j pre_traffic
 iptables -w -t mangle -A POSTROUTING -j post_traffic

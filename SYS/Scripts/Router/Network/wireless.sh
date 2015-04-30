@@ -1,5 +1,7 @@
 #!/bin/bash
 
+killall hostapd
+
 iw ap0 del
 sleep 1s
 iw ap1 del

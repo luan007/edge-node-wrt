@@ -2,10 +2,12 @@ import dns = require('dns');
 import ConfMgr = require('../../../Common/Conf/ConfMgr');
 import _Config = require('../../../Common/Conf/Config');
 import Config = _Config.Config;
+import _Configurable = require('../../../Common/Conf/Configurable');
+import Configurable = _Configurable.Configurable;
 import StatMgr = require('../../../Common/Stat/StatMgr');
 import Status = require('../../../Common/Stat/Status');
 
-class Configuration extends Config {
+class Configuration extends Configurable {
 
     constructor(moduleName:string, defaultConfig:any) {
         super(moduleName, defaultConfig);
@@ -27,7 +29,8 @@ class Configuration extends Config {
             devGuest2GVlanIsolation = false,
             devGuest5GVlanIsolation = false,
             networkConf = ConfMgr.Get(SECTION.NETWORK),
-            newworkAddress = networkConf['RouterIP'] + '/' + networkConf['LocalNetmask'];
+            newworkAddress = networkConf['RouterIP'] + '/' + networkConf['LocalNetmask'],
+            block_remote_addresses = 'block_remote_addresses';
 
         if (has(delta, "NAT")) {
             if (has(delta.NAT, "WLAN2G") && !delta.NAT.WLAN2G) dev2GEnable = false;
@@ -65,21 +68,25 @@ class Configuration extends Config {
         }
 
         if (has(delta, "BlockedRemoteAddresses") && Array.isArray(delta.BlockedRemoteAddresses)) {
+            info('ipset -F', block_remote_addresses);
+            exec(ipset, '-F', block_remote_addresses);
             delta.BlockedRemoteAddresses.forEach((hostname) => {
                 dns.resolve4(hostname, (err, addresses)=> {
                     if (!err){
                         trace('ban hostname:', hostname, addresses);
                         addresses.forEach((address) => {
-                            exec(ipset, 'add', 'block_remote_addresses', address);
+                            exec(ipset, 'add', block_remote_addresses, address);
                         });
                     }
                 });
             });
         }
+
+        cb();
     }
 
     public Initialize = (cb) => {
-        var _default = this.Get();
+        var _default = this.ConfigHandler.Get();
         this.Reload(_default, cb);
     };
 }
@@ -146,4 +153,4 @@ StatMgr.Sub(SECTION.NETWORK, (moduleName, delta) => {
         exec(iptables, '-w', '-t', 'nat', '-R', 'vlan_isolation', '8', '-d', newworkAddress, '-i', devGuest5G, '-j', devGuest5GVlanIsolation ? 'RETURN' : 'DROP');
     }
 });
-__API(withCb(configFirewall.Get), "Network.Firewall.Config.Get", [Permission.Network, Permission.Configuration]);
+__API(withCb(configFirewall.ConfigHandler.Get), "Network.Firewall.Config.Get", [Permission.Network, Permission.Configuration]);

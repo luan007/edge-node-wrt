@@ -3,8 +3,8 @@
 export class Configurable extends Node.events.EventEmitter {
 
     private _config = <any>{};
-        
-    constructor(protected sub?: Subkey, protected key = "_config") {
+
+    constructor(protected sub?:Subkey, protected key = "_config") {
         super();
         this.sub = sub;
         this.key = key;
@@ -26,7 +26,7 @@ export class Configurable extends Node.events.EventEmitter {
      */
     Apply = (config_delta, cb) => {
         info(JSON.stringify(config_delta));
-        intoQueue("_CONFIG_" + this.key,(cb) => {
+        intoQueue("_CONFIG_", (cb) => {
             var _backup = JSON.stringify(this._config);
             var mod = delta_add_return_changes(this._config, config_delta, true);
             trace("Applying.. [" + Object.keys(mod).length + "]");
@@ -34,14 +34,14 @@ export class Configurable extends Node.events.EventEmitter {
                 if (err) {
                     error(err);
                     this._config = JSON.parse(_backup);
-                    this.Reload(_backup,() => {
+                    this.Reload(_backup, () => {
                         warn("Reloading last config..");
                     });
                     cb(err);
                 } else {
                     this.emit("change", mod);
                     if (this.sub && this.key) {
-                        return this.sub.put(this.key, this._config,(err) => {
+                        return this.sub.put(this.key, this._config, (err) => {
                             if (err) error(err);
                             else info("Saved - " + JSON.stringify(this._config));
                             cb(err, mod);
@@ -54,7 +54,7 @@ export class Configurable extends Node.events.EventEmitter {
             });
         }, cb);
     };
-    
+
     /**
      * (Re)Loads Config from DB
      */
@@ -79,8 +79,8 @@ export class Configurable extends Node.events.EventEmitter {
     /**
      * Virtual Method, to be implemented
      */
-    protected _apply = (mod, raw, cb: Callback) => {
+    protected _apply = (mod, raw, cb:Callback) => {
         throw new Error("Virtual Method");
     };
-    
+
 }

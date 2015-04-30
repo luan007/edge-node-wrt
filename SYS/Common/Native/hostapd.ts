@@ -32,10 +32,10 @@ export enum TX_SPATIALSTREAM {
 
 export class ConfigBase {
 
-    Dev: string;
-    Auto_SSID: boolean = true;
+    Dev:string;
+    Auto_SSID:boolean = true;
 
-    Logger: {
+    Logger:{
         System: number;
         System_level: number;
         StdOut: number;
@@ -47,14 +47,14 @@ export class ConfigBase {
         StdOut_level: 2
     };
 
-    Base: _80211_BASE = _80211_BASE.N;
+    Base:_80211_BASE = _80211_BASE.N;
 
-    SSID: string;
-    Channel: number = 1;
-    MaxStations: number = 255;
-    MacAddressControl: ACL_TYPE = ACL_TYPE.ACCEPT_UNLESS_DENY;
-    BSSID: string = undefined;
-    HT_Capatability: {
+    SSID:string;
+    Channel:number = 1;
+    MaxStations:number = 255;
+    MacAddressControl:ACL_TYPE = ACL_TYPE.ACCEPT_UNLESS_DENY;
+    BSSID:string = undefined;
+    HT_Capatability:{
         HT40?: boolean;
         SHORT_GI_20?: boolean;
         SHORT_GI_40?: boolean;
@@ -68,11 +68,11 @@ export class ConfigBase {
         RX_STBC: RX_SPATIALSTREAM.SINGLE
     };
 
-    BroadcastSSID: boolean = true;
+    BroadcastSSID:boolean = true;
 
-    Password: string = "";
+    Password:string = "";
 
-    BSS: IDic<{
+    BSS:IDic<{
         SSID: string;
         Password: string;
     }> = {};
@@ -80,8 +80,7 @@ export class ConfigBase {
 }
 
 
-
-function CfgString(conf: ConfigBase, dev, ctrl_sock, mac_accp, mac_deny) {
+function CfgString(conf:ConfigBase, dev, ctrl_sock, mac_accp, mac_deny) {
 
     var newconf = "";
     var line = "\n";
@@ -125,8 +124,6 @@ function CfgString(conf: ConfigBase, dev, ctrl_sock, mac_accp, mac_deny) {
 
     newconf += "ctrl_interface=" + ctrl_sock + line;
     newconf += "ctrl_interface_group=0" + line;
-
-
 
 
     if (conf.Password) {
@@ -184,28 +181,28 @@ export class CtrlInterface extends events.EventEmitter {
     static DISCONNECT = "disconnect";
     static EVENT = "event";
 
-    Dev: string;
+    Dev:string;
 
-    _command_stack: {
+    _command_stack:{
         cmd: string;
         cb: Function;
     }[] = [];
 
-    _result_atom: string;
+    _result_atom:string;
 
-    _callback_atom: (err, data) => any;
+    _callback_atom:(err, data) => any;
 
-    _client: any;
+    _client:any;
 
-    _loc: string;
+    _loc:string;
 
-    _concheck: number = 0;
+    _concheck:number = 0;
 
-    _gtimer: any;
+    _gtimer:any;
 
-    _prevevent: string;
+    _prevevent:string;
 
-    Connected: boolean;
+    Connected:boolean;
 
     constructor(dev, private sock_loc) {
         super();
@@ -222,7 +219,7 @@ export class CtrlInterface extends events.EventEmitter {
         clearInterval(this._gtimer);
     }
 
-    private _sta_recur = (curSTA: string, accuresult: {
+    private _sta_recur = (curSTA:string, accuresult:{
         mac: string;
         STA: string;
     }[], maincallback) => {
@@ -319,7 +316,7 @@ export class CtrlInterface extends events.EventEmitter {
     }
 
     private _onrawdata = (buf, rinfo) => {
-        var data: string = buf.toString().trim();
+        var data:string = buf.toString().trim();
         this._result_atom += data;
         if (data.substr(0, 3) === "<3>") {
             if (this._prevevent !== data) {
@@ -383,7 +380,8 @@ export class CtrlInterface extends events.EventEmitter {
                     fs.unlinkSync(this._loc);
                 }
                 client.bind(this._loc);
-                client.on('error', () => { /*swallow*/ });
+                client.on('error', () => { /*swallow*/
+                });
                 client.send(attach, 0, attach.length, this.sock_loc);
                 this._client = client;
             } catch (e) {
@@ -403,21 +401,21 @@ export class hostapd extends Process {
     public MAC_Accept = {};
     public MAC_Deny = {};
 
-    public Config: ConfigBase;
-    public Ctrl: CtrlInterface;
+    public Config:ConfigBase;
+    public Ctrl:CtrlInterface;
 
     private _path_conf = getSock(UUIDstr());
     private _path_accp = getSock(UUIDstr());
     private _path_deny = getSock(UUIDstr());
     private _path_sock = getSock(UUIDstr());
 
-    _dev: string;
+    _dev:string;
 
-    public get Dev(): string {
+    public get Dev():string {
         return this._dev;
     }
 
-    public set Dev(dev: string) {
+    public set Dev(dev:string) {
         if (dev !== this._dev) {
             this._dev = dev;
             if (this.Ctrl) {
@@ -449,7 +447,7 @@ export class hostapd extends Process {
         return data;
     }
 
-    Start(forever: boolean = true) {
+    Start(forever:boolean = true) {
 
         if (!this.IsChoking()) {
             this.Ctrl.start();
@@ -476,7 +474,7 @@ export class hostapd extends Process {
                 if (fs.existsSync(this._path_deny) && fs.unlinkSync(this._path_deny));
                 fs.writeFileSync(this._path_deny, deny);
             }
-            
+
 
             //TODO: use DidChange to determine what to do!
             if (this.Process) {
@@ -489,19 +487,19 @@ export class hostapd extends Process {
                     info("No change, skipped");
                 }
             } else {
-                killall("hostapd", () => {
-                    this.Process = child_process.spawn("hostapd", [this._path_conf]);
-                    this.Process.stdout.on("data", function (data) {
-                        info(data.toString());
-                    });
-                    info("OK");
-                    super.Start(forever);
+                //killall("hostapd", () => {
+                this.Process = child_process.spawn("hostapd", [this._path_conf]);
+                this.Process.stdout.on("data", function (data) {
+                    info(data.toString());
                 });
+                info("OK");
+                super.Start(forever);
+                //});
             }
         }
     }
 
-    Apply = (forever: boolean = true) => { //as helper method
+    Apply = (forever:boolean = true) => { //as helper method
         this.Start(forever);
     };
 
@@ -509,14 +507,15 @@ export class hostapd extends Process {
         super.OnChoke();
         info("Killing all HostAPD processes");
         this.Process.removeAllListeners();
-        killall("hostapd",() => {
-            this.Process = undefined;
-            info("Done, waiting for recall");
-            this.Choke_Timer = setTimeout(() => {
-                this.ClearChoke();
-                this.Start();
-            }, 5000);
-        });
+        //killall("hostapd",() => {
+        this.Process.kill();
+        this.Process = undefined;
+        info("Done, waiting for recall");
+        this.Choke_Timer = setTimeout(() => {
+            this.ClearChoke();
+            this.Start();
+        }, 5000);
+        //});
         return true;
     }
 
@@ -528,18 +527,18 @@ export class hostapd extends Process {
 /*
  * 
  *  var loc = "/var/run/hostapd/wlan1";
-    var unix = require("unix-dgram");
+ var unix = require("unix-dgram");
 
-    var message = Buffer('ATTACH');
-    var MIB = Buffer('MIB');
-    var client = unix.createSocket('unix_dgram',function(buf, rinfo) {
-      console.log(buf + "");
-    }
-    );
-    client.bind("/tmp/dogshit3");
-    client.on('error', console.error);
-    client.send(message, 0, message.length, loc);
-    client.send(MIB, 0, MIB.length, loc);
+ var message = Buffer('ATTACH');
+ var MIB = Buffer('MIB');
+ var client = unix.createSocket('unix_dgram',function(buf, rinfo) {
+ console.log(buf + "");
+ }
+ );
+ client.bind("/tmp/dogshit3");
+ client.on('error', console.error);
+ client.send(message, 0, message.length, loc);
+ client.send(MIB, 0, MIB.length, loc);
  * 
  */
 

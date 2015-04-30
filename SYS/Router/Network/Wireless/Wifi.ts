@@ -5,6 +5,8 @@ import _Config = require('../../../Common/Conf/Config');
 import Config = _Config.Config;
 import StatMgr = require('../../../Common/Stat/StatMgr');
 import Status = require('../../../Common/Stat/Status');
+import _Configurable = require('../../../Common/Conf/Configurable');
+import Configurable = _Configurable.Configurable;
 
 export var WLAN_2G4 = new hostapd.hostapd(CONF.DEV.WLAN.DEV_2G);
 export var WLAN_5G7 = new hostapd.hostapd(CONF.DEV.WLAN.DEV_5G);
@@ -26,7 +28,7 @@ export var WLAN_5G7 = new hostapd.hostapd(CONF.DEV.WLAN.DEV_5G);
 //    ], cb);
 //}
 
-class Configuration extends Config {
+class Configuration extends Configurable {
     private hostapdInstance:hostapd.hostapd;
 
     //TODO: Optimize 5G7's Config (VF* Configs - Hostapd 80211AC)
@@ -34,10 +36,13 @@ class Configuration extends Config {
         super(moduleName, defaultConfig);
         this.hostapdInstance = hostapd;
 
-        this.Initialize(()=>{});
+        this.Initialize(()=> {
+            info(moduleName, 'Set.');
+        });
     }
 
     _apply = (delta, orginal, cb) => {
+        trace('delta', delta);
         //console.log(mod);
         if (has(delta, "SSID")) {
             this.hostapdInstance.Config.SSID = delta.SSID;
@@ -46,7 +51,7 @@ class Configuration extends Config {
             if (delta.AutoSSID) {
                 this.hostapdInstance.Config.SSID = ConfMgr.Get(SECTION.NETWORK)['NetworkName']; //override :p
             } else {
-                this.hostapdInstance.Config.SSID = delta.SSID ? delta.SSID : this.Get().SSID; //override :p
+                this.hostapdInstance.Config.SSID = delta.SSID ? delta.SSID : this.ConfigHandler.Get()['SSID']; //override :p
             }
         }
         if (has(delta, "Visible")) {
@@ -70,30 +75,17 @@ class Configuration extends Config {
             this.hostapdInstance.Stop(false);
             return cb();
         }
-        else if (this.Get()['Power']) {
+        else if (this.ConfigHandler.Get()['Power']) {
             //apply
             this.hostapdInstance.Start(true);
-            var pid;
 
-            var job1 = setTimeout(() => {
-                if (this.hostapdInstance.Process) {
-                    pid = this.hostapdInstance.Process.pid;
-                }
-                clearTimeout(job1);
-            }, 1000);
+            this.hostapdInstance.StabilityCheck(cb);
 
-            var job2 = setTimeout(() => {
-                clearTimeout(job2);
-                if (this.hostapdInstance.Process && this.hostapdInstance.Process.pid == pid) {
-                    return cb();
-                }
-                return cb(new Error("Failed to Config " + this.key));
-            }, 3000);
         }
     };
 
     public Initialize = (cb) => {
-        var _default = this.Get();
+        var _default = this.ConfigHandler.Get();
         this.Reload(_default, cb);
     };
 }
@@ -118,7 +110,6 @@ var defconfig2G4 = {
         }
     }
 };
-var config2G4 = new Configuration(SECTION.WLAN2G, WLAN_2G4, defconfig2G4);
 
 var defconfig5G7 = {
     Power: true,
@@ -140,8 +131,10 @@ var defconfig5G7 = {
         }
     }
 };
+
+var config2G4 = new Configuration(SECTION.WLAN2G, WLAN_2G4, defconfig2G4);
 var config5G7 = new Configuration(SECTION.WLAN5G, WLAN_5G7, defconfig5G7);
 
+__API(withCb(config2G4.ConfigHandler.Get), "Network.Wifi2G.Config.Get", [Permission.Network, Permission.Configuration]);
+__API(withCb(config5G7.ConfigHandler.Get), "Network.Wifi5G.Config.Get", [Permission.Network, Permission.Configuration]);
 
-__API(withCb(config2G4.Get), "Network.Wifi2G.Config.Get", [Permission.Network, Permission.Configuration]);
-__API(withCb(config5G7.Get), "Network.Wifi5G.Config.Get", [Permission.Network, Permission.Configuration]);
