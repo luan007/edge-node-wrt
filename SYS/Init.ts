@@ -17,12 +17,20 @@ domain.run(function () {
         , './Router/Network/Wireless/Wifi'
         , './Router/Network/Wireless/Bluetooth'
     ];
+    var tasks = [];
+    for (var i = 0, len = modules.length; i < len; i++) {
+        ((_i) => {
+            tasks.push((cb) => {
+                require(modules[_i]).Initialize(cb);
+            });
+        })(i);
+    }
 
-    modules.forEach((m) => {
-        require(m);
+    info('tasks', tasks);
+
+    async.series( tasks, (err) => {
+        if(err) error(err);
+        require('./Router/Network/Firewall/Test');
     });
 
-    setTimeout(()=>{
-        require('./Router/Network/Firewall/Test');
-    }, 5000);
 });

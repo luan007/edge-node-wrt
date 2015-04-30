@@ -6,6 +6,8 @@ import _Status = require('../../Common/Stat/Status');
 import Status = _Status.Status;
 import _Configurable = require('../../Common/Conf/Configurable');
 import Configurable = _Configurable.Configurable;
+import Dnsmasq = require('../../Common/Native/dnsmasq');
+export var dnsmasq = new Dnsmasq.dnsmasq();
 
 class Configuration extends Configurable {
     private emitter:Status;
@@ -17,18 +19,23 @@ class Configuration extends Configurable {
     }
 
     _apply = (delta, orginal, cb) => {
+        var dhcp_reboot = false;
+        var dhcp_hotplug = false;
+        var addr_change = false;
         var stateChange:any = {};
 
+        if (has(delta, "NetworkName")) {
+            stateChange.NetworkName = delta.NetworkName;
+        }
         if (has(delta, "RouterIP")) {
             stateChange.RouterIP = delta.RouterIP;
         }
-        if(has(delta, "LocalNetmask")){
+        if (has(delta, "LocalNetmask")) {
             stateChange.LocalNetmask = delta.LocalNetmask;
         }
-        if(Object.keys(stateChange).length){
+        if (Object.keys(stateChange).length) {
             this.emitter.Emit(stateChange);
         }
-
         cb();
     }
 }
@@ -49,5 +56,8 @@ var defaultConfig = {
     DHCPHosts: {}
 };
 
-var emitter = StatMgr.Pub(SECTION.NETWORK, SECTION.NETWORK, 'network status');
-new Configuration(SECTION.NETWORK, defaultConfig, emitter);
+export function Initialize(cb) {
+    var emitter = StatMgr.Pub(SECTION.NETWORK, SECTION.NETWORK, 'network status');
+    var confNetwork = new Configuration(SECTION.NETWORK, defaultConfig, emitter);
+    confNetwork.Initialize(cb)
+}

@@ -36,7 +36,8 @@ class ConfMgr extends events.EventEmitter {
 
     Commit = () => {
         for (var k in this._buffers) {
-            this._handlers[k].emit('commit', this._buffers[k], this._configs[k]);
+            if(this._handlers[k])
+                this._handlers[k].emit('commit', this._buffers[k], this._configs[k], ()=>{});
         }
     }
 
@@ -47,13 +48,13 @@ class ConfMgr extends events.EventEmitter {
         this.removeAllListeners();
     }
 
-    Get = (key) => {
+    Get = (key):any => {
         if (key && !this._configs[key])
             this._load(key);
         return this._configs[key];
     }
 
-    GetAll = () => {
+    GetAll:any = () => {
         return this._configs;
     }
 
@@ -79,17 +80,22 @@ class ConfMgr extends events.EventEmitter {
         }
     }
 
+    private _filePath = (key) => {
+        return path.join(this.CONFIG_PATH, key);
+    }
+
     private _save = (key) => {
-        setTask('write_config', () => {
-            trace('write_config executed.', JSON.stringify(this._configs), new Date().toLocaleTimeString());
-            fs.writeFile(path.join(this.CONFIG_PATH, key), JSON.stringify(this._configs), (err)=> {
+        intoQueue('write_config_' + key, () => {
+            fs.writeFile(this._filePath(key), JSON.stringify(this._configs[key]), (err)=> {
                 if (err) console.log(err);
             });
-        }, CONF.CONFIG_DELAY);
+        }, () => {
+            trace('write_config executed.', JSON.stringify(this._configs[key]), new Date().toLocaleTimeString());
+        });
     }
 
     private _load = (key) => { // TODO: need bash to create CONFIG
-        var filePath = path.join(this.CONFIG_PATH, key);
+        var filePath = this._filePath(key);
         if (!fs.existsSync(filePath)) fs.writeFileSync(filePath, '{}');
         var data = fs.readFileSync(filePath);
         this._configs[key] = JSON.parse(data.toString('utf8'));

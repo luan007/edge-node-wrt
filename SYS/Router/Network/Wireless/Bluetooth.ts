@@ -9,18 +9,10 @@ import Configurable = _Configurable.Configurable;
 
 export var BluezInstance = new bluez.Bluez();
 
-export function Initialize(cb) {
-    configBluez.Initialize(cb);
-}
-
 class Configuration extends Configurable {
 
     constructor(moduleName:string, defaultConfig:any) {
         super(moduleName, defaultConfig);
-
-        this.Initialize(()=>{
-            info(moduleName, 'Set.');
-        });
     }
 
     private _applyHCI = (mod, cb) => {
@@ -67,30 +59,24 @@ class Configuration extends Configurable {
         return cb(undefined, change);
     };
 
-    protected _apply = (mod, raw, cb: Callback) => {
+    protected _apply = (mod, raw, cb:Callback) => {
         async.series([
             this._applyHCI.bind(this, mod),
             this._applyAUD.bind(this, mod)
-        ],(err, result) => {
-                var change = false;
-                for (var i = 0; i < result.length; i++) {
-                    if (result) {
-                        change = true;
-                        break;
-                    }
+        ], (err, result) => {
+            var change = false;
+            for (var i = 0; i < result.length; i++) {
+                if (result) {
+                    change = true;
+                    break;
                 }
-                if (change || !BluezInstance.Process) {
-                    BluezInstance.Start(true);
-                }
-                cb();
+            }
+            if (change || !BluezInstance.Process) {
+                BluezInstance.Start(true);
+            }
+            cb();
         });
     };
-
-    public Initialize = (cb) => {
-        var _default = this.ConfigHandler.Get();
-        this.Reload(_default, cb);
-    };
-
 }
 var defaultConfig = {
     HCI: {
@@ -104,6 +90,10 @@ var defaultConfig = {
         Hidden: false
     }
 };
-export var configBluez = new Configuration(SECTION.BLUETOOTH, defaultConfig);
 
-__API(withCb(configBluez.ConfigHandler.Get), "Network.Bluetooth.Config.Get", [Permission.Network, Permission.Configuration]);
+export function Initialize(cb) {
+    var configBluez = new Configuration(SECTION.BLUETOOTH, defaultConfig);
+    configBluez.Initialize(cb);
+
+    __API(withCb(configBluez.ConfigHandler.Get), "Network.Bluetooth.Config.Get", [Permission.Network, Permission.Configuration]);
+}

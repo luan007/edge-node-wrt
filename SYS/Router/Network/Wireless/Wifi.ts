@@ -35,10 +35,6 @@ class Configuration extends Configurable {
     constructor(moduleName:string, hostapd:hostapd.hostapd, defaultConfig:any) {
         super(moduleName, defaultConfig);
         this.hostapdInstance = hostapd;
-
-        this.Initialize(()=> {
-            info(moduleName, 'Set.');
-        });
     }
 
     _apply = (delta, orginal, cb) => {
@@ -82,11 +78,6 @@ class Configuration extends Configurable {
             this.hostapdInstance.StabilityCheck(cb);
 
         }
-    };
-
-    public Initialize = (cb) => {
-        var _default = this.ConfigHandler.Get();
-        this.Reload(_default, cb);
     };
 }
 
@@ -132,9 +123,46 @@ var defconfig5G7 = {
     }
 };
 
-var config2G4 = new Configuration(SECTION.WLAN2G, WLAN_2G4, defconfig2G4);
-var config5G7 = new Configuration(SECTION.WLAN5G, WLAN_5G7, defconfig5G7);
+/**
+ * SET SSID of the hostapd instance
+ * @param hostapdInstance
+ * @param sectionName
+ * @param ssid
+ * @param cb
+ * @constructor
+ */
+function SetSSID(hostapdInstance: hostapd.hostapd, sectionName, ssid, cb:Callback){
+    var conf = ConfMgr.Get(sectionName);
+    if(conf.AutoSSID){
+        hostapdInstance.Config.SSID = ssid
+        if(conf.Power){
+            hostapdInstance.Start(true);
+            hostapdInstance.StabilityCheck(cb);
+        }
+    }
+}
 
-__API(withCb(config2G4.ConfigHandler.Get), "Network.Wifi2G.Config.Get", [Permission.Network, Permission.Configuration]);
-__API(withCb(config5G7.ConfigHandler.Get), "Network.Wifi5G.Config.Get", [Permission.Network, Permission.Configuration]);
+export function Initialize(cb) {
+    var config2G4 = new Configuration(SECTION.WLAN2G, WLAN_2G4, defconfig2G4);
+    var config5G7 = new Configuration(SECTION.WLAN5G, WLAN_5G7, defconfig5G7);
+
+    StatMgr.Sub(SECTION.NETWORK, (moduleName, delta) => {
+        if (has(delta, "NetworkName")) {
+            SetSSID(WLAN_2G4, SECTION.WLAN2G, delta.NetworkName, ()=>{});
+            SetSSID(WLAN_5G7, SECTION.WLAN5G, delta.NetworkName, ()=>{});
+        }
+    });
+
+    async.series([
+        (cb) => {
+            config2G4.Initialize(cb);
+        },
+        (cb) => {
+            config5G7.Initialize(cb);
+        }
+    ], cb);
+
+    __API(withCb(config2G4.ConfigHandler.Get), "Network.Wifi2G.Config.Get", [Permission.Network, Permission.Configuration]);
+    __API(withCb(config5G7.ConfigHandler.Get), "Network.Wifi5G.Config.Get", [Permission.Network, Permission.Configuration]);
+}
 

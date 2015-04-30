@@ -15,10 +15,15 @@ function Initialize() {
     ConfMgr.Set(SECTION.FIREWALL, {BlockedRemoteAddresses: BlockedRemoteAddresses});
     ConfMgr.Commit();
 
-    setTask('_add_addresses', () => {
+    setTimeout(() => {
         ConfMgr.Set(SECTION.FIREWALL, {BlockedRemoteAddresses: ['www.baidu.com']});
         ConfMgr.Commit();
     }, 2000);
+
+    setTimeout(() => {
+        ConfMgr.Set(SECTION.FIREWALL, {BlockedRemoteAddresses: ['www.csdn.net']});
+        ConfMgr.Commit();
+    }, 6000);
 }
 
 Initialize();
