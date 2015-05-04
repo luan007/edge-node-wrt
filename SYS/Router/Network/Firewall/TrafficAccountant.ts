@@ -6,6 +6,16 @@ import Status = require('../../../Common/Stat/Status');
 import _Configurable = require('../../../Common/Conf/Configurable');
 import Configurable = _Configurable.Configurable;
 
+export class Traffic{
+    Packets: number = 0;
+    Bytes: number = 0;
+    Delta_Bytes: number = 0;
+    Delta_Packets: number = 0;
+    Delta_Time: number = 0;
+    Row_Number: number = 0;
+    Name: string = "";
+}
+
 class Configuration extends Configurable {
     constructor(moduleName:string, defaultConfig:any){
         super(moduleName, defaultConfig);
