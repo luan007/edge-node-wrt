@@ -1,5 +1,4 @@
 import hostapd = require('../../../Common/Native/hostapd');
-import Iptables = require('../../../Common/Native/iptables');
 import ConfMgr = require('../../../Common/Conf/ConfMgr');
 import _Config = require('../../../Common/Conf/Config');
 import Config = _Config.Config;
@@ -157,11 +156,6 @@ export function Subscribe(cb) {
             SetSSID(WLAN_5G7, SECTION.WLAN5G, delta.NetworkName, ()=> {
             });
         }
-        //if (has(delta, "RouterIP")) {
-        //    warn('delta.RouterIP', delta.RouterIP);
-        //    exec("ifconfig", CONF.DEV.WLAN.DEV_2G, delta.RouterIP/* + "/" + addr.Prefix*/);
-        //    exec("ifconfig", CONF.DEV.WLAN.DEV_5G, delta.RouterIP/* + "/" + addr.Prefix*/);
-        //}
     });
     cb();
 }

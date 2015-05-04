@@ -124,5 +124,17 @@ var defaultConfig = {
 export function Initialize(cb) {
     var emitter = StatMgr.Pub(SECTION.NETWORK, SECTION.NETWORK, 'network status');
     var confNetwork = new Configuration(SECTION.NETWORK, defaultConfig, emitter);
-    confNetwork.Initialize(cb)
+    confNetwork.Initialize(cb);
+
+    dnsmasq.on(Dnsmasq.DHCPLeaseManager.EVENT_ADD, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE ADDED
+        emitter.Emit({'DEVICE_ADDED': lease});
+    });
+
+    dnsmasq.on(Dnsmasq.DHCPLeaseManager.EVENT_CHANGE, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE CHANGED
+        emitter.Emit({'DEVICE_CHANGED': lease});
+    });
+
+    dnsmasq.on(Dnsmasq.DHCPLeaseManager.EVENT_DEL, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE DELETED
+        emitter.Emit({'DEVICE_DELETED': lease});
+    });
 }

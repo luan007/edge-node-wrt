@@ -74,10 +74,6 @@ iptables -w -t nat -A PREROUTING -j nginx_proxy
 iptables -w -t nat -A nginx_proxy -p tcp --dport 80 -j REDIRECT --to-ports 3378
 iptables -w -t nat -A PREROUTING -j pre_sys
 iptables -w -t nat -A pre_sys -j wifi_nat
-#TODO: process.env.DEV_2G process.env.DEV_5G
-#iptables -w -t nat -R wifi_nat 1 -i ap0 -j DROP
-#iptables -w -t nat -R wifi_nat 2 -i ap1 -j DROP
-#geuest APs are: $DEV_GUEST_2G $DEV_GUEST_5G
 iptables -w -t nat -A wifi_nat -i $DEV_2G -j ACCEPT
 iptables -w -t nat -A wifi_nat -i $DEV_5G -j ACCEPT
 iptables -w -t nat -A wifi_nat -i $DEV_GUEST_2G -j ACCEPT

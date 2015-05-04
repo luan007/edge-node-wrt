@@ -101,6 +101,7 @@ class _section {
     WLAN2G = 'WLAN2G';
     BLUETOOTH = 'BLUETOOTH';
     FIREWALL = "FIREWALL";
+    TRAFFIC = "TRAFFIC";
 }
 
 var CONF = new _sys_conf();
