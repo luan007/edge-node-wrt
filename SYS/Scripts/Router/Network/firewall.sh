@@ -1,12 +1,5 @@
 #!/bin/bash
 
-#pre-set env
-if [ -z $DEV_2G ]; then export DEV_2G=ap1; fi
-if [ -z $DEV_5G ]; then export DEV_5G=ap0; fi
-if [ -z $DEV_GUEST_2G ]; then export DEV_GUEST_2G=guest0; fi
-if [ -z $DEV_GUEST_5G ]; then export DEV_GUEST_5G=guest1; fi
-if [ -z $DEV_WAN ]; then export DEV_WAN=eth0; fi
-
 #clean
 iptables -F -t filter
 iptables -X -t filter
@@ -22,18 +15,18 @@ iptables -N in_sys  -t filter
 iptables -N fw_sys  -t filter
 iptables -N ot_sys  -t filter
 iptables -N drop_incoming -t filter
-iptables -N pre_sys -t nat
-iptables -N post_sys -t nat
-iptables -N pre_traffic -t mangle
-iptables -N post_traffic -t mangle
 iptables -N in_custom -t filter
 iptables -N fw_custom -t filter
 iptables -N ot_custom -t filter
-iptables -N wifi_nat -t nat
 iptables -N vlan_isolation -t filter
+iptables -N pre_traffic -t mangle
+iptables -N post_traffic -t mangle
+iptables -N pre_sys -t nat
+iptables -N post_sys -t nat
+iptables -N wifi_nat -t nat
 iptables -N nginx_proxy -t nat
-ipset -N block_remote_addresses iphash
 iptables -N routing_masquerade -t nat
+ipset -N block_remote_addresses iphash
 
 #rules
 iptables -w -t filter -A INPUT -j in_sys

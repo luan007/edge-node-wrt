@@ -106,14 +106,14 @@ function SetVlanIsolation(conf, routerIP, localNetmask) {
         if (has(conf.VLAN_Isolation, "WLAN2G_Guest") && conf.VLAN_Isolation.WLAN2G_Guest) devGuest2GVlanIsolation = true;
         if (has(conf.VLAN_Isolation, "WLAN5G_Guest") && conf.VLAN_Isolation.WLAN5G_Guest) devGuest5GVlanIsolation = true;
 
-        exec(iptables, '-w', '-t', 'nat', '-R', 'vlan_isolation', '1', '-s', newworkAddress, '-i', dev2G, '-j', dev2GVlanIsolation ? 'RETURN' : 'DROP');
-        exec(iptables, '-w', '-t', 'nat', '-R', 'vlan_isolation', '2', '-d', newworkAddress, '-i', dev2G, '-j', dev2GVlanIsolation ? 'RETURN' : 'DROP');
-        exec(iptables, '-w', '-t', 'nat', '-R', 'vlan_isolation', '3', '-s', newworkAddress, '-i', dev5G, '-j', dev5GVlanIsolation ? 'RETURN' : 'DROP');
-        exec(iptables, '-w', '-t', 'nat', '-R', 'vlan_isolation', '4', '-d', newworkAddress, '-i', dev5G, '-j', dev5GVlanIsolation ? 'RETURN' : 'DROP');
-        exec(iptables, '-w', '-t', 'nat', '-R', 'vlan_isolation', '5', '-s', newworkAddress, '-i', devGuest2G, '-j', devGuest2GVlanIsolation ? 'RETURN' : 'DROP');
-        exec(iptables, '-w', '-t', 'nat', '-R', 'vlan_isolation', '6', '-d', newworkAddress, '-i', devGuest2G, '-j', devGuest2GVlanIsolation ? 'RETURN' : 'DROP');
-        exec(iptables, '-w', '-t', 'nat', '-R', 'vlan_isolation', '7', '-s', newworkAddress, '-i', devGuest5G, '-j', devGuest5GVlanIsolation ? 'RETURN' : 'DROP');
-        exec(iptables, '-w', '-t', 'nat', '-R', 'vlan_isolation', '8', '-d', newworkAddress, '-i', devGuest5G, '-j', devGuest5GVlanIsolation ? 'RETURN' : 'DROP');
+        exec(iptables, '-w', '-t', 'filter', '-R', 'vlan_isolation', '1', '-s', newworkAddress, '-i', dev2G, '-j', !dev2GVlanIsolation ? 'RETURN' : 'REJECT');
+        exec(iptables, '-w', '-t', 'filter', '-R', 'vlan_isolation', '2', '-d', newworkAddress, '-i', dev2G, '-j', !dev2GVlanIsolation ? 'RETURN' : 'REJECT');
+        exec(iptables, '-w', '-t', 'filter', '-R', 'vlan_isolation', '3', '-s', newworkAddress, '-i', dev5G, '-j', !dev5GVlanIsolation ? 'RETURN' : 'REJECT');
+        exec(iptables, '-w', '-t', 'filter', '-R', 'vlan_isolation', '4', '-d', newworkAddress, '-i', dev5G, '-j', !dev5GVlanIsolation ? 'RETURN' : 'REJECT');
+        exec(iptables, '-w', '-t', 'filter', '-R', 'vlan_isolation', '5', '-s', newworkAddress, '-i', devGuest2G, '-j', !devGuest2GVlanIsolation ? 'RETURN' : 'REJECT');
+        exec(iptables, '-w', '-t', 'filter', '-R', 'vlan_isolation', '6', '-d', newworkAddress, '-i', devGuest2G, '-j', !devGuest2GVlanIsolation ? 'RETURN' : 'REJECT');
+        exec(iptables, '-w', '-t', 'filter', '-R', 'vlan_isolation', '7', '-s', newworkAddress, '-i', devGuest5G, '-j', !devGuest5GVlanIsolation ? 'RETURN' : 'REJECT');
+        exec(iptables, '-w', '-t', 'filter', '-R', 'vlan_isolation', '8', '-d', newworkAddress, '-i', devGuest5G, '-j', !devGuest5GVlanIsolation ? 'RETURN' : 'REJECT');
     }
 }
 
@@ -144,7 +144,7 @@ export function Initialize(cb) {
             }
         }
         if (has(delta, "DropIncomingRequests")) {
-            exec(iptables, '-w', '-t', 'nat', '-R', drop_incoming, '-m', 'state', '--state', 'NEW', '-j', 'ACCEPT', '-i', delta.DropIncomingRequests.Prefix);
+            exec(iptables, '-w', '-t', 'filter', '-R', drop_incoming, '-m', 'state', '--state', 'NEW', '-j', 'ACCEPT', '-i', delta.DropIncomingRequests.Prefix);
         }
         if (has(delta, "Uplink")) {
             exec(iptables, '-w', '-t', 'nat', '-R', routing_masquerade, '1', '-j', 'MASQUERADE', '-o', delta.Uplink);

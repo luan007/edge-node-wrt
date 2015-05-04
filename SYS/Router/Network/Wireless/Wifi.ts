@@ -38,7 +38,6 @@ class Configuration extends Configurable {
     }
 
     _apply = (delta, orginal, cb) => {
-        trace('delta', delta);
         //console.log(mod);
         if (has(delta, "SSID")) {
             this.hostapdInstance.Config.SSID = delta.SSID;
@@ -83,7 +82,7 @@ class Configuration extends Configurable {
 
 var defconfig2G4 = {
     Power: true,
-    SSID: "EdgeRouter",
+    SSID: "EdgeTractor",
     AutoSSID: false,
     Visible: true,
     Channel: 2,
@@ -104,7 +103,7 @@ var defconfig2G4 = {
 
 var defconfig5G7 = {
     Power: true,
-    SSID: "EdgeRouter_5G",
+    SSID: "EdgeTractor_5G",
     AutoSSID: false,
     Visible: true,
     Channel: 4,

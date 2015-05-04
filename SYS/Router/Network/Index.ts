@@ -19,6 +19,7 @@ class Configuration extends Configurable {
     }
 
     _apply = (delta, original, cb) => {
+        var jobs = [];
         var dhcp_reboot = false;
         var dhcp_hotplug = false;
         var addr_change = false;
@@ -81,16 +82,24 @@ class Configuration extends Configurable {
                 Addr: addr.Address,
                 Prefix: addr.Prefix
             };
+            jobs.push(exec.bind(null, "ifconfig " + " " + CONF.DEV.WLAN.DEV_2G + " " + addr.Address/* + "/" + addr.Prefix*/));
         }
         if (dhcp_reboot) {
             dnsmasq.Start(true);
-            dnsmasq.StabilityCheck(() => {});
+            jobs.push(dnsmasq.StabilityCheck);
+        } else if (dhcp_hotplug) {
+            jobs.push(dnsmasq.ApplyChange);
+            jobs.push(dnsmasq.StabilityCheck);
         }
-        
+
         if (Object.keys(stateChange).length) {
             this.emitter.Emit(stateChange);
         }
-        cb();
+        if (jobs.length == 0) {
+            cb(); //success!
+        } else {
+            async.series(jobs, cb);
+        }
     }
 }
 
