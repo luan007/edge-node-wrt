@@ -51,7 +51,7 @@ iptables -w -t filter -A FORWARD -j fw_sys
 iptables -w -t filter -A FORWARD -j fw_custom
 
 #block
-iptables -w -t filter -A fw_sys -i br0 -m set --match-set block_remote_addresses dst -j REJECT
+iptables -w -t filter -A fw_sys -i $WLAN_BR -m set --match-set block_remote_addresses dst -j REJECT
 
 iptables -w -t filter -A OUTPUT -j ot_sys
 iptables -w -t filter -A OUTPUT -j ot_custom
