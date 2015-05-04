@@ -33,6 +33,9 @@ class Configuration extends Configurable {
             stateChange.NetworkName = delta.NetworkName;
         }
         if (has(delta, "RouterIP")) {
+            //ifconfig br0 ip
+            exec("ifconfig", CONF.DEV.WLAN.WLAN_BR, delta.RouterIP/* + "/" + addr.Prefix*/);
+
             stateChange.RouterIP = delta.RouterIP;
             dhcp_reboot = true;
             addr_change = true;
@@ -104,7 +107,7 @@ class Configuration extends Configurable {
 
 var defaultConfig = {
     NetworkName: "edge-dev",
-    RouterIP: "192.168.133.1",
+    RouterIP: "192.168.66.1",
     LocalNetmask: 24,
     Uplink: CONF.DEV.ETH.DEV_WAN, //ethernet
     DNS: [

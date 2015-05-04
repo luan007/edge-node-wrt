@@ -48,7 +48,7 @@ export class ConfigBase {
     };
 
     Base:_80211_BASE = _80211_BASE.N;
-
+    Bridge: string;
     SSID:string;
     Channel:number = 1;
     MaxStations:number = 255;
@@ -85,7 +85,9 @@ function CfgString(conf:ConfigBase, dev, ctrl_sock, mac_accp, mac_deny) {
     var newconf = "";
     var line = "\n";
     newconf += "interface=" + conf.Dev + line;
-
+    if (conf.Bridge){
+        newconf += "bridge=" + conf.Bridge + line;
+    }
     if (conf.Logger) {
         newconf += "logger_syslog=" + conf.Logger.System + line;
         newconf += "logger_syslog_level=" + conf.Logger.System_level + line;

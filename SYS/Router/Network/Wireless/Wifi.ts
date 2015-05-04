@@ -11,6 +11,8 @@ import Configurable = _Configurable.Configurable;
 export var WLAN_2G4 = new hostapd.hostapd(CONF.DEV.WLAN.DEV_2G);
 export var WLAN_5G7 = new hostapd.hostapd(CONF.DEV.WLAN.DEV_5G);
 
+//WLAN_2G4.Config.Bridge = br0
+
 class Configuration extends Configurable {
     private hostapdInstance:hostapd.hostapd;
 
@@ -22,6 +24,9 @@ class Configuration extends Configurable {
 
     _apply = (delta, orginal, cb) => {
         //console.log(mod);
+        if (has(delta, "Bridge")) {
+            this.hostapdInstance.Config.Bridge = delta.Bridge;
+        }
         if (has(delta, "SSID")) {
             this.hostapdInstance.Config.SSID = delta.SSID;
         }
@@ -69,6 +74,7 @@ var defconfig2G4 = {
     Visible: true,
     Channel: 2,
     Password: "testtest",
+    Bridge: CONF.DEV.WLAN.WLAN_BR,
     //NAT: 1,
     //Isolation: 0, //Not Used, reserved for VLAN,
     Aux: { //GuestWifi
@@ -90,6 +96,7 @@ var defconfig5G7 = {
     Visible: true,
     Channel: 4,
     Password: "testtest",
+    Bridge: CONF.DEV.WLAN.WLAN_BR,
     //NAT: 1,
     //Isolation: 0, //Not Used, reserved for VLAN,
     Aux: { //GuestWifi
@@ -150,11 +157,11 @@ export function Subscribe(cb) {
             SetSSID(WLAN_5G7, SECTION.WLAN5G, delta.NetworkName, ()=> {
             });
         }
-        if (has(delta, "RouterIP")) {
-            warn('delta.RouterIP', delta.RouterIP);
-            exec("ifconfig", CONF.DEV.WLAN.DEV_2G, delta.RouterIP/* + "/" + addr.Prefix*/);
-            exec("ifconfig", CONF.DEV.WLAN.DEV_5G, delta.RouterIP/* + "/" + addr.Prefix*/);
-        }
+        //if (has(delta, "RouterIP")) {
+        //    warn('delta.RouterIP', delta.RouterIP);
+        //    exec("ifconfig", CONF.DEV.WLAN.DEV_2G, delta.RouterIP/* + "/" + addr.Prefix*/);
+        //    exec("ifconfig", CONF.DEV.WLAN.DEV_5G, delta.RouterIP/* + "/" + addr.Prefix*/);
+        //}
     });
     cb();
 }

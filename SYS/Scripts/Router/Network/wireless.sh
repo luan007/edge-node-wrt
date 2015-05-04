@@ -12,3 +12,8 @@ sleep 1s
 iw phy phy1 interface add ap1 type __ap
 sleep 1s
 
+#bridge
+ifconfig $WLAN_BR down
+brctl delbr $WLAN_BR
+brctl addbr $WLAN_BR
+ifconfig $WLAN_BR up

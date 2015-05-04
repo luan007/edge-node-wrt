@@ -67,6 +67,7 @@ class _sys_conf {
         WLAN: {
             DEV_2G: process.env.DEV_2G || "ap1",
             DEV_5G: process.env.DEV_5G || "ap0",
+            WLAN_BR: process.env.WLAN_BR || "br0",
             DEV_GUEST_2G: process.env.DEV_GUEST_2G || "guest0",
             DEV_GUEST_5G: process.env.DEV_GUEST_5G || "guest1"
         },
