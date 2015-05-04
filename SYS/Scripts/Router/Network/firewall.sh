@@ -50,11 +50,11 @@ iptables -w -t filter -A drop_incoming -m state --state NEW -j ACCEPT #TODO: DRO
 iptables -w -t filter -A FORWARD -j fw_sys
 iptables -w -t filter -A FORWARD -j fw_custom
 
+#block
+iptables -w -t filter -A fw_sys -i br0 -m set --match-set block_remote_addresses dst -j REJECT
+
 iptables -w -t filter -A OUTPUT -j ot_sys
 iptables -w -t filter -A OUTPUT -j ot_custom
-
-#block
-iptables -w -t filter -A ot_sys -m set --match-set block_remote_addresses dst -j REJECT
 
 #vlan isolation
 iptables -w -t filter -A INPUT -j vlan_isolation
