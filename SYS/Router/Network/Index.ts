@@ -82,7 +82,6 @@ class Configuration extends Configurable {
                 Addr: addr.Address,
                 Prefix: addr.Prefix
             };
-            jobs.push(exec.bind(null, "ifconfig " + " " + CONF.DEV.WLAN.DEV_2G + " " + addr.Address/* + "/" + addr.Prefix*/));
         }
         if (dhcp_reboot) {
             dnsmasq.Start(true);

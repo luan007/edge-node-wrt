@@ -20,8 +20,8 @@ class ConfMgr extends events.EventEmitter {
     }
 
     Register = (k:string, config) => {
-        this._configs[k] = this._configs[k] || config;
-        this._handlers[k] = this._handlers[k] || new Config(k, config);
+        this._configs[k] =  config;
+        this._handlers[k] = new Config(k, config);
         return this._handlers[k];
     }
 

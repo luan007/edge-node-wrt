@@ -16,6 +16,7 @@ class StatMgr{
                 this._statuses[k].on(k, cb);
             }
             delete this._subBuffer[k];
+            warn('Pub > 1');
         }
 
         this._statuses[k].on('statusChanged', (statusName, moduleName, obj) => { // status changed event.
@@ -32,6 +33,7 @@ class StatMgr{
         if(this._statuses[k]){
             this._statuses[k].on(k, cb);
         } else { // may be Sub before Pub
+            warn('Sub > 1');
             this._subBuffer[k] = this._subBuffer[k] || [];
             this._subBuffer[k].push(cb);
         }

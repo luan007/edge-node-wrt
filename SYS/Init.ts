@@ -13,23 +13,32 @@ domain.on('error', function (err) {
 domain.run(function () {
     var modules = [
         './Router/Network/Index'
-        , './Router/Network/Firewall/Index'
+        , './Router/Network/Firewall/Firewall'
         , './Router/Network/Wireless/Wifi'
         , './Router/Network/Wireless/Bluetooth'
     ];
-    var tasks = [];
+    var initializes = [];
+    var subscribes = [];
     for (var i = 0, len = modules.length; i < len; i++) {
         ((_i) => {
-            tasks.push((cb) => {
-                require(modules[_i]).Initialize(cb);
-            });
+            var m = require(modules[_i]);
+            if (m.Subscribe) {
+                subscribes.push((cb) => {
+                    m.Subscribe(cb);
+                });
+            }
+            if (m.Initialize) {
+                initializes.push((cb) => {
+                    m.Initialize(cb);
+                });
+            }
         })(i);
     }
 
-    info('tasks', tasks);
+    info('subscribes', subscribes, 'initializes', initializes);
 
-    async.series( tasks, (err) => {
-        if(err) error(err);
+    async.series(subscribes.concat(initializes), (err) => {
+        if (err) error(err);
         require('./Router/Network/Firewall/Test');
     });
 

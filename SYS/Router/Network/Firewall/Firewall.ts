@@ -33,10 +33,10 @@ class Configuration extends Configurable {
             if (has(delta.NAT, "WLAN2G_Guest") && !delta.NAT.WLAN2G_Guest) devGuest2GEnable = false;
             if (has(delta.NAT, "WLAN5G_Guest") && !delta.NAT.WLAN5G_Guest) devGuest2GEnable = false;
 
-            exec(iptables, '-w', '-t', 'nat', '-R', 'wifi_nat', '1', '-i', dev2G, '-j', dev2GEnable ? 'RETURN' : 'DROP');
-            exec(iptables, '-w', '-t', 'nat', '-R', 'wifi_nat', '2', '-i', dev5G, '-j', dev5GEnable ? 'RETURN' : 'DROP');
-            exec(iptables, '-w', '-t', 'nat', '-R', 'wifi_nat', '3', '-i', devGuest2G, '-j', devGuest2GEnable ? 'RETURN' : 'DROP');
-            exec(iptables, '-w', '-t', 'nat', '-R', 'wifi_nat', '4', '-i', devGuest5G, '-j', devGuest2GEnable ? 'RETURN' : 'DROP');
+            exec(iptables, '-w', '-t', 'nat', '-R', 'wifi_nat', '1', '-i', dev2G, '-j', dev2GEnable ? 'RETURN' : 'REJECT');
+            exec(iptables, '-w', '-t', 'nat', '-R', 'wifi_nat', '2', '-i', dev5G, '-j', dev5GEnable ? 'RETURN' : 'REJECT');
+            exec(iptables, '-w', '-t', 'nat', '-R', 'wifi_nat', '3', '-i', devGuest2G, '-j', devGuest2GEnable ? 'RETURN' : 'REJECT');
+            exec(iptables, '-w', '-t', 'nat', '-R', 'wifi_nat', '4', '-i', devGuest5G, '-j', devGuest2GEnable ? 'RETURN' : 'REJECT');
         }
 
         SetVlanIsolation(delta, networkConf.RouterIP, networkConf.LocalNetmask);
@@ -45,7 +45,7 @@ class Configuration extends Configurable {
             if (delta.EnableNginxProxy)
                 exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '1', '-p', 'tcp', '--dport', '80', '-j', 'REDIRECT', '--to-ports', '3378');
             else
-                exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '1', '-p', 'tcp', '--dport', '80', '-j', 'DROP');
+                exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '1', '-p', 'tcp', '--dport', '80', '-j', 'RETURN');
         }
 
         if (has(delta, "BlockedRemoteAddresses") && Array.isArray(delta.BlockedRemoteAddresses)) {
@@ -86,7 +86,7 @@ var defaultConfig = {
     //ClientRouterRestrictions: [],
     //ClientNeighborRestrictions: [],
     //ClientPortMap: [], ---> need PortMapper.ts with its own config & logic
-    EnableNginxProxy: true
+    EnableNginxProxy: false
 };
 
 function SetVlanIsolation(conf, routerIP, localNetmask) {
@@ -121,14 +121,18 @@ export function Initialize(cb) {
     var configFirewall = new Configuration(SECTION.FIREWALL, defaultConfig);
     configFirewall.Initialize(cb);
 
+    __API(withCb(configFirewall.ConfigHandler.Get), "Network.Firewall.Config.Get", [Permission.Network, Permission.Configuration]);
+}
+
+export function Subscribe(cb) {
     StatMgr.Sub(SECTION.NETWORK, (moduleName, delta) => {
         var iptables:string = "iptables",
             routing_masquerade:string = "routing_masquerade",
             nginx_proxy:string = "nginx_proxy",
             drop_incoming:string = "drop_incoming",
             statuses = StatMgr.GetByModule(moduleName),
-            routerIP = statuses.RouterIP,
-            localNetmask = statuses.LocalNetmask;
+            routerIP = statuses ? statuses.RouterIP : '',
+            localNetmask = statuses ? statuses.LocalNetmask : '';
         if (has(delta, "RouterIP")) {
             routerIP = delta.RouterIP;
         }
@@ -136,22 +140,26 @@ export function Initialize(cb) {
             localNetmask = delta.LocalNetmask;
         }
         if (has(delta, "HttpTrafficProxy")) {
-            var _ip = delta.HttpTrafficProxy.Addr + (delta.HttpTrafficProxy.Prefix ? ("/" + delta.HttpTrafficProxy.Prefix) : "");
-            if (delta.HttpTrafficProxy.Negate) {
-                exec(iptables, '-w', '-t', 'nat', '-R', nginx_proxy, '1', '-p', 'tcp', '--dport', '80', 'REDIRECT', '--to-ports', '3378', '!', '-d', _ip);
-            } else {
-                exec(iptables, '-w', '-t', 'nat', '-R', nginx_proxy, '1', '-p', 'tcp', '--dport', '80', 'REDIRECT', '--to-ports', '3378', '-d', _ip);
+            var conf = ConfMgr.Get(SECTION.FIREWALL) || defaultConfig;
+            if (conf && conf.EnableNginxProxy) {
+                var _ip = delta.HttpTrafficProxy.Addr + (delta.HttpTrafficProxy.Prefix ? ("/" + delta.HttpTrafficProxy.Prefix) : "");
+                if (delta.HttpTrafficProxy.Negate) {
+                    exec(iptables, '-w', '-t', 'nat', '-R', nginx_proxy, '1', '-p', 'tcp', '--dport', '80', 'REDIRECT', '--to-ports', '3378', '!', '-d', _ip);
+                } else {
+                    exec(iptables, '-w', '-t', 'nat', '-R', nginx_proxy, '1', '-p', 'tcp', '--dport', '80', 'REDIRECT', '--to-ports', '3378', '-d', _ip);
+                }
             }
         }
         if (has(delta, "DropIncomingRequests")) {
-            exec(iptables, '-w', '-t', 'filter', '-R', drop_incoming, '-m', 'state', '--state', 'NEW', '-j', 'ACCEPT', '-i', delta.DropIncomingRequests.Prefix);
+            exec(iptables, '-w', '-t', 'filter', '-R', drop_incoming, '1', '-m', 'state', '--state', 'NEW', '-j', 'ACCEPT', '-i', delta.DropIncomingRequests.Prefix);
         }
         if (has(delta, "Uplink")) {
             exec(iptables, '-w', '-t', 'nat', '-R', routing_masquerade, '1', '-j', 'MASQUERADE', '-o', delta.Uplink);
         }
 
         var conf:any = ConfMgr.Get(SECTION.FIREWALL);
+        warn('routerIP', routerIP, 'localNetmask', localNetmask);
         SetVlanIsolation(conf, routerIP, localNetmask);
     });
-    __API(withCb(configFirewall.ConfigHandler.Get), "Network.Firewall.Config.Get", [Permission.Network, Permission.Configuration]);
+    cb();
 }

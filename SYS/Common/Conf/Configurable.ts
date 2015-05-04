@@ -43,7 +43,7 @@ export class Configurable {
      * (Re)Loads Config from DB
      */
     Reload = (_default, cb) => {
-        var result = this.ConfigHandler.Get();
+        var result = this.Get();
         if (!result || (CONF.IS_DEBUG && CONF.RELOAD_DEFAULT_CONFIG)) {
             if (_default) {
                 trace("Data Absent.. going default");
@@ -57,9 +57,13 @@ export class Configurable {
     };
 
     Initialize = (cb) => { //TODO: supply default config
-        var _default = this.ConfigHandler.Get();
+        var _default = this.Get();
         this.Reload(_default, cb);
     };
+
+    Get = () => {
+        return this.ConfigHandler.Get();
+    }
 
     /**
      * Virtual Method, to be implemented
