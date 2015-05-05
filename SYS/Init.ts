@@ -1,5 +1,7 @@
 require('./Env');
 
+process.env.ROOT_PATH = __dirname;
+
 process.on('uncaughtException', function (err) {
     error(err);
     error(err.stack);
@@ -14,6 +16,7 @@ domain.run(function () {
     var modules = [
         './Router/Network/Index'
         , './Router/Network/Firewall/Firewall'
+        , './Router/Network/Firewall/TrafficAccountant'
         , './Router/Network/Wireless/Wifi'
         , './Router/Network/Wireless/Bluetooth'
     ];

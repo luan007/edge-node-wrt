@@ -24,6 +24,9 @@ ipset -F
 ipset -X
 
 #creation
+iptables -N intranet_traffic -t filter
+iptables -N internet_up_traffic -t filter
+iptables -N internet_down_traffic -t filter
 iptables -N in_sys  -t filter
 iptables -N fw_sys  -t filter
 iptables -N ot_sys  -t filter
@@ -39,13 +42,28 @@ iptables -N post_sys -t nat
 iptables -N wifi_nat -t nat
 iptables -N nginx_proxy -t nat
 iptables -N routing_masquerade -t nat
-ipset -N block_remote_addresses iphash
+ipset create block_remote_addresses hash:ip hashsize 4096
 
 #rules
 iptables -w -t filter -A INPUT -j in_sys
 iptables -w -t filter -A INPUT -j in_custom
 iptables -w -t filter -A INPUT -j drop_incoming
-iptables -w -t filter -A drop_incoming -m state --state NEW -j ACCEPT #TODO: DROP
+iptables -w -t filter -A drop_incoming -m state --state NEW -j RETURN #TODO: DROP
+
+#vlan isolation
+iptables -w -t filter -A INPUT -j vlan_isolation
+iptables -w -t filter -A vlan_isolation -s 192.168.133.0/24 -i $DEV_2G -j RETURN
+iptables -w -t filter -A vlan_isolation -d 192.168.133.0/24 -i $DEV_2G -j RETURN
+iptables -w -t filter -A vlan_isolation -s 192.168.133.0/24 -i $DEV_5G -j RETURN
+iptables -w -t filter -A vlan_isolation -d 192.168.133.0/24 -i $DEV_5G -j RETURN
+iptables -w -t filter -A vlan_isolation -s 192.168.133.0/24 -i $DEV_GUEST_2G -j RETURN
+iptables -w -t filter -A vlan_isolation -d 192.168.133.0/24 -i $DEV_GUEST_2G -j RETURN
+iptables -w -t filter -A vlan_isolation -s 192.168.133.0/24 -i $DEV_GUEST_5G -j RETURN
+iptables -w -t filter -A vlan_isolation -d 192.168.133.0/24 -i $DEV_GUEST_5G -j RETURN
+
+iptables -w -t filter -A FORWARD -s 192.168.133.0/24 -o $DEV_WAN -j internet_up_traffic
+iptables -w -t filter -A FORWARD -d 192.168.133.0/24 -i $DEV_WAN -j internet_down_traffic
+iptables -w -t filter -A FORWARD -s 192.168.133.0/24 -d 192.168.133.0/24 -j intranet_traffic
 
 iptables -w -t filter -A FORWARD -j fw_sys
 iptables -w -t filter -A FORWARD -j fw_custom
@@ -55,17 +73,6 @@ iptables -w -t filter -A fw_sys -i $WLAN_BR -m set --match-set block_remote_addr
 
 iptables -w -t filter -A OUTPUT -j ot_sys
 iptables -w -t filter -A OUTPUT -j ot_custom
-
-#vlan isolation
-iptables -w -t filter -A INPUT -j vlan_isolation
-iptables -w -t filter -A vlan_isolation -s 192.168.33.1/24 -i $DEV_2G -j RETURN
-iptables -w -t filter -A vlan_isolation -d 192.168.33.1/24 -i $DEV_2G -j RETURN
-iptables -w -t filter -A vlan_isolation -s 192.168.33.1/24 -i $DEV_5G -j RETURN
-iptables -w -t filter -A vlan_isolation -d 192.168.33.1/24 -i $DEV_5G -j RETURN
-iptables -w -t filter -A vlan_isolation -s 192.168.33.1/24 -i $DEV_GUEST_2G -j RETURN
-iptables -w -t filter -A vlan_isolation -d 192.168.33.1/24 -i $DEV_GUEST_2G -j RETURN
-iptables -w -t filter -A vlan_isolation -s 192.168.33.1/24 -i $DEV_GUEST_5G -j RETURN
-iptables -w -t filter -A vlan_isolation -d 192.168.33.1/24 -i $DEV_GUEST_5G -j RETURN
 
 iptables -w -t mangle -A PREROUTING -j pre_traffic
 iptables -w -t mangle -A POSTROUTING -j post_traffic

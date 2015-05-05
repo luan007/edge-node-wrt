@@ -63,6 +63,9 @@ class Configuration extends Configurable {
         }
         if (has(delta, "Uplink")) {
             stateChange.Uplink = delta.Uplink;
+            stateChange.DropIncomingRequests = { //Rules.DropIncomingRequests.Iface_In
+                Interface: delta.Uplink
+            };
         }
         if (has(original, "DNS")) {
             dhcp_hotplug = true;
@@ -73,18 +76,16 @@ class Configuration extends Configurable {
             dnsmasq.DHCP_Hosts[0] = original.DHCPHosts;
         }
         if (addr_change) {
-            stateChange.HttpTrafficProxy = { //Rules.HttpTrafficProxy.Destination
-                Addr: addr.Address,
-                Prefix: addr.Prefix,
-                Negate: true
-            };
-            stateChange.DropIncomingRequests = { //Rules.DropIncomingRequests.Iface_In
-                Prefix: CONF.DEV.ETH.DEV_WAN
-            };
-            stateChange.UplinkNAT = { //Rules.UplinkNAT.Source
-                Addr: addr.Address,
-                Prefix: addr.Prefix
-            };
+            stateChange.NetworkAddress = addr["Address"] + '/' + addr["Prefix"];
+        //    stateChange.HttpTrafficProxy = { //Rules.HttpTrafficProxy.Destination
+        //        Addr: addr.Address,
+        //        Prefix: addr.Prefix,
+        //        Negate: true
+        //    };
+        //    //stateChange.UplinkNAT = { //Rules.UplinkNAT.Source
+        //    //    Addr: addr.Address,
+        //    //    Prefix: addr.Prefix
+        //    //};
         }
         if (dhcp_reboot) {
             dnsmasq.Start(true);

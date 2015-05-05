@@ -139,26 +139,25 @@ export function Subscribe(cb) {
         if (has(delta, "LocalNetmask")) {
             localNetmask = delta.LocalNetmask;
         }
-        if (has(delta, "HttpTrafficProxy")) {
-            var conf = ConfMgr.Get(SECTION.FIREWALL) || defaultConfig;
-            if (conf && conf.EnableNginxProxy) {
-                var _ip = delta.HttpTrafficProxy.Addr + (delta.HttpTrafficProxy.Prefix ? ("/" + delta.HttpTrafficProxy.Prefix) : "");
-                if (delta.HttpTrafficProxy.Negate) {
-                    exec(iptables, '-w', '-t', 'nat', '-R', nginx_proxy, '1', '-p', 'tcp', '--dport', '80', 'REDIRECT', '--to-ports', '3378', '!', '-d', _ip);
-                } else {
-                    exec(iptables, '-w', '-t', 'nat', '-R', nginx_proxy, '1', '-p', 'tcp', '--dport', '80', 'REDIRECT', '--to-ports', '3378', '-d', _ip);
-                }
-            }
-        }
+        //if (has(delta, "HttpTrafficProxy")) {
+        //    var conf = ConfMgr.Get(SECTION.FIREWALL) || defaultConfig;
+        //    if (conf && conf.EnableNginxProxy) {
+        //        var _ip = delta.HttpTrafficProxy.Addr + (delta.HttpTrafficProxy.Prefix ? ("/" + delta.HttpTrafficProxy.Prefix) : "");
+        //        if (delta.HttpTrafficProxy.Negate) {
+        //            exec(iptables, '-w', '-t', 'nat', '-R', nginx_proxy, '1', '-p', 'tcp', '--dport', '80', 'REDIRECT', '--to-ports', '3378', '!', '-d', _ip);
+        //        } else {
+        //            exec(iptables, '-w', '-t', 'nat', '-R', nginx_proxy, '1', '-p', 'tcp', '--dport', '80', 'REDIRECT', '--to-ports', '3378', '-d', _ip);
+        //        }
+        //    }
+        //}
         if (has(delta, "DropIncomingRequests")) {
-            exec(iptables, '-w', '-t', 'filter', '-R', drop_incoming, '1', '-m', 'state', '--state', 'NEW', '-j', 'ACCEPT', '-i', delta.DropIncomingRequests.Prefix);
+            exec(iptables, '-w', '-t', 'filter', '-R', drop_incoming, '1', '-m', 'state', '--state', 'NEW', '-j', 'ACCEPT', '-i', delta.DropIncomingRequests.Interface);
         }
         if (has(delta, "Uplink")) {
             exec(iptables, '-w', '-t', 'nat', '-R', routing_masquerade, '1', '-j', 'MASQUERADE', '-o', delta.Uplink);
         }
 
         var conf:any = ConfMgr.Get(SECTION.FIREWALL);
-        warn('routerIP', routerIP, 'localNetmask', localNetmask);
         SetVlanIsolation(conf, routerIP, localNetmask);
     });
     cb();
