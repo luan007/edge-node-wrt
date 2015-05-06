@@ -22,11 +22,17 @@ function test() {
         console.log('devices.*', key, oldValue, newValue);
     });
 
+    sub.devices.on('distance', (oldValue, newValue) => {
+        console.log('distance', oldValue, newValue);
+    });
+
     pub.devices.set('00:11:ff:aa:bb:cc', {
         ip: 1,
         dage: 1,
         xiaodi: 2
     });
+
+    pub.devices.set('distance', 10);
 
     pub.set('internet', false);
     console.log(sub.devices['00:11:ff:aa:bb:cc'].valueOf());

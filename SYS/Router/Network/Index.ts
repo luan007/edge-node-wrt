@@ -27,16 +27,16 @@ class Configuration extends Configurable {
             Address: this.ConfigHandler.Get().RouterIP,
             Prefix: this.ConfigHandler.Get().LocalNetmask
         };
-        var stateChange:any = {};
+        var network:any = {};
 
         if (has(delta, "NetworkName")) {
-            stateChange.NetworkName = delta.NetworkName;
+            network.NetworkName = delta.NetworkName;
         }
         if (has(delta, "RouterIP")) {
             //ifconfig br0 ip
             exec("ifconfig", CONF.DEV.WLAN.WLAN_BR, delta.RouterIP/* + "/" + addr.Prefix*/);
 
-            stateChange.RouterIP = delta.RouterIP;
+            network.RouterIP = delta.RouterIP;
             dhcp_reboot = true;
             addr_change = true;
             dnsmasq.Config.Listen_Address = delta.RouterIP;
@@ -51,7 +51,7 @@ class Configuration extends Configurable {
             addr["Address"] = delta.RouterIP;
         }
         if (has(delta, "LocalNetmask")) {
-            stateChange.LocalNetmask = delta.LocalNetmask;
+            network.LocalNetmask = delta.LocalNetmask;
 
             dhcp_reboot = true;
             dnsmasq.Config.DHCPRange = {
@@ -62,8 +62,8 @@ class Configuration extends Configurable {
             addr_change = true;
         }
         if (has(delta, "Uplink")) {
-            stateChange.Uplink = delta.Uplink;
-            stateChange.DropIncomingRequests = { //Rules.DropIncomingRequests.Iface_In
+            network.Uplink = delta.Uplink;
+            network.DropIncomingRequests = { //Rules.DropIncomingRequests.Iface_In
                 Interface: delta.Uplink
             };
         }
@@ -76,7 +76,7 @@ class Configuration extends Configurable {
             dnsmasq.DHCP_Hosts[0] = original.DHCPHosts;
         }
         if (addr_change) {
-            stateChange.NetworkAddress = addr["Address"] + '/' + addr["Prefix"];
+            network.NetworkAddress = addr["Address"] + '/' + addr["Prefix"];
         }
         if (dhcp_reboot) {
             dnsmasq.Start(true);
@@ -86,8 +86,8 @@ class Configuration extends Configurable {
             jobs.push(dnsmasq.StabilityCheck);
         }
 
-        if (Object.keys(stateChange).length) {
-            this.emitter.set('network', stateChange);
+        if (Object.keys(network).length) {
+            this.emitter.set('network', network);
         }
         if (jobs.length == 0) {
             cb(); //success!

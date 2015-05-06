@@ -149,7 +149,7 @@ export function Initialize(cb) {
 
 export function Subscribe(cb) {
     var sub = StatMgr.Sub(SECTION.NETWORK);
-    sub.on('NetworkName', (oldValue, newValue) => {
+    sub.network.on('NetworkName', (oldValue, newValue) => {
         SetSSID(WLAN_2G4, SECTION.WLAN2G, newValue, ()=> {
         });
         SetSSID(WLAN_5G7, SECTION.WLAN5G, newValue, ()=> {
