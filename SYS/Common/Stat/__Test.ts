@@ -6,7 +6,8 @@ function test() {
         settings: {
             name: "edge"
         },
-        devices: {}
+        devices: {},
+        hollyShit: {}
     });
 
     var sub = StatMgr.Sub('NETWORK');
@@ -14,7 +15,7 @@ function test() {
     console.log('sub.settings.name', sub.settings.name);
 
     sub.on('set', (key, oldValue, newValue)=> {
-        console.log(key, oldValue, newValue);
+        console.log('set', key, oldValue, newValue);
     });
 
     sub.on('devices.*', (key, oldValue, newValue)=> {
@@ -34,7 +35,7 @@ function test() {
         name: 'crap'
     });
 
-    console.log(sub.hollyShit.valueOf());
+    console.log('sub.hollyShit', sub.hollyShit.valueOf());
 }
 
 test();

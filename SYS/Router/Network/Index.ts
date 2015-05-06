@@ -77,15 +77,6 @@ class Configuration extends Configurable {
         }
         if (addr_change) {
             stateChange.NetworkAddress = addr["Address"] + '/' + addr["Prefix"];
-        //    stateChange.HttpTrafficProxy = { //Rules.HttpTrafficProxy.Destination
-        //        Addr: addr.Address,
-        //        Prefix: addr.Prefix,
-        //        Negate: true
-        //    };
-        //    //stateChange.UplinkNAT = { //Rules.UplinkNAT.Source
-        //    //    Addr: addr.Address,
-        //    //    Prefix: addr.Prefix
-        //    //};
         }
         if (dhcp_reboot) {
             dnsmasq.Start(true);
@@ -96,7 +87,7 @@ class Configuration extends Configurable {
         }
 
         if (Object.keys(stateChange).length) {
-            this.emitter.set('', stateChange);
+            this.emitter.set('network', stateChange);
         }
         if (jobs.length == 0) {
             cb(); //success!

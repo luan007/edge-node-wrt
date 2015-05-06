@@ -13,7 +13,7 @@ class StatMgr {
         if(this._statuses[k])
             return this._statuses[k];
         else
-            throw new Error(k + ' did not yet exist.');
+            throw new Error(k + ' does not exist yet.');
     }
 
     Get = (k:string):any => {

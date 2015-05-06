@@ -130,9 +130,9 @@ export function Subscribe(cb) {
             routing_masquerade:string = "routing_masquerade",
             nginx_proxy:string = "nginx_proxy",
             drop_incoming:string = "drop_incoming",
-            statuses = StatMgr.Get(SECTION.NETWORK).network,
-            routerIP = statuses ? statuses.RouterIP : '',
-            localNetmask = statuses ? statuses.LocalNetmask : '';
+            network = StatMgr.Get(SECTION.NETWORK).network,
+            routerIP = network ? network.RouterIP : '',
+            localNetmask = network ? network.LocalNetmask : '';
         if(key === 'network'){
             if (has(newValue, "RouterIP")) {
                 routerIP = newValue.RouterIP;
