@@ -56,38 +56,36 @@ export function Initialize(cb) {
 
     __API(withCb(confTraffic.ConfigHandler.Get), "Network.Traffic.Config.Get", [Permission.Network, Permission.Configuration]);
 
-    var cmd = 'sh ' + path.join(process.env.ROOT_PATH, 'Scripts/Router/Network/traffic.sh');
-    warn('traffic sh', cmd);
-    var parser = parsespawn(cmd, []);
-    parser.on("out_line", (line) => {
-        var traffic = JSON.parse(line);
-
-    });
+    //var cmd = 'sh ' + path.join(process.env.ROOT_PATH, 'Scripts/Router/Network/traffic.sh');
+    //warn('traffic sh', cmd);
+    //var parser = parsespawn(cmd, []);
+    //parser.on("out_line", (line) => {
+    //    var traffic = JSON.parse(line);
+    //
+    //});
 }
 
 export function Subscribe(cb) {
     var sub = StatMgr.Sub(SECTION.NETWORK);
-    sub.on('set', (key, oldValue, newValue) => {
-        if (key === 'devices') {
-            if (has(newValue, 'DEVICE_DELETED')) {
-                var leaseDeleted = newValue.DEVICE_DELETED;
+    sub.devices.on('set', (key, oldValue, newValue) => {
+        if (key === 'DEVICE_DELETED') {
+                var leaseDeleted = newValue;
                 if (Devices[leaseDeleted.Mac]) {
                     delete Devices[leaseDeleted.Mac];
                 }
             }
-            if (has(newValue, 'DEVICE_ADDED')) {
-                var leaseAdded:any = newValue.DEVICE_ADDED;
+            if (key === 'DEVICE_ADDED') {
+                var leaseAdded:any = newValue;
                 Devices[leaseAdded.Mac] = leaseAdded;
             }
-            if (has(newValue, 'DEVICE_CHANGED')) {
-                var leaseChanged:any = newValue.DEVICE_CHANGED;
+            if (key === 'DEVICE_CHANGED') {
+                var leaseChanged:any = newValue;
                 Devices[leaseChanged.Mac] = leaseChanged;
             }
-        }
-        if(key === 'network'){
-            if (has(newValue, 'NetworkAddress')) {
-                setTraffic(newValue.NetworkAddress);
-            }
+    });
+    sub.network.on('set', (key, oldValue, network)=>{
+        if (has(network, 'NetworkAddress')) {
+            setTraffic(network.NetworkAddress);
         }
     });
     cb();

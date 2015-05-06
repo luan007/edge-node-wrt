@@ -44,24 +44,28 @@ export class StatNode extends events.EventEmitter {
         }
     }
 
-    set = (key:string, val:any) => {
-        var oldValue = this.__value[key] ? (this.__value[key].valueOf ? this.__value[key].valueOf() : this.__value[key]) : undefined;
-        var newValue = val.valueOf ? val.valueOf() : val;
+    Set = (key:string, val:any) => {
+        var oldValue = this.__value[key] ? (this.__value[key].ValueOf ? this.__value[key].ValueOf() : this.__value[key]) : undefined;
+        var newValue = val.ValueOf ? val.ValueOf() : val;
         this._notifyParent(this, 'set', key, oldValue, newValue);
         this.emit(key, oldValue, newValue);
         this.emit('set', key, oldValue, newValue);
+        if(this.__value[key] && this.__value[key].emit) //emit if child is a emitter
+            this.__value[key].emit('set', key, oldValue, newValue);
         this.__value[key] = val;
         ((self, _k)=> {
             self._wrap(self, _k);
         })(this, key);
     }
 
-    del = (key:string) => {
+    Del = (key:string) => {
         if (this.__value.hasOwnProperty(key)) {
-            var oldValue = this.__value[key].valueOf ? this.__value[key].valueOf() : this.__value[key];
+            var oldValue = this.__value[key].ValueOf ? this.__value[key].ValueOf() : this.__value[key];
             this._notifyParent(this, 'del', key, oldValue, undefined);
             this.emit(key, oldValue, undefined);
             this.emit('del', key, oldValue, undefined);
+            if(this.__value[key] && this.__value[key].emit) //emit if child is a emitter
+                this.__value[key].emit('del', oldValue, undefined);
             if (this.__value[key].removeAllListeners)
                 this.__value[key].removeAllListeners();
             delete this.__value[key];
@@ -69,7 +73,7 @@ export class StatNode extends events.EventEmitter {
         }
     }
 
-    valueOf = () => {
+    ValueOf = () => {
         return this.__value;
     }
 }

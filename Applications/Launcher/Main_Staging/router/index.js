@@ -2,7 +2,7 @@
 var Cookies = require("cookies");
 
 function SetCookie(cookie, atoken, expire, d) {
-    cookie.set("edge_atoken", atoken,
+    cookie.Set("edge_atoken", atoken,
         {
         httpOnly: true,
         overwrite: true,
@@ -13,7 +13,7 @@ function SetCookie(cookie, atoken, expire, d) {
 }
 
 function SetRtoken(cookie, rtoken, expire) {
-    cookie.set("edge_rtoken", rtoken, {
+    cookie.Set("edge_rtoken", rtoken, {
         httpOnly: true,
         overwrite: true,
         path: "/renew",

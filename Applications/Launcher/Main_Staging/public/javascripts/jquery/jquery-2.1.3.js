@@ -5987,7 +5987,7 @@ jQuery.extend({
 			}
 
 			// If a hook was provided, use that value, otherwise just set the specified value
-			if ( !hooks || !("set" in hooks) || (value = hooks.set( elem, value, extra )) !== undefined ) {
+			if ( !hooks || !("set" in hooks) || (value = hooks.Set( elem, value, extra )) !== undefined ) {
 				style[ name ] = value;
 			}
 
@@ -6189,8 +6189,8 @@ Tween.prototype = {
 			this.options.step.call( this.elem, this.now, this );
 		}
 
-		if ( hooks && hooks.set ) {
-			hooks.set( this );
+		if ( hooks && hooks.Set ) {
+			hooks.Set( this );
 		} else {
 			Tween.propHooks._default.set( this );
 		}
@@ -6978,7 +6978,7 @@ jQuery.extend({
 			if ( value === null ) {
 				jQuery.removeAttr( elem, name );
 
-			} else if ( hooks && "set" in hooks && (ret = hooks.set( elem, value, name )) !== undefined ) {
+			} else if ( hooks && "set" in hooks && (ret = hooks.Set( elem, value, name )) !== undefined ) {
 				return ret;
 
 			} else {
@@ -7107,7 +7107,7 @@ jQuery.extend({
 		}
 
 		if ( value !== undefined ) {
-			return hooks && "set" in hooks && (ret = hooks.set( elem, value, name )) !== undefined ?
+			return hooks && "set" in hooks && (ret = hooks.Set( elem, value, name )) !== undefined ?
 				ret :
 				( elem[ name ] = value );
 
@@ -7369,7 +7369,7 @@ jQuery.fn.extend({
 			hooks = jQuery.valHooks[ this.type ] || jQuery.valHooks[ this.nodeName.toLowerCase() ];
 
 			// If set returns undefined, fall back to normal setting
-			if ( !hooks || !("set" in hooks) || hooks.set( this, val, "value" ) === undefined ) {
+			if ( !hooks || !("set" in hooks) || hooks.Set( this, val, "value" ) === undefined ) {
 				this.value = val;
 			}
 		});

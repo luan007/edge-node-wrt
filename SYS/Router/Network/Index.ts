@@ -9,13 +9,18 @@ import Configurable = _Configurable.Configurable;
 import Dnsmasq = require('../../Common/Native/dnsmasq');
 export var dnsmasq = new Dnsmasq.dnsmasq();
 
-class Configuration extends Configurable {
-    private emitter:StatNode;
+var pub = StatMgr.Pub(SECTION.NETWORK, {
+    devices: {},
+    network: {}
+});
 
-    constructor(moduleName:string, defaultConfig:any, emitter:StatNode) {
+class Configuration extends Configurable {
+    private pub:StatNode;
+
+    constructor(moduleName:string, defaultConfig:any, pub:StatNode) {
         super(moduleName, defaultConfig);
 
-        this.emitter = emitter;
+        this.pub = pub;
     }
 
     _apply = (delta, original, cb) => {
@@ -87,7 +92,7 @@ class Configuration extends Configurable {
         }
 
         if (Object.keys(network).length) {
-            this.emitter.set('network', network);
+            this.pub.Set('network', network);
         }
         if (jobs.length == 0) {
             cb(); //success!
@@ -114,22 +119,18 @@ var defaultConfig = {
 };
 
 export function Initialize(cb) {
-    var emitter = StatMgr.Pub(SECTION.NETWORK, {
-        devices: {},
-        network: {}
-    });
-    var confNetwork = new Configuration(SECTION.NETWORK, defaultConfig, emitter);
+    var confNetwork = new Configuration(SECTION.NETWORK, defaultConfig, pub);
     confNetwork.Initialize(cb);
 
     dnsmasq.on(Dnsmasq.DHCPLeaseManager.EVENT_ADD, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE ADDED
-        emitter.devices.set('DEVICE_ADDED', lease);
+        pub.devices.Set('DEVICE_ADDED', lease);
     });
 
     dnsmasq.on(Dnsmasq.DHCPLeaseManager.EVENT_CHANGE, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE CHANGED
-        emitter.devices.set('DEVICE_CHANGED', lease);
+        pub.devices.Set('DEVICE_CHANGED', lease);
     });
 
     dnsmasq.on(Dnsmasq.DHCPLeaseManager.EVENT_DEL, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE DELETED
-        emitter.devices.set('DEVICE_DELETED', lease);
+        pub.devices.Set('DEVICE_DELETED', lease);
     });
 }

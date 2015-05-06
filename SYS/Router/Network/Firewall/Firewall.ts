@@ -125,27 +125,25 @@ export function Initialize(cb) {
 
 export function Subscribe(cb) {
     var sub = StatMgr.Sub(SECTION.NETWORK);
-    sub.on('set', (key, oldValue, newValue) => {
+    sub.network.on('set', (key, oldValue, network:any) => {
         var iptables:string = "iptables",
             routing_masquerade:string = "routing_masquerade",
             nginx_proxy:string = "nginx_proxy",
             drop_incoming:string = "drop_incoming",
-            network = StatMgr.Get(SECTION.NETWORK).network,
-            routerIP = network ? network.RouterIP : '',
-            localNetmask = network ? network.LocalNetmask : '';
-        if(key === 'network'){
-            if (has(newValue, "RouterIP")) {
-                routerIP = newValue.RouterIP;
-            }
-            if (has(newValue, "LocalNetmask")) {
-                localNetmask = newValue.LocalNetmask;
-            }
-            if (has(newValue, "DropIncomingRequests")) {
-                exec(iptables, '-w', '-t', 'filter', '-R', drop_incoming, '1', '-m', 'state', '--state', 'NEW', '-j', 'ACCEPT', '-i', newValue.DropIncomingRequests.Interface);
-            }
-            if (has(newValue, "Uplink")) {
-                exec(iptables, '-w', '-t', 'nat', '-R', routing_masquerade, '1', '-j', 'MASQUERADE', '-o', newValue.Uplink);
-            }
+            networkStatus:any = StatMgr.Get(SECTION.NETWORK).network,
+            routerIP = networkStatus ? networkStatus.RouterIP : '',
+            localNetmask = networkStatus ? networkStatus.LocalNetmask : '';
+        if (has(network, "RouterIP")) {
+            routerIP = network.RouterIP;
+        }
+        if (has(network, "LocalNetmask")) {
+            localNetmask = network.LocalNetmask;
+        }
+        if (has(network, "DropIncomingRequests")) {
+            exec(iptables, '-w', '-t', 'filter', '-R', drop_incoming, '1', '-m', 'state', '--state', 'NEW', '-j', 'ACCEPT', '-i', network.DropIncomingRequests.Interface);
+        }
+        if (has(network, "Uplink")) {
+            exec(iptables, '-w', '-t', 'nat', '-R', routing_masquerade, '1', '-j', 'MASQUERADE', '-o', network.Uplink);
         }
 
         var conf:any = ConfMgr.Get(SECTION.FIREWALL);

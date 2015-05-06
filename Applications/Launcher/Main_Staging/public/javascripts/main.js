@@ -236,7 +236,7 @@ function comp_main_entry_icon() {
     var ico = document.getElementById("main-entry-button");
     if (!ico) return;
     var timeline = new TimelineMax({ repeat: -1 });
-    timeline.set(ico, {
+    timeline.Set(ico, {
         border: "1px solid rgba(255,255,255,0)",
     });
     timeline.to(ico, 0.5, {

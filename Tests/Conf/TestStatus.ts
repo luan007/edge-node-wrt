@@ -25,16 +25,16 @@ describe('Configuration Manager Testing', () => {
             console.log('devices.*', key, oldValue, newValue);
         });
 
-        pub.devices.set('00:11:ff:aa:bb:cc', {
+        pub.devices.Set('00:11:ff:aa:bb:cc', {
             ip: 1,
             dage: 1,
             xiaodi: 2
         });
 
-        pub.set('internet', false);
-        console.log(sub.devices['00:11:ff:aa:bb:cc'].valueOf());
+        pub.Set('internet', false);
+        console.log(sub.devices['00:11:ff:aa:bb:cc'].ValueOf());
 
-        pub.set('hollyShit', {
+        pub.Set('hollyShit', {
             name: 'crap'
         });
 

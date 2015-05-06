@@ -325,7 +325,7 @@ export class CtrlInterface extends events.EventEmitter {
                 //EVENT
                 var d = data.substr(3).split(' ');
                 this._prevevent = data;
-                this.emit(CtrlInterface.EVENT, d[0], d[1]);
+                this.emit(CtrlInterface.EVENT, d[0], d[1].toLowerCase());
             }
         }
         else {
