@@ -45,7 +45,7 @@ function comp_background(bg_id, perspective) {
     
     if (!img.naturalWidth) {
         img.addEventListener("load", comp_background.bind(null, bg_id, perspective));
-        var src = img.attributes.getNamedItem("data-bg-src").value;
+        var src = img.attributes.getNamedItem("data-bg-src").__value;
         $(img).attr("src", src);
         return;
     }

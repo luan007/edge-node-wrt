@@ -2399,7 +2399,7 @@ interface Underscore<T> {
 
 	/**
 	* Wrapped type `any`.
-	* @see _.value
+	* @see _.__value
 	**/
 	value<TResult>(): TResult;
 }
@@ -3336,7 +3336,7 @@ interface _Chain<T> {
 
 	/**
 	* Wrapped type `any`.
-	* @see _.value
+	* @see _.__value
 	**/
 	value<TResult>(): T[];
 }

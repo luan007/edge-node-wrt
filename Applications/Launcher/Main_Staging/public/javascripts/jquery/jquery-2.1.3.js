@@ -1445,7 +1445,7 @@ Sizzle.attr = function( elem, name ) {
 		support.attributes || !documentIsHTML ?
 			elem.getAttribute( name ) :
 			(val = elem.getAttributeNode(name)) && val.specified ?
-				val.value :
+				val.__value :
 				null;
 };
 
@@ -2595,7 +2595,7 @@ if ( !assert(function( div ) {
 		if ( !isXML ) {
 			return elem[ name ] === true ? name.toLowerCase() :
 					(val = elem.getAttributeNode( name )) && val.specified ?
-					val.value :
+					val.__value :
 				null;
 		}
 	});
@@ -6915,7 +6915,7 @@ jQuery.fn.delay = function( time, type ) {
 
 	// Support: iOS<=5.1, Android<=4.2+
 	// Default value for a checkbox should be "on"
-	support.checkOn = input.value !== "";
+	support.checkOn = input.__value !== "";
 
 	// Support: IE<=11+
 	// Must access selectedIndex to make default options select
@@ -6931,7 +6931,7 @@ jQuery.fn.delay = function( time, type ) {
 	input = document.createElement( "input" );
 	input.value = "t";
 	input.type = "radio";
-	support.radioValue = input.value === "t";
+	support.radioValue = input.__value === "t";
 })();
 
 
@@ -7434,7 +7434,7 @@ jQuery.extend({
 
 				while ( i-- ) {
 					option = options[ i ];
-					if ( (option.selected = jQuery.inArray( option.value, values ) >= 0) ) {
+					if ( (option.selected = jQuery.inArray( option.__value, values ) >= 0) ) {
 						optionSet = true;
 					}
 				}
@@ -8463,7 +8463,7 @@ jQuery.param = function( a, traditional ) {
 	if ( jQuery.isArray( a ) || ( a.jquery && !jQuery.isPlainObject( a ) ) ) {
 		// Serialize the form elements
 		jQuery.each( a, function() {
-			add( this.name, this.value );
+			add( this.__name, this.__value );
 		});
 
 	} else {
@@ -8492,7 +8492,7 @@ jQuery.fn.extend({
 			var type = this.type;
 
 			// Use .is( ":disabled" ) so that fieldset[disabled] works
-			return this.name && !jQuery( this ).is( ":disabled" ) &&
+			return this.__name && !jQuery( this ).is( ":disabled" ) &&
 				rsubmittable.test( this.nodeName ) && !rsubmitterTypes.test( type ) &&
 				( this.checked || !rcheckableType.test( type ) );
 		})
@@ -8503,9 +8503,9 @@ jQuery.fn.extend({
 				null :
 				jQuery.isArray( val ) ?
 					jQuery.map( val, function( val ) {
-						return { name: elem.name, value: val.replace( rCRLF, "\r\n" ) };
+						return { name: elem.__name, value: val.replace( rCRLF, "\r\n" ) };
 					}) :
-					{ name: elem.name, value: val.replace( rCRLF, "\r\n" ) };
+					{ name: elem.__name, value: val.replace( rCRLF, "\r\n" ) };
 		}).get();
 	}
 });

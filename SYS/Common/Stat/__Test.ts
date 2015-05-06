@@ -6,7 +6,7 @@ function test() {
         settings: {
             name: "edge"
         },
-        devices: { }
+        devices: {}
     });
 
     var sub = StatMgr.Sub('NETWORK');
@@ -28,7 +28,13 @@ function test() {
     });
 
     pub.set('internet', false);
-    console.log(sub.devices['00:11:ff:aa:bb:cc']);
+    console.log(sub.devices['00:11:ff:aa:bb:cc'].valueOf());
+
+    pub.set('hollyShit', {
+        name: 'crap'
+    });
+
+    console.log(sub.hollyShit.valueOf());
 }
 
 test();
