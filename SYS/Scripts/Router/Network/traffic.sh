@@ -1,66 +1,27 @@
 #!/bin/bash
 
-#TODO: static extract three tables
-function getTraffic(){
-	iptables -vnxL --line-number -t filter | while read line
-	do
-	 	t=$(echo "$line" | grep -P -o 'Chain ([\S]+)' | awk '{print $2}')
-		#echo $t" "$chain
-		if [ -z $t ]
-		then
-			t=$(echo "$line" | grep -P '\d+\s+\d+\s+\d+\s+' | awk '{ o="\"num\":"$1",\"pkts\":"$2",\"bytes\":"$3",\"target\":\""$4"\",\"prot\":\""$5"\",\"opt\":\""$6"\",\"in\":\""$7"\",\"out\":\""$8"\",\"source\":\""$9"\",\"destination\":\""$10"\""; print o;}')
-			if [ ! -z $t ] 
-			then
-				t="{\"chain\":\""${chain}"\","${t}"},";
-				res1=${res1}${t}
-			fi
-			
-		else
-			chain=$t
-		fi
-		echo $res1 > /tmp/.iptables_json
-	done
+t='['
 
-	iptables -vnxL --line-number -t mangle | while read line
-	do
-	 	t=$(echo "$line" | grep -P -o 'Chain ([\S]+)' | awk '{print $2}')
-		#echo $t" "$chain
-		if [ -z $t ]
-		then
-			t=$(echo "$line" | grep -P '\d+\s+\d+\s+\d+\s+' | awk '{ o="\"num\":"$1",\"pkts\":"$2",\"bytes\":"$3",\"target\":\""$4"\",\"prot\":\""$5"\",\"opt\":\""$6"\",\"in\":\""$7"\",\"out\":\""$8"\",\"source\":\""$9"\",\"destination\":\""$10"\""; print o;}')
-			if [ ! -z $t ] 
-			then
-				t="{\"chain\":\""${chain}"\","${t}"},";
-				res2=${res2}${t}
-			fi
-			
-		else
-			chain=$t
-		fi
-		echo $res2 > /tmp/.iptables_json2
-	done
+#table: filter
+declare -a arr=('INPUT' 'FORWARD' 'OUTPUT' 'drop_incoming' 'fw_custom' 'fw_sys' 'in_custom' 'in_sys' 'internet_down_traffic' 'internet_up_traffic' 'intranet_traffic' 'ot_custom' 'ot_sys' 'vlan_isolation')
+for chain in ${arr[@]}
+do
+	t=${t}$(iptables -vnxL $chain --line-number -t filter | grep '[[:digit:]]\+[[:blank:]]\+[[:digit:]]\+[[:blank:]]\+[[:digit:]]\+' | awk -v chain="$chain" '{ o="{\"chain\":\""chain"\",\"num\":"$1",\"pkts\":"$2",\"bytes\":"$3",\"target\":\""$4"\",\"prot\":\""$5"\",\"opt\":\""$6"\",\"in\":\""$7"\",\"out\":\""$8"\",\"source\":\""$9"\",\"destination\":\""$10"\"},"; print o;}')
+done
 
-	iptables -vnxL --line-number -t nat | while read line
-	do
-	 	t=$(echo "$line" | grep -P -o 'Chain ([\S]+)' | awk '{print $2}')
-		#echo $t" "$chain
-		if [ -z $t ]
-		then
-			t=$(echo "$line" | grep -P '\d+\s+\d+\s+\d+\s+' | awk '{ o="\"num\":"$1",\"pkts\":"$2",\"bytes\":"$3",\"target\":\""$4"\",\"prot\":\""$5"\",\"opt\":\""$6"\",\"in\":\""$7"\",\"out\":\""$8"\",\"source\":\""$9"\",\"destination\":\""$10"\""; print o;}')
-			if [ ! -z $t ] 
-			then
-				t="{\"chain\":\""${chain}"\","${t}"},";
-				res3=${res3}${t}
-			fi
-			
-		else
-			chain=$t
-		fi
-		echo $res3 > /tmp/.iptables_json3
-	done
-	
-	res="["`cat /tmp/.iptables_json``cat /tmp/.iptables_json2``cat /tmp/.iptables_json3`"]"
-	echo $res
-}
+#table: mangle
+declare -a arr=('PREROUTING' 'INPUT' 'FORWARD' 'OUTPUT' 'POSTROUTING' 'post_traffic' 'pre_traffic')
+for chain in ${arr[@]}
+do
+	t=${t}$(iptables -vnxL $chain --line-number -t mangle | grep '[[:digit:]]\+[[:blank:]]\+[[:digit:]]\+[[:blank:]]\+[[:digit:]]\+' | awk -v chain="$chain" '{ o="{\"chain\":\""chain"\",\"num\":"$1",\"pkts\":"$2",\"bytes\":"$3",\"target\":\""$4"\",\"prot\":\""$5"\",\"opt\":\""$6"\",\"in\":\""$7"\",\"out\":\""$8"\",\"source\":\""$9"\",\"destination\":\""$10"\"},"; print o;}')
+done
 
-getTraffic
+#table: nat
+declare -a arr=('PREROUTING' 'INPUT''OUTPUT''POSTROUTING' 'nginx_proxy' 'post_sys' 'pre_sys' 'routing_masquerade' 'wifi_nat')
+for chain in ${arr[@]}
+do
+	t=${t}$(iptables -vnxL $chain --line-number -t nat | grep '[[:digit:]]\+[[:blank:]]\+[[:digit:]]\+[[:blank:]]\+[[:digit:]]\+' | awk -v chain="$chain" '{ o="{\"chain\":\""chain"\",\"num\":"$1",\"pkts\":"$2",\"bytes\":"$3",\"target\":\""$4"\",\"prot\":\""$5"\",\"opt\":\""$6"\",\"in\":\""$7"\",\"out\":\""$8"\",\"source\":\""$9"\",\"destination\":\""$10"\"},"; print o;}')
+done
+
+t=${t}']'
+echo $t
