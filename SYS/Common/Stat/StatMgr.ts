@@ -15,6 +15,10 @@ class StatMgr {
         else
             throw new Error(k + ' did not yet exist.');
     }
+
+    Get = (k:string):any => {
+        return this._statuses[k];
+    }
 }
 
 var statMgr = new StatMgr();

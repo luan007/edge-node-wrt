@@ -5,7 +5,6 @@ import Config = _Config.Config;
 import _Configurable = require('../../../Common/Conf/Configurable');
 import Configurable = _Configurable.Configurable;
 import StatMgr = require('../../../Common/Stat/StatMgr');
-import Status = require('../../../Common/Stat/Status');
 
 class Configuration extends Configurable {
 
@@ -125,36 +124,28 @@ export function Initialize(cb) {
 }
 
 export function Subscribe(cb) {
-    StatMgr.Sub(SECTION.NETWORK, (moduleName, delta) => {
+    var sub = StatMgr.Sub(SECTION.NETWORK);
+    sub.on('set', (key, oldValue, newValue) => {
         var iptables:string = "iptables",
             routing_masquerade:string = "routing_masquerade",
             nginx_proxy:string = "nginx_proxy",
             drop_incoming:string = "drop_incoming",
-            statuses = StatMgr.GetByModule(moduleName),
+            statuses = StatMgr.Get(SECTION.NETWORK).network,
             routerIP = statuses ? statuses.RouterIP : '',
             localNetmask = statuses ? statuses.LocalNetmask : '';
-        if (has(delta, "RouterIP")) {
-            routerIP = delta.RouterIP;
-        }
-        if (has(delta, "LocalNetmask")) {
-            localNetmask = delta.LocalNetmask;
-        }
-        //if (has(delta, "HttpTrafficProxy")) {
-        //    var conf = ConfMgr.Get(SECTION.FIREWALL) || defaultConfig;
-        //    if (conf && conf.EnableNginxProxy) {
-        //        var _ip = delta.HttpTrafficProxy.Addr + (delta.HttpTrafficProxy.Prefix ? ("/" + delta.HttpTrafficProxy.Prefix) : "");
-        //        if (delta.HttpTrafficProxy.Negate) {
-        //            exec(iptables, '-w', '-t', 'nat', '-R', nginx_proxy, '1', '-p', 'tcp', '--dport', '80', 'REDIRECT', '--to-ports', '3378', '!', '-d', _ip);
-        //        } else {
-        //            exec(iptables, '-w', '-t', 'nat', '-R', nginx_proxy, '1', '-p', 'tcp', '--dport', '80', 'REDIRECT', '--to-ports', '3378', '-d', _ip);
-        //        }
-        //    }
-        //}
-        if (has(delta, "DropIncomingRequests")) {
-            exec(iptables, '-w', '-t', 'filter', '-R', drop_incoming, '1', '-m', 'state', '--state', 'NEW', '-j', 'ACCEPT', '-i', delta.DropIncomingRequests.Interface);
-        }
-        if (has(delta, "Uplink")) {
-            exec(iptables, '-w', '-t', 'nat', '-R', routing_masquerade, '1', '-j', 'MASQUERADE', '-o', delta.Uplink);
+        if(key === 'network'){
+            if (has(newValue, "RouterIP")) {
+                routerIP = newValue.RouterIP;
+            }
+            if (has(newValue, "LocalNetmask")) {
+                localNetmask = newValue.LocalNetmask;
+            }
+            if (has(newValue, "DropIncomingRequests")) {
+                exec(iptables, '-w', '-t', 'filter', '-R', drop_incoming, '1', '-m', 'state', '--state', 'NEW', '-j', 'ACCEPT', '-i', newValue.DropIncomingRequests.Interface);
+            }
+            if (has(newValue, "Uplink")) {
+                exec(iptables, '-w', '-t', 'nat', '-R', routing_masquerade, '1', '-j', 'MASQUERADE', '-o', newValue.Uplink);
+            }
         }
 
         var conf:any = ConfMgr.Get(SECTION.FIREWALL);

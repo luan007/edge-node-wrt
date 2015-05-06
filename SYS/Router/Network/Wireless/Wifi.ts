@@ -3,7 +3,6 @@ import ConfMgr = require('../../../Common/Conf/ConfMgr');
 import _Config = require('../../../Common/Conf/Config');
 import Config = _Config.Config;
 import StatMgr = require('../../../Common/Stat/StatMgr');
-import Status = require('../../../Common/Stat/Status');
 import _Configurable = require('../../../Common/Conf/Configurable');
 import Configurable = _Configurable.Configurable;
 
@@ -149,13 +148,12 @@ export function Initialize(cb) {
 }
 
 export function Subscribe(cb) {
-    StatMgr.Sub(SECTION.NETWORK, (moduleName, delta) => {
-        if (has(delta, "NetworkName")) {
-            SetSSID(WLAN_2G4, SECTION.WLAN2G, delta.NetworkName, ()=> {
-            });
-            SetSSID(WLAN_5G7, SECTION.WLAN5G, delta.NetworkName, ()=> {
-            });
-        }
+    var sub = StatMgr.Sub(SECTION.NETWORK);
+    sub.on('NetworkName', (oldValue, newValue) => {
+        SetSSID(WLAN_2G4, SECTION.WLAN2G, newValue, ()=> {
+        });
+        SetSSID(WLAN_5G7, SECTION.WLAN5G, newValue, ()=> {
+        });
     });
     cb();
 }

@@ -2,17 +2,17 @@ import ConfMgr = require('../../Common/Conf/ConfMgr');
 import _Config = require('../../Common/Conf/Config');
 import Config = _Config.Config;
 import StatMgr = require('../../Common/Stat/StatMgr');
-import _Status = require('../../Common/Stat/Status');
-import Status = _Status.Status;
+import _StatNode = require('../../Common/Stat/StatNode');
+import StatNode = _StatNode.StatNode;
 import _Configurable = require('../../Common/Conf/Configurable');
 import Configurable = _Configurable.Configurable;
 import Dnsmasq = require('../../Common/Native/dnsmasq');
 export var dnsmasq = new Dnsmasq.dnsmasq();
 
 class Configuration extends Configurable {
-    private emitter:Status;
+    private emitter:StatNode;
 
-    constructor(moduleName:string, defaultConfig:any, emitter:Status) {
+    constructor(moduleName:string, defaultConfig:any, emitter:StatNode) {
         super(moduleName, defaultConfig);
 
         this.emitter = emitter;
@@ -96,7 +96,7 @@ class Configuration extends Configurable {
         }
 
         if (Object.keys(stateChange).length) {
-            this.emitter.Emit(stateChange);
+            this.emitter.set('', stateChange);
         }
         if (jobs.length == 0) {
             cb(); //success!
@@ -123,19 +123,22 @@ var defaultConfig = {
 };
 
 export function Initialize(cb) {
-    var emitter = StatMgr.Pub(SECTION.NETWORK, SECTION.NETWORK, 'network status');
+    var emitter = StatMgr.Pub(SECTION.NETWORK, {
+        devices: {},
+        network: {}
+    });
     var confNetwork = new Configuration(SECTION.NETWORK, defaultConfig, emitter);
     confNetwork.Initialize(cb);
 
     dnsmasq.on(Dnsmasq.DHCPLeaseManager.EVENT_ADD, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE ADDED
-        emitter.Emit({'DEVICE_ADDED': lease});
+        emitter.devices.set('DEVICE_ADDED', lease);
     });
 
     dnsmasq.on(Dnsmasq.DHCPLeaseManager.EVENT_CHANGE, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE CHANGED
-        emitter.Emit({'DEVICE_CHANGED': lease});
+        emitter.devices.set('DEVICE_CHANGED', lease);
     });
 
     dnsmasq.on(Dnsmasq.DHCPLeaseManager.EVENT_DEL, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE DELETED
-        emitter.Emit({'DEVICE_DELETED': lease});
+        emitter.devices.set('DEVICE_DELETED', lease);
     });
 }

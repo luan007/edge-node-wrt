@@ -2,7 +2,6 @@ import ConfMgr = require('../../../Common/Conf/ConfMgr');
 import _Config = require('../../../Common/Conf/Config');
 import Config = _Config.Config;
 import StatMgr = require('../../../Common/Stat/StatMgr');
-import Status = require('../../../Common/Stat/Status');
 
 function Initialize() {
     info('start firewall testing...');

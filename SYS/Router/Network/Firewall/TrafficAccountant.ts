@@ -2,7 +2,6 @@
 import _Config = require('../../../Common/Conf/Config');
 import Config = _Config.Config;
 import StatMgr = require('../../../Common/Stat/StatMgr');
-import Status = require('../../../Common/Stat/Status');
 import _Configurable = require('../../../Common/Conf/Configurable');
 import Configurable = _Configurable.Configurable;
 import path = require('path');
@@ -57,7 +56,7 @@ export function Initialize(cb) {
 
     __API(withCb(confTraffic.ConfigHandler.Get), "Network.Traffic.Config.Get", [Permission.Network, Permission.Configuration]);
 
-    var cmd = 'sh ' +  path.join(process.env.ROOT_PATH, 'Scripts/Router/Network/traffic.sh');
+    var cmd = 'sh ' + path.join(process.env.ROOT_PATH, 'Scripts/Router/Network/traffic.sh');
     warn('traffic sh', cmd);
     var parser = parsespawn(cmd, []);
     parser.on("out_line", (line) => {
@@ -67,23 +66,28 @@ export function Initialize(cb) {
 }
 
 export function Subscribe(cb) {
-    StatMgr.Sub(SECTION.NETWORK, (moduleName, delta) => {
-        if (has(delta, 'DEVICE_DELETED')) {
-            var leaseDeleted = delta.DEVICE_DELETED;
-            if (Devices[leaseDeleted.Mac]) {
-                delete Devices[leaseDeleted.Mac];
+    var sub = StatMgr.Sub(SECTION.NETWORK);
+    sub.on('set', (key, oldValue, newValue) => {
+        if (key === 'devices') {
+            if (has(newValue, 'DEVICE_DELETED')) {
+                var leaseDeleted = newValue.DEVICE_DELETED;
+                if (Devices[leaseDeleted.Mac]) {
+                    delete Devices[leaseDeleted.Mac];
+                }
+            }
+            if (has(newValue, 'DEVICE_ADDED')) {
+                var leaseAdded:any = newValue.DEVICE_ADDED;
+                Devices[leaseAdded.Mac] = leaseAdded;
+            }
+            if (has(newValue, 'DEVICE_CHANGED')) {
+                var leaseChanged:any = newValue.DEVICE_CHANGED;
+                Devices[leaseChanged.Mac] = leaseChanged;
             }
         }
-        if (has(delta, 'DEVICE_ADDED')) {
-            var leaseAdded:any = delta.DEVICE_ADDED;
-            Devices[leaseAdded.Mac] = leaseAdded;
-        }
-        if (has(delta, 'DEVICE_CHANGED')) {
-            var leaseChanged:any = delta.DEVICE_CHANGED;
-            Devices[leaseChanged.Mac] = leaseChanged;
-        }
-        if (has(delta, 'NetworkAddress')) {
-            setTraffic(delta.NetworkAddress);
+        if(key === 'network'){
+            if (has(newValue, 'NetworkAddress')) {
+                setTraffic(newValue.NetworkAddress);
+            }
         }
     });
     cb();
