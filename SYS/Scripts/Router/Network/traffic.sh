@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#extract three tables
+#TODO: static extract three tables
 function getTraffic(){
 	iptables -vnxL --line-number -t filter | while read line
 	do

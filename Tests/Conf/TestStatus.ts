@@ -1,38 +1,38 @@
 require('../../System/Env');
 import StatMgr = require('../../SYS/Common/Stat/StatMgr');
-import _Status = require('../../SYS/Common/Stat/Status');
-import Status = _Status.Status;
 
-describe('Status Manager Testing', () => {
+describe('Configuration Manager Testing', () => {
 
-    it('pub/sub pattern', (done) => {
-        var emitter = StatMgr.Pub('device.status', 'wifi', 'device status transition notification.');  //Service-end
+    it('pub/sub mode', () => {
 
-        StatMgr.Sub('device.status', (moduleName, obj) => { // Consumer-end
-            obj.should.be.ok;
-            moduleName.should.be.eql('wifi');
-
-            done();
+        var pub = StatMgr.Pub('NETWORK', {
+            internet: true,
+            settings: {
+                name: "edge"
+            },
+            devices: {}
         });
 
-        emitter.Emit({'a': 1, 'b': 2}); //Service-end:  Emit overload ver.
-    });
+        var sub = StatMgr.Sub('NETWORK');
+        console.log('sub.internet', sub.internet);
+        console.log('sub.settings.name', sub.settings.name);
 
-    it('pub/sub Buffer pattern', (done) => {
-        StatMgr.Sub('holly.crap', (moduleName, obj) => { // Consumer-end
-            obj.should.be.ok;
-            moduleName.should.be.eql('crap');
-
-            var statuses:any = StatMgr.GetAll();
-            statuses.should.be.ok;
-            trace('system statuses:', statuses);
-
-            done();
+        sub.on('set', (key, oldValue, newValue)=> {
+            console.log(key, oldValue, newValue);
         });
 
-        var emitter = StatMgr.Pub('holly.crap', 'crap', 'just a crap.');  //Service-end
+        sub.on('devices.*', (key, oldValue, newValue)=> {
+            console.log('devices.*', key, oldValue, newValue);
+        });
 
-        emitter.Emit({'a': 'ok', 'b': 'yeah'}); //Service-end:  Emit overload ver.
+        pub.devices.set('00:11:ff:aa:bb:cc', {
+            ip: 1,
+            dage: 1,
+            xiaodi: 2
+        });
+
+        pub.set('internet', false);
+        console.log(sub.devices['00:11:ff:aa:bb:cc']);
+
     });
 });
-
