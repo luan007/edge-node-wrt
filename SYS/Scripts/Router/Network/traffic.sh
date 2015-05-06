@@ -8,11 +8,11 @@ junk=(${raw// /\_})
 for line in ${junk[@]}
 do
 	good=${line//_/ }
-	t=$(echo "$good" | grep -P -o 'Chain ([\S]+)' | awk '{print $2}')
+	t=$(echo "$good" | grep -E -o 'Chain \S+' | awk '{print $2}')
 
 	if [ -z $t ]
 	then
-		t=$(echo "$good" | grep -P '\d+\s+\d+\s+\d+\s+' | awk '{ o="\"num\":"$1",\"pkts\":"$2",\"bytes\":"$3",\"target\":\""$4"\",\"prot\":\""$5"\",\"opt\":\""$6"\",\"in\":\""$7"\",\"out\":\""$8"\",\"source\":\""$9"\",\"destination\":\""$10"\""; print o;}')
+		t=$(echo "$good" | grep -E '[[:digit:]]+[[:blank:]]+[[:digit:]]+[[:blank:]]+[[:digit:]]+[[:blank:]]+' | awk '{ o="\"num\":"$1",\"pkts\":"$2",\"bytes\":"$3",\"target\":\""$4"\",\"prot\":\""$5"\",\"opt\":\""$6"\",\"in\":\""$7"\",\"out\":\""$8"\",\"source\":\""$9"\",\"destination\":\""$10"\""; print o;}')
 		if [ ! -z $t ]
 		then
 			t="{\"chain\":\""${chain}"\","${t}"},";
