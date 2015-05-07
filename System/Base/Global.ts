@@ -92,7 +92,7 @@ class _sys_conf {
     };
     USER_IMMEDIATE_EXPIRE = false;
     IPTABLES_6 = false;
-
+    IPTABLES_TRAFFIC_INTERVAL = 1 * 1000;   // iptables traffic patrol sleep interval
 }
 
 class _section {

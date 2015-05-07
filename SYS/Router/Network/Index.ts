@@ -123,14 +123,14 @@ export function Initialize(cb) {
     confNetwork.Initialize(cb);
 
     dnsmasq.on(Dnsmasq.DHCPLeaseManager.EVENT_ADD, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE ADDED
-        pub.devices.Set('DEVICE_ADDED', lease);
+        pub.devices.Set(lease.Mac, lease);
     });
 
     dnsmasq.on(Dnsmasq.DHCPLeaseManager.EVENT_CHANGE, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE CHANGED
-        pub.devices.Set('DEVICE_CHANGED', lease);
+        pub.devices.Set(lease.Mac, lease);
     });
 
     dnsmasq.on(Dnsmasq.DHCPLeaseManager.EVENT_DEL, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE DELETED
-        pub.devices.Set('DEVICE_DELETED', lease);
+        pub.devices.Del(lease.Mac);
     });
 }

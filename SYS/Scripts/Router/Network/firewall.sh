@@ -24,7 +24,8 @@ ipset -F
 ipset -X
 
 #creation
-iptables -N intranet_traffic -t filter
+iptables -N intranet_up_traffic -t filter
+iptables -N intranet_down_traffic -t filter
 iptables -N internet_up_traffic -t filter
 iptables -N internet_down_traffic -t filter
 iptables -N in_sys  -t filter
@@ -63,7 +64,8 @@ iptables -w -t filter -A vlan_isolation -d 192.168.133.0/24 -i $DEV_GUEST_5G -j 
 
 iptables -w -t filter -A FORWARD -s 192.168.133.0/24 -o $DEV_WAN -j internet_up_traffic
 iptables -w -t filter -A FORWARD -d 192.168.133.0/24 -i $DEV_WAN -j internet_down_traffic
-iptables -w -t filter -A FORWARD -s 192.168.133.0/24 -d 192.168.133.0/24 -j intranet_traffic
+iptables -w -t filter -A FORWARD -s 192.168.133.0/24 -d 192.168.133.0/24 -j intranet_up_traffic
+iptables -w -t filter -A FORWARD -s 192.168.133.0/24 -d 192.168.133.0/24 -j intranet_down_traffic
 
 iptables -w -t filter -A FORWARD -j fw_sys
 iptables -w -t filter -A FORWARD -j fw_custom
