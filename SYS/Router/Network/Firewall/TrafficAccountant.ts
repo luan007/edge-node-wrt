@@ -11,22 +11,25 @@ interface Traffic {
     //IP:string;
     Bytes:number;
     Packets:number;
-    //Delta_Bytes:number;
-    //Delta_Time:number;
+    Delta_Bytes?:number;
+    Delta_Packets?:number;
+    Delta_Time?:number;
+    LastMeasure?: number;
 }
 
 interface DeviceTraffic {
     IP: string;
-    InternetUpStream: Traffic;
-    InternetDownStream: Traffic;
-    IntranetUpStream: Traffic;
-    IntranetDownStream: Traffic;
+    internet_up_traffic: Traffic;
+    internet_down_traffic: Traffic;
+    intranet_up_traffic: Traffic;
+    intranet_down_traffic: Traffic;
 }
 
 export var Devices:IDic<DeviceTraffic> = {};
 var IpMacMapping:IDic<string> = {};
 
 var scriptPath = path.join(process.env.ROOT_PATH, 'Scripts/Router/Network/traffic.sh')
+    , jobName = 'traffic_accountant'
     , iptables = 'iptables'
     , filter = 'filter'
     , forward = 'FORWARD'
@@ -35,37 +38,49 @@ var scriptPath = path.join(process.env.ROOT_PATH, 'Scripts/Router/Network/traffi
     , intranet_up_traffic = 'intranet_up_traffic'
     , intranet_down_traffic = 'intranet_down_traffic';
 
-function extractTraffic(trafficChain, chainName) {
-    for (var ip in trafficChain) {
-        var mac = IpMacMapping[ip];
-        if (mac && Devices[mac]) {
-            var packets = trafficChain[ip][0],
-                bytes = trafficChain[ip][1];
-            if (Devices[mac][chainName].Packets < packets)
-                Devices[mac][chainName].Packets = packets;
-            if (Devices[mac][chainName].Bytes < bytes)
-                Devices[mac][chainName].Bytes = bytes;
+function extractTraffic(trafficChain, chainName, cb) {
+    intoQueue(jobName, ()=> {
+        for (var ip in trafficChain) {
+            var mac = IpMacMapping[ip];
+            if (mac && Devices[mac]) {
+                var packets = trafficChain[ip][0],
+                    bytes = trafficChain[ip][1],
+                    device = Devices[mac];
+                if (device[chainName].Packets < packets) {
+                    if(device[chainName].LastMeasure)
+                        device[chainName].Delta_Time = new Date().getTime() - device[chainName].LastMeasure;
+                    device[chainName].LastMeasure = new Date().getTime();
+                    device[chainName].Delta_Packets = packets - device[chainName].Packets;
+                    device[chainName].Packets = packets;
+                }
+                if (device[chainName].Bytes < bytes) {
+                    device[chainName].Delta_Bytes = bytes - device[chainName].Bytes;
+                    device[chainName].Bytes = bytes;
+                }
+            }
         }
-    }
+    }, cb);
 }
 function parseTraffic() {
-    warn('traffic sh', scriptPath);
     exec('sh', scriptPath, (err, res)=> {
         if (err) error(err);
         else {
-            var json = JSON.parse(res);
-            console.log(json);
+            var json = JSON.parse(res.replace(/\,$/gmi, '')); // remove trail comma
             if (Object.keys(json.internet_down_traffic).length > 0) {
-                extractTraffic(json.internet_down_traffic, internet_down_traffic);
+                extractTraffic(json.internet_down_traffic, internet_down_traffic, ()=> {
+                });
             }
             if (Object.keys(json.internet_up_traffic).length > 0) {
-                extractTraffic(json.internet_up_traffic, internet_up_traffic);
+                extractTraffic(json.internet_up_traffic, internet_up_traffic, ()=> {
+                });
             }
             if (Object.keys(json.intranet_down_traffic).length > 0) {
-                extractTraffic(json.intranet_down_traffic, intranet_down_traffic);
+                extractTraffic(json.intranet_down_traffic, intranet_down_traffic, ()=> {
+                });
             }
             if (Object.keys(json.intranet_up_traffic).length > 0) {
-                extractTraffic(json.intranet_up_traffic, intranet_up_traffic);
+                extractTraffic(json.intranet_up_traffic, intranet_up_traffic, ()=> {
+                });
             }
         }
     });
@@ -134,7 +149,7 @@ function addRule(ip, packets, bytes, cb) {
 }
 
 export function Initialize(cb) {
-    setJob('traffic_accountant', parseTraffic, CONF.IPTABLES_TRAFFIC_INTERVAL);
+    setJob(jobName, parseTraffic, CONF.IPTABLES_TRAFFIC_INTERVAL);
 
     cb();
 }
@@ -155,10 +170,10 @@ export function Subscribe(cb) {
         if (!device) { //doesn't exist
             Devices[mac] = {
                 IP: leaseChanged.Address
-                , InternetUpStream: {Bytes: 0, Packets: 0}
-                , InternetDownStream: {Bytes: 0, Packets: 0}
-                , IntranetUpStream: {Bytes: 0, Packets: 0}
-                , IntranetDownStream: {Bytes: 0, Packets: 0}
+                , internet_up_traffic: {Bytes: 0, Packets: 0}
+                , internet_down_traffic: {Bytes: 0, Packets: 0}
+                , intranet_up_traffic: {Bytes: 0, Packets: 0}
+                , intranet_down_traffic: {Bytes: 0, Packets: 0}
             };
             delRule(leaseChanged.Address, ()=> {
                 addRule(leaseChanged.Address, [0, 0, 0, 0], [0, 0, 0, 0], ()=> {
@@ -168,14 +183,14 @@ export function Subscribe(cb) {
             if (device.IP !== leaseChanged.Address) { // IP Changed
                 delRule(device.IP, ()=> {
                     addRule(leaseChanged.Address,
-                        [device.InternetUpStream.Packets,
-                            device.InternetDownStream.Packets,
-                            device.IntranetUpStream.Packets,
-                            device.IntranetDownStream.Packets],
-                        [device.InternetUpStream.Bytes,
-                            device.InternetDownStream.Bytes,
-                            device.IntranetUpStream.Bytes,
-                            device.IntranetDownStream.Bytes],
+                        [device.internet_up_traffic.Packets,
+                            device.internet_down_traffic.Packets,
+                            device.intranet_up_traffic.Packets,
+                            device.intranet_down_traffic.Packets],
+                        [device.internet_up_traffic.Bytes,
+                            device.internet_down_traffic.Bytes,
+                            device.intranet_up_traffic.Bytes,
+                            device.intranet_down_traffic.Bytes],
                         ()=> {
                             device.IP = leaseChanged.Address;
                         });
@@ -191,7 +206,7 @@ export function Subscribe(cb) {
             delRule(ip, () => {
                 if (ip && IpMacMapping[ip])
                     delete IpMacMapping[ip];
-                delete Devices[mac];
+                //delete Devices[mac];
             });
         }
     });

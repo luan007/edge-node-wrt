@@ -122,15 +122,18 @@ export function Initialize(cb) {
     var confNetwork = new Configuration(SECTION.NETWORK, defaultConfig, pub);
     confNetwork.Initialize(cb);
 
-    dnsmasq.on(Dnsmasq.DHCPLeaseManager.EVENT_ADD, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE ADDED
+    dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_ADD, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE ADDED
+        warn('EVENT_ADD', lease);
         pub.devices.Set(lease.Mac, lease);
     });
 
-    dnsmasq.on(Dnsmasq.DHCPLeaseManager.EVENT_CHANGE, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE CHANGED
+    dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_CHANGE, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE CHANGED
+        warn('EVENT_CHANGE', lease);
         pub.devices.Set(lease.Mac, lease);
     });
 
-    dnsmasq.on(Dnsmasq.DHCPLeaseManager.EVENT_DEL, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE DELETED
+    dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_DEL, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE DELETED
+        warn('EVENT_DEL', lease);
         pub.devices.Del(lease.Mac);
     });
 }

@@ -39,4 +39,6 @@ _Releases/
 *.ldb
 *.dat
 
+tscommand-*.tmp.txt
+
 secret.json
