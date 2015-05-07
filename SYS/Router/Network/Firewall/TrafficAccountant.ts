@@ -35,12 +35,16 @@ var scriptPath = path.join(process.env.ROOT_PATH, 'Scripts/Router/Network/traffi
     , intranet_up_traffic = 'intranet_up_traffic'
     , intranet_down_traffic = 'intranet_down_traffic';
 
-function extractTraffic(trafficChain) {
+function extractTraffic(trafficChain, chainName) {
     for (var ip in trafficChain) {
         var mac = IpMacMapping[ip];
         if (mac && Devices[mac]) {
-            trafficChain[ip];
-
+            var packets = trafficChain[ip][0],
+                bytes = trafficChain[ip][1];
+            if (Devices[mac][chainName].Packets < packets)
+                Devices[mac][chainName].Packets = packets;
+            if (Devices[mac][chainName].Bytes < bytes)
+                Devices[mac][chainName].Bytes = bytes;
         }
     }
 }
@@ -52,22 +56,19 @@ function parseTraffic() {
             var json = JSON.parse(res);
             console.log(json);
             if (Object.keys(json.internet_down_traffic).length > 0) {
-                extractTraffic(json.internet_down_traffic);
+                extractTraffic(json.internet_down_traffic, internet_down_traffic);
             }
             if (Object.keys(json.internet_up_traffic).length > 0) {
-                extractTraffic(json.internet_up_traffic);
+                extractTraffic(json.internet_up_traffic, internet_up_traffic);
             }
             if (Object.keys(json.intranet_down_traffic).length > 0) {
-                extractTraffic(json.intranet_down_traffic);
+                extractTraffic(json.intranet_down_traffic, intranet_down_traffic);
             }
             if (Object.keys(json.intranet_up_traffic).length > 0) {
-                extractTraffic(json.intranet_up_traffic);
+                extractTraffic(json.intranet_up_traffic, intranet_up_traffic);
             }
         }
     });
-}
-function getRule(ip, cb) {
-    exec(iptables, '-L', internet_up_traffic, '|', 'grep', ip, cb);
 }
 function delSpecificRule(ip, chain, direction, cb) {
     exec(iptables, '-w', '-t', filter, '-D', chain, direction, ip, (err) => {
@@ -80,27 +81,56 @@ function delSpecificRule(ip, chain, direction, cb) {
 function delRule(ip, cb) {
     async.series([
         (cb) => {
-            delSpecificRule(ip, internet_up_traffic, '-s', cb);
+            delSpecificRule(ip, internet_up_traffic, '-s', ()=> {
+                cb();
+            });
         }
         , (cb) => {
-            delSpecificRule(ip, internet_down_traffic, '-d', cb);
+            delSpecificRule(ip, internet_down_traffic, '-d', ()=> {
+                cb();
+            });
         }
         , (cb) => {
-            delSpecificRule(ip, intranet_up_traffic, '-s', cb);
+            delSpecificRule(ip, intranet_up_traffic, '-s', ()=> {
+                cb();
+            });
         }
         , (cb) => {
-            delSpecificRule(ip, intranet_down_traffic, '-d', cb);
+            delSpecificRule(ip, intranet_down_traffic, '-d', ()=> {
+                cb();
+            });
         }
     ], (err) => {
         if (err) error(err);
         cb();
     });
 }
-function addRule(ip, packets, bytes) {
-    exec(iptables, '-w', '-t', filter, '-A', internet_up_traffic, '-s', ip, '-c', packets, bytes);
-    exec(iptables, '-w', '-t', filter, '-A', internet_down_traffic, '-d', ip, '-c', packets, bytes);
-    exec(iptables, '-w', '-t', filter, '-A', intranet_up_traffic, '-s', ip, '-c', packets, bytes);
-    exec(iptables, '-w', '-t', filter, '-A', intranet_down_traffic, '-d', ip, '-c', packets, bytes);
+function addRule(ip, packets, bytes, cb) {
+    async.series([
+        (cb) => {
+            exec(iptables, '-w', '-t', filter, '-A', internet_up_traffic, '-s', ip, '-c', packets[0], bytes[0], ()=> {
+                cb();
+            });
+        }
+        , (cb) => {
+            exec(iptables, '-w', '-t', filter, '-A', internet_down_traffic, '-d', ip, '-c', packets[1], bytes[1], ()=> {
+                cb();
+            });
+        }
+        , (cb) => {
+            exec(iptables, '-w', '-t', filter, '-A', intranet_up_traffic, '-s', ip, '-c', packets[2], bytes[2], ()=> {
+                cb();
+            });
+        }
+        , (cb) => {
+            exec(iptables, '-w', '-t', filter, '-A', intranet_down_traffic, '-d', ip, '-c', packets[3], bytes[3], ()=> {
+                cb();
+            });
+        }
+    ], (err)=> {
+        if (err) error(err);
+        cb();
+    });
 }
 
 export function Initialize(cb) {
@@ -121,7 +151,8 @@ export function Subscribe(cb) {
     var sub = StatMgr.Sub(SECTION.NETWORK);
     sub.devices.on('set', (mac, oldValue, leaseChanged) => {
         trace('devices.set', mac, leaseChanged);
-        if (!Devices[mac]) {
+        var device = Devices[mac];
+        if (!device) { //doesn't exist
             Devices[mac] = {
                 IP: leaseChanged.Address
                 , InternetUpStream: {Bytes: 0, Packets: 0}
@@ -130,11 +161,25 @@ export function Subscribe(cb) {
                 , IntranetDownStream: {Bytes: 0, Packets: 0}
             };
             delRule(leaseChanged.Address, ()=> {
-                addRule(ip, 0, 0);
+                addRule(leaseChanged.Address, [0, 0, 0, 0], [0, 0, 0, 0], ()=> {
+                });
             });
         } else {
-            if (Devices[mac].IP !== leaseChanged.Address) { // IP Changed
-
+            if (device.IP !== leaseChanged.Address) { // IP Changed
+                delRule(device.IP, ()=> {
+                    addRule(leaseChanged.Address,
+                        [device.InternetUpStream.Packets,
+                            device.InternetDownStream.Packets,
+                            device.IntranetUpStream.Packets,
+                            device.IntranetDownStream.Packets],
+                        [device.InternetUpStream.Bytes,
+                            device.InternetDownStream.Bytes,
+                            device.IntranetUpStream.Bytes,
+                            device.IntranetDownStream.Bytes],
+                        ()=> {
+                            device.IP = leaseChanged.Address;
+                        });
+                });
             }
         }
         IpMacMapping[leaseChanged.Address] = mac;
@@ -143,9 +188,11 @@ export function Subscribe(cb) {
         trace('devices.del', mac);
         if (Devices[mac]) {
             var ip = Devices[mac].IP;
-            if (ip && IpMacMapping[ip])
-                delete IpMacMapping[ip];
-            delete Devices[mac];
+            delRule(ip, () => {
+                if (ip && IpMacMapping[ip])
+                    delete IpMacMapping[ip];
+                delete Devices[mac];
+            });
         }
     });
     sub.network.on('set', (key, oldValue, network)=> {
