@@ -9,8 +9,46 @@ import Configurable = _Configurable.Configurable;
 export var WLAN_2G4 = new hostapd.hostapd(CONF.DEV.WLAN.DEV_2G);
 export var WLAN_5G7 = new hostapd.hostapd(CONF.DEV.WLAN.DEV_5G);
 
+var pub2G = StatMgr.Pub(SECTION.WLAN2G, {
+    stations: {}
+});
+var pub5G = StatMgr.Pub(SECTION.WLAN5G, {
+    stations: {}
+});
+
 var scriptPath = path.join(process.env.ROOT_PATH, 'Scripts/Router/Network/iw_station.sh')
-    , jobName = 'iw_station_dump';
+    , jobName = 'iw_station_dump'
+    , stationsKey = 'stations';
+
+interface Station {
+    inactive_time?:number;
+    rx_bytes?:number;
+    rx_packets?:number;
+    tx_bytes?:number;
+    tx_packets?:number;
+    tx_retries?: number;
+    tx_failed?: number;
+    signal?: number;
+    signal_avg?: number;
+    tx_bitrate?:string;
+    authorized?:boolean;
+    authenticated?:boolean;
+    preamble?:string;
+    WMMWME?:boolean;
+    MFP?:boolean;
+    TDLS_peer?:boolean;
+
+    rx_bytes_delta?:number;
+    rx_packets_delta?:number;
+    tx_bytes_delta?:number;
+    tx_packets_delta?:number;
+    tx_retries_delta?: number;
+    tx_failed_delta?: number;
+    LastMeasure?: number;
+    ap?:string;
+}
+
+export var Stations:IDic<Station> = {};
 
 //WLAN_2G4.Config.Bridge = br0
 
@@ -133,12 +171,19 @@ function SetSSID(hostapdInstance:hostapd.hostapd, sectionName, ssid, cb:Callback
     }
 }
 
-function parseIWStationDump(){
+function parseIWStationDump() {
     exec('sh', scriptPath, (err, res)=> {
         if (err) error(err);
         else {
-            var json = JSON.parse(res.replace(/^\}\,/gmi, '').replace(/\,\}/gmi,'}')); // remove trail comma
-            trace('parse iw station dump', json);
+            var json = res.replace(/^\}\,/gmi, '').replace(/\,\}/gmi, '}')
+                .replace(/yes/gmi, 'true').replace(/no/gmi, 'false')
+                .replace(/short/gmi, '"short"').replace(/"tx_bitrate":([^,]+)/gmi, '"tx_bitrate":"$1"');
+            info('parse IW', json);
+            var iwStations = JSON.parse(json); // remove trail comma
+            trace('parse iw station dump', require('util').inspect(stationsKey));
+
+            pub2G.Set(stationsKey, iwStations[CONF.DEV.WLAN.DEV_2G]);
+            pub5G.Set(stationsKey, iwStations[CONF.DEV.WLAN.DEV_5G]);
         }
     });
 }
@@ -154,7 +199,7 @@ export function Initialize(cb) {
         (cb) => {
             config5G7.Initialize(cb);
         },
-        (cb)=>{
+        (cb)=> {
             setJob(jobName, parseIWStationDump, CONF.IW_STATION_DUMP_INTERVAL);
             cb();
         }
