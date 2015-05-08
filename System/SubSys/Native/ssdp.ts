@@ -91,7 +91,7 @@ class _ssdp_Browser extends events.EventEmitter {
 }
 
 
-interface SimpleUPNPRecord {
+export interface SimpleUPNPRecord {
     versionMajor?: string;
     versionMinor?: string;
     deviceType?: string;
@@ -214,3 +214,4 @@ export function Initialize(cb) {
     generic_server.listen(CONF.SSDP_PORT, cb);
     SSDP_Browser.Start();
 }
+

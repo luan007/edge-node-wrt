@@ -9,6 +9,9 @@ import Configurable = _Configurable.Configurable;
 export var WLAN_2G4 = new hostapd.hostapd(CONF.DEV.WLAN.DEV_2G);
 export var WLAN_5G7 = new hostapd.hostapd(CONF.DEV.WLAN.DEV_5G);
 
+var scriptPath = path.join(process.env.ROOT_PATH, 'Scripts/Router/Network/iw_station.sh')
+    , jobName = 'iw_station_dump';
+
 //WLAN_2G4.Config.Bridge = br0
 
 class Configuration extends Configurable {
@@ -130,6 +133,16 @@ function SetSSID(hostapdInstance:hostapd.hostapd, sectionName, ssid, cb:Callback
     }
 }
 
+function parseIWStationDump(){
+    exec('sh', scriptPath, (err, res)=> {
+        if (err) error(err);
+        else {
+            var json = JSON.parse(res.replace(/^\}\,/gmi, '').replace(/\,\}/gmi,'}')); // remove trail comma
+            trace('parse iw station dump', json);
+        }
+    });
+}
+
 export function Initialize(cb) {
     var config2G4 = new Configuration(SECTION.WLAN2G, WLAN_2G4, defconfig2G4);
     var config5G7 = new Configuration(SECTION.WLAN5G, WLAN_5G7, defconfig5G7);
@@ -140,6 +153,10 @@ export function Initialize(cb) {
         },
         (cb) => {
             config5G7.Initialize(cb);
+        },
+        (cb)=>{
+            setJob(jobName, parseIWStationDump, CONF.IW_STATION_DUMP_INTERVAL);
+            cb();
         }
     ], cb);
 

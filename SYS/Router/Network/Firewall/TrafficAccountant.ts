@@ -6,6 +6,13 @@ import _Configurable = require('../../../Common/Conf/Configurable');
 import Configurable = _Configurable.Configurable;
 import path = require('path');
 
+var pub = StatMgr.Pub(SECTION.TRAFFIC, {
+    internet_up_traffic: {},
+    internet_down_traffic: {},
+    intranet_up_traffic: {},
+    intranet_down_traffic: {}
+});
+
 interface Traffic {
     //Chain:string;
     //IP:string;
@@ -47,7 +54,7 @@ function extractTraffic(trafficChain, chainName, cb) {
                     bytes = trafficChain[ip][1],
                     device = Devices[mac];
                 if (device[chainName].Packets < packets) {
-                    if(device[chainName].LastMeasure)
+                    if (device[chainName].LastMeasure)
                         device[chainName].Delta_Time = new Date().getTime() - device[chainName].LastMeasure;
                     device[chainName].LastMeasure = new Date().getTime();
                     device[chainName].Delta_Packets = packets - device[chainName].Packets;
@@ -123,24 +130,16 @@ function delRule(ip, cb) {
 function addRule(ip, packets, bytes, cb) {
     async.series([
         (cb) => {
-            exec(iptables, '-w', '-t', filter, '-A', internet_up_traffic, '-s', ip, '-c', packets[0], bytes[0], ()=> {
-                cb();
-            });
+            exec(iptables, '-w', '-t', filter, '-A', internet_up_traffic, '-s', ip, '-c', packets[0], bytes[0], ignore_err(cb));
         }
         , (cb) => {
-            exec(iptables, '-w', '-t', filter, '-A', internet_down_traffic, '-d', ip, '-c', packets[1], bytes[1], ()=> {
-                cb();
-            });
+            exec(iptables, '-w', '-t', filter, '-A', internet_down_traffic, '-d', ip, '-c', packets[1], bytes[1], ignore_err(cb));
         }
         , (cb) => {
-            exec(iptables, '-w', '-t', filter, '-A', intranet_up_traffic, '-s', ip, '-c', packets[2], bytes[2], ()=> {
-                cb();
-            });
+            exec(iptables, '-w', '-t', filter, '-A', intranet_up_traffic, '-s', ip, '-c', packets[2], bytes[2], ignore_err(cb));
         }
         , (cb) => {
-            exec(iptables, '-w', '-t', filter, '-A', intranet_down_traffic, '-d', ip, '-c', packets[3], bytes[3], ()=> {
-                cb();
-            });
+            exec(iptables, '-w', '-t', filter, '-A', intranet_down_traffic, '-d', ip, '-c', packets[3], bytes[3], ignore_err(cb));
         }
     ], (err)=> {
         if (err) error(err);
@@ -215,5 +214,11 @@ export function Subscribe(cb) {
             setTraffic(network.NetworkAddress);
         }
     });
+
+    var subSelf = StatMgr.Sub(SECTION.TRAFFIC);
+    subSelf.internet_down_traffic.on('set', (key, oldValue, traffic) => {
+        info('traffic was changed', key, traffic);
+    });
+
     cb();
 }
