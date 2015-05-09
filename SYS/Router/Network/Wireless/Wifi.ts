@@ -45,6 +45,7 @@ interface Station {
     tx_retries_delta?: number;
     tx_failed_delta?: number;
     LastMeasure?: number;
+    Delta_Time?:number;
     ap?:string;
 }
 
@@ -150,25 +151,45 @@ var defconfig5G7 = {
     }
 };
 
-/**
- * SET SSID of the hostapd instance
- * @param hostapdInstance
- * @param sectionName
- * @param ssid
- * @param cb
- * @constructor
- */
-function SetSSID(hostapdInstance:hostapd.hostapd, sectionName, ssid, cb:Callback) {
-    warn('SetSSID');
-    var conf = ConfMgr.Get(sectionName);
-    if (conf && conf.AutoSSID) {
-        warn('INTO SetSSID', conf);
-        hostapdInstance.Config.SSID = ssid
-        if (conf.Power) {
-            hostapdInstance.Start(true);
-            hostapdInstance.StabilityCheck(cb);
+function extractIWStationDump(iwStationsDump, ap, cb) {
+    intoQueue(jobName, ()=> {
+        for (var mac in iwStationsDump) {
+            if (Stations[mac].rx_bytes) {
+                Stations[mac].rx_bytes_delta = iwStationsDump[mac].rx_bytes - Stations[mac].rx_bytes;
+            }
+            if (Stations[mac].rx_packets) {
+                Stations[mac].rx_packets_delta = iwStationsDump[mac].rx_packets - Stations[mac].rx_packets;
+            }
+            if (Stations[mac].tx_bytes) {
+                Stations[mac].tx_bytes_delta = iwStationsDump[mac].tx_bytes - Stations[mac].tx_bytes;
+            }
+            if (Stations[mac].tx_packets) {
+                Stations[mac].tx_packets_delta = iwStationsDump[mac].tx_packets - Stations[mac].tx_packets;
+            }
+            if (Stations[mac].tx_packets) {
+                Stations[mac].tx_packets_delta = iwStationsDump[mac].tx_packets - Stations[mac].tx_packets;
+            }
+            if (Stations[mac].tx_retries) {
+                Stations[mac].tx_retries_delta = iwStationsDump[mac].tx_retries - Stations[mac].tx_retries;
+            }
+            if (Stations[mac].tx_retries) {
+                Stations[mac].tx_retries_delta = iwStationsDump[mac].tx_retries - Stations[mac].tx_retries;
+            }
+            if (Stations[mac].tx_failed) {
+                Stations[mac].tx_failed_delta = iwStationsDump[mac].tx_failed - Stations[mac].tx_failed;
+            }
+            if(Station[mac].LastMeasure){
+                Stations[mac].Delta_Time = new Date().getTime() - Stations[mac].LastMeasure;
+            }
+            Stations[mac].ap = ap;
+            Stations[mac].LastMeasure = new Date().getTime();
+            for(var k in iwStationsDump[mac]){
+                if(iwStationsDump[mac].hasOwnProperty(k)){
+                    Stations[mac][k] = iwStationsDump[mac][k];
+                }
+            }
         }
-    }
+    }, cb);
 }
 
 function parseIWStationDump() {
@@ -181,6 +202,15 @@ function parseIWStationDump() {
             info('parse IW', json);
             var iwStations = JSON.parse(json); // remove trail comma
             trace('parse iw station dump', require('util').inspect(stationsKey));
+
+            if (Object.keys(iwStations[CONF.DEV.WLAN.DEV_2G]).length > 0) {
+                extractIWStationDump(iwStations[CONF.DEV.WLAN.DEV_2G], CONF.DEV.WLAN.DEV_2G, ()=> {
+                });
+            }
+            if (Object.keys(iwStations[CONF.DEV.WLAN.DEV_5G]).length > 0) {
+                extractIWStationDump(iwStations[CONF.DEV.WLAN.DEV_5G], CONF.DEV.WLAN.DEV_5G, ()=> {
+                });
+            }
 
             pub2G.Set(stationsKey, iwStations[CONF.DEV.WLAN.DEV_2G]);
             pub5G.Set(stationsKey, iwStations[CONF.DEV.WLAN.DEV_5G]);
@@ -209,6 +239,26 @@ export function Initialize(cb) {
     __API(withCb(config5G7.ConfigHandler.Get), "Network.Wifi5G.Config.Get", [Permission.Network, Permission.Configuration]);
 }
 
+/**
+ * SET SSID of the hostapd instance
+ * @param hostapdInstance
+ * @param sectionName
+ * @param ssid
+ * @param cb
+ * @constructor
+ */
+function SetSSID(hostapdInstance:hostapd.hostapd, sectionName, ssid, cb:Callback) {
+    warn('SetSSID');
+    var conf = ConfMgr.Get(sectionName);
+    if (conf && conf.AutoSSID) {
+        warn('INTO SetSSID', conf);
+        hostapdInstance.Config.SSID = ssid
+        if (conf.Power) {
+            hostapdInstance.Start(true);
+            hostapdInstance.StabilityCheck(cb);
+        }
+    }
+}
 export function Subscribe(cb) {
     var sub = StatMgr.Sub(SECTION.NETWORK);
     sub.network.on('NetworkName', (oldValue, newValue) => {
