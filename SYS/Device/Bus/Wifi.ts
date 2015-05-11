@@ -1,6 +1,5 @@
-﻿import iproute2 = require('../../Common/Native/iproute2');
-import mdns = require('../../Common/Native/mdns_');
-import ssdp = require('../../Common/Native/ssdp');
+﻿//import mdns = require('../../Common/Native/mdns_');
+//import ssdp = require('../../Common/Native/ssdp');
 import ConfMgr = require('../../Common/Conf/ConfMgr');
 import _Config = require('../../Common/Conf/Config');
 import Config = _Config.Config;
@@ -19,71 +18,27 @@ class Wifi extends Bus {
         return "WLAN";
     };
 
+    on_device = (dev) => {
+        this._on_device(dev);
+    }
+
     _on_device_connect = (mac) => {
         if (!mac) return warn(" Invalid MAC - Skipped ");
         mac = mac.toLowerCase();
 
-        iproute2.Neigh.WatchWithDev(CONF.DEV.WLAN.WLAN_BR, mac, (addr) => {
-            this._on_device({
-                hwaddr: mac,
-                data: {
-                    Addr: addr
-                }
-            });
-        });
-
-        var networkStatus = StatMgr.Get(SECTION.NETWORK); // Lease
-        var lease = networkStatus.devices[mac];
-        var currentIp = (networkStatus && networkStatus.devices && networkStatus.devices[mac]) ? networkStatus.devices[mac].Address : undefined;
-
-        if (currentIp) {
-            mdns.Browser.Watch(currentIp,
-                (service, mine) => {
-                    //add
-                    //TODO: change into mdns: { dead , alive }
-                    //      so that we can use driver interest to filter down mdns queries
-                    this._on_device({
-                        hwaddr: mac,
-                        data: {
-                            MDNS: mine
-                        }
-                    });
-
-                }, (service, mine) => {
-                    //del
-                    this._on_device({
-                        hwaddr: mac,
-                        data: {
-                            MDNS: mine
-                        }
-                    });
-                });
-
-
-            ssdp.SSDP_Browser.Watch(currentIp,
-                (service, mine) => {
-                    this._on_device({
-                        hwaddr: mac,
-                        data: {
-                            SSDP: mine
-                        }
-                    });
-                }, (service, mine) => {
-                    this._on_device({
-                        hwaddr: mac,
-                        data: {
-                            SSDP: mine
-                        }
-                    });
-                });
-        }
+        var networkStatus = StatMgr.Get(SECTION.NETWORK);
+        var addr = networkStatus.arp[mac] || {};
+        var lease = networkStatus.devices[mac] || {};
+        var wlan2G4Status = StatMgr.Get(SECTION.WLAN2G);
+        var wlan5G7Status = StatMgr.Get(SECTION.WLAN5G);
+        var station = wlan2G4Status.stations[mac] || wlan5G7Status.stations[mac] || {};
 
         this._on_device({
             hwaddr: mac,
             data: {
-                Addr: iproute2.Neigh.Get(mac),
-                Lease: StatMgr.Get(SECTION.NETWORK).devices[mac],
-                Wireless: StatMgr.Get(SECTION.WLAN2G).stations[mac] || StatMgr.Get(SECTION.WLAN5G).stations[mac],
+                Addr: addr,
+                Lease: lease,
+                Wireless: station,
                 Traffic: {},
                 MDNS: {},
                 SSDP: {}
@@ -97,15 +52,7 @@ class Wifi extends Bus {
         this._on_drop({
             hwaddr: mac
         });
-        iproute2.Neigh.Unwatch(mac);
-        var networkStatus = StatMgr.Get(SECTION.NETWORK); // Lease
-        var ip = (networkStatus && networkStatus.devices && networkStatus.devices[mac]) ? networkStatus.devices[mac].Address : undefined;
-        if (ip) {
-            mdns.Browser.Unwatch(ip);
-            ssdp.SSDP_Browser.Unwatch(ip);
-        }
     };
-
 
     _start = (cb) => {
         //for (var i in this.HostapdInstances) {
@@ -150,25 +97,110 @@ export function Subscribe(cb) {
 
     var subNetwork = StatMgr.Sub(SECTION.NETWORK);
     subNetwork.devices.on('set', (mac, oldValue, leaseChanged) => {
+        if (StatMgr.Get(SECTION.WLAN2G).devices[mac] || StatMgr.Get(SECTION.WLAN5G).devices[mac]) {
+            _wifiBus.on_device({
+                hwaddr: mac,
+                data: {
+                    Lease: leaseChanged
+                }//OUI: OUI,
+            });
+        }
 
+        //var currentIP = leaseChanged.Address;
+        //mdns.Browser.Unwatch(currentIP);
+        //mdns.Browser.Watch(currentIP,
+        //    (service, mine) => {
+        //        //add
+        //        //TODO: change into mdns: { dead , alive }
+        //        //      so that we can use driver interest to filter down mdns queries
+        //        this._on_device({
+        //            hwaddr: mac,
+        //            data: {
+        //                MDNS: mine
+        //            }
+        //        });
+        //
+        //    }, (service, mine) => {
+        //        //del
+        //        this._on_device({
+        //            hwaddr: mac,
+        //            data: {
+        //                MDNS: mine
+        //            }
+        //        });
+        //    });
+        //
+        //
+        //ssdp.SSDP_Browser.Watch(currentIP,
+        //    (service, mine) => {
+        //        this._on_device({
+        //            hwaddr: mac,
+        //            data: {
+        //                SSDP: mine
+        //            }
+        //        });
+        //    }, (service, mine) => {
+        //        this._on_device({
+        //            hwaddr: mac,
+        //            data: {
+        //                SSDP: mine
+        //            }
+        //        });
+        //    });
     });
-    subNetwork.devices.on('del', (mac) => {
+    subNetwork.devices.on('del', (mac, oldValue) => {
+        var IP = oldValue.Address;
+        //mdns.Browser.Unwatch(IP);
+        //ssdp.SSDP_Browser.Unwatch(IP);
+    });
+    subNetwork.arp.on('set', (mac, oldValue, linkInterface)=> {
+        _wifiBus.on_device({
+            hwaddr: mac,
+            data: {
+                Addr: linkInterface
+            }//OUI: OUI,
+        });
+    });
+    subNetwork.arp.on('del', (mac, oldValue)=> {
 
     });
 
     var subTraffic = StatMgr.Sub(SECTION.TRAFFIC);
-    subTraffic.on('traffics', (oldValue, traffics) => {
-
+    subTraffic.traffics.on('set', (mac, oldValue, traffic) => {
+        _wifiBus.on_device({
+            hwaddr: mac,
+            data: {
+                Traffic: traffic
+            }//OUI: OUI,
+        });
     });
 
     var subWlan2G4 = StatMgr.Sub(SECTION.WLAN2G);
     subWlan2G4.devices.on('set', (mac, oldValue, online)=> {
         online ? _wifiBus._on_device_connect(mac) : _wifiBus._on_device_disconnect(mac);
     });
+    subWlan2G4.stations.on('set', (mac, oldValue, station)=> {
+        _wifiBus.on_device({
+            hwaddr: mac,
+            data: {
+                Wireless: station
+            }//OUI: OUI,
+        });
+    });
+
     var subWlan5G7 = StatMgr.Sub(SECTION.WLAN5G);
     subWlan5G7.devices.on('set', (mac, oldValue, online)=> {
         online ? _wifiBus._on_device_connect(mac) : _wifiBus._on_device_disconnect(mac);
     });
+    subWlan5G7.stations.on('set', (mac, oldValue, station)=> {
+        _wifiBus.on_device({
+            hwaddr: mac,
+            data: {
+                Wireless: station
+            }//OUI: OUI,
+        });
+    });
+
 
     cb();
 }

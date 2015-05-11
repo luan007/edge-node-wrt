@@ -19,8 +19,7 @@ var pub5G7 = StatMgr.Pub(SECTION.WLAN5G, {
 });
 
 var scriptPath = path.join(process.env.ROOT_PATH, 'Scripts/Router/Network/iw_station.sh')
-    , jobName = 'iw_station_dump'
-    , stationsKey = 'stations';
+    , jobName = 'iw_station_dump';
 
 interface Station {
     inactive_time?:number;
@@ -54,9 +53,8 @@ interface Station {
 //mac: [Station]
 export var Stations2G4:IDic<Station> = {};
 export var Stations5G7:IDic<Station> = {};
-
-//mac: on/offline ?
-export var Devices:IDic<boolean> = {};
+var delta2GStations = [],
+    delta5GStations = [];
 
 class Configuration extends Configurable {
     private hostapdInstance:hostapd.hostapd;
@@ -156,7 +154,7 @@ var defconfig5G7 = {
     }
 };
 
-function extractIWStationDump(stationsContainer, iwStationsDump, ap, cb) {
+function extractIWStationDump(stationsContainer, iwStationsDump, ap, deltaArray, cb) {
     intoQueue(jobName, ()=> {
         for (var mac in iwStationsDump) {
             if (stationsContainer[mac].rx_bytes) {
@@ -190,6 +188,9 @@ function extractIWStationDump(stationsContainer, iwStationsDump, ap, cb) {
             stationsContainer[mac].LastMeasure = new Date().getTime();
             for (var k in iwStationsDump[mac]) {
                 if (iwStationsDump[mac].hasOwnProperty(k)) {
+                    if (stationsContainer[mac][k] !== iwStationsDump[mac][k] && deltaArray.indexOf(mac) === -1) {
+                        deltaArray.push(mac);
+                    }
                     stationsContainer[mac][k] = iwStationsDump[mac][k];
                 }
             }
@@ -208,14 +209,24 @@ function parseIWStationDump() {
             var iwStations = JSON.parse(json);
             //trace('parse iw station dump', require('util').inspect(stationsKey));
 
+            delta2GStations.length = 0;
             if (Object.keys(iwStations[CONF.DEV.WLAN.DEV_2G]).length > 0) {
-                extractIWStationDump(Stations2G4, iwStations[CONF.DEV.WLAN.DEV_2G], CONF.DEV.WLAN.DEV_2G, ()=> {
-                    pub2G4.Set(stationsKey, Stations2G4);
+                extractIWStationDump(Stations2G4, iwStations[CONF.DEV.WLAN.DEV_2G], CONF.DEV.WLAN.DEV_2G, delta2GStations, ()=> {
+                    for (var i = 0, len = delta2GStations.length; i < len; i++) {
+                        var mac = delta2GStations[i];
+                        pub2G4.stations.Set(mac, Stations2G4[mac]);
+                    }
+                    delta2GStations.length = 0;
                 });
             }
+            delta5GStations.length = 0;
             if (Object.keys(iwStations[CONF.DEV.WLAN.DEV_5G]).length > 0) {
-                extractIWStationDump(Stations5G7, iwStations[CONF.DEV.WLAN.DEV_5G], CONF.DEV.WLAN.DEV_5G, ()=> {
-                    pub5G7.Set(stationsKey, Stations5G7);
+                extractIWStationDump(Stations5G7, iwStations[CONF.DEV.WLAN.DEV_5G], CONF.DEV.WLAN.DEV_5G, delta5GStations, ()=> {
+                    for (var i = 0, len = delta5GStations.length; i < len; i++) {
+                        var mac = delta5GStations[i];
+                        pub5G7.stations.Set(mac, Stations5G7[mac]);
+                    }
+                    delta5GStations.length = 0;
                 });
             }
         }

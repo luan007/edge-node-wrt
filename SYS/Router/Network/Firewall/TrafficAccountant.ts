@@ -31,6 +31,7 @@ interface DeviceTraffic {
 
 export var Devices:IDic<DeviceTraffic> = {};
 var IpMacMapping:IDic<string> = {};
+var deltaDevices = [];
 
 var scriptPath = path.join(process.env.ROOT_PATH, 'Scripts/Router/Network/traffic.sh')
     , jobName = 'traffic_accountant'
@@ -40,8 +41,7 @@ var scriptPath = path.join(process.env.ROOT_PATH, 'Scripts/Router/Network/traffi
     , internet_up_traffic = 'internet_up_traffic'
     , internet_down_traffic = 'internet_down_traffic'
     , intranet_up_traffic = 'intranet_up_traffic'
-    , intranet_down_traffic = 'intranet_down_traffic'
-    , trafficsKey = 'traffics';
+    , intranet_down_traffic = 'intranet_down_traffic';
 
 function extractTraffic(trafficChain, chainName, cb) {
     intoQueue(jobName, ()=> {
@@ -50,18 +50,23 @@ function extractTraffic(trafficChain, chainName, cb) {
             if (mac && Devices[mac]) {
                 var packets = trafficChain[ip][0],
                     bytes = trafficChain[ip][1],
-                    device = Devices[mac];
+                    device = Devices[mac],
+                    delta = false;
                 if (device[chainName].Packets < packets) {
                     if (device[chainName].LastMeasure)
                         device[chainName].Delta_Time = new Date().getTime() - device[chainName].LastMeasure;
                     device[chainName].LastMeasure = new Date().getTime();
                     device[chainName].Delta_Packets = packets - device[chainName].Packets;
                     device[chainName].Packets = packets;
+                    delta = true;
                 }
                 if (device[chainName].Bytes < bytes) {
                     device[chainName].Delta_Bytes = bytes - device[chainName].Bytes;
                     device[chainName].Bytes = bytes;
+                    delta = true;
                 }
+                if(delta && deltaDevices.indexOf(mac) === -1)
+                    deltaDevices.push(mac);
             }
         }
     }, cb);
@@ -70,6 +75,7 @@ function parseTraffic() {
     exec('sh', scriptPath, (err, res)=> {
         if (err) error(err);
         else {
+            deltaDevices.length = 0; // clear
             var json = JSON.parse(res.replace(/\,$/gmi, '')); // remove trail comma
             var jobs = [];
             if (Object.keys(json.internet_down_traffic).length > 0) {
@@ -85,7 +91,11 @@ function parseTraffic() {
                 jobs.push((cb) => { extractTraffic(json.intranet_up_traffic, intranet_up_traffic, cb); });
             }
             async.series(jobs, ()=>{
-                pub.Set(trafficsKey, Devices);
+                for(var i=0, len = deltaDevices.length; i< len; i++){
+                    var mac = deltaDevices[i];
+                    pub.traffics.Set(mac, Devices[mac]);
+                }
+                deltaDevices.length = 0; // clear
             });
         }
     });

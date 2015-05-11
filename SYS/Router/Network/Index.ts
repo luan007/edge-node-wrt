@@ -1,3 +1,5 @@
+import iproute2 = require('../../Common/Native/iproute2');
+import NeighRecord = iproute2.NeighRecord;
 import ConfMgr = require('../../Common/Conf/ConfMgr');
 import _Config = require('../../Common/Conf/Config');
 import Config = _Config.Config;
@@ -11,6 +13,7 @@ export var dnsmasq = new Dnsmasq.dnsmasq();
 
 var pub = StatMgr.Pub(SECTION.NETWORK, {
     devices: {},
+    arp: {},
     network: {}
 });
 
@@ -135,5 +138,17 @@ export function Initialize(cb) {
     dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_DEL, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE DELETED
         warn('EVENT_DEL', lease);
         pub.devices.Del(lease.Mac);
+    });
+
+    iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_NEW,  (neighRecord:NeighRecord) => {
+        pub.arp.Set(neighRecord.Mac, neighRecord);
+    });
+
+    iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_CHANGE,  (neighRecord:NeighRecord) => {
+        pub.arp.Set(neighRecord.Mac, neighRecord);
+    });
+
+    iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_DEL,  (neighRecord:NeighRecord) => {
+        pub.arp.Del(neighRecord.Mac);
     });
 }
