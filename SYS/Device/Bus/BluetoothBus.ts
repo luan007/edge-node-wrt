@@ -4,7 +4,7 @@ import Bus = require("./Bus");
 //early implementation.. without sdp and so on.. just signals / appear and go.
 //hci / hci4 needs more work to be differentiated though :(
 //hope GATT was the only standard
-class Bluetooth extends Bus {
+class BluetoothBus extends Bus {
 
     constructor(public BluezInstance:bluez.Bluez) {
         super('BLUETOOTH');
@@ -40,7 +40,7 @@ class Bluetooth extends Bus {
             );
         }
 
-        //再续一秒
+        // one second
         setTask("BLUETOOTH_LIFE_" + mac, () => {
             warn("Force Dropping " + mac + " - MAXTIME PASSED");
             this._on_device_disappear(mac);
@@ -75,6 +75,6 @@ class Bluetooth extends Bus {
     };
 }
 
-export = Bluetooth;
+export = BluetoothBus;
 
 

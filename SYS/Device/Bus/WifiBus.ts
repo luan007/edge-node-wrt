@@ -5,6 +5,7 @@ import StatMgr = require('../../Common/Stat/StatMgr');
 import _Configurable = require('../../Common/Conf/Configurable');
 import Configurable = _Configurable.Configurable;
 import Bus = require('./Bus');
+import StatBiz = require('../../Common/Stat/StatBiz');
 
 var _wifiBus = new Bus('WIFI');
 function on_connect(mac, band) {
@@ -54,19 +55,22 @@ export function Subscribe(cb) {
             Addr: {}
         });
     });
-    //subNetwork.ssdp.on('set', (IP, oldValue, headers)=>{
-    //
-    //});
-    //subNetwork.ssdp.on('del', (IP, oldHeaders)=>{
-    //
-    //});
-    //subNetwork.mdns.on('set', (IP, oldValue, service)=>{
-    //
-    //});
-    //subNetwork.mdns.on('del', (IP, oldService)=>{
-    //
-    //});
-
+    subNetwork.ssdp.on('set', (IP, oldValue, headers)=>{
+        var mac = StatBiz.GetMacByIP(IP);
+        console.log('ssdp set', IP, mac, headers);
+    });
+    subNetwork.ssdp.on('del', (IP, oldHeaders)=>{
+        var mac = StatBiz.GetMacByIP(IP);
+        console.log('ssdp del', IP, mac, oldHeaders);
+    });
+    subNetwork.mdns.on('set', (IP, oldValue, service)=>{
+        var mac = StatBiz.GetMacByIP(IP);
+        console.log('mdns set', IP, mac, service);
+    });
+    subNetwork.mdns.on('del', (IP, oldService)=>{
+        var mac = StatBiz.GetMacByIP(IP);
+        console.log('mdns del', IP, mac, oldService);
+    });
 
     var subTraffic = StatMgr.Sub(SECTION.TRAFFIC);
     subTraffic.traffics.on('set', (mac, oldValue, traffic) => {

@@ -133,6 +133,22 @@ export function Initialize(cb) {
             confNetwork.Initialize(cb);
         },
         (cb)=> {
+            iproute2.Initialize(()=>{
+                iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_NEW, (neighRecord:NeighRecord) => {
+                    pub.arp.Set(neighRecord.Mac, neighRecord);
+                });
+
+                iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_CHANGE, (neighRecord:NeighRecord) => {
+                    pub.arp.Set(neighRecord.Mac, neighRecord);
+                });
+
+                iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_DEL, (neighRecord:NeighRecord) => {
+                    pub.arp.Del(neighRecord.Mac);
+                });
+                cb();
+            });
+        },
+        (cb)=> {
             ssdp.Initialize(cb);
         },
         (cb)=> {
@@ -155,18 +171,6 @@ export function Initialize(cb) {
     dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_DEL, (lease:Dnsmasq.IDHCPLease)=> { // DEVICE DELETED
         warn('EVENT_DEL', lease);
         pub.leases.Del(lease.Mac);
-    });
-
-    iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_NEW, (neighRecord:NeighRecord) => {
-        pub.arp.Set(neighRecord.Mac, neighRecord);
-    });
-
-    iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_CHANGE, (neighRecord:NeighRecord) => {
-        pub.arp.Set(neighRecord.Mac, neighRecord);
-    });
-
-    iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_DEL, (neighRecord:NeighRecord) => {
-        pub.arp.Del(neighRecord.Mac);
     });
 
     ssdp.SSDP_Browser.on(ssdp.SSDP_Browser.EVENT_SERVICE_UP, (IP, headers)=>{

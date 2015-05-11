@@ -19,6 +19,8 @@ domain.run(function () {
         , './Router/Network/Firewall/TrafficAccountant'
         , './Router/Network/Wireless/Wifi'
         , './Router/Network/Wireless/Bluetooth'
+        , './Device/Bus/WifiBus'
+        , './Device/Bus/BluetoothBus'
     ];
     var initializes = [];
     var subscribes = [];

@@ -218,10 +218,5 @@ export function Subscribe(cb) {
         }
     });
 
-    var subSelf = StatMgr.Sub(SECTION.TRAFFIC);
-    subSelf.internet_down_traffic.on('set', (key, oldValue, traffic) => {
-        info('traffic was changed', key, traffic);
-    });
-
     cb();
 }
