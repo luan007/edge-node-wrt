@@ -1,0 +1,101 @@
+﻿import ConfMgr = require('../../Common/Conf/ConfMgr');
+import _Config = require('../../Common/Conf/Config');
+import Config = _Config.Config;
+import StatMgr = require('../../Common/Stat/StatMgr');
+import _Configurable = require('../../Common/Conf/Configurable');
+import Configurable = _Configurable.Configurable;
+import Bus = require('./Bus');
+
+var _wifiBus = new Bus('WIFI');
+function on_connect(mac, band) {
+    if (!mac) return warn(" Invalid MAC - Skipped ");
+    mac = mac.toLowerCase();
+    var networkStatus = StatMgr.Get(SECTION.NETWORK);
+    var addr = networkStatus.arp[mac] || {};
+    var lease = networkStatus.devices[mac] || {};
+    var wlan2G4Status = StatMgr.Get(SECTION.WLAN2G);
+    var wlan5G7Status = StatMgr.Get(SECTION.WLAN5G);
+    var station = wlan2G4Status.stations[mac] || wlan5G7Status.stations[mac] || {};
+
+    _wifiBus.DeviceUp(mac, {
+        Addr: addr,
+        Lease: lease,
+        Wireless: station,
+        Traffic: {},
+        MDNS: {},
+        SSDP: {},
+        Band: band
+    });
+}
+
+export function Subscribe(cb) {
+    var subNetwork = StatMgr.Sub(SECTION.NETWORK);
+    subNetwork.leases.on('set', (mac, oldValue, leaseChanged) => {
+        if (StatMgr.Get(SECTION.WLAN2G).devices[mac] || StatMgr.Get(SECTION.WLAN5G).devices[mac]) {
+            _wifiBus.DeviceUp(mac,
+                {
+                    Lease: leaseChanged
+                }
+            );
+        }
+    });
+    subNetwork.leases.on('del', (mac, oldValue) => {
+        _wifiBus.DeviceUp(mac, {
+            Lease: {}
+        });
+    });
+    subNetwork.arp.on('set', (mac, oldValue, neigh)=> {
+        _wifiBus.DeviceUp(mac, {
+            Addr: neigh
+        });
+    });
+    subNetwork.arp.on('del', (mac, oldValue)=> {
+        _wifiBus.DeviceUp(mac, {
+            Addr: {}
+        });
+    });
+    //subNetwork.ssdp.on('set', (IP, oldValue, headers)=>{
+    //
+    //});
+    //subNetwork.ssdp.on('del', (IP, oldHeaders)=>{
+    //
+    //});
+    //subNetwork.mdns.on('set', (IP, oldValue, service)=>{
+    //
+    //});
+    //subNetwork.mdns.on('del', (IP, oldService)=>{
+    //
+    //});
+
+
+    var subTraffic = StatMgr.Sub(SECTION.TRAFFIC);
+    subTraffic.traffics.on('set', (mac, oldValue, traffic) => {
+        _wifiBus.DeviceUp(mac, {
+            Traffic: traffic
+        });
+    });
+
+    var subWlan2G4 = StatMgr.Sub(SECTION.WLAN2G);
+    subWlan2G4.devices.on('set', (mac, oldValue, online)=> {
+        online ? on_connect(mac, SECTION.WLAN2G) : _wifiBus.DeviceDrop(mac);
+    });
+    subWlan2G4.stations.on('set', (mac, oldValue, station)=> {
+        _wifiBus.DeviceUp(mac, {
+            Wireless: station
+        });
+    });
+
+    var subWlan5G7 = StatMgr.Sub(SECTION.WLAN5G);
+    subWlan5G7.devices.on('set', (mac, oldValue, online)=> {
+        online ? on_connect(mac, SECTION.WLAN5G) : _wifiBus.DeviceDrop(mac);
+    });
+    subWlan5G7.stations.on('set', (mac, oldValue, station)=> {
+        _wifiBus.DeviceUp(mac, {
+            Wireless: station
+        });
+    });
+
+    cb();
+}
+
+

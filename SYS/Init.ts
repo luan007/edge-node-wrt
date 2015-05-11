@@ -14,7 +14,7 @@ domain.on('error', function (err) {
 
 domain.run(function () {
     var modules = [
-        './Router/Network/Index'
+        './Router/Network/Network'
         , './Router/Network/Firewall/Firewall'
         , './Router/Network/Firewall/TrafficAccountant'
         , './Router/Network/Wireless/Wifi'

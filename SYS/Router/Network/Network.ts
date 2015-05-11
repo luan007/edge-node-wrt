@@ -14,7 +14,7 @@ import Dnsmasq = require('../../Common/Native/dnsmasq');
 export var dnsmasq = new Dnsmasq.dnsmasq();
 
 var pub = StatMgr.Pub(SECTION.NETWORK, {
-    devices: {},
+    leases: {},
     arp: {},
     network: {},
     mdns: {},
@@ -144,17 +144,17 @@ export function Initialize(cb) {
 
     dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_ADD, (lease:Dnsmasq.IDHCPLease)=> { // DEVICE ADDED
         warn('EVENT_ADD', lease);
-        pub.devices.Set(lease.Mac, lease);
+        pub.leases.Set(lease.Mac, lease);
     });
 
     dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_CHANGE, (lease:Dnsmasq.IDHCPLease)=> { // DEVICE CHANGED
         warn('EVENT_CHANGE', lease);
-        pub.devices.Set(lease.Mac, lease);
+        pub.leases.Set(lease.Mac, lease);
     });
 
     dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_DEL, (lease:Dnsmasq.IDHCPLease)=> { // DEVICE DELETED
         warn('EVENT_DEL', lease);
-        pub.devices.Del(lease.Mac);
+        pub.leases.Del(lease.Mac);
     });
 
     iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_NEW, (neighRecord:NeighRecord) => {
@@ -175,7 +175,7 @@ export function Initialize(cb) {
     });
     ssdp.SSDP_Browser.on(ssdp.SSDP_Browser.EVENT_SERVICE_DOWN, (IP, headers)=>{
         console.log('ssdp device down', IP, headers);
-        pub.ssdp.Set(IP, headers);
+        pub.ssdp.Del(IP);
     });
 
     mdns.Browser.on(mdns.Browser.EVENT_SERVICE_UP, (IP, service)=>{
@@ -184,6 +184,6 @@ export function Initialize(cb) {
     });
     mdns.Browser.on(mdns.Browser.EVENT_SERVICE_DOWN, (IP, service)=>{
         console.log('mdns device up', IP, service);
-        pub.mdns.Set(IP, service);
+        pub.mdns.Del(IP);
     });
 }

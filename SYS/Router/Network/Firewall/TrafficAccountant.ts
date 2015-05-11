@@ -166,7 +166,7 @@ function setTraffic(networkAddress) {
 
 export function Subscribe(cb) {
     var sub = StatMgr.Sub(SECTION.NETWORK);
-    sub.devices.on('set', (mac, oldValue, leaseChanged) => {
+    sub.leases.on('set', (mac, oldValue, leaseChanged) => {
         trace('devices.set', mac, leaseChanged);
         var device = Devices[mac];
         if (!device) { //doesn't exist
@@ -201,7 +201,7 @@ export function Subscribe(cb) {
         }
         IpMacMapping[leaseChanged.Address] = mac;
     });
-    sub.devices.on('del', (mac) => {
+    sub.leases.on('del', (mac) => {
         trace('devices.del', mac);
         if (Devices[mac]) {
             var ip = Devices[mac].IP;
