@@ -22,6 +22,10 @@ var dns = require("dns");
 import events = require("events");
 
 class _mdns_Browser extends events.EventEmitter {
+
+    public EVENT_SERVICE_UP = "serviceUp";
+
+    public EVENT_SERVICE_DOWN = "serviceDown";
     
     private browser;
 
@@ -74,6 +78,7 @@ class _mdns_Browser extends events.EventEmitter {
                         this.Alive[addr][typeString] = {};
                     }
                     this.Alive[addr][typeString][s] = service;
+                    this.emit
 
                     if (this.watch_addr[addr]) {
                         this.watch_addr[addr][0](service, this.Alive[addr]);

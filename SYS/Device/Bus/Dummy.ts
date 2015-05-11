@@ -2,15 +2,14 @@
 
 class Dummy extends Bus {
 
-    name = (): string => {
+    name = ():string => {
         return "Dummy";
     };
 
     start = (cb) => {
         cb();
         setInterval(() => {
-            this._on_device({
-                hwaddr: "00:00:00:11:22:33",
+            this.DeviceUp("00:00:00:11:22:33", {
                 data: {
                     val: Math.random()
                 }

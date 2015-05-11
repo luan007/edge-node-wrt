@@ -1,4 +1,6 @@
 import iproute2 = require('../../Common/Native/iproute2');
+import ssdp = require('../../Common/Native/ssdp');
+import mdns = require('../../Common/Native/mdns_');
 import NeighRecord = iproute2.NeighRecord;
 import ConfMgr = require('../../Common/Conf/ConfMgr');
 import _Config = require('../../Common/Conf/Config');
@@ -14,7 +16,9 @@ export var dnsmasq = new Dnsmasq.dnsmasq();
 var pub = StatMgr.Pub(SECTION.NETWORK, {
     devices: {},
     arp: {},
-    network: {}
+    network: {},
+    mdns: {},
+    ssdp: {}
 });
 
 class Configuration extends Configurable {
@@ -151,4 +155,5 @@ export function Initialize(cb) {
     iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_DEL,  (neighRecord:NeighRecord) => {
         pub.arp.Del(neighRecord.Mac);
     });
+
 }
