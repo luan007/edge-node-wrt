@@ -8,21 +8,25 @@ import events = require("events");
 */
 //Patch Node-SSDP.. prototype injection
 
-var Client = ssdp.Client;
+var Client =  ssdp['Client'];
 var __p = Client.prototype._notify;
 //inflate "m" event - (alive/byebye/update, msg, {address, family, port, size})
 Client.prototype._notify = function () {
     __p.apply(this, arguments);
-    arguments[0].NTS && this.emit('m',
+    arguments[0]['NTS'] && this['emit']('m',
         arguments[1],
         200,
         arguments[2],
-        arguments[0].NTS.toLowerCase().split(':')[1]
+        arguments[0]['NTS'].toLowerCase().split(':')[1]
     );
 };
 
 
 class _ssdp_Browser extends events.EventEmitter {
+
+    public EVENT_SERVICE_UP = "serviceUp";
+
+    public EVENT_SERVICE_DOWN = "serviceDown";
 
     public Cache = {};
     
@@ -45,14 +49,14 @@ class _ssdp_Browser extends events.EventEmitter {
         switch (kind) {
             case "alive":
                 this.Cache[rinfo.address][headers.USN] = headers;
-                this.emit("serviceUp", rinfo.address, headers);
+                this.emit(this.EVENT_SERVICE_UP, rinfo.address, headers);
                 if (this.watch_addr[rinfo.address]) {
                     this.watch_addr[rinfo.address][0](headers, this.Cache[rinfo.address]);
                 }
                 break;
             case "byebye":
                 delete this.Cache[rinfo.address][headers.USN];
-                this.emit("serviceDown", rinfo.address, headers);
+                this.emit(this.EVENT_SERVICE_DOWN, rinfo.address, headers);
                 if (this.watch_addr[rinfo.address]) {
                     this.watch_addr[rinfo.address][1](headers, this.Cache[rinfo.address]);
                 }
@@ -60,7 +64,7 @@ class _ssdp_Browser extends events.EventEmitter {
             case "update":
             case "notify":
                 this.Cache[rinfo.address][headers.USN] = headers;
-                this.emit("serviceUp", rinfo.address, headers);
+                this.emit(this.EVENT_SERVICE_UP, rinfo.address, headers);
                 if (this.watch_addr[rinfo.address]) {
                     this.watch_addr[rinfo.address][0](headers, this.Cache[rinfo.address]);
                 }
@@ -74,7 +78,6 @@ class _ssdp_Browser extends events.EventEmitter {
         super();
         info("Initializing SSDP Browser");
         this.client = new Client();
-        this.Start();
     }
 
     public Start = () => {
@@ -169,7 +172,7 @@ export class SSDP_Server {
 
     public Record: SimpleUPNPRecord;
 
-    private _server = undefined;
+    private _server:any = undefined;
 
     public Opt;
 

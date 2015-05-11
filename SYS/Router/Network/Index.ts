@@ -127,33 +127,63 @@ var defaultConfig = {
 
 export function Initialize(cb) {
     var confNetwork = new Configuration(SECTION.NETWORK, defaultConfig, pub);
-    confNetwork.Initialize(cb);
 
-    dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_ADD, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE ADDED
+    async.series([
+        (cb)=> {
+            confNetwork.Initialize(cb);
+        },
+        (cb)=> {
+            ssdp.Initialize(cb);
+        },
+        (cb)=> {
+            mdns.Initialize(cb);
+        }
+    ], ()=>{
+        cb();
+    });
+
+    dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_ADD, (lease:Dnsmasq.IDHCPLease)=> { // DEVICE ADDED
         warn('EVENT_ADD', lease);
         pub.devices.Set(lease.Mac, lease);
     });
 
-    dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_CHANGE, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE CHANGED
+    dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_CHANGE, (lease:Dnsmasq.IDHCPLease)=> { // DEVICE CHANGED
         warn('EVENT_CHANGE', lease);
         pub.devices.Set(lease.Mac, lease);
     });
 
-    dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_DEL, (lease:Dnsmasq.IDHCPLease)=>{ // DEVICE DELETED
+    dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_DEL, (lease:Dnsmasq.IDHCPLease)=> { // DEVICE DELETED
         warn('EVENT_DEL', lease);
         pub.devices.Del(lease.Mac);
     });
 
-    iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_NEW,  (neighRecord:NeighRecord) => {
+    iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_NEW, (neighRecord:NeighRecord) => {
         pub.arp.Set(neighRecord.Mac, neighRecord);
     });
 
-    iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_CHANGE,  (neighRecord:NeighRecord) => {
+    iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_CHANGE, (neighRecord:NeighRecord) => {
         pub.arp.Set(neighRecord.Mac, neighRecord);
     });
 
-    iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_DEL,  (neighRecord:NeighRecord) => {
+    iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_DEL, (neighRecord:NeighRecord) => {
         pub.arp.Del(neighRecord.Mac);
     });
 
+    ssdp.SSDP_Browser.on(ssdp.SSDP_Browser.EVENT_SERVICE_UP, (IP, headers)=>{
+        console.log('ssdp device up', IP, headers);
+        pub.ssdp.Set(IP, headers);
+    });
+    ssdp.SSDP_Browser.on(ssdp.SSDP_Browser.EVENT_SERVICE_DOWN, (IP, headers)=>{
+        console.log('ssdp device down', IP, headers);
+        pub.ssdp.Set(IP, headers);
+    });
+
+    mdns.Browser.on(mdns.Browser.EVENT_SERVICE_UP, (IP, service)=>{
+        console.log('mdns device up', IP, service);
+        pub.mdns.Set(IP, service);
+    });
+    mdns.Browser.on(mdns.Browser.EVENT_SERVICE_DOWN, (IP, service)=>{
+        console.log('mdns device up', IP, service);
+        pub.mdns.Set(IP, service);
+    });
 }

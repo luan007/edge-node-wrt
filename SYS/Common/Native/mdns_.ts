@@ -78,8 +78,8 @@ class _mdns_Browser extends events.EventEmitter {
                         this.Alive[addr][typeString] = {};
                     }
                     this.Alive[addr][typeString][s] = service;
-                    this.emit
 
+                    this.emit(this.EVENT_SERVICE_UP, addr, service);
                     if (this.watch_addr[addr]) {
                         this.watch_addr[addr][0](service, this.Alive[addr]);
                     }
@@ -94,17 +94,18 @@ class _mdns_Browser extends events.EventEmitter {
                             }
                         }
                     }
+                    this.emit(this.EVENT_SERVICE_DOWN, addr, service);
                     if (this.watch_addr[addr]) {
                         this.watch_addr[addr][1](service, this.Alive[addr]);
                     }
                 }
             }
-            if (event == 1) {
-                this.emit("serviceUp", service);
-            }
-            else if (event == 0) {
-                this.emit("serviceDown", service);
-            }
+            //if (event == 1) {
+            //    this.emit(this.EVENT_SERVICE_UP, service);
+            //}
+            //else if (event == 0) {
+            //    this.emit(this.EVENT_SERVICE_DOWN, service);
+            //}
         });
     };
 
