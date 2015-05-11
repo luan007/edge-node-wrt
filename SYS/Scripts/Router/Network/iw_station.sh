@@ -30,5 +30,5 @@ then
 	echo '}'
 fi
 
-echo '} }'
+echo '}'
 

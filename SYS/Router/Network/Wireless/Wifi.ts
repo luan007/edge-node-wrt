@@ -157,6 +157,7 @@ var defconfig5G7 = {
 function extractIWStationDump(stationsContainer, iwStationsDump, ap, deltaArray, cb) {
     intoQueue(jobName, ()=> {
         for (var mac in iwStationsDump) {
+            stationsContainer[mac] = stationsContainer[mac] || {};
             if (stationsContainer[mac].rx_bytes) {
                 stationsContainer[mac].rx_bytes_delta = iwStationsDump[mac].rx_bytes - stationsContainer[mac].rx_bytes;
             }

@@ -13,7 +13,7 @@ function on_connect(mac, band) {
     mac = mac.toLowerCase();
     var networkStatus = StatMgr.Get(SECTION.NETWORK);
     var addr = networkStatus.arp[mac] || {};
-    var lease = networkStatus.devices[mac] || {};
+    var lease = networkStatus.leases[mac] || {};
     var wlan2G4Status = StatMgr.Get(SECTION.WLAN2G);
     var wlan5G7Status = StatMgr.Get(SECTION.WLAN5G);
     var station = wlan2G4Status.stations[mac] || wlan5G7Status.stations[mac] || {};
@@ -81,9 +81,11 @@ export function Subscribe(cb) {
 
     var subWlan2G4 = StatMgr.Sub(SECTION.WLAN2G);
     subWlan2G4.devices.on('set', (mac, oldValue, online)=> {
+        info('2G device up', mac);
         online ? on_connect(mac, SECTION.WLAN2G) : _wifiBus.DeviceDrop(mac);
     });
     subWlan2G4.stations.on('set', (mac, oldValue, station)=> {
+        info('2G station up', mac);
         _wifiBus.DeviceUp(mac, {
             Wireless: station
         });
@@ -91,9 +93,11 @@ export function Subscribe(cb) {
 
     var subWlan5G7 = StatMgr.Sub(SECTION.WLAN5G);
     subWlan5G7.devices.on('set', (mac, oldValue, online)=> {
+        info('5G device up', mac);
         online ? on_connect(mac, SECTION.WLAN5G) : _wifiBus.DeviceDrop(mac);
     });
     subWlan5G7.stations.on('set', (mac, oldValue, station)=> {
+        info('5G station up', mac);
         _wifiBus.DeviceUp(mac, {
             Wireless: station
         });
