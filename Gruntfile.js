@@ -3,7 +3,7 @@ module.exports = function (grunt) {
     //target folder
     var destination = './_Releases/';
     //var sambaFolder = '//192.168.99.154/Release'; //smb://serbver/folder/
-    var sambaFolder = 'smb://192.168.99.130/staging/_Release/'; //smb://serbver/folder/
+    var sambaFolder = '/Volumes/staging/_Releases'; //smb://serbver/folder/
     // for grunt-ssh
     var sftpDest = '/staging/_Releases/';
 

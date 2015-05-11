@@ -7,10 +7,7 @@ import Configurable = _Configurable.Configurable;
 import path = require('path');
 
 var pub = StatMgr.Pub(SECTION.TRAFFIC, {
-    internet_up_traffic: {},
-    internet_down_traffic: {},
-    intranet_up_traffic: {},
-    intranet_down_traffic: {}
+    traffics: {}
 });
 
 interface Traffic {
@@ -43,7 +40,8 @@ var scriptPath = path.join(process.env.ROOT_PATH, 'Scripts/Router/Network/traffi
     , internet_up_traffic = 'internet_up_traffic'
     , internet_down_traffic = 'internet_down_traffic'
     , intranet_up_traffic = 'intranet_up_traffic'
-    , intranet_down_traffic = 'intranet_down_traffic';
+    , intranet_down_traffic = 'intranet_down_traffic'
+    , trafficsKey = 'traffics';
 
 function extractTraffic(trafficChain, chainName, cb) {
     intoQueue(jobName, ()=> {
@@ -73,22 +71,22 @@ function parseTraffic() {
         if (err) error(err);
         else {
             var json = JSON.parse(res.replace(/\,$/gmi, '')); // remove trail comma
+            var jobs = [];
             if (Object.keys(json.internet_down_traffic).length > 0) {
-                extractTraffic(json.internet_down_traffic, internet_down_traffic, ()=> {
-                });
+                jobs.push((cb) => { extractTraffic(json.internet_down_traffic, internet_down_traffic, cb); });
             }
             if (Object.keys(json.internet_up_traffic).length > 0) {
-                extractTraffic(json.internet_up_traffic, internet_up_traffic, ()=> {
-                });
+                jobs.push((cb) => { extractTraffic(json.internet_up_traffic, internet_up_traffic, cb); });
             }
             if (Object.keys(json.intranet_down_traffic).length > 0) {
-                extractTraffic(json.intranet_down_traffic, intranet_down_traffic, ()=> {
-                });
+                jobs.push((cb) => { extractTraffic(json.intranet_down_traffic, intranet_down_traffic, cb); });
             }
             if (Object.keys(json.intranet_up_traffic).length > 0) {
-                extractTraffic(json.intranet_up_traffic, intranet_up_traffic, ()=> {
-                });
+                jobs.push((cb) => { extractTraffic(json.intranet_up_traffic, intranet_up_traffic, cb); });
             }
+            async.series(jobs, ()=>{
+                pub.Set(trafficsKey, Devices);
+            });
         }
     });
 }

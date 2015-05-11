@@ -6,14 +6,16 @@ import StatMgr = require('../../../Common/Stat/StatMgr');
 import _Configurable = require('../../../Common/Conf/Configurable');
 import Configurable = _Configurable.Configurable;
 
-export var WLAN_2G4 = new hostapd.hostapd(CONF.DEV.WLAN.DEV_2G);
-export var WLAN_5G7 = new hostapd.hostapd(CONF.DEV.WLAN.DEV_5G);
+export var Hostapd2G4 = new hostapd.hostapd(CONF.DEV.WLAN.DEV_2G);
+export var Hostapd5G7 = new hostapd.hostapd(CONF.DEV.WLAN.DEV_5G);
 
-var pub2G = StatMgr.Pub(SECTION.WLAN2G, {
-    stations: {}
+var pub2G4 = StatMgr.Pub(SECTION.WLAN2G, {
+    stations: {},
+    devices: {}
 });
-var pub5G = StatMgr.Pub(SECTION.WLAN5G, {
-    stations: {}
+var pub5G7 = StatMgr.Pub(SECTION.WLAN5G, {
+    stations: {},
+    devices: {}
 });
 
 var scriptPath = path.join(process.env.ROOT_PATH, 'Scripts/Router/Network/iw_station.sh')
@@ -49,9 +51,12 @@ interface Station {
     ap?:string;
 }
 
-export var Stations:IDic<Station> = {};
+//mac: [Station]
+export var Stations2G4:IDic<Station> = {};
+export var Stations5G7:IDic<Station> = {};
 
-//WLAN_2G4.Config.Bridge = br0
+//mac: on/offline ?
+export var Devices:IDic<boolean> = {};
 
 class Configuration extends Configurable {
     private hostapdInstance:hostapd.hostapd;
@@ -151,41 +156,41 @@ var defconfig5G7 = {
     }
 };
 
-function extractIWStationDump(iwStationsDump, ap, cb) {
+function extractIWStationDump(stationsContainer, iwStationsDump, ap, cb) {
     intoQueue(jobName, ()=> {
         for (var mac in iwStationsDump) {
-            if (Stations[mac].rx_bytes) {
-                Stations[mac].rx_bytes_delta = iwStationsDump[mac].rx_bytes - Stations[mac].rx_bytes;
+            if (stationsContainer[mac].rx_bytes) {
+                stationsContainer[mac].rx_bytes_delta = iwStationsDump[mac].rx_bytes - stationsContainer[mac].rx_bytes;
             }
-            if (Stations[mac].rx_packets) {
-                Stations[mac].rx_packets_delta = iwStationsDump[mac].rx_packets - Stations[mac].rx_packets;
+            if (stationsContainer[mac].rx_packets) {
+                stationsContainer[mac].rx_packets_delta = iwStationsDump[mac].rx_packets - stationsContainer[mac].rx_packets;
             }
-            if (Stations[mac].tx_bytes) {
-                Stations[mac].tx_bytes_delta = iwStationsDump[mac].tx_bytes - Stations[mac].tx_bytes;
+            if (stationsContainer[mac].tx_bytes) {
+                stationsContainer[mac].tx_bytes_delta = iwStationsDump[mac].tx_bytes - stationsContainer[mac].tx_bytes;
             }
-            if (Stations[mac].tx_packets) {
-                Stations[mac].tx_packets_delta = iwStationsDump[mac].tx_packets - Stations[mac].tx_packets;
+            if (stationsContainer[mac].tx_packets) {
+                stationsContainer[mac].tx_packets_delta = iwStationsDump[mac].tx_packets - stationsContainer[mac].tx_packets;
             }
-            if (Stations[mac].tx_packets) {
-                Stations[mac].tx_packets_delta = iwStationsDump[mac].tx_packets - Stations[mac].tx_packets;
+            if (stationsContainer[mac].tx_packets) {
+                stationsContainer[mac].tx_packets_delta = iwStationsDump[mac].tx_packets - stationsContainer[mac].tx_packets;
             }
-            if (Stations[mac].tx_retries) {
-                Stations[mac].tx_retries_delta = iwStationsDump[mac].tx_retries - Stations[mac].tx_retries;
+            if (stationsContainer[mac].tx_retries) {
+                stationsContainer[mac].tx_retries_delta = iwStationsDump[mac].tx_retries - stationsContainer[mac].tx_retries;
             }
-            if (Stations[mac].tx_retries) {
-                Stations[mac].tx_retries_delta = iwStationsDump[mac].tx_retries - Stations[mac].tx_retries;
+            if (stationsContainer[mac].tx_retries) {
+                stationsContainer[mac].tx_retries_delta = iwStationsDump[mac].tx_retries - stationsContainer[mac].tx_retries;
             }
-            if (Stations[mac].tx_failed) {
-                Stations[mac].tx_failed_delta = iwStationsDump[mac].tx_failed - Stations[mac].tx_failed;
+            if (stationsContainer[mac].tx_failed) {
+                stationsContainer[mac].tx_failed_delta = iwStationsDump[mac].tx_failed - stationsContainer[mac].tx_failed;
             }
-            if(Station[mac].LastMeasure){
-                Stations[mac].Delta_Time = new Date().getTime() - Stations[mac].LastMeasure;
+            if (stationsContainer[mac].LastMeasure) {
+                stationsContainer[mac].Delta_Time = new Date().getTime() - stationsContainer[mac].LastMeasure;
             }
-            Stations[mac].ap = ap;
-            Stations[mac].LastMeasure = new Date().getTime();
-            for(var k in iwStationsDump[mac]){
-                if(iwStationsDump[mac].hasOwnProperty(k)){
-                    Stations[mac][k] = iwStationsDump[mac][k];
+            stationsContainer[mac].ap = ap;
+            stationsContainer[mac].LastMeasure = new Date().getTime();
+            for (var k in iwStationsDump[mac]) {
+                if (iwStationsDump[mac].hasOwnProperty(k)) {
+                    stationsContainer[mac][k] = iwStationsDump[mac][k];
                 }
             }
         }
@@ -199,28 +204,43 @@ function parseIWStationDump() {
             var json = res.replace(/^\}\,/gmi, '').replace(/\,\}/gmi, '}')
                 .replace(/yes/gmi, 'true').replace(/no/gmi, 'false')
                 .replace(/short/gmi, '"short"').replace(/"tx_bitrate":([^,]+)/gmi, '"tx_bitrate":"$1"');
-            info('parse IW', json);
-            var iwStations = JSON.parse(json); // remove trail comma
-            trace('parse iw station dump', require('util').inspect(stationsKey));
+            //info('parse IW', json);
+            var iwStations = JSON.parse(json);
+            //trace('parse iw station dump', require('util').inspect(stationsKey));
 
             if (Object.keys(iwStations[CONF.DEV.WLAN.DEV_2G]).length > 0) {
-                extractIWStationDump(iwStations[CONF.DEV.WLAN.DEV_2G], CONF.DEV.WLAN.DEV_2G, ()=> {
+                extractIWStationDump(Stations2G4, iwStations[CONF.DEV.WLAN.DEV_2G], CONF.DEV.WLAN.DEV_2G, ()=> {
+                    pub2G4.Set(stationsKey, Stations2G4);
                 });
             }
             if (Object.keys(iwStations[CONF.DEV.WLAN.DEV_5G]).length > 0) {
-                extractIWStationDump(iwStations[CONF.DEV.WLAN.DEV_5G], CONF.DEV.WLAN.DEV_5G, ()=> {
+                extractIWStationDump(Stations5G7, iwStations[CONF.DEV.WLAN.DEV_5G], CONF.DEV.WLAN.DEV_5G, ()=> {
+                    pub5G7.Set(stationsKey, Stations5G7);
                 });
             }
-
-            pub2G.Set(stationsKey, iwStations[CONF.DEV.WLAN.DEV_2G]);
-            pub5G.Set(stationsKey, iwStations[CONF.DEV.WLAN.DEV_5G]);
         }
     });
 }
 
+function watchDevices(hostapdInstances, publishers) {
+    for (var i = 0, len = hostapdInstances.length; i < len; i++) {
+        ((_i) => {
+            hostapdInstances[_i].Ctrl.on("event", (type, mac:string) => {
+                if (type == "AP-STA-CONNECTED") {
+                    publishers[_i].devices.Set(mac, true); //online
+                } else if (type == "AP-STA-DISCONNECTED") {
+                    publishers[_i].devices.Set(mac, false); //offline
+                }
+            });
+        })(i);
+    }
+}
+
 export function Initialize(cb) {
-    var config2G4 = new Configuration(SECTION.WLAN2G, WLAN_2G4, defconfig2G4);
-    var config5G7 = new Configuration(SECTION.WLAN5G, WLAN_5G7, defconfig5G7);
+    watchDevices([Hostapd2G4, Hostapd5G7], [pub2G4, pub5G7]);
+
+    var config2G4 = new Configuration(SECTION.WLAN2G, Hostapd2G4, defconfig2G4);
+    var config5G7 = new Configuration(SECTION.WLAN5G, Hostapd5G7, defconfig5G7);
 
     async.series([
         (cb) => {
@@ -262,9 +282,9 @@ function SetSSID(hostapdInstance:hostapd.hostapd, sectionName, ssid, cb:Callback
 export function Subscribe(cb) {
     var sub = StatMgr.Sub(SECTION.NETWORK);
     sub.network.on('NetworkName', (oldValue, newValue) => {
-        SetSSID(WLAN_2G4, SECTION.WLAN2G, newValue, ()=> {
+        SetSSID(Hostapd2G4, SECTION.WLAN2G, newValue, ()=> {
         });
-        SetSSID(WLAN_5G7, SECTION.WLAN5G, newValue, ()=> {
+        SetSSID(Hostapd5G7, SECTION.WLAN5G, newValue, ()=> {
         });
     });
     cb();
