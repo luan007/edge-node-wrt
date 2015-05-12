@@ -12,7 +12,7 @@ function test() {
     pub.leases.Set('12345', new Date().getTime());
     pub.arp.Set('12345', new Date().getTime());
     pub.network.Set('12345', new Date().getTime());
-    pub.mdns.Set('12345', {'holly': 'shit'});
+    pub.mdns.Set('12345', {'holly': 'shit', 'crap': {'yes': 1}});
     pub.ssdp.Set('12345', {'running': 'crap'});
 
     var sub = StatMgr.Get('network');

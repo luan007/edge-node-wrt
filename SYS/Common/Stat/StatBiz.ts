@@ -2,7 +2,8 @@ import StatMgr = require('./StatMgr');
 import Dnsmasq = require('../../Common/Native/dnsmasq');
 
 export function GetMacByIP(IP:string) {
-    var networkStatues = StatMgr.Get(SECTION.NETWORK);
+    var networkStatues = <any>StatMgr.Get(SECTION.NETWORK).ValueOf();
+    //console.log('GetMacByIP networkStatues', require('util').inspect(networkStatues));
     if (networkStatues && networkStatues.leases) {
         for (var mac in networkStatues.leases) {
             var lease = <Dnsmasq.IDHCPLease>networkStatues.leases[mac];
@@ -14,7 +15,8 @@ export function GetMacByIP(IP:string) {
 }
 
 export function GetIPByMac(mac:string) {
-    var networkStatues = StatMgr.Get(SECTION.NETWORK);
+    var networkStatues = <any>StatMgr.Get(SECTION.NETWORK).ValueOf();
+    //console.log('GetIPByMac networkStatues', require('util').inspect(networkStatues));
     if (networkStatues && networkStatues.leases) {
         if (networkStatues.leases.hasOwnProperty(mac))
             return networkStatues.leases[mac].Address;
@@ -23,7 +25,8 @@ export function GetIPByMac(mac:string) {
 }
 
 export function GetBluetoothPropertiesByMac(mac:string) {
-    var bluetoothStatues = StatMgr.Get(SECTION.BLUETOOTH);
+    var bluetoothStatues = <any>StatMgr.Get(SECTION.BLUETOOTH).ValueOf();
+    //console.log('GetBluetoothPropertiesByMac bluetoothStatues', require('util').inspect(bluetoothStatues));
     if (bluetoothStatues && bluetoothStatues.devices) {
         if (bluetoothStatues.devices.hasOwnProperty(mac)) {
             return bluetoothStatues.devices[mac];
