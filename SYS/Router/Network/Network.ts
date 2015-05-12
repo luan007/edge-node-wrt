@@ -187,7 +187,7 @@ export function Initialize(cb) {
         pub.mdns.Set(IP, service);
     });
     mdns.Browser.on(mdns.Browser.EVENT_SERVICE_DOWN, (IP, service)=>{
-        console.log('mdns device up', IP, service);
+        console.log('mdns device down', IP, service);
         pub.mdns.Del(IP);
     });
 }

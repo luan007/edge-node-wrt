@@ -81,7 +81,7 @@ export function Subscribe(cb) {
 
     var subWlan2G4 = StatMgr.Sub(SECTION.WLAN2G);
     subWlan2G4.devices.on('set', (mac, oldValue, online)=> {
-        info('2G device up', mac);
+        info('2G device ' + online ?  'up' : 'down', mac);
         online ? on_connect(mac, SECTION.WLAN2G) : _wifiBus.DeviceDrop(mac);
     });
     subWlan2G4.stations.on('set', (mac, oldValue, station)=> {
@@ -93,7 +93,7 @@ export function Subscribe(cb) {
 
     var subWlan5G7 = StatMgr.Sub(SECTION.WLAN5G);
     subWlan5G7.devices.on('set', (mac, oldValue, online)=> {
-        info('5G device up', mac);
+        info('5G device  ' + online ?  'up' : 'down', mac);
         online ? on_connect(mac, SECTION.WLAN5G) : _wifiBus.DeviceDrop(mac);
     });
     subWlan5G7.stations.on('set', (mac, oldValue, station)=> {
