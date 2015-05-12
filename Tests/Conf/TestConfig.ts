@@ -19,10 +19,9 @@ describe('Configuration Manager Testing', () => {
 
         var confWifi:any = ConfMgr.Register(SECTION.NETWORK, default_conf);
         confWifi.should.be.ok;
-        confWifi._apply = (delta, original) => {
-            info(JSON.stringify(delta), JSON.stringify(original));
+        confWifi.on('commit', ()=>{
             confWifi.Flush(); // persist
-        }
+        });
 
         // change request
         ConfMgr.Set(SECTION.NETWORK, {'NetworkName': 'edge-DEV', 'RouterIP': '12.12.12.12'});
@@ -36,8 +35,8 @@ describe('Configuration Manager Testing', () => {
 
         setTask('test', () => {
             var conf = ConfMgr.Get(SECTION.NETWORK);
-            conf[SECTION.NETWORK]['LocalNetmask'].should.be.ok;
-            //trace('LocalNetmask', conf[SECTION.NETWORK]['LocalNetmask']);
+            conf.LocalNetmask.should.be.ok;
+            trace('LocalNetmask', conf.LocalNetmask);
 
             done();
         }, 1000);
