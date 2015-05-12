@@ -205,7 +205,7 @@ function parseIWStationDump() {
         else {
             var json = res.replace(/^\}\,/gmi, '').replace(/\,\}/gmi, '}')
                 .replace(/yes/gmi, 'true').replace(/no/gmi, 'false')
-                .replace(/short/gmi, '"short"').replace(/"tx_bitrate":([^,]+)/gmi, '"tx_bitrate":"$1"');
+                .replace(/"preamble":([^,]+)/gmi, '"preamble":"$1"').replace(/"tx_bitrate":([^,]+)/gmi, '"tx_bitrate":"$1"');
             //info('parse IW', json, res);
             var iwStations = JSON.parse(json);
             //trace('parse iw station dump', require('util').inspect(iwStations));
