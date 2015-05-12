@@ -38,7 +38,26 @@ describe('Configuration Manager Testing', () => {
             name: 'crap'
         });
 
-        console.log(sub.hollyShit.valueOf());
+    });
 
+    it('Status Get by ValueOf()', ()=>{
+        var pub = StatMgr.Pub('network', {
+            leases: {},
+            arp: {},
+            network: {},
+            mdns: {},
+            ssdp: {}
+        });
+
+        pub.leases.Set('12345', new Date().getTime());
+        pub.arp.Set('12345', new Date().getTime());
+        pub.network.Set('12345', new Date().getTime());
+        pub.mdns.Set('12345', {'holly': 'shit', 'crap': {'yes': 1}});
+        pub.ssdp.Set('12345', {'running': 'crap'});
+
+        var sub = StatMgr.Get('network');
+        var valueOf = sub.ValueOf();
+        valueOf.should.not.have.property('ValueOf');
+        valueOf.should.not.have.property('_warp');
     });
 });

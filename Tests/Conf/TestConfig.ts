@@ -37,7 +37,7 @@ describe('Configuration Manager Testing', () => {
         setTask('test', () => {
             var conf = ConfMgr.Get(SECTION.NETWORK);
             conf[SECTION.NETWORK]['LocalNetmask'].should.be.ok;
-            trace('LocalNetmask', conf[SECTION.NETWORK]['LocalNetmask']);
+            //trace('LocalNetmask', conf[SECTION.NETWORK]['LocalNetmask']);
 
             done();
         }, 1000);
