@@ -26,7 +26,6 @@ export function GetBluetoothPropertiesByMac(mac:string) {
     var bluetoothStatues = StatMgr.Get(SECTION.BLUETOOTH);
     if (bluetoothStatues && bluetoothStatues.devices) {
         if (bluetoothStatues.devices.hasOwnProperty(mac)) {
-            trace('bluetoothStatues.devices', mac, bluetoothStatues.devices[mac]);
             return bluetoothStatues.devices[mac];
         }
     }

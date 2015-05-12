@@ -12,11 +12,13 @@ function on_connect(mac, band) {
     if (!mac) return warn(" Invalid MAC - Skipped ");
     mac = mac.toLowerCase();
     var networkStatus = StatMgr.Get(SECTION.NETWORK);
-    var addr = networkStatus.arp[mac] || {};
-    var lease = networkStatus.leases[mac] || {};
+    var addr = (networkStatus.arp[mac] && networkStatus.arp[mac].ValueOf()) || {};
+    var lease = (networkStatus.leases[mac] && networkStatus.leases[mac].ValueOf()) || {};
     var wlan2G4Status = StatMgr.Get(SECTION.WLAN2G);
     var wlan5G7Status = StatMgr.Get(SECTION.WLAN5G);
-    var station = wlan2G4Status.stations[mac] || wlan5G7Status.stations[mac] || {};
+    var station = (wlan2G4Status.stations[mac] && wlan2G4Status.stations[mac].ValueOf())
+        || (wlan5G7Status.stations[mac] &&  wlan5G7Status.stations[mac].ValueOf())
+        || {};
 
     _wifiBus.DeviceUp(mac, {
         Addr: addr,

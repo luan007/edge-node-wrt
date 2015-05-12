@@ -175,6 +175,7 @@ function _OnDevice(bus: IBusData) {
             dev.bus.data = {}; //corrupt data :[!!!!
         }
         //bug fixed
+        warn('bus data', bus.name ,bus.data);
         var change = delta_add_return_changes(dev.bus.data, JSON.parse(JSON.stringify(bus.data)), true);
         if (dev.state == 1 && Object.keys(change).length == 0) {
             warn(dev.bus + " - " + dev.bus.hwaddr + " OnDevice found no change, Skipped");

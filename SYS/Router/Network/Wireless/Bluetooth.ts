@@ -103,14 +103,12 @@ export function Initialize(cb) {
     BluezInstance.on('Created', (addr)=> {
         var dev = BluezInstance.Get(addr);
         if(dev.Properties) {
-            trace('Bluetooth Created', addr, dev.Properties);
             pub.devices.Set(addr, dev.Properties);
         }
     });
     BluezInstance.on('Changed', (addr)=> {
         var dev = BluezInstance.Get(addr);
         if(dev.Properties) {
-            trace('Bluetooth Changed', addr, dev.Properties);
             pub.devices.Set(addr, dev.Properties);
         }
     });

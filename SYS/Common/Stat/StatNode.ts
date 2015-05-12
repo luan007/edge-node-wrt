@@ -45,17 +45,17 @@ export class StatNode extends events.EventEmitter {
     }
 
     Set = (key:string, val:any) => {
+        this.__value[key] = val;
+        this._wrap(this, key);
+
         var oldValue = this.__value[key] ? (this.__value[key].ValueOf ? this.__value[key].ValueOf() : this.__value[key]) : undefined;
-        var newValue = val.ValueOf ? val.ValueOf() : val;
+        var newValue = val.ValueOf ? val.ValueOf() : val
+        //warn('Set', key, oldValue, newValue);
         this._notifyParent(this, 'set', key, oldValue, newValue);
         this.emit(key, oldValue, newValue);
         this.emit('set', key, oldValue, newValue);
         if(this.__value[key] && this.__value[key].emit) //emit if child is a emitter
             this.__value[key].emit('set', key, oldValue, newValue);
-        this.__value[key] = val;
-        ((self, _k)=> {
-            self._wrap(self, _k);
-        })(this, key);
     }
 
     Del = (key:string) => {
@@ -74,6 +74,24 @@ export class StatNode extends events.EventEmitter {
     }
 
     ValueOf = () => {
-        return this.__value;
+        var valueOf = StatNode.ExtractProperties(this);
+        //warn('valueOf', valueOf);
+        return valueOf;
+    }
+
+    static IsStatNode = (obj) => {
+        return obj.hasOwnProperty('_wrap') && obj.hasOwnProperty('__value') && obj.hasOwnProperty('ValueOf');
+    }
+
+    static ExtractProperties = (obj) => {
+        if(StatNode.IsStatNode(obj)){
+            var res = {};
+            for(var k in obj.__value){
+                res[k] = StatNode.ExtractProperties(obj.__value[k]);
+            }
+            return res;
+        } else {
+            return obj;
+        }
     }
 }
