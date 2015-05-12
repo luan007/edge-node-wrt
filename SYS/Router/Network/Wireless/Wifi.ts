@@ -6,8 +6,8 @@ import StatMgr = require('../../../Common/Stat/StatMgr');
 import _Configurable = require('../../../Common/Conf/Configurable');
 import Configurable = _Configurable.Configurable;
 
-export var Hostapd2G4 = new hostapd.hostapd(CONF.DEV.WLAN.DEV_2G);
-export var Hostapd5G7 = new hostapd.hostapd(CONF.DEV.WLAN.DEV_5G);
+var Hostapd2G4 = new hostapd.hostapd(CONF.DEV.WLAN.DEV_2G);
+var Hostapd5G7 = new hostapd.hostapd(CONF.DEV.WLAN.DEV_5G);
 
 var pub2G4 = StatMgr.Pub(SECTION.WLAN2G, {
     stations: {},

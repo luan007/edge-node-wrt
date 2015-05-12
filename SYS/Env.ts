@@ -2,6 +2,7 @@ global.path = require("path");
 global.http = require("http");
 global.qs = require("querystring");
 global.async = require("async");
+global._ = require("underscore");
 require("colors");
 require('../Modules/Shared/use');
 require("../System/Base/SystemEvent");

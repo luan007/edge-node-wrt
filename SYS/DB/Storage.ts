@@ -34,11 +34,11 @@ export function DefineTable(table_name, module_class, options) {
 
 }
 
-export function Initialize(_db, callback: (err, db) => any) {
+export function Initialize(callback: (err, db) => any) {
     trace("Init DB");
-    orm.connect("sqlite://" + _db, (err, db) => {
+    orm.connect("sqlite://" + CONF.MAIN_SQL_PATH, (err, db) => {
         if (!err) {
-            trace("[CON] " + _db.cyanBG.bold);
+            trace("[CON] " + CONF.MAIN_SQL_PATH.cyanBG.bold);
             Database = db;
             LoadModels(callback);
         } else {
@@ -66,7 +66,7 @@ function LoadSingleModel(modelName: string) {
 
 function LoadModels(callback: (err, db) => any) {
 
-    var list = fs.readdirSync(path.join(__dirname, "Models"));
+    var list = fs.readdirSync(path.join(process.env.ROOT_PATH, "DB/Models"));
     var modlist = [];
 
     for (var i = 0; i < list.length; i++) {

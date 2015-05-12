@@ -1,9 +1,11 @@
 ﻿import events = require('events');
+import DeviceManager = require('../DeviceManager');
 
 class Bus extends events.EventEmitter implements IBus {
 
     constructor(private _name: string) {
         super();
+        DeviceManager.RegisterBus(this);
     }
 
     name = (): string => {

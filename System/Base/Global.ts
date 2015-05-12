@@ -30,7 +30,7 @@ class _sys_conf {
     PLATFORM_BIAS_FS_SPLITTER = process.platform == "win32" ? "\\" : "/";
     DATA_DIR = process.env.DATA_DIR ? process.env.DATA_DIR : path.join(this.BASE_PATH, "../_data");
     MODULE_DIR = path.join(this.BASE_PATH, "../Modules");
-    MAIN_SQL_PATH = path.join(this.DATA_DIR, "main.db");
+    MAIN_SQL_PATH = <any>'/var/main.db';
     GRAPHD_LOCATION = path.join(this.BASE_PATH, "Device/Graphd/deltaV");
     GRAPHD_UPGRADE_LOCATION = path.join(this.BASE_PATH, "Device/Graphd");
     MAIN_REGISTRY_PATH = path.join(this.DATA_DIR, "reg");

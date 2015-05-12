@@ -14,13 +14,16 @@ domain.on('error', function (err) {
 
 domain.run(function () {
     var modules = [
-        './Router/Network/Network'
+        './DB/Storage'
+        , './Router/Network/Network'
         , './Router/Network/Firewall/Firewall'
         , './Router/Network/Firewall/TrafficAccountant'
         , './Router/Network/Wireless/Wifi'
         , './Router/Network/Wireless/Bluetooth'
         , './Device/Bus/WifiBus'
         , './Device/Bus/BluetoothBus'
+        , './Device/DeviceManager'
+        , './Device/DriverManager'
     ];
     var initializes = [];
     var subscribes = [];

@@ -11,7 +11,8 @@ import StatNode = _StatNode.StatNode;
 import _Configurable = require('../../Common/Conf/Configurable');
 import Configurable = _Configurable.Configurable;
 import Dnsmasq = require('../../Common/Native/dnsmasq');
-export var dnsmasq = new Dnsmasq.dnsmasq();
+
+var dnsmasq = new Dnsmasq.dnsmasq();
 
 var ssdpDirectories: ssdp.SimpleUPNPRecord[] = [{}];
 var ssdpServices = [];
@@ -206,3 +207,10 @@ export function Initialize(cb) {
         pub.mdns.Del(IP);
     });
 }
+
+
+function CheckNameAvailability(name, cb) {
+    dnsmasq.CheckNameAvailability(name, cb);
+}
+
+__API(CheckNameAvailability, 'Network.CheckNameAvailability', [Permission.Network]);

@@ -8,6 +8,12 @@ import Configurable = _Configurable.Configurable;
 
 export var BluezInstance = new bluez.Bluez();
 
+var pub = StatMgr.Pub(SECTION.BLUETOOTH, {
+    devices: {},
+    nearby: {},
+    status: {}
+});
+
 class Configuration extends Configurable {
 
     constructor(moduleName:string, defaultConfig:any) {
@@ -93,6 +99,36 @@ var defaultConfig = {
 export function Initialize(cb) {
     var configBluez = new Configuration(SECTION.BLUETOOTH, defaultConfig);
     configBluez.Initialize(cb);
+
+    BluezInstance.on('Created', (addr)=> {
+        var dev = BluezInstance.Get(addr);
+        if(dev.Properties) {
+            trace('Bluetooth Created', addr, dev.Properties);
+            pub.devices.Set(addr, dev.Properties);
+        }
+    });
+    BluezInstance.on('Changed', (addr)=> {
+        var dev = BluezInstance.Get(addr);
+        if(dev.Properties) {
+            trace('Bluetooth Changed', addr, dev.Properties);
+            pub.devices.Set(addr, dev.Properties);
+        }
+    });
+    BluezInstance.on('Found', (addr)=> {
+        pub.nearby.Set(addr, new Date().getTime());
+    });
+    BluezInstance.on('Lost', (addr)=> {
+        pub.nearby.Del(addr);
+    });
+    BluezInstance.on('Removed', (addr, devCached)=> {
+        pub.devices.Del(addr);
+    });
+    BluezInstance.on('exit', ()=> {
+        pub.status.Set('exit', true);
+    });
+    BluezInstance.on('stop', ()=> {
+        pub.status.Set('exit', true);
+    });
 
     __API(withCb(configBluez.ConfigHandler.Get), "Network.Bluetooth.Config.Get", [Permission.Network, Permission.Configuration]);
 }
