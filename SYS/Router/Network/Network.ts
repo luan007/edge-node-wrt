@@ -13,6 +13,9 @@ import Configurable = _Configurable.Configurable;
 import Dnsmasq = require('../../Common/Native/dnsmasq');
 export var dnsmasq = new Dnsmasq.dnsmasq();
 
+var ssdpDirectories: ssdp.SimpleUPNPRecord[] = [{}];
+var ssdpServices = [];
+
 var pub = StatMgr.Pub(SECTION.NETWORK, {
     leases: {},
     arp: {},
@@ -61,6 +64,18 @@ class Configuration extends Configurable {
             dnsmasq.Config.Addresss[".ed.ge"] = delta.RouterIP;
             dnsmasq.Config.Addresss[".wifi"] = delta.RouterIP;
             addr["Address"] = delta.RouterIP;
+
+            //SSDP
+            while(ssdpServices.length){
+                ssdpServices.pop().Stop();
+            }
+            for(var i = 0; i < ssdpDirectories.length; i++){
+                var s = new ssdp.SSDP_Server(ssdpDirectories[i], delta.RouterIP);
+                ssdpServices.push(s);
+                s.Start();
+            }
+            //TODO: mdns configuration (for MAC
+
         }
         if (has(delta, "LocalNetmask")) {
             network.LocalNetmask = delta.LocalNetmask;
@@ -130,9 +145,6 @@ export function Initialize(cb) {
 
     async.series([
         (cb)=> {
-            confNetwork.Initialize(cb);
-        },
-        (cb)=> {
             iproute2.Initialize(()=>{
                 iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_NEW, (neighRecord:NeighRecord) => {
                     pub.arp.Set(neighRecord.Mac, neighRecord);
@@ -153,6 +165,9 @@ export function Initialize(cb) {
         },
         (cb)=> {
             mdns.Initialize(cb);
+        },
+        (cb)=> {
+            confNetwork.Initialize(cb);
         }
     ], ()=>{
         cb();

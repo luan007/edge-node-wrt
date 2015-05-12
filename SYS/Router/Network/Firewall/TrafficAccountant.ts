@@ -73,25 +73,29 @@ function parseTraffic() {
     exec('sh', scriptPath, (err, res)=> {
         if (err) error(err);
         else {
-            deltaDevices.length = 0; // clear
-            var json = JSON.parse(res.replace(/\,$/gmi, '')); // remove trail comma
-            if (Object.keys(json.internet_down_traffic).length > 0) {
-                extractTraffic(json.internet_down_traffic, internet_down_traffic);
+            try {
+                deltaDevices.length = 0; // clear
+                var json = JSON.parse(res.replace(/\,$/gmi, '')); // remove trail comma
+                if (Object.keys(json.internet_down_traffic).length > 0) {
+                    extractTraffic(json.internet_down_traffic, internet_down_traffic);
+                }
+                if (Object.keys(json.internet_up_traffic).length > 0) {
+                    extractTraffic(json.internet_up_traffic, internet_up_traffic);
+                }
+                if (Object.keys(json.intranet_down_traffic).length > 0) {
+                    extractTraffic(json.intranet_down_traffic, intranet_down_traffic);
+                }
+                if (Object.keys(json.intranet_up_traffic).length > 0) {
+                    extractTraffic(json.intranet_up_traffic, intranet_up_traffic);
+                }
+                for (var i = 0, len = deltaDevices.length; i < len; i++) {
+                    var mac = deltaDevices[i];
+                    pub.traffics.Set(mac, Devices[mac]);
+                }
+                deltaDevices.length = 0; // clear
+            } catch (err) {
+                error(err);
             }
-            if (Object.keys(json.internet_up_traffic).length > 0) {
-                extractTraffic(json.internet_up_traffic, internet_up_traffic);
-            }
-            if (Object.keys(json.intranet_down_traffic).length > 0) {
-                extractTraffic(json.intranet_down_traffic, intranet_down_traffic);
-            }
-            if (Object.keys(json.intranet_up_traffic).length > 0) {
-                extractTraffic(json.intranet_up_traffic, intranet_up_traffic);
-            }
-            for (var i = 0, len = deltaDevices.length; i < len; i++) {
-                var mac = deltaDevices[i];
-                pub.traffics.Set(mac, Devices[mac]);
-            }
-            deltaDevices.length = 0; // clear
         }
     });
 }

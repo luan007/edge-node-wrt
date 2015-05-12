@@ -94,7 +94,7 @@ class _ssdp_Browser extends events.EventEmitter {
 }
 
 
-interface SimpleUPNPRecord {
+export interface SimpleUPNPRecord {
     versionMajor?: string;
     versionMinor?: string;
     deviceType?: string;
@@ -145,12 +145,12 @@ function generateUPnPresp(uuid, my) {
     return now;
 }
 
-var server_prefix = "http://wifi.network:" + CONF.SSDP_PORT + "/"; //TBC
 var generic_server = express();
 
 var handled: IDic<SSDP_Server> = {};
 
 generic_server.get("*",(req, res) => {
+    console.log('SSDP RESP');
     if (req.path[req.path.length - 1] == "/") req.path = req.path.substr(0, req.path.length - 1);
     var t = /[^/]+$/.exec(req.path);
     if (CONF.IS_DEBUG && CONF.SSDP_DEBUG) {
@@ -170,20 +170,22 @@ export class SSDP_Server {
 
     public Location;
 
-    public Record: SimpleUPNPRecord;
-
     private _server:any = undefined;
 
     public Opt;
 
-    constructor(record: SimpleUPNPRecord, opts?) {
+    constructor(public Record: SimpleUPNPRecord, hostip, opts?) {
         var o = opts ? opts : <any>{};
         o.udn = o.udn != undefined ? o.udn : "uuid:" + UUIDstr(false);
         if (!o.location) {
             this.Location = UUIDstr();
-            o.location = server_prefix + this.Location;
+            o.location = 'http://' + hostip + ':' + CONF.SSDP_PORT + '/' + this.Location;
         }
         this.Opt = o;
+        this.Opt.unicastHost = hostip; //TODO: Change this
+        //this.Opt.logLevel = 'trace';
+
+        console.log(this.Opt);
     }
 
     Start = () => {
@@ -214,6 +216,6 @@ export class SSDP_Server {
 export var SSDP_Browser = new _ssdp_Browser();
 
 export function Initialize(cb) {
-    generic_server.listen(CONF.SSDP_PORT, cb);
     SSDP_Browser.Start();
+    generic_server.listen(CONF.SSDP_PORT, cb);
 }
