@@ -206,9 +206,9 @@ function parseIWStationDump() {
             var json = res.replace(/^\}\,/gmi, '').replace(/\,\}/gmi, '}')
                 .replace(/yes/gmi, 'true').replace(/no/gmi, 'false')
                 .replace(/short/gmi, '"short"').replace(/"tx_bitrate":([^,]+)/gmi, '"tx_bitrate":"$1"');
-            //info('parse IW', json);
+            //info('parse IW', json, res);
             var iwStations = JSON.parse(json);
-            //trace('parse iw station dump', require('util').inspect(stationsKey));
+            //trace('parse iw station dump', require('util').inspect(iwStations));
 
             delta2GStations.length = 0;
             if (Object.keys(iwStations[CONF.DEV.WLAN.DEV_2G]).length > 0) {
