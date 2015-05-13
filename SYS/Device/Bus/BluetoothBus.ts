@@ -25,9 +25,9 @@ function _on_device_appear(mac) {
     clearTask("BLUETOOTH_DROP_" + mac);
     if (_mac_list[mac]) {
         //emm possible RSSI change
-        _bluetoothBus.DeviceUp(mac, {
-            data: StatBiz.GetBluetoothPropertiesByMac(mac) //expand properties
-        });
+        _bluetoothBus.DeviceUp(mac,
+            StatBiz.GetBluetoothPropertiesByMac(mac) //expand properties
+        );
     } else {
         var baseProperty = StatBiz.GetBluetoothPropertiesByMac(mac);
         _mac_list[mac] = 1;

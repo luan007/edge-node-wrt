@@ -255,7 +255,7 @@ function qualifier(element, query: MatchQuery, cb) {
     var jobs = [];
     for (var i in query) {
         if (parsers[i]) {
-            jobs.push(parsers[i].bind(element, query[i]));
+            jobs.push(parsers[i].bind(null, element, query[i]));
         }
     }
     if (jobs.length > 0) {

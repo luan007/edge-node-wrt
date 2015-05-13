@@ -9,11 +9,10 @@ class Dummy extends Bus {
     start = (cb) => {
         cb();
         setInterval(() => {
-            this.DeviceUp("00:00:00:11:22:33", {
-                data: {
+            this.DeviceUp("00:00:00:11:22:33",  {
                     val: Math.random()
                 }
-            });
+            );
         }, 2000);
     };
 
