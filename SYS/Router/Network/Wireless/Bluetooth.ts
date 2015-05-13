@@ -113,6 +113,10 @@ export function Initialize(cb) {
         }
     });
     BluezInstance.on('Found', (addr)=> {
+        var dev = BluezInstance.Get(addr);
+        if(dev.Properties) {
+            pub.devices.Set(addr, dev.Properties);
+        }
         pub.nearby.Set(addr, new Date().getTime());
     });
     BluezInstance.on('Lost', (addr)=> {

@@ -224,6 +224,8 @@ export class Bluez extends Process {
             else {
                 delta_add(dev.Properties, props, true);
             }
+            this._dev_cache[addr].Properties.Alive = true;
+            this._dev_cache[addr].Properties.PropertyStamp = Date.now();
             this.emit("Changed", addr);
         });
     };
@@ -233,10 +235,8 @@ export class Bluez extends Process {
         if (!this._dev_cache[addr]) {
             this.bus.getInterface("org.bluez", obj_path, "org.bluez.Device",(err, dev) => {
                 if (err) return cb();
-                //trace("Created - " + addr);
                 this._dev_cache[addr] = dev;
-                this._dev_cache[addr].Alive = true;
-                //trace("~~~" + this._dev_cache[addr]);
+
                 this._update_property(addr, dev);
                 //get hooked 
                 this.emit("Created", addr);
@@ -259,14 +259,14 @@ export class Bluez extends Process {
     _dev_found = (adapter, addr, props) => {
         addr = addr.toLowerCase();
         props = dbus_magic(props);
-        //trace("Found - " + addr);
-        //console.log(this._dev_cache);
+        trace("Found - " + JSON.stringify(props));
+        console.log(this._dev_cache);
         if (!this._dev_cache[addr]) {
-            //trace("We are going to create new dev for - " + addr);
-            adapter.CreateDevice(addr,() => {
+            adapter.CreateDevice(addr,(err) => {
                 if (!this._dev_cache[addr]) return;
                 if (!this._dev_cache[addr].Properties) {
                     this._dev_cache[addr].Properties = props;
+                    this._dev_cache[addr].Properties.RSSIStamp = Date.now();
                 } else {
                     this._dev_cache[addr].Properties.RSSIStamp = Date.now();
                     this._dev_cache[addr].Properties.RSSI = props.RSSI;
@@ -275,7 +275,7 @@ export class Bluez extends Process {
             });
         } else {
             this._dev_cache[addr].Properties = props;
-            this._dev_cache[addr].Alive = true;
+            this._dev_cache[addr].Properties.Alive = true;
             this._dev_cache[addr].Properties.RSSIStamp = Date.now();
             this.emit("Found", addr);
         }
@@ -285,7 +285,7 @@ export class Bluez extends Process {
         var addr = obj_path.substring(obj_path.length - 17).replace(/_/g, ":").toLowerCase();
         //trace("Disappear - " + addr);
         if (this._dev_cache[addr]) {
-            this._dev_cache[addr].Alive = false;
+            this._dev_cache[addr].Properties.Alive = false;
             this.emit("Lost", addr);
         }
     };
