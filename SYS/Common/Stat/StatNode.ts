@@ -47,7 +47,7 @@ export class StatNode extends events.EventEmitter {
     Set = (key:string, val:any) => {
         var oldValue = this.__value[key] ? (this.__value[key].ValueOf ? this.__value[key].ValueOf() : this.__value[key]) : undefined;
         var newValue = val.ValueOf ? val.ValueOf() : val
-        console.log('Set', key, oldValue, 'new \n:', val);
+        //console.log('Set', key, oldValue, 'new \n:', val);
 
         this.__value[key] = val;
         this._wrap(this, key);

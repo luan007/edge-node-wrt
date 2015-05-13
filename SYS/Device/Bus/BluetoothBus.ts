@@ -40,7 +40,7 @@ function _on_device_appear(mac) {
     // one second
     setTask("BLUETOOTH_LIFE_" + mac, () => {
         warn("Force Dropping " + mac + " - MAXTIME PASSED");
-        this._on_device_disappear(mac);
+        _on_device_disappear(mac);
     }, CONF.BLUETOOTH_MAXLIFE);
 }
 

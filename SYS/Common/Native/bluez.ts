@@ -260,7 +260,7 @@ export class Bluez extends Process {
         addr = addr.toLowerCase();
         props = dbus_magic(props);
         trace("Found - " + JSON.stringify(props));
-        console.log(this._dev_cache);
+        //console.log(this._dev_cache);
         if (!this._dev_cache[addr]) {
             adapter.CreateDevice(addr,(err) => {
                 if (!this._dev_cache[addr]) return;

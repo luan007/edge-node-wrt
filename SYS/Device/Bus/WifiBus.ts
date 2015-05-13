@@ -59,19 +59,19 @@ export function Subscribe(cb) {
     });
     subNetwork.ssdp.on('set', (IP, oldValue, headers)=>{
         var mac = StatBiz.GetMacByIP(IP);
-        console.log('ssdp set', IP, mac, headers);
+        info('ssdp set', IP, mac, headers);
     });
     subNetwork.ssdp.on('del', (IP, oldHeaders)=>{
         var mac = StatBiz.GetMacByIP(IP);
-        console.log('ssdp del', IP, mac, oldHeaders);
+        info('ssdp del', IP, mac, oldHeaders);
     });
     subNetwork.mdns.on('set', (IP, oldValue, service)=>{
         var mac = StatBiz.GetMacByIP(IP);
-        console.log('mdns set', IP, mac, service);
+        info('mdns set', IP, mac, service);
     });
     subNetwork.mdns.on('del', (IP, oldService)=>{
         var mac = StatBiz.GetMacByIP(IP);
-        console.log('mdns del', IP, mac, oldService);
+        info('mdns del', IP, mac, oldService);
     });
 
     var subTraffic = StatMgr.Sub(SECTION.TRAFFIC);

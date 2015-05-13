@@ -190,20 +190,20 @@ export function Initialize(cb) {
     });
 
     ssdp.SSDP_Browser.on(ssdp.SSDP_Browser.EVENT_SERVICE_UP, (IP, headers)=>{
-        console.log('ssdp device up', IP, headers);
+        //console.log('ssdp device up', IP, headers);
         pub.ssdp.Set(IP, headers);
     });
     ssdp.SSDP_Browser.on(ssdp.SSDP_Browser.EVENT_SERVICE_DOWN, (IP, headers)=>{
-        console.log('ssdp device down', IP, headers);
+        //console.log('ssdp device down', IP, headers);
         pub.ssdp.Del(IP);
     });
 
     mdns.Browser.on(mdns.Browser.EVENT_SERVICE_UP, (IP, service)=>{
-        console.log('mdns device up', IP, service);
+        //console.log('mdns device up', IP, service);
         pub.mdns.Set(IP, service);
     });
     mdns.Browser.on(mdns.Browser.EVENT_SERVICE_DOWN, (IP, service)=>{
-        console.log('mdns device down', IP, service);
+        //console.log('mdns device down', IP, service);
         pub.mdns.Del(IP);
     });
 }

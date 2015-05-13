@@ -8,10 +8,11 @@ import Stack = require("./Stack");
 (() => {
 
     if (!CONF.IS_DEBUG || !CONF.ENABLE_FULL_LOG) {
-        global.trace = global.warn = global.error = global.fatal = global.debug = global.info = function () { return false; };
+        global.trace = global.warn = global.error = global.fatal = global.debug = global.info = function () {
+            return false;
+        };
         return;
     }
-
 
     var log4js:any = require('log4js');
     //log4js.loadAppender('file');
@@ -58,6 +59,17 @@ import Stack = require("./Stack");
         var logger = log4js.getLogger(Stack.getModule());
         logger.info.apply(logger, args);
     };
+
+    if (CONF.LOG_LEVELS.length > 0) {
+        var loggers = ['trace', 'warn', 'error', 'fatal', 'debug', 'info'];
+        for (var i = 0, len = loggers.length; i < len; i++) {
+            if (CONF.LOG_LEVELS.indexOf(loggers[i]) === -1) {
+                global[loggers[i]] = function () {
+                    return false;
+                }
+            }
+        }
+    }
 
 })();
 

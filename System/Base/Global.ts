@@ -94,6 +94,7 @@ class _sys_conf {
     IPTABLES_6 = false;
     IPTABLES_TRAFFIC_INTERVAL = 1 * 1000;   // iptables traffic patrol sleep interval
     IW_STATION_DUMP_INTERVAL = 5 * 1000;
+    LOG_LEVELS = []; // log output levels
 }
 
 class _section {
