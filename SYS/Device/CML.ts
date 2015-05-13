@@ -126,7 +126,7 @@ function _explode_($query, type, fetchchildren, childdepth, cb) {
 /*Return true if ERROR, NOR/NAND logic*/
 var parsers = {
     can: function (element: IDevice, can, cb) {
-        if (can.__expanded) {
+        if (has(can, '__expanded')) {
             can = can.__expanded;
         }
         else if (can.$) {
@@ -165,7 +165,7 @@ var parsers = {
         return cb(false);
     },
     is: function (element: IDevice, is, cb) {
-        if (is.__expanded) {
+        if (has(is, '__expanded')) {
             is = is.__expanded;
         }
         else if (is.$) {
@@ -209,7 +209,7 @@ var parsers = {
     },
     attr: function (element, attr, cb) {
         //TODO: support nested value search
-        if (attr.__expanded) {
+        if (has(attr, '__expanded')) {
             attr = attr.__expanded;
         }
         else if (attr.$) {
