@@ -279,13 +279,14 @@ function _OnDrop(bus: IBusData) {
 
 }
 
-export function Initialize(callback: Callback) {
+export function Initialize(cb) {
     trace("Init..");
     LoadFromDB(() => {
         trace("Starting Patrol Thread - " + (CONF.DEVICE_SAVE_INTERVAL + "").bold["cyanBG"]);
         setJob("DEVDB", _patrolThread, CONF.DEVICE_SAVE_INTERVAL);
         DriverManager.Events.on("change", _ondriverchange);
         info("UP");
+        cb();
     });
 }
 

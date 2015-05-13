@@ -129,7 +129,7 @@ module.exports = function (grunt) {
     grunt.registerTask("default", ['clean', 'copy', 'sync', 'ts']);
     grunt.registerTask("w", ['clean', 'copy', 'sync', 'ts', 'watch']);
     grunt.registerTask("build", ['copy', 'sync', 'ts']);
-    grunt.registerTask("debug", ['copy', 'sync', 'ts', 'watch']);
+    grunt.registerTask("debug", ['sshexec', 'copy', 'sync', 'ts', 'watch']);
     grunt.registerTask("samba", "samba deployment", function () {
         initGrunt(sambaFolder);
         grunt.task.run('debug');

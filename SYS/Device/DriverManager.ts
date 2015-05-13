@@ -381,9 +381,9 @@ export function DriverInvoke(drv: IDriver, dev: IDevice, actionId, params, cb) {
     drv.invoke(dev, actionId, params, cb); //TODO: not finished
 }
 
-export function Initialize(callback: Callback) {
+export function Initialize(cb) {
     trace("Init..");
-    callback();
+    cb();
     //async.series([
         //LoadDriver.bind(null,(require("./Driver/TestDriver")).Instance),
         //LoadDriver.bind(null,(require("./Driver/OUI")).Instance),

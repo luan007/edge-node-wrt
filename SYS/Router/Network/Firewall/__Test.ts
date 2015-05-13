@@ -3,8 +3,8 @@ import _Config = require('../../../Common/Conf/Config');
 import Config = _Config.Config;
 import StatMgr = require('../../../Common/Stat/StatMgr');
 
-function Initialize() {
-    info('start firewall testing...');
+export function Initialize(cb) {
+    fatal('============>>> firewall: Block Remote Addresses testing...');
     var BlockedRemoteAddresses = [];
     var confFirewall:any = ConfMgr.Get(SECTION.FIREWALL);
     if (confFirewall && confFirewall.BlockedRemoteAddresses)
@@ -22,7 +22,7 @@ function Initialize() {
     setTimeout(() => {
         ConfMgr.Set(SECTION.FIREWALL, {BlockedRemoteAddresses: ['www.csdn.net']});
         ConfMgr.Commit();
+
+        cb();
     }, 6000);
 }
-
-Initialize();

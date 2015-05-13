@@ -43,11 +43,26 @@ domain.run(function () {
         })(i);
     }
 
-    info('subscribes', subscribes, 'initializes', initializes);
+    //test cases
+    var testModules = [
+        './Router/Network/Firewall/__Test'
+        , './Device/__Test'
+    ];
+    var tests = [];
+    for (var i = 0, len = testModules.length; i < len; i++) {
+        ((_i) => {
+            var m = require(testModules[_i]);
+            if (m.Initialize) {
+                tests.push((cb) => {
+                    m.Initialize(cb);
+                });
+            }
+        })(i);
+    }
 
-    async.series(subscribes.concat(initializes), (err) => {
+    async.series(subscribes.concat(initializes).concat(tests), (err) => {
+        fatal('========>>> entire series executed, then daemon.');
         if (err) error(err);
-        require('./Router/Network/Firewall/Test');
     });
 
 });

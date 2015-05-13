@@ -150,7 +150,6 @@ var generic_server = express();
 var handled: IDic<SSDP_Server> = {};
 
 generic_server.get("*",(req, res) => {
-    console.log('SSDP RESP');
     if (req.path[req.path.length - 1] == "/") req.path = req.path.substr(0, req.path.length - 1);
     var t = /[^/]+$/.exec(req.path);
     if (CONF.IS_DEBUG && CONF.SSDP_DEBUG) {
@@ -162,7 +161,7 @@ generic_server.get("*",(req, res) => {
         return res.status(404);
     } else {
         res.contentType("xml");
-        return res.send(200, generateUPnPresp(handled[q].Opt.udn, handled[q].Record));
+        return res.status(200).send(generateUPnPresp(handled[q].Opt.udn, handled[q].Record));
     }
 });
 
