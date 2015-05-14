@@ -1,4 +1,4 @@
-﻿import Runtime = require("../../System/App/Runtime");
+﻿import Runtime = require("../Runtime");
 /*
  * Abstraction of an In-App-Driver
 */
