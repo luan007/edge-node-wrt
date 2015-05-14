@@ -147,6 +147,7 @@ var parsers = {
         for (var t = 0; t < can.length; t++) {
             var found = false;
             for (var i in element.assumptions) {
+                if (!element.assumptions[i].actions) continue;
                 if (element.assumptions[i].actions[can[t]]) {
                     found = true;
                     continue;
@@ -171,7 +172,7 @@ var parsers = {
         else if (is.$) {
             return _explode_(is.$, 0, is.expand, is.depth,(result) => {
                 is.__expanded = result;
-                parsers.can(element, is, cb);
+                parsers.is(element, is, cb);
             });
         }
         if (is === undefined) {
@@ -186,6 +187,7 @@ var parsers = {
         for (var t = 0; t < is.length; t++) {
             var found = false;
             for (var i in element.assumptions) {
+                if (!element.assumptions[i].classes) continue;
                 if (element.assumptions[i].classes[is[t]]) {
                     found = true;
                     continue;
@@ -215,7 +217,7 @@ var parsers = {
         else if (attr.$) {
             return _explode_(attr.$, 1, attr.expand, attr.depth, (result) => {
                 attr.__expanded = result;
-                parsers.can(element, attr, cb);
+                parsers.attr(element, attr, cb);
             });
         }
         if (attr === undefined) {
@@ -230,14 +232,16 @@ var parsers = {
         for (var t = 0; t < attr.length; t++) {
             var found = false;
             for (var i in element.assumptions) {
-                if (element.assumptions[i].attributes[attr[t]]) {
-                    found = true;
-                    continue;
-                }
-                for (var j in element.assumptions[i].attributes) {
-                    if (_test_(attr[t], j)) {
+                if (element.assumptions[i].attributes) {
+                    if (element.assumptions[i].attributes[attr[t]]) {
                         found = true;
                         continue;
+                    }
+                    for (var j in element.assumptions[i].attributes) {
+                        if (_test_(attr[t], j)) {
+                            found = true;
+                            continue;
+                        }
                     }
                 }
             }

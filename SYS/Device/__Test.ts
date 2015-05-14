@@ -33,8 +33,13 @@ export function Initialize(cb) {
                     speaker: {}
                 },
                 actions: {
-                    print: {}
-                    , play_audio: {}
+                    print: {},
+                    play_audio: {}
+                },
+                attributes: {
+                    dummyAttr: {
+                        value: 1
+                    }
                 }
             }, cb);
         }
@@ -45,21 +50,45 @@ export function Initialize(cb) {
                 },
                 actions: {
                     play_audio: {}
+                },
+                attributes: {
+                    dummyAttr: {
+                        value: 1
+                    }
                 }
             }, cb);
         }
     ], ()=> {
         CML.Query({
             and: [
+                //{
+                //    can: /play/
+                //},
+                //{
+                //    is: 'speaker'
+                //},
+                //{
+                //    attr: ['dummyAttr']
+                //}
+
                 {
-                    can: 'play_audio'
-                },
-                {
-                    or :[
-                        { is: 'speaker'}
-                        , {is: 'printer'}
-                    ]
+                    bus: {
+                        'data.Alias': /Galaxy/
+                    }
                 }
+
+
+
+
+                //{
+                //    attr: {
+                //        $: {
+                //            tag: 'dummy'
+                //        },
+                //        expand: true, //full (das) auto
+                //        depth: -1
+                //    }
+                //}
             ]
         }, (err, result) => {
             if (err) error('CML error...', err);

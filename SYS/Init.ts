@@ -47,8 +47,8 @@ domain.run(function () {
     //test cases
     var testModules = [
         './Router/Network/Firewall/__Test'
-        , './Device/__Test'
         , './Device/Graphd/__Test'
+        , './Device/__Test'
     ];
     var tests = [];
     for (var i = 0, len = testModules.length; i < len; i++) {

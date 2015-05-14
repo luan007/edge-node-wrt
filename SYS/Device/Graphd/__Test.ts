@@ -19,8 +19,9 @@ export function Initialize(cb) {
         DB.Find($query, (err, des) => {
             if (err) error(err);
             else fatal('============>>> device: Graphd result:', des);
+
+            cb();
         });
 
-        cb();
     });
 }
