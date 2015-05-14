@@ -1,6 +1,6 @@
-require('./Env');
-
 process.env.ROOT_PATH = __dirname;
+
+require('./Env');
 
 process.on('uncaughtException', function (err) {
     error(err);
@@ -15,6 +15,7 @@ domain.on('error', function (err) {
 domain.run(function () {
     var modules = [
         './DB/Storage'
+        , './Device/Graphd/DB'
         , './Router/Network/Network'
         , './Router/Network/Firewall/Firewall'
         , './Router/Network/Firewall/TrafficAccountant'
@@ -47,6 +48,7 @@ domain.run(function () {
     var testModules = [
         './Router/Network/Firewall/__Test'
         , './Device/__Test'
+        , './Device/Graphd/__Test'
     ];
     var tests = [];
     for (var i = 0, len = testModules.length; i < len; i++) {

@@ -6,7 +6,7 @@ global._ = require("underscore");
 require("colors");
 require('../Modules/Shared/use');
 require("../System/Base/SystemEvent");
-require("../System/Base/Global");
+require("./Common/Conf/Global");
 require("../System/Lib/Log/Prelaunch");
 require("../System/Lib/Sockets/SockPath");
 require("../System/API/FunctionExposer");
