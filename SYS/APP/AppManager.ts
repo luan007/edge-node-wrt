@@ -88,6 +88,10 @@ export function SetupAppDataDir(app_id, runtime_id, cb) {
 
 }
 
+export function GetAppDataLn(app_id) {
+    return path.join(CONF.APP_BASE_PATH, app_id, "Data");
+};
+
 export function GetAppDataDir(app_id) {
     return GetSDataPath("App/" + app_id);
 }

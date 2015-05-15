@@ -69,17 +69,16 @@ class Runtime {
 
     public Driver:IDic<IDriver> = {};
 
-    public DeathHooks:IDic<Function> = {};
+    //public DeathHooks:IDic<Function> = {};
 
-
-    //Release me babyyyy
-    public RegisterDeathHook = (name, func) => {
-        this.DeathHooks[name] = func;
-    };
-
-    public ReleaseDeathHook = (name, func) => {
-        delete this.DeathHooks[name];
-    };
+    ////Release me babyyyy
+    //public RegisterDeathHook = (name, func) => {
+    //    this.DeathHooks[name] = func;
+    //};
+    //
+    //public ReleaseDeathHook = (name, func) => {
+    //    delete this.DeathHooks[name];
+    //};
 
     constructor(runtimeId, app:Application) {
         this.App = app;
@@ -169,11 +168,11 @@ class Runtime {
 
     private _proc_on_exit = () => {
 
-        for (var i in this.DeathHooks) {
-            this.DeathHooks[i](this);
-        }
-
-        this.DeathHooks = {};
+        //for (var i in this.DeathHooks) {
+        //    this.DeathHooks[i](this);
+        //}
+        //
+        //this.DeathHooks = {};
         if (this._status.State == -2)
             return; //BROKEN
 
@@ -220,44 +219,8 @@ class Runtime {
         return path.join(/*SHADOW_BASE_PATH, */CONF.APP_BASE_PATH, this.App.uid);
     };
 
-    GetAppDataLn = () => {
-        return path.join(CONF.APP_BASE_PATH, this.App.uid, "Data");
-    };
-
     GetAppDataPath = () => {
         return AppManager.GetAppDataDir(this.App.uid);
-    };
-
-    private _clean_up = (cb) => {
-        trace("Cleaning Up..");
-
-        Tracker.ReleaseByOwner(this.RuntimeId, (err, result) => {
-            if (err) warn(err);
-            umount_till_err(this.GetAppDataLn(), (err, result) => {
-                try {
-                    if (fs.existsSync(this.GetAppDataLn())) {
-                        fs.rmdirSync(this.GetAppDataLn()); //that's it..
-                    }
-                } catch (e) {
-                    warn("Failed to remove AppData Folder, but that's possibly OK");
-                }
-                try {
-                    if (fs.existsSync(this._mainsock)) {
-                        fs.rmdirSync(this._mainsock); //that's it..
-                    }
-                } catch (e) {
-                    warn("Failed to remove MainSocket, but that's possibly OK");
-                }
-                try {
-                    if (fs.existsSync(this._webexsock)) {
-                        fs.rmdirSync(this._webexsock); //that's it..
-                    }
-                } catch (e) {
-                    warn("Failed to remove WebSocket, but that's possibly OK");
-                }
-                return cb();
-            });
-        });
     };
 
     private _check = (target_dir, api_salt, cb) => {
@@ -314,6 +277,38 @@ class Runtime {
         });
     };
 
+    private _clean_up = (cb) => {
+        trace("Cleaning Up..");
+
+        Tracker.ReleaseByOwner(this.RuntimeId, (err, result) => {
+            if (err) warn(err);
+            umount_till_err(AppManager.GetAppDataLn(this.App.uid), (err, result) => {
+                try {
+                    if (fs.existsSync(AppManager.GetAppDataLn(this.App.uid))) {
+                        fs.rmdirSync(AppManager.GetAppDataLn(this.App.uid)); //that's it..
+                    }
+                } catch (e) {
+                    warn("Failed to remove AppData Folder, but that's possibly OK");
+                }
+                try {
+                    if (fs.existsSync(this._mainsock)) {
+                        fs.rmdirSync(this._mainsock); //that's it..
+                    }
+                } catch (e) {
+                    warn("Failed to remove MainSocket, but that's possibly OK");
+                }
+                try {
+                    if (fs.existsSync(this._webexsock)) {
+                        fs.rmdirSync(this._webexsock); //that's it..
+                    }
+                } catch (e) {
+                    warn("Failed to remove WebSocket, but that's possibly OK");
+                }
+                return cb();
+            });
+        });
+    };
+
     Start = () => {
         error("WARNING, CHMOD 0711 IS NOT SECURE!!");
         if (this._status.State == -2) {
@@ -356,13 +351,13 @@ class Runtime {
             },
             this._setup_quota,
             (cb:Callback) => {
-                fs.mkdir(this.GetAppDataLn(), <any>ignore_err(cb));
+                fs.mkdir(AppManager.GetAppDataLn(this.App.uid), <any>ignore_err(cb));
             },
-            mount_auto.bind(null, path, this.GetAppDataLn(), ["--bind"]),
+            mount_auto.bind(null, path, AppManager.GetAppDataLn(this.App.uid), ["--bind"]),
             exec.bind(null, "chown", "root", this.GetAppRootPath()),
             exec.bind(null, "chmod", "0755", this.GetAppRootPath()),
-            exec.bind(null, "chown", this.RuntimeId, this.GetAppDataLn()),
-            exec.bind(null, "chmod", "-R", "0755", this.GetAppDataLn()) //TODO: FIX THIS CHMOD 711 -> 701
+            exec.bind(null, "chown", this.RuntimeId, AppManager.GetAppDataLn(this.App.uid)),
+            exec.bind(null, "chmod", "-R", "0755", AppManager.GetAppDataLn(this.App.uid)) //TODO: FIX THIS CHMOD 711 -> 701
         ], (e, r) => {
             if (e) {
                 error(e);
@@ -414,6 +409,14 @@ class Runtime {
         return this._status;
     };
 
+    MainSock = () => {
+        return this._mainsock;
+    }
+
+    WebExSock = () => {
+        return this._webexsock;
+    }
+
     Stop = (restart) => {
 
         if (this._status.State == -2) {
@@ -464,22 +467,6 @@ class Runtime {
             this.Start();
         }
 
-
-    };
-
-    GetSnapshot = () => {
-
-        var _strip = Application.Strip(this.App);
-
-        var _status = this._status;
-
-        var _snapshot = {
-            Id: _strip.uid,
-            App: _strip,
-            Status: _status
-        };
-        info(" * Snap * " + JSON.stringify(_snapshot));
-        return _snapshot;
 
     };
 

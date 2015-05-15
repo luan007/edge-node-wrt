@@ -8,6 +8,7 @@ import IApplication = _Application.IApplication;
 import Server = require('../API/Server');
 import User = require('../Common/Native/user');
 import AppManager = require('./AppManager');
+import Tracker = require('./Ports/Tracker');
 
 //APP_ID : APP_STRUCT
 var _pool: IDic<Runtime> = <any>{};
@@ -105,6 +106,40 @@ export function GetPooledApps(callback) {
     }
     callback(undefined, results);
 }
+
+function _clean_up (runtimeId, cb) {
+    trace("Cleaning Up..");
+
+    var runtime = GetAppByRID(runtimeId);
+
+    Tracker.ReleaseByOwner(runtimeId, (err, result) => {
+        if (err) warn(err);
+        umount_till_err(AppManager.GetAppDataLn(runtime.App.uid), (err, result) => {
+            try {
+                if (fs.existsSync(AppManager.GetAppDataLn(runtime.App.uid))) {
+                    fs.rmdirSync(AppManager.GetAppDataLn(runtime.App.uid)); //that's it..
+                }
+            } catch (e) {
+                warn("Failed to remove AppData Folder, but that's possibly OK");
+            }
+            try {
+                if (fs.existsSync(runtime.MainSock())) {
+                    fs.rmdirSync(runtime.MainSock()); //that's it..
+                }
+            } catch (e) {
+                warn("Failed to remove MainSocket, but that's possibly OK");
+            }
+            try {
+                if (fs.existsSync(runtime.WebExSock())) {
+                    fs.rmdirSync(runtime.WebExSock()); //that's it..
+                }
+            } catch (e) {
+                warn("Failed to remove WebSocket, but that's possibly OK");
+            }
+            return cb();
+        });
+    });
+};
 
 export function GetSnapshot (runtime: Runtime){
     var _strip = Application.Strip(runtime.App);
