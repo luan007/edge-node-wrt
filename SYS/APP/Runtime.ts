@@ -15,7 +15,7 @@ import _Application = require('../DB/Models/Application');
 import Application = _Application.Application;
 import Registry =  require('../DB/Registry');
 import User = require('../Common/Native/user');
-import MainUI = require('../Frontends/MainUI');
+//import MainUI = require('../Frontends/MainUI');
 import DriverManager = require('../Device/DriverManager');
 import PermissionLib = require('../API/Permission');
 import Server = require('../API/Server');
@@ -511,16 +511,16 @@ class Runtime {
             exec("chown nobody " + this._webexsock, () => {
             });
 
-            if (this.App.urlName && this.App.urlName.trim() !== "") {
-                MainUI.HostnameTable[this.App.uid] = [
-                    this.App.urlName.toLowerCase(),
-                    this._mainsock
-                ];
-                MainUI.PrefixTable[this.App.uid] = [
-                    this.App.urlName.toLowerCase(),
-                    this._mainsock
-                ];
-            }
+            //if (this.App.urlName && this.App.urlName.trim() !== "") {
+            //    MainUI.HostnameTable[this.App.uid] = [
+            //        this.App.urlName.toLowerCase(),
+            //        this._mainsock
+            //    ];
+            //    MainUI.PrefixTable[this.App.uid] = [
+            //        this.App.urlName.toLowerCase(),
+            //        this._mainsock
+            //    ];
+            //}
 
             this._reset_launch_timeout();
             for (var i in this.Driver) {

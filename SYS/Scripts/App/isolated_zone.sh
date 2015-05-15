@@ -27,3 +27,10 @@ echo QUOTACHECK.. This may take a while..
 quotacheck -ugcfm /SagittariusA/
 if [ -e /SagittariusA/aquota.group ]; then echo Quota Generated! ; fi
 if [ -e /SagittariusA/aquota.group ]; then echo Quota Generated! ; fi
+
+
+####nginx
+
+killall nginx
+if [ ! -e /etc/nginx/nginx.conf ]; then cp Scripts/frontends/nginx.conf /etc/nginx/nginx.conf ; fi
+if [ ! -e /opt/nginx/conf/nginx.conf ]; then cp Scripts/frontends/nginx.conf /opt/nginx/conf/nginx.conf ; fi

@@ -8,11 +8,9 @@ import nginx = require('../Common/Native/nginx');
 export var NGINX_PERM_ARR = [Permission.Proxy];
 export var NGINX_PERMISSION = PermissionLib.Encode(NGINX_PERM_ARR);
 
-function ConnectionHandler(
-    credential: { uid; pid; gid; },
-    socket: net.Socket,
-    callback: (handled: boolean) => any
-    ) {
+function ConnectionHandler(credential:{ uid; pid; gid; },
+                           socket:net.Socket,
+                           callback:(handled:boolean) => any) {
     trace("RPC Socket Scan (PROXY) ~ " + credential.pid);
 
     if (!NginxInstance || NginxInstance.IsChoking()
@@ -23,9 +21,9 @@ function ConnectionHandler(
 
     //http://stackoverflow.com/questions/1525605/linux-programmatically-get-parent-pid-of-another-process
     /*
-    I think the simplest thing would be to open "/proc" and parse the contents.
-    You'll find the ppid as the 4th parameter of /proc/pid/stat
-    */
+     I think the simplest thing would be to open "/proc" and parse the contents.
+     You'll find the ppid as the 4th parameter of /proc/pid/stat
+     */
 
     try {
         var content = fs.readFileSync("/proc/" + credential.pid + "/stat").toString();
@@ -50,27 +48,28 @@ function ConnectionHandler(
 
 
 var nginx_runtime_id;
-export var NginxInstance: nginx.nginx;
+export var NginxInstance:nginx.nginx;
 
 export function Initialize(cb) {
     nginx_runtime_id = UUIDstr();
     NginxInstance = new nginx.nginx(NGINX_PERMISSION);
-    NginxInstance.Ctrl.Init((err) => {
-        cb(err);
-        SYS_ON(SYS_EVENT_TYPE.LOADED, () => {
-            //Add this to the bottom, cause we are using ps command to filter out credentials
-            //thus slows everything down :p
-            Server.AddHandler(ConnectionHandler);
-            async.series([
-                require("./MainUI").Initialize,
-                require("./WebEx").Initialize
-            ],() => {
-                    NginxInstance.Start(true);
-            });
-        });
+    //NginxInstance.Ctrl.Init((err) => {
+    cb();
+    SYS_ON(SYS_EVENT_TYPE.LOADED, () => {
+        //Add this to the bottom, cause we are using ps command to filter out credentials
+        //thus slows everything down :p
+        Server.AddHandler(ConnectionHandler);
+        //async.series([
+        //    require("./MainUI").Initialize,
+        //    require("./WebEx").Initialize
+        //], () => {
+        NginxInstance.Start(true);
+        //});
     });
+    //});
 }
 
 
-
-__API((cb) => { cb(undefined, "=w= GOOD!"); }, "Proxy.SelfTest", NGINX_PERM_ARR);
+__API((cb) => {
+    cb(undefined, "=w= GOOD!");
+}, "Proxy.SelfTest", NGINX_PERM_ARR);

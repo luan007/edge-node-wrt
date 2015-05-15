@@ -94,7 +94,7 @@ class _sys_global_conf {
     IPTABLES_6 = false;
     IPTABLES_TRAFFIC_INTERVAL = 1 * 1000;   // iptables traffic patrol sleep interval
     IW_STATION_DUMP_INTERVAL = 5 * 1000;
-    LOG_LEVELS = ['error', 'fatal']; // log output levels
+    LOG_LEVELS = []; // 'error', 'fatal'
 }
 
 class _global_section {
