@@ -101,10 +101,23 @@ export function GetPooledApps(callback) {
     var keys = Object.keys(_pool);
     var results = [];
     for (var i = 0; i < keys.length; i++) {
-        results.push(_pool[keys[i]].GetSnapshot());
+        results.push(GetSnapshot(_pool[keys[i]]));
     }
     callback(undefined, results);
 }
+
+export function GetSnapshot (runtime: Runtime){
+    var _strip = Application.Strip(runtime.App);
+    var _status = runtime.Status();
+
+    var _snapshot = {
+        Id: _strip.uid,
+        App: _strip,
+        Status: _status
+    };
+    info(" * Snap * " + JSON.stringify(_snapshot));
+    return _snapshot;
+};
 
 export function GetLauncher() {
     return _pool[CONF.CORE_PARTS["LAUNCHER"]];
@@ -129,7 +142,7 @@ export function GetCallingRuntime(context): Runtime {
     }
 }
 
-export function Initialize() {
+export function Initialize(cb) {
     trace("Initializing..");
 
     Server.AddHandler(ConnectionHandler);
@@ -138,7 +151,6 @@ export function Initialize() {
     _resp_scanner = setInterval(ResponsivenessScan, CONF.APP_RESP_SCAN_INTERVAL);
 
     SYS_ON(SYS_EVENT_TYPE.LOADED, function () {
-
         trace("Clearing Runtime-User Cache");
         User.ClearGenerated((err, result) => {
             if (err) {
@@ -165,6 +177,8 @@ export function Initialize() {
         });
 
     });
+
+    cb();
 }
 
 export function GetQuota(appid, callback) {

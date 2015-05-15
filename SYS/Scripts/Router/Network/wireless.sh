@@ -1,5 +1,6 @@
 #!/bin/bash
 
+rfkill unblock wlan
 killall hostapd
 
 iw ap0 del

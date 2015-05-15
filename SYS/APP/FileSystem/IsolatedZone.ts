@@ -3,159 +3,159 @@ import path = require('path');
 
 export function Initialize(cb) {
     //Check if the folder exists..
-    trace("Init..");
-    //TODO: GET THIS FIXED
-    //EdgeFS.Init(process.env.GUARD_PATH);
-    if (!fs.existsSync(CONF.SHADOW_BASE_PATH)) {
-        info("Creating Shadow Root_Path..");
-        fs.mkdirSync(CONF.SHADOW_BASE_PATH);
-    }
+    //trace("Init..");
+    ////TODO: GET THIS FIXED
+    ////EdgeFS.Init(process.env.GUARD_PATH);
+    //if (!fs.existsSync(CONF.SHADOW_BASE_PATH)) {
+    //    info("Creating Shadow Root_Path..");
+    //    fs.mkdirSync(CONF.SHADOW_BASE_PATH);
+    //}
+    //
+    //if (!fs.existsSync(CONF.SHADOW_DATA_PATH)) {
+    //    info("Creating Shadow Data_Path..");
+    //    fs.mkdirSync(CONF.SHADOW_DATA_PATH);
+    //}
+    //
+    ////if (!fs.existsSync(CONF.SHADOW_BASE_PATH)) {
+    ////    info("Creating Shadow Data_Path..");
+    ////    fs.mkdirSync(CONF.SHADOW_BASE_PATH);
+    ////}
+    //
+    //if (!fs.existsSync(GetSDataPath("App"))) {
+    //    info("Creating API Storage..");
+    //    fs.mkdirSync(GetSDataPath("App"));
+    //}
 
-    if (!fs.existsSync(CONF.SHADOW_DATA_PATH)) {
-        info("Creating Shadow Data_Path..");
-        fs.mkdirSync(CONF.SHADOW_DATA_PATH);
-    }
-
-    if (!fs.existsSync(CONF.SHADOW_BASE_PATH)) {
-        info("Creating Shadow Data_Path..");
-        fs.mkdirSync(CONF.SHADOW_BASE_PATH);
-    }
-
-    if (!fs.existsSync(GetSDataPath("App"))) {
-        info("Creating API Storage..");
-        fs.mkdirSync(GetSDataPath("App"));
-    }
-
-    trace("Preparing FS..");
-    // useless
-    // trace("If crashed here, the system is then somehow broken and shall not start.");
-
-    if (!CONF.ROOT_LEVEL_SECURITY && CONF.IS_DEBUG) {
-        fatal("ROOT LEVEL SECURITY IS OFF");
-        error("YOU ARE RUNNING WITHOUT PROTECTION");
-        //error("SET ROOT_LEVEL_SECURITY TO OFF IS A MUST".bold.red);
-    }
-    if (!CONF.CODE_WRITE_LOCK && CONF.IS_DEBUG) {
-        fatal("CODE-WRITE-LOCK IS OFF");
-        error("MODIFICATION IS ALLOWED");
-        //error("SET ROOT_LEVEL_SECURITY TO OFF IS A MUST".bold.red);
-    }
+    //trace("Preparing FS..");
+    //// useless
+    //// trace("If crashed here, the system is then somehow broken and shall not start.");
+    //
+    //if (!CONF.ROOT_LEVEL_SECURITY && CONF.IS_DEBUG) {
+    //    fatal("ROOT LEVEL SECURITY IS OFF");
+    //    error("YOU ARE RUNNING WITHOUT PROTECTION");
+    //    //error("SET ROOT_LEVEL_SECURITY TO OFF IS A MUST".bold.red);
+    //}
+    //if (!CONF.CODE_WRITE_LOCK && CONF.IS_DEBUG) {
+    //    fatal("CODE-WRITE-LOCK IS OFF");
+    //    error("MODIFICATION IS ALLOWED");
+    //    //error("SET ROOT_LEVEL_SECURITY TO OFF IS A MUST".bold.red);
+    //}
 
     //TODO: Fix CHMOD, 0711 is not secure
     //error("FIX CHMOD !! 711 IS NOT SECURE!!!!!!!!");
     
-    async.series([
-        (cb) => { fs.link(CONF.DEV_STORAGE, "/dev/root", <any>ignore_err(cb)); },
-        (cb) => { exec("quotaoff", "-a", ignore_err(cb)); },
-        (CONF.IS_DEBUG && !CONF.ROOT_LEVEL_SECURITY) ? (cb) => { cb(); } : exec.bind(null, "chmod", "005", "/"),
-        (CONF.IS_DEBUG && !CONF.ROOT_LEVEL_SECURITY) ? (cb) => { cb(); } : exec.bind(null, "chmod", "005", "/bin"),
-        (CONF.IS_DEBUG && !CONF.ROOT_LEVEL_SECURITY) ? (cb) => { cb(); } : exec.bind(null, "chmod", "005", "/usr"),
-        //exec.bind(null, "chmod", "000", SHADOW_BASE_PATH),
-        exec.bind(null, "chown", "root", "-R", CONF.SHADOW_DATA_PATH),
-        exec.bind(null, "chmod", "711", "-R", CONF.SHADOW_DATA_PATH), //TODO: USE GROUP!!! 711 VS 701
-        (CONF.IS_DEBUG && !CONF.CODE_WRITE_LOCK) ? (cb) => { cb(); } : exec.bind(null, "chmod", "500", "-R", path.join(CONF.BASE_PATH + "../")),
-        (c) => {
-            exec("umount", "-l", "-f", CONF.SHADOW_BASE_PATH, (err) => {
-                if (err) warn(err);
-                c();
-            });
-        },
-        exec.bind(null, "mount",
-            "-o", "remount,rw,usrquota,grpquota",
-            "/"),
-        exec.bind(null, "mount",
-            "-o", "noexec,nodev,nosuid,rw,usrquota,grpquota",
-            CONF.DEV_STORAGE,
-            CONF.SHADOW_BASE_PATH),
-        (c) => {
-            try {
-                if (fs.existsSync(path.join(CONF.SHADOW_BASE_PATH, "aquota.group"))) {
-                    fs.unlinkSync(path.join(CONF.SHADOW_BASE_PATH, "aquota.group"));
-                }
-                if (fs.existsSync(path.join(CONF.SHADOW_BASE_PATH, "aquota.user"))) {
-                    fs.unlinkSync(path.join(CONF.SHADOW_BASE_PATH, "aquota.user"));
-                }
-                return c();
-            } catch (e) {
-                return c(e);
-            }
-        },
-        (c) => {
-            fatal("QUOTACHECK.. This may take a while..");
-            c();
-        },
-        (c) => {
-            if (!(CONF.SKIP_QUOTA_CHECK && CONF.IS_DEBUG)) {
-                exec("quotacheck", "-ugcfm", CONF.SHADOW_BASE_PATH,(err) => {
-                    if (fs.existsSync(path.join(CONF.SHADOW_BASE_PATH, "aquota.group"))
-                        &&
-                        fs.existsSync(path.join(CONF.SHADOW_BASE_PATH, "aquota.user"))) {
-                        if (err) {
-                            warn(err.message);
-                        }
-                        fatal("Quota Generated!");
-                        c();
-                    }
-                    else {
-                        c(err);
-                    }
-                });
-            } else {
-                error("SKIPPING QUOTA CHECK");
-                error("Seriously, enable this if you don't like crashes");
-                c();
-            }
-        },
-        (c) => {
-            info("So far so good :p");
-            c();
-        }
-    ], cb);
+    //async.series([
+    //    (cb) => { fs.link(CONF.DEV_STORAGE, "/dev/root", <any>ignore_err(cb)); },
+    //    (cb) => { exec("quotaoff", "-a", ignore_err(cb)); },
+    //    (CONF.IS_DEBUG && !CONF.ROOT_LEVEL_SECURITY) ? (cb) => { cb(); } : exec.bind(null, "chmod", "005", "/"),
+    //    (CONF.IS_DEBUG && !CONF.ROOT_LEVEL_SECURITY) ? (cb) => { cb(); } : exec.bind(null, "chmod", "005", "/bin"),
+    //    (CONF.IS_DEBUG && !CONF.ROOT_LEVEL_SECURITY) ? (cb) => { cb(); } : exec.bind(null, "chmod", "005", "/usr"),
+    //    //exec.bind(null, "chmod", "000", SHADOW_BASE_PATH),
+    //    exec.bind(null, "chown", "root", "-R", CONF.SHADOW_DATA_PATH),
+    //    exec.bind(null, "chmod", "711", "-R", CONF.SHADOW_DATA_PATH), //TODO: USE GROUP!!! 711 VS 701
+    //    (CONF.IS_DEBUG && !CONF.CODE_WRITE_LOCK) ? (cb) => { cb(); } : exec.bind(null, "chmod", "500", "-R", path.join(CONF.BASE_PATH + "../")),
+    //    (c) => {
+    //        exec("umount", "-l", "-f", CONF.SHADOW_BASE_PATH, (err) => {
+    //            if (err) warn(err);
+    //            c();
+    //        });
+    //    },
+    //    exec.bind(null, "mount",
+    //        "-o", "remount,rw,usrquota,grpquota",
+    //        "/"),
+    //    exec.bind(null, "mount",
+    //        "-o", "noexec,nodev,nosuid,rw,usrquota,grpquota",
+    //        CONF.DEV_STORAGE,
+    //        CONF.SHADOW_BASE_PATH),
+    //    (c) => {
+    //        try {
+    //            if (fs.existsSync(path.join(CONF.SHADOW_BASE_PATH, "aquota.group"))) {
+    //                fs.unlinkSync(path.join(CONF.SHADOW_BASE_PATH, "aquota.group"));
+    //            }
+    //            if (fs.existsSync(path.join(CONF.SHADOW_BASE_PATH, "aquota.user"))) {
+    //                fs.unlinkSync(path.join(CONF.SHADOW_BASE_PATH, "aquota.user"));
+    //            }
+    //            return c();
+    //        } catch (e) {
+    //            return c(e);
+    //        }
+    //    },
+    //    (c) => {
+    //        fatal("QUOTACHECK.. This may take a while..");
+    //        c();
+    //    },
+    //    (c) => {
+    //        if (!(CONF.SKIP_QUOTA_CHECK && CONF.IS_DEBUG)) {
+    //            exec("quotacheck", "-ugcfm", CONF.SHADOW_BASE_PATH,(err) => {
+    //                if (fs.existsSync(path.join(CONF.SHADOW_BASE_PATH, "aquota.group"))
+    //                    &&
+    //                    fs.existsSync(path.join(CONF.SHADOW_BASE_PATH, "aquota.user"))) {
+    //                    if (err) {
+    //                        warn(err.message);
+    //                    }
+    //                    fatal("Quota Generated!");
+    //                    c();
+    //                }
+    //                else {
+    //                    c(err);
+    //                }
+    //            });
+    //        } else {
+    //            error("SKIPPING QUOTA CHECK");
+    //            error("Seriously, enable this if you don't like crashes");
+    //            c();
+    //        }
+    //    },
+    //    (c) => {
+    //        info("So far so good :p");
+    //        c();
+    //    }
+    //], cb);
 }
 
-export function GetSPath(pth) {
-    return path.join(CONF.SHADOW_BASE_PATH, pth);
-}
-
-export function GetSDataPath(pth) {
-    return path.join(CONF.SHADOW_DATA_PATH, pth);
-}
-
-export function SetOwner_Recursive(folder, owner, cb) {
-    exec("chown", "-R", owner, folder, cb);
-}
-
-export function SetupAppDataDir(app_id, runtime_id, cb) {
-
-    var path = GetAppDataDir(app_id);
-
-    var done = (err, result) => {
-        cb(err, path);
-    };
-    error("CHMOD 711 IS NOT SECURE!!!!!!");
-    if (fs.exists(path, (exist) => {
-            if (!exist) {
-                fs.mkdir(path, (err) => {
-                    if (err) return done(err, path);
-                    exec("chmod", "-R", "0711", path, (err) => { //TODO: FIX THIS CHMOD 711 -> 701
-                        if (err) return done(err, path);
-                        SetOwner_Recursive(path, runtime_id, done);
-                    });
-                });
-            } else {
-                exec("chmod", "-R", "0711", path, (err) => { //TODO: FIX THIS CHMOD 711 -> 701
-                    if (err) return done(err, path);
-                    SetOwner_Recursive(path, runtime_id, done);
-                });
-            }
-        }));
-
-}
-
-export function GetAppDataDir(app_id) {
-    return GetSDataPath("App/" + app_id);
-}
-
-export function GetRealAppDataDir(app_id) {
-    return path.join(CONF.BASE_DATA_PATH, "App/" + app_id);
-}
+//export function GetSPath(pth) {
+//    return path.join(CONF.SHADOW_BASE_PATH, pth);
+//}
+//
+//export function GetSDataPath(pth) {
+//    return path.join(CONF.SHADOW_DATA_PATH, pth);
+//}
+//
+//export function SetOwner_Recursive(folder, owner, cb) {
+//    exec("chown", "-R", owner, folder, cb);
+//}
+//
+//export function SetupAppDataDir(app_id, runtime_id, cb) {
+//
+//    var path = GetAppDataDir(app_id);
+//
+//    var done = (err, result) => {
+//        cb(err, path);
+//    };
+//    error("CHMOD 711 IS NOT SECURE!!!!!!");
+//    if (fs.exists(path, (exist) => {
+//            if (!exist) {
+//                fs.mkdir(path, (err) => {
+//                    if (err) return done(err, path);
+//                    exec("chmod", "-R", "0711", path, (err) => { //TODO: FIX THIS CHMOD 711 -> 701
+//                        if (err) return done(err, path);
+//                        SetOwner_Recursive(path, runtime_id, done);
+//                    });
+//                });
+//            } else {
+//                exec("chmod", "-R", "0711", path, (err) => { //TODO: FIX THIS CHMOD 711 -> 701
+//                    if (err) return done(err, path);
+//                    SetOwner_Recursive(path, runtime_id, done);
+//                });
+//            }
+//        }));
+//
+//}
+//
+//export function GetAppDataDir(app_id) {
+//    return GetSDataPath("App/" + app_id);
+//}
+//
+//export function GetRealAppDataDir(app_id) {
+//    return path.join(CONF.BASE_DATA_PATH, "App/" + app_id);
+//}

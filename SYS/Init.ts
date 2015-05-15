@@ -26,6 +26,9 @@ domain.run(function () {
         , './Device/Bus/BluetoothBus'
         , './Device/DeviceManager'
         , './Device/DriverManager'
+        , './Frontends/HttpProxy'
+        , './API/Server'
+        , './APP/RuntimePool'
     ];
     var initializes = [];
     var subscribes = [];
@@ -65,7 +68,13 @@ domain.run(function () {
 
     async.series(subscribes.concat(initializes).concat(tests), (err) => {
         fatal('========>>> entire series executed, then daemon.');
-        if (err) error(err);
+        if (err) {
+            SYS_TRIGGER(SYS_EVENT_TYPE.ERROR, err);
+            if (err) error(err);
+        } else {
+            fatal('SYS LOADED');
+            SYS_TRIGGER(SYS_EVENT_TYPE.LOADED, err);
+        }
     });
 
 });

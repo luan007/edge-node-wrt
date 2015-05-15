@@ -48,3 +48,50 @@ export function GetAllApplications(callback) {
 export function GetOneByUID(uid, callback) {
     Application.table().one({ uid: uid }, callback);
 }
+
+export function GetSPath(pth) {
+    return path.join(CONF.SHADOW_BASE_PATH, pth);
+}
+
+export function GetSDataPath(pth) {
+    return path.join(CONF.SHADOW_DATA_PATH, pth);
+}
+
+export function SetOwner_Recursive(folder, owner, cb) {
+    exec("chown", "-R", owner, folder, cb);
+}
+
+export function SetupAppDataDir(app_id, runtime_id, cb) {
+
+    var path = GetAppDataDir(app_id);
+
+    var done = (err, result) => {
+        cb(err, path);
+    };
+    error("CHMOD 711 IS NOT SECURE!!!!!!");
+    if (fs.exists(path, (exist) => {
+            if (!exist) {
+                fs.mkdir(path, (err) => {
+                    if (err) return done(err, path);
+                    exec("chmod", "-R", "0711", path, (err) => { //TODO: FIX THIS CHMOD 711 -> 701
+                        if (err) return done(err, path);
+                        SetOwner_Recursive(path, runtime_id, done);
+                    });
+                });
+            } else {
+                exec("chmod", "-R", "0711", path, (err) => { //TODO: FIX THIS CHMOD 711 -> 701
+                    if (err) return done(err, path);
+                    SetOwner_Recursive(path, runtime_id, done);
+                });
+            }
+        }));
+
+}
+
+export function GetAppDataDir(app_id) {
+    return GetSDataPath("App/" + app_id);
+}
+
+export function GetRealAppDataDir(app_id) {
+    return path.join(CONF.BASE_DATA_PATH, "App/" + app_id);
+}

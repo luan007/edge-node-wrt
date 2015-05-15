@@ -110,7 +110,7 @@ function SenderId(context): string {
     return context.rpc.remote;
 }
 
-export function Initialize() {
+export function Initialize(cb) {
 
     SYS_ON(SYS_EVENT_TYPE.LOADED, () => {
         if (CONF.IS_DEBUG) {
@@ -128,6 +128,7 @@ export function Initialize() {
         exec("chown", "nobody", _port, () => {
             exec("chmod", "777", _port, () => {
                 trace("API Port Permission is set");
+                cb();
             });
         });
     });

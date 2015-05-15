@@ -6,9 +6,9 @@ import _Config = require('../Common/Conf/Config');
 import Config = _Config.Config;
 import _Configurable = require('../Common/Conf/Configurable');
 import Configurable = _Configurable.Configurable;
-import IsolatedZone = require('../App/FileSystem/IsolatedZone');
+import AppManager = require('../APP/AppManager');
+import RuntimePool = require('../APP/RuntimePool');
 import UserManager = require('../User/UserManager');
-import RuntimePool = require('../App/RuntimePool');
 
 export class ServerConfig extends Configurable {
 
@@ -133,8 +133,8 @@ function SetupLauncherPort(main, auth, cb) {
     var launcher = RuntimePool.GetCallingRuntime(this);
     if (!launcher) return cb(new Error("Who are you?"));
 
-    LauncherMainPort = path.join(IsolatedZone.GetRealAppDataDir(launcher.App.uid), main);
-    LauncherAuthPort = path.join(IsolatedZone.GetRealAppDataDir(launcher.App.uid), auth);
+    LauncherMainPort = path.join(AppManager.GetRealAppDataDir(launcher.App.uid), main);
+    LauncherAuthPort = path.join(AppManager.GetRealAppDataDir(launcher.App.uid), auth);
     trace("Main:" + LauncherMainPort);
     trace("Auth:" + LauncherAuthPort);
 

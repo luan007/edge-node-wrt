@@ -4,7 +4,7 @@ import fs = require('fs');
 import path = require('path');
 import InAppDriver = require("./Driver/InAppDriver");
 import RuntimePool = require('./RuntimePool');
-import IsolatedZone = require('./FileSystem/IsolatedZone');
+import AppManager = require('./AppManager');
 import Limit =  require('./FileSystem/Limit');
 import Tracker = require('./Ports/Tracker');
 import _RPCEndpoint = require("../../Modules/RPC/RPC/RPCEndpoint");
@@ -170,7 +170,7 @@ class Runtime {
     private _proc_on_exit = () => {
 
         for (var i in this.DeathHooks) {
-            this.DeathHooks["i"](this);
+            this.DeathHooks[i](this);
         }
 
         this.DeathHooks = {};
@@ -225,7 +225,7 @@ class Runtime {
     };
 
     GetAppDataPath = () => {
-        return IsolatedZone.GetAppDataDir(this.App.uid);
+        return AppManager.GetAppDataDir(this.App.uid);
     };
 
     private _clean_up = (cb) => {
@@ -324,7 +324,7 @@ class Runtime {
             //Kill it if being alive
             this.Stop(false);
         }
-        var path = IsolatedZone.GetAppDataDir(this.App.uid);
+        var path = AppManager.GetAppDataDir(this.App.uid);
         async.series([
             this._clean_up,
             (cb) => {
@@ -338,13 +338,13 @@ class Runtime {
             this._ensure_user,
             (cb) => {
                 if (CONF.CODE_WRITE_LOCK) {
-                    IsolatedZone.SetOwner_Recursive(this.GetAppRootPath(), this.RuntimeId, cb);
+                    AppManager.SetOwner_Recursive(this.GetAppRootPath(), this.RuntimeId, cb);
                 } else {
                     return cb();
                 }
             },
             (cb) => {
-                IsolatedZone.SetupAppDataDir(this.App.uid, this.RuntimeId,
+                AppManager.SetupAppDataDir(this.App.uid, this.RuntimeId,
                     (err, p) => {
                         if (err) {
                             error(err);
@@ -582,7 +582,6 @@ class Runtime {
                 }
             });
         }
-        ;
     };
 
     QuotaUsage = (cb) => {
