@@ -1,28 +1,30 @@
-﻿import Node = require("Node");
+﻿import fs = require('fs');
+import crypto = require('crypto');
+import path = require('path');
 
 function _hash_subdir(dir) {
     var res = "";
-    if (!Node.fs.existsSync(dir)) {
+    if (!fs.existsSync(dir)) {
         return "";
-    } else if (Node.fs.statSync(dir).isDirectory()) {
-        var d = Node.fs.readdirSync(dir).sort();
+    } else if (fs.statSync(dir).isDirectory()) {
+        var d = fs.readdirSync(dir).sort();
         //d = d.sort();
         for (var i = 0; i < d.length; i++) {
             //console.log(d[i]);
-            var target = Node.path.join(dir, d[i]);
+            var target = path.join(dir, d[i]);
             res += d[i] + "~" + _hash_subdir(target);
         }
     } else {
-        var hash = Node.crypto.createHash('sha512');
-        hash.update(Node.fs.readFileSync(dir));
+        var hash = crypto.createHash('sha512');
+        hash.update(fs.readFileSync(dir));
         return hash.digest("hex");
     }
-    var hash = Node.crypto.createHash('sha512');
+    var hash = crypto.createHash('sha512');
     hash.update(res);
     return hash.digest("hex");
 }
 
 global.HashDir = function(dir, salt) {
     var res = _hash_subdir(dir);
-    return Node.crypto.pbkdf2Sync(res, salt, 1000, 256);
+    return crypto.pbkdf2Sync(res, salt, 1000, 256);
 }

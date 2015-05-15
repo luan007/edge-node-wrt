@@ -1,4 +1,5 @@
 process.env.ROOT_PATH = __dirname;
+process.env.NODE_PATH = __dirname;
 
 require('./Env');
 

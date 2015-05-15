@@ -14,10 +14,6 @@ export class ServerConfig extends Configurable {
 
     Instance: ServerConfig;
 
-    Default = {
-        RouterCookieId: ""
-    };
-
     constructor(moduleName:string, defaultConfig:any) {
         super(moduleName, defaultConfig);
 
@@ -27,18 +23,9 @@ export class ServerConfig extends Configurable {
     protected _apply = (mod, raw, cb: Callback) => {
         cb();
     };
-
-    public Initialize = (cb) => {
-        //not used
-        this.Default.RouterCookieId = UUIDstr();
-        this['sub'] = Registry.Sector(Registry.RootKeys.Edge, "MainUI");
-        this.Reload(this.Default, cb);
-    };
 }
 
 var MainServer;
-
-var conf = new ServerConfig(SECTION.MAINUI, {});
 
 var LauncherMainPort;
 var LauncherAuthPort;
@@ -50,7 +37,13 @@ export var HostnameTable = {
     //owner_id: [ prefix, dest ]
 };
 
+var defaultConfig = {
+    RouterCookieId: UUIDstr()
+};
+
 export function Initialize(cb) {
+
+    var conf = new ServerConfig(SECTION.MAINUI, defaultConfig);
 
     conf.Initialize(() => {
 

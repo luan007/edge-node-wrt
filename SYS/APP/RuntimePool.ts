@@ -7,6 +7,7 @@ import Application = _Application.Application;
 import IApplication = _Application.IApplication;
 import Server = require('../API/Server');
 import User = require('../Common/Native/user');
+import AppManager = require('./AppManager');
 
 //APP_ID : APP_STRUCT
 var _pool: IDic<Runtime> = <any>{};
@@ -66,7 +67,7 @@ export function LoadApplication(app_uid: string, callback: PCallback<string>) {
     } else if (_pool[app_uid]) {
         return callback(undefined,(<Runtime>_pool[app_uid]).RuntimeId);
     }
-    Application.table().one({ uid: app_uid },(err, result) => {
+    AppManager.GetOneByUID(app_uid, (err, result) => {
         trace("Loading App.. " + app_uid);
         if (err) {
             return callback(err, undefined);
@@ -96,30 +97,6 @@ export function UnloadApplication(app_uid: string, callback: Callback) {
     process.nextTick(callback);
 }
 
-export function Install(app_uid: string, manifest, appsig, callback: Callback) {
-    trace("Installing " + app_uid);
-    trace(manifest);
-    Application.table().one({ uid: app_uid },(err, result) => {
-        //Upgrade?
-        var upgrade = false;
-        var data = <any>{};
-        if (!err && result) {
-            upgrade = true;
-        }
-        data.appsig = appsig;
-        data.name = manifest.name;
-        data.uid = app_uid;
-        data.urlName = manifest.name; //TBC
-        if (upgrade) {
-            info("Upgrading " + app_uid);
-            result.save(data, callback);
-        } else {
-            info("Saving " + app_uid);
-            Application.table().create(data, callback);
-        }
-    });
-}
-
 export function GetPooledApps(callback) {
     var keys = Object.keys(_pool);
     var results = [];
@@ -127,15 +104,6 @@ export function GetPooledApps(callback) {
         results.push(_pool[keys[i]].GetSnapshot());
     }
     callback(undefined, results);
-}
-
-export function GetInstalledApps(callback: (err: Error, result: IApplication[]) => any) {
-    Application.table().all({},(err, results) => {
-        if (err) return callback(err, void 0);
-        else {
-            return callback(void 0, results);
-        }
-    });
 }
 
 export function GetLauncher() {
@@ -184,7 +152,7 @@ export function Initialize() {
 
             trace("Autoloading All Apps, Implementation is a total mess, fix this !!");
             //TODO: FIX THIS (LoadApp ( dupe ))
-            Application.table().all({}, (err, results) => {
+            AppManager.GetAllApplications((err, results) => {
                 if (err) {
                     return error(err);
                 } else {
