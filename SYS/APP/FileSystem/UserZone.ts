@@ -6,7 +6,7 @@ import path = require('path');
 
 export var Obexd = new obex.Obexpushd();
 
-export var Samba = new smbd.SmbDaemon(new smbd.SmbConfig());
+//export var Samba = new smbd.SmbDaemon(new smbd.SmbConfig());
 
 export function Initialize(cb) {
     //Check if the folder exists..
@@ -29,14 +29,14 @@ export function Initialize(cb) {
 
     var transfer_folder = path.join(CONF.USER_DATA_PATH, "FileTransfer");
     
-    Samba.Config.Folders["Shared"] = {
-        Guest_Ok: true,
-        ReadOnly: false,
-        Path: CONF.USER_DATA_PATH,
-        Browseable: true,
-        Comment: "Shared",
-        Guest_Account: "nobody"
-    };
+    //Samba.Config.Folders["Shared"] = {
+    //    Guest_Ok: true,
+    //    ReadOnly: false,
+    //    Path: CONF.USER_DATA_PATH,
+    //    Browseable: true,
+    //    Comment: "Shared",
+    //    Guest_Account: "nobody"
+    //};
 
     Obexd.on("connection",(file: obex.ObexpushObject) => {
         //TODO: Split Users

@@ -1,35 +1,32 @@
-//import Core = require("Core");
-//import Node = require("Node");
-//import Native = Core.SubSys.Native;
-//import Samba = Core.SubSys.Native.smbd;
-//import Abstract = Core.Lib.Abstract;
-//import FS = Core.SubSys.FileSystem;
-//
-//class Configuration extends Abstract.Configurable {
-//
-//    Default = {
-//        OBEXPush: {
-//            Enabled: true
-//        }
-//    };
-//
-//    constructor() {
-//        super();
-//    }
-//
-//    private _apply_obexd = (mod, raw, cb) => {
-//    }
-//
-//    public Initialize = (cb) => {
-//        this.sub = Core.Data.Registry.Sector(Core.Data.Registry.RootKeys.FileSystem, "STORAGE");
-//        this.Reload(this.Default, cb)
-//    };
-//}
-//
-//export var Config = new Configuration();
-//
-//export function Initialize(cb) {
-//    async.series([
-//        Config.Initialize
-//    ], cb);
-//}
+import ConfMgr = require('../../Common/Conf/ConfMgr');
+import _Config = require('../../Common/Conf/Config');
+import Config = _Config.Config;
+import StatMgr = require('../../Common/Stat/StatMgr');
+import _StatNode = require('../../Common/Stat/StatNode');
+import _Configurable = require('../../Common/Conf/Configurable');
+import Configurable = _Configurable.Configurable;
+import Registry =  require('../../DB/Registry');
+
+class Configuration extends Configurable {
+
+    constructor(moduleName:string, defaultConfig:any) {
+        super(moduleName, defaultConfig);
+    }
+
+    _apply = (delta, original, cb) => {
+        cb();
+    }
+}
+
+var defaultConfig = {
+    OBEXPush: {
+        Enabled: true
+    }
+};
+
+export function Initialize(cb) {
+    var sub = Registry.Sector(Registry.RootKeys.FileSystem, "STORAGE");
+
+    var configObex = new Configuration(SECTION.OBEX, defaultConfig);
+    configObex.Initialize(cb);
+}

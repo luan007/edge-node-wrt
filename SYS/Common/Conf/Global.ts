@@ -105,6 +105,8 @@ class _global_section {
     FIREWALL = "FIREWALL";
     TRAFFIC = "TRAFFIC";
     MAINUI = 'MAINUI';
+    SAMBA = 'SAMBA';
+    OBEX = 'OBEX';
 }
 
  var CONF = new _sys_global_conf();

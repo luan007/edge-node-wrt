@@ -3,6 +3,7 @@ import path= require('path');
 import child_process = require('child_process');
 import Tracker = require("./Tracker");
 import RuntimePool = require('../RuntimePool');
+import AppManager = require('../AppManager');
 
 //var socats = {};
 
@@ -72,7 +73,7 @@ export function UnixSocketToPort(TCP_PORT, UNIX_SOCKET, owner, cb, user = "nobod
 export function AppSocketToPort(TCP_PORT, UNIX_PATH, cb) {
     var ctx = RuntimePool.GetCallingRuntime(this);
     if (!ctx) return cb(new Error("Who are you?"));
-    var real = path.join(ctx.GetAppRootPath(), UNIX_PATH);
+    var real = path.join(AppManager.GetAppRootPath(ctx.App.uid), UNIX_PATH);
     UnixSocketToPort(TCP_PORT, real, ctx.RuntimeId, (err, result) => {
         if (err) return cb(err);
         else {

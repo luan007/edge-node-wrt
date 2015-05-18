@@ -1,81 +1,79 @@
-//import Core = require("Core");
-//import Node = require("Node");
-//import Native = Core.SubSys.Native;
-//import Samba = Core.SubSys.Native.smbd;
-//import Abstract = Core.Lib.Abstract;
-//import FS = Core.SubSys.FileSystem;
-//var smbInstance = FS.UserZone.Samba;
-//export var SambaInstance = smbInstance;
-//
-//class Configuration extends Abstract.Configurable {
-//
-//    Default = {
-//        Samba: {
-//            Enabled: true,
-//            Name: "edge",
-//            UseRouterName: false
-//        }
-//    };
-//
-//    constructor() {
-//        super();
-//    }
-//
-//    private _apply_samba = (mod, raw, cb) => {
-//        var reload = false;
-//        //TODO: check if this works
-//        if (has(mod, "Enabled")) {
-//            reload = true;
-//            smbInstance.Config.CommonSections["global"]["available"] = mod.Enabled ? Samba.YesOrNo.YES : Samba.YesOrNo.NO;
-//        }
-//        if (has(mod, "Name")) {
-//            if (!mod.UseRouterName && this.Get().Samba.UseRouterName) {
-//                reload = true;
-//                smbInstance.Config.CommonSections["global"]["Netbios_Name"] = mod.Name;
-//            }
-//        }
-//        if (has(mod, "UseRouterName")) {
-//            reload = true;
-//            if (!mod.UseRouterName) {
-//                smbInstance.Config.CommonSections["global"]["Netbios_Name"] = this.Get().Samba.Name;
-//            }
-//            else {
-//                smbInstance.Config.CommonSections["global"]["Netbios_Name"] =
-//                    Core.Router.Network.Config.Get().NetworkName; //TODO: NetworkName should be changed into Self
-//            }
-//        }
-//        if (reload) {
-//            smbInstance.Start(true);
-//            smbInstance.StabilityCheck(cb);
-//        }
-//        else {
-//            cb();
-//        }
-//    }
-//
-//    protected _apply = (mod, raw, cb: Callback) => {
-//        if (!raw || Object.keys(raw).length == 0) {
-//            return cb(); //nothing changed
-//        }
-//        var jobs = [];
-//        jobs.push(this._apply_samba.bind(this, mod.Samba, raw.Samba));
-//
-//        if (jobs.length == 0) return cb();
-//        async.series(jobs, cb);
-//    };
-//
-//    public Initialize = (cb) => {
-//        //this.sub = Core.Data.Registry.Sector(Core.Data.Registry.RootKeys.FileSystem, "STORAGE");
-//        this.Reload(this.Default, cb)
-//    };
-//
-//}
-//
-//export var Config = new Configuration();
-//
-//
-//export function Initialize(cb) {
-//    async.series([
-//        Config.Initialize
-//    ], cb);
-//}
+import Samba = require('../../Common/Native/smbd');
+import SmbDaemon = Samba.SmbDaemon;
+import SmbConfig = Samba.SmbConfig;
+import ConfMgr = require('../../Common/Conf/ConfMgr');
+import _Config = require('../../Common/Conf/Config');
+import Config = _Config.Config;
+import StatMgr = require('../../Common/Stat/StatMgr');
+import _StatNode = require('../../Common/Stat/StatNode');
+import _Configurable = require('../../Common/Conf/Configurable');
+import Configurable = _Configurable.Configurable;
+
+var smbInstance = new SmbDaemon(new SmbConfig());
+
+class Configuration extends Configurable {
+
+    constructor(moduleName:string, defaultConfig:any) {
+        super(moduleName, defaultConfig);
+    }
+
+    _apply = (delta, original, cb) => {
+        var reload = false;
+        //TODO: check if this works
+        if (has(delta, "Enabled")) {
+            reload = true;
+            smbInstance.Config.CommonSections["global"]["available"] = delta.Enabled ? Samba.YesOrNo.YES : Samba.YesOrNo.NO;
+        }
+        if (has(delta, "Name")) {
+            if (!delta.UseRouterName && this.Get().UseRouterName) {
+                reload = true;
+                smbInstance.Config.CommonSections["global"]["Netbios_Name"] = delta.Name;
+            }
+        }
+        if (has(delta, "UseRouterName")) {
+            reload = true;
+            if (!delta.UseRouterName) {
+                smbInstance.Config.CommonSections["global"]["Netbios_Name"] = this.Get().Name;
+            }
+            else {
+                smbInstance.Config.CommonSections["global"]["Netbios_Name"] =
+                    ConfMgr.Get(SECTION.NETWORK).NetworkName;
+                    //Core.Router.Network.Config.Get().NetworkName; //TODO: NetworkName should be changed into Self
+            }
+        }
+        if (has(delta, "Folders")) {
+            reload = true;
+            for(var k in delta.Folders){
+                smbInstance.Config.Folders[k] = delta.Folders[k];
+            }
+        }
+        if (reload) {
+            smbInstance.Start(true);
+            smbInstance.StabilityCheck(cb);
+        }
+        else {
+            cb();
+        }
+    }
+}
+
+var defaultConfig = {
+    Enabled: true,
+    Name: "edge",
+    UseRouterName: false,
+    Folders : {
+        Shared: {
+            Guest_Ok: true,
+            ReadOnly: false,
+            Path: CONF.USER_DATA_PATH,
+            Browseable: true,
+            Comment: "Shared",
+            Guest_Account: "nobody"
+        }
+    }
+};
+
+export function Initialize(cb) {
+    var configSamba = new Configuration(SECTION.SAMBA, defaultConfig);
+    configSamba.Initialize(cb);
+}

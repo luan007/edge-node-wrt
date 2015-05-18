@@ -53,6 +53,10 @@ export function GetSPath(pth) {
     return path.join(CONF.SHADOW_BASE_PATH, pth);
 }
 
+export function GetAppRootPath (app_uid) {
+    return path.join(/*SHADOW_BASE_PATH, */CONF.APP_BASE_PATH, app_uid);
+};
+
 export function GetSDataPath(pth) {
     return path.join(CONF.SHADOW_DATA_PATH, pth);
 }
