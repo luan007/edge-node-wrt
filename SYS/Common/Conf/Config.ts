@@ -2,13 +2,13 @@ import events = require('events');
 
 export class Config extends events.EventEmitter {
     public key:string;
-    public conf:any;
+    //public conf:any;
 
-    constructor(key:string, conf:any) {
+    constructor(key:string) {
         super();
 
         this.key = key;
-        this.conf = conf;
+        //this.conf = conf;
     }
 
     Flush = () => {

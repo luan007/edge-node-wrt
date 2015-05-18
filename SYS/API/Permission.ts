@@ -24,7 +24,7 @@ require("./PermissionDef");
 
 var PermissionTable = {};
 
-export function SetPermission(id, buffer: any[]) {
+export function SetPermission(id, buffer: number[]) {
     PermissionTable[id] = Encode(Decode(buffer));
 }
 

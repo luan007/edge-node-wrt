@@ -10,6 +10,7 @@ class ConfMgr extends events.EventEmitter {
     private _configs:{ [key: string]: KVSet; } = {};
     private _handlers:{ [key: string]: Config; } = {};
     private _buffers:KVSet = {};
+    private _transients: KVSet = {}; // APP only
 
     constructor() {
         super();
@@ -21,7 +22,7 @@ class ConfMgr extends events.EventEmitter {
 
     Register = (k:string, config) => {
         this._configs[k] =  config;
-        this._handlers[k] = new Config(k, config);
+        this._handlers[k] = new Config(k);
         return this._handlers[k];
     }
 
@@ -34,10 +35,27 @@ class ConfMgr extends events.EventEmitter {
         }
     }
 
+    AppSet = (k:string, conf:KVSet) => { // APP only
+        if (!this._transients[k]) this._transients[k] = {};
+        for (var c in conf) {
+            this._transients[k][c] = conf[c];
+        }
+    }
+
     Commit = () => {
         for (var k in this._buffers) {
-            if(this._handlers[k])
-                this._handlers[k].emit('commit', this._buffers[k], this._configs[k], ()=>{});
+            if(this._handlers[k]) {
+                var delta = _.clone(this._buffers[k]);
+                if(this._transients[k]){ // mixin _buffers and APP _transients conf.
+                    for(var key in this._transients[k]){
+                        if(!has(delta, k)){
+                            delta[key] = this._transients[k][key];
+                        }
+                    }
+                }
+                this._handlers[k].emit('commit', delta, this._configs[k], ()=> {
+                });
+            }
         }
     }
 

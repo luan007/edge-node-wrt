@@ -18,19 +18,16 @@ export class Configurable {
      */
     Apply = (config_delta, config_previous, cb) => {
         intoQueue("_CONFIG_" , (queue_cb) => {
-            var _backup = JSON.stringify(this.ConfigHandler.conf);
+            var _backup = JSON.stringify(ConfMgr.Get(this.ConfigHandler.key));
             trace("Applying.. [" + Object.keys(config_delta).length + "]");
             this._apply(config_delta, config_previous, (err) => {
                 if (err) {
                     error(err);
-                    this.ConfigHandler.conf = JSON.parse(_backup);
                     this.Reload(_backup, () => {
                         warn("Reloading last config..");
                         queue_cb();
                     });
                 } else {
-                    for (var k in config_delta)
-                        this.ConfigHandler.conf[k] = config_delta[k];
                     this.ConfigHandler.Flush();
                     trace(this.ConfigHandler.key, "Applied");
                     queue_cb();
