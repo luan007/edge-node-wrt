@@ -96,7 +96,7 @@ class Runtime {
         this.Manifest = JSON.parse(fs.readFileSync(path.join(AppManager.GetAppRootPath(app.uid), "manifest.json"), "utf8").toString().trim());
         this._status = {
             Heartbeat: undefined,
-            FailHistory: [],
+            FailHistory: <any>[],
             LaunchTime: -1,
             PlannedLaunchTime: -1,
             StabilityRating: 1,
@@ -183,13 +183,13 @@ class Runtime {
         this._process.removeAllListeners();
         this._process = undefined;
         this.Strobe_SafeQuit = false;
-        this.Stop(true);
+        this.Stop();
     };
 
     private _proc_on_error = (e) => {
         this._push_fail(e);
         this.Strobe_SafeQuit = true;
-        this.Stop(true);
+        this.Stop();
     };
 
     private _on_heartbeat = (err, deltaT) => {
@@ -223,7 +223,7 @@ class Runtime {
         }
         if (this._process) {
             //Kill it if being alive
-            this.Stop(false);
+            this.Stop();
         }
         var path = AppManager.GetAppDataDir(this.App.uid);
 
@@ -254,7 +254,7 @@ class Runtime {
         this._process.on("error", this._proc_on_error);
         this._process.on("message", (e) => {
             this._push_fail("Error", e);
-            this.Stop(true);
+            this.Stop();
         });
         this._process.on("exit", this._proc_on_exit);
 
@@ -277,7 +277,7 @@ class Runtime {
         return this._webexsock;
     }
 
-    Stop = (restart) => {
+    Stop = () => {
 
         if (this._status.State == -2) {
             warn("[ STOP ] App is marked Broken " + this.App.name.bold);
@@ -317,17 +317,6 @@ class Runtime {
         if (fs.existsSync(this._webexsock)) {
             fs.unlinkSync(this._webexsock);
         }
-        if (restart && this._status.PlannedLaunchTime >= 0) {
-            fatal(this.App.name.bold + " * Next Launch in " + (this._status.PlannedLaunchTime - Date.now()) / 1000 + " sec");
-            var timer = setTimeout(() => {
-                clearTimeout(timer);
-                this.Start();
-            }, this._status.PlannedLaunchTime - Date.now());
-        } else if (restart) {
-            this.Start();
-        }
-
-
     };
 
     ForceError = (e) => {
@@ -357,17 +346,6 @@ class Runtime {
             });
             exec("chown nobody " + this._webexsock, () => {
             });
-
-            //if (this.App.urlName && this.App.urlName.trim() !== "") {
-            //    MainUI.HostnameTable[this.App.uid] = [
-            //        this.App.urlName.toLowerCase(),
-            //        this._mainsock
-            //    ];
-            //    MainUI.PrefixTable[this.App.uid] = [
-            //        this.App.urlName.toLowerCase(),
-            //        this._mainsock
-            //    ];
-            //}
 
             this._reset_launch_timeout();
             for (var i in this.Driver) {
@@ -399,7 +377,7 @@ class Runtime {
         this._reset_launch_timeout();
         if (this._status.State > 1) {
             this.Strobe_SafeQuit = true;
-            this.Stop(false);
+            this.Stop();
         }
     };
 
@@ -408,9 +386,6 @@ class Runtime {
     };
 
     Quota = (cb, newval?) => {
-        //if (!this.IsRunning() && newval) {
-        //    return cb(new Error("Not Running"));
-        //}
         if (newval == undefined) {
             this.Registry.get("QUOTA",
                 ignore_err(withdefault(cb, CONF.ISO_DEFAULT_LIMIT)));

@@ -35,10 +35,11 @@ class ConfMgr extends events.EventEmitter {
         }
     }
 
-    AppSet = (k:string, conf:KVSet) => { // APP only
+    AppSet = (k:string, appUid:string, conf:KVSet) => { // APP only
         if (!this._transients[k]) this._transients[k] = {};
+        if (!this._transients[k][appUid]) this._transients[k][appUid] = {};
         for (var c in conf) {
-            this._transients[k][c] = conf[c];
+            this._transients[k][appUid][c] = conf[c];
         }
     }
 

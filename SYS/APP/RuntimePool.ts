@@ -436,7 +436,7 @@ function _SetupReverseAPI(api, callback) {
         //info(JSON.stringify(PermissionLib.Decode(perm)));
 
         var perm = curPackage.Manifest.permission;
-        PermissionLib.SetPermission(SenderId(this), perm);
+        PermissionLib.SetPermission(SenderId(this), <any>perm);
         info("Permission set! " + curPackage.App.name.bold);
         info(JSON.stringify(
                 PermissionLib.DecodeToString(
