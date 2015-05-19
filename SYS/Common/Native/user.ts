@@ -37,9 +37,10 @@ export function Create(username, group, shell, cb) {
     if (shell && shell !== "") useraddOpts = useraddOpts.concat(['-s', shell]);
     else useraddOpts = useraddOpts.concat(['-s', "/dev/null"]);
     //useraddOpts = useraddOpts.concat(['-p', pass]);
-    useraddOpts = useraddOpts.concat(['-h', "/nonexistent", "-D"]);
+    if(CONF.ON_BOARD)
+        useraddOpts = useraddOpts.concat(['-h', "/nonexistent", "-D"]);
     useraddOpts.push(username);
-    var cmd = 'adduser';
+    var cmd = CONF.ON_BOARD ? 'adduser' : 'useradd';
     trace("ADD");
     trace(useraddOpts);
     var passwd = child_process.spawn(cmd, useraddOpts);

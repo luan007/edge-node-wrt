@@ -16,6 +16,7 @@ domain.on('error', function (err) {
 domain.run(function () {
     var modules = [
         './DB/Storage'
+        , './DB/Registry'
         , './Device/Graphd/DB'
         , './Router/Network/Network'
         , './Router/Network/Firewall/Firewall'
@@ -29,6 +30,7 @@ domain.run(function () {
         , './Frontends/HttpProxy'
         , './API/Server'
         , './APP/RuntimePool'
+        , './APP/Test/Deployment/Server'
     ];
     var initializes = [];
     var subscribes = [];
@@ -53,6 +55,7 @@ domain.run(function () {
         './Router/Network/Firewall/__Test'
         , './Device/Graphd/__Test'
         , './Device/__Test'
+        , './APP/Test/FakeData/Generator'
     ];
     var tests = [];
     for (var i = 0, len = testModules.length; i < len; i++) {

@@ -1,6 +1,7 @@
 import Runtime = require("./Runtime");
 import fs = require("fs");
 import net = require('net');
+import path = require('path');
 import PermissionLib = require('../API/Permission');
 import _Application = require('../DB/Models/Application');
 import Application = _Application.Application;
@@ -63,6 +64,13 @@ export function GetSDataPath(pth) {
 
 export function SetOwner_Recursive(folder, owner, cb) {
     exec("chown", "-R", owner, folder, cb);
+}
+
+export function SetAppsRoot_Upward(folder){
+    do {
+        fs.chownSync(folder, 0, 0);
+        folder = path.dirname(folder);
+    } while (folder !== '/');
 }
 
 export function SetupAppDataDir(app_id, runtime_id, cb) {

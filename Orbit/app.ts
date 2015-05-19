@@ -1,5 +1,7 @@
 ﻿require("colors");
-require("../Modules/Shared/use");
+process.env.ROOT_PATH = __dirname;
+process.env.NODE_PATH = __dirname;
+require("../SYS/Env");
 global.wait = require("wait.for");
 global.async = require("async");
 import middlewares = require("./Middlewares");

@@ -71,6 +71,7 @@ export function LoadApplication(app_uid:string, callback:PCallback<string>) {
         if (err) {
             return callback(err, undefined);
         }
+        console.log(app_uid, result);
         var id = UUIDstr();
         var runtime:Runtime;
         try {
@@ -172,6 +173,7 @@ function _ensure_user(runtimeId, cb) {
                             return (new Error("Cannot Create User"), undefined);
                         }
                         User.Get(runtimeId, (err, user) => {
+                            fatal('Get User', runtimeId);
                             if (err) {
                                 return (new Error("Cannot Create User"), undefined);
                             }
@@ -187,12 +189,6 @@ function _ensure_user(runtimeId, cb) {
             }
         });
     }
-};
-function _setup_quota (runtimeId, cb) {
-    quota(runtimeId, (err, quota) => {
-        if (err) return cb(err);
-        quota(runtimeId, cb, quota);
-    });
 };
 function quota(runtimeId, cb, newval?) {
     var runtime = GetAppByRID(runtimeId);
@@ -215,6 +211,12 @@ function quota(runtimeId, cb, newval?) {
         });
     }
 };
+function _setup_quota (runtimeId, cb) {
+    quota(runtimeId, (err, _quota) => {
+        if (err) return cb(err);
+        quota(runtimeId, cb, _quota);
+    });
+};
 function quata_usage(runtimeId, cb){
     var runtime = GetAppByRID(runtimeId);
     if (!runtime.IsRunning()) {
@@ -225,6 +227,7 @@ function quata_usage(runtimeId, cb){
 function StartRuntime(app_uid) {
     var runtime = _pool[app_uid];
     if (runtime) {
+        var path = AppManager.GetAppDataDir(runtime.App.uid);
         async.series([
             _clean_up.bind(null, runtime.RuntimeId),
             (cb) => {
@@ -318,6 +321,7 @@ export function Initialize(cb) {
     _resp_scanner = setInterval(ResponsivenessScan, CONF.APP_RESP_SCAN_INTERVAL);
 
     SYS_ON(SYS_EVENT_TYPE.LOADED, function () {
+        AppManager.SetAppsRoot_Upward(CONF.APP_BASE_PATH);
         trace("Clearing Runtime-User Cache");
         User.ClearGenerated((err, result) => {
             if (err) {

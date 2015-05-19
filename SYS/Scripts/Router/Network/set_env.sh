@@ -11,3 +11,5 @@ if [ -z $WLAN_BR ]; then export WLAN_BR=br0; fi
 
 rm -rf /tmp/fdsock
 if [ ! -d /tmp/fdsock ]; then mkdir -p /tmp/fdsock; fi
+
+if [ ! -d /${PWD%/*}/_data ]; then mkdir -p /${PWD%/*}/_data; fi

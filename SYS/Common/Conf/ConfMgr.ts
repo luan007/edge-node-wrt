@@ -48,7 +48,7 @@ class ConfMgr extends events.EventEmitter {
                 var delta = _.clone(this._buffers[k]);
                 if(this._transients[k]){ // mixin _buffers and APP _transients conf.
                     for(var key in this._transients[k]){
-                        if(!has(delta, k)){
+                        if(!has(delta, key)){
                             delta[key] = this._transients[k][key];
                         }
                     }

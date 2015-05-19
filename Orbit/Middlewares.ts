@@ -84,7 +84,7 @@ export function RequestFidelity(req: ExpressServerRequest, res: ExpressServerRes
         var t = new Buffer(req.param("ck"), "hex");
         var should_match = forsake.decrypt(new Buffer(req.param("ck"), "hex"), privateKey).toString();
         if (k !== should_match) {
-            return next(new Error("Bad Request"));
+            return next(new Error("Bad ``equest"));
         }
         next();
         router.accessTime = new Date();

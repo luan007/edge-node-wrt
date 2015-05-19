@@ -18,9 +18,9 @@ export var RootKeys = {
     User: "USR"
 };
 
-export function Initialize(_db, cb) {
+export function Initialize(cb) {
     trace("Init Registry");
-    db = sub(level(_db, { valueEncoding: "json" }));
+    db = sub(level(CONF.MAIN_REGISTRY_PATH, { valueEncoding: "json" }));
     root = db.subkey(_ROOT);
     cb();
 }

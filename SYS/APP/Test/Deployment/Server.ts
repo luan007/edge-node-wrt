@@ -108,6 +108,8 @@ app.post('/', <any>[multer({
     }
 }]);
 
-app.listen(10086);
-
-warn("DEPLOYMENT SERVER @ 10086");
+export function Initialize(cb) {
+    app.listen(10086);
+    fatal("DEPLOYMENT SERVER @ 10086");
+    cb();
+}

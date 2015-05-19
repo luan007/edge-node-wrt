@@ -245,7 +245,7 @@ class Runtime {
         };
         env.NODE_PATH = process.env.NODE_PATH;
         trace("--with Env" + "\n" + ('' + JSON.stringify(env)).bold);
-        this._process = child_process.spawn("node", ["./App/Sandbox/Sandbox.js"], {
+        this._process = child_process.spawn("node", ["./APP/Sandbox/Sandbox.js"], {
             env: env,
             stdio: CONF.IS_DEBUG ? [process.stdin, process.stdout, 'pipe'] : 'ignore',
             detached: CONF.DO_NOT_DETACH ? false : true //important
