@@ -1,25 +1,26 @@
-import ResourceMgr = require('./ResourceMgr');
-import _Disposable = require('./Disposable');
-import Disposable = _Disposable.Disposable;
+import AppConfig = require('./AppConfig');
 
-var disposable:Disposable;
 var appUid = 'testAPP';
 
 function Install() {
-    disposable = ResourceMgr.Register(appUid, SECTION.NETWORK);
-
     var conf = {
         Hosts: {
             'wi.fi': '192.168.1.1'
         }
     };
-    disposable.Set(conf)
+    AppConfig.Set(SECTION.NETWORK, appUid, conf, (err)=> {
+        if(err) console.log('^______________^ App set failed', err);
+        else console.log('^______________^  App set success.');
+    });
 }
 
 export function Initialize(cb) {
     Install();
     setTimeout(() => {
-        disposable.Dispose();
+        AppConfig.Dispose(SECTION.NETWORK, appUid, (err)=> {
+            if(err) console.log('^______________^ App shut failed', err);
+            else console.log('^______________^  App shut success.');
+        });
         cb();
     }, 2000);
 

@@ -25,7 +25,7 @@ export class Configurable {
                     error(err);
                     this.Reload(_backup, () => {
                         warn("Reloading last config..");
-                        queue_cb();
+                        queue_cb(err);
                     });
                 } else {
                     this.ConfigHandler.Flush();

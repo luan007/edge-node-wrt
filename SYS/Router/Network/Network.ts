@@ -109,11 +109,11 @@ class Configuration extends Configurable {
             for (var appUid in delta.APP) {
                 var appConfig = delta.APP[appUid];
                 if (appConfig.Recycle) {
-                    console.log('==========>> APP Shut');
+                    console.log('^______________^ APP Shut');
                 }
                 else if (has(appConfig, 'Hosts')) {
                     for (var t in appConfig.Hosts)
-                        console.log('==========>> APP Set Hosts', appConfig.Hosts[t]);
+                        console.log('^______________^ APP Set Hosts', appConfig.Hosts[t]);
                     //dnsmasq.Hosts[appUid][t] = delta.APP[appUid].Hosts[t];
                 }
             }

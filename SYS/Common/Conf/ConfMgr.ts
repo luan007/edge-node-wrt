@@ -51,13 +51,16 @@ class ConfMgr extends events.EventEmitter {
     }
 
     Commit = () => {
+        for (var k in this._buffers) {
+            if(this._handlers[k])
+                this._handlers[k].emit('commit', this._buffers[k], this._configs[k], ()=>{});
+        }
+    }
+
+    CommitByAPP = (k, cb) => {
         var delta = {};
 
-        for (var k in this._buffers) {
-            delta[k] = this._buffers[k];
-        }
-
-        for (var k in this._transients) { // [moduleName]['APP'][appUid]
+        if(this._transients[k]) { // [moduleName]['APP'][appUid]
             for (var appUid in this._transients[k]) {
                 for(var key in this._transients[k][appUid]){
                     if (!delta[k]) delta[k] = {};
@@ -68,25 +71,8 @@ class ConfMgr extends events.EventEmitter {
             }
         }
 
-        for(var moduleName in delta){
-            this._handlers[moduleName].emit('commit', delta[moduleName], this._configs[moduleName], ()=> {
-            });
-        }
-
-        //for (var k in this._buffers) {
-        //    if (this._handlers[k]) {
-        //        var delta = _.clone(this._buffers[k]);
-        //        if (this._transients[k]) { // mixin _buffers and APP _transients conf.
-        //            for (var key in this._transients[k]) {
-        //                if (!has(delta, key)) {
-        //                    delta[key] = this._transients[k][key];
-        //                }
-        //            }
-        //        }
-        //        this._handlers[k].emit('commit', delta, this._configs[k], ()=> {
-        //        });
-        //    }
-        //}
+        if(this._handlers[k])
+            this._handlers[k].emit('commit', delta[k], this._configs[k], cb);
     }
 
     Initialize = () => {
