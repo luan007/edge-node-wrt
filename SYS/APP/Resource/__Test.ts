@@ -1,4 +1,5 @@
 import AppConfig = require('./AppConfig');
+import StatMgr = require('../../Common/Stat/StatMgr');
 
 var appUid = 'testAPP';
 
@@ -26,8 +27,10 @@ export function Initialize(cb) {
 
 }
 
-// In network:
-//if (has(delta, "testAPP")) {
-//    var hosts = delta['testAPP']['Hosts'];
-//    dnsmasq.Hosts['testAPP']["wi.fi"] = hosts['wi.fi'];
-//}
+export function Subscribe(cb) {
+    var sub = StatMgr.Sub(SECTION.RUNTIME);
+    sub.on('TestApp', (status)=>{
+        console.log('[[[[[[______________]]]]]] TestApp status', status);
+    });
+    cb();
+}

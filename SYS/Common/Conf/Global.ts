@@ -96,6 +96,7 @@ class _sys_global_conf {
     IW_STATION_DUMP_INTERVAL = 5 * 1000;
     LOG_LEVELS = ['error', 'fatal']; // 'error', 'fatal'
     ON_BOARD = false; //on-board
+    LUA_NGINX_SOCKET = '/var/lua_nginx_socket';
 }
 
 class _global_section {
@@ -108,6 +109,7 @@ class _global_section {
     MAINUI = 'MAINUI';
     SAMBA = 'SAMBA';
     OBEX = 'OBEX';
+    RUNTIME = 'RUNTIME';
 }
 
  var CONF = new _sys_global_conf();

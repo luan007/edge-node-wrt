@@ -11,7 +11,7 @@ export var NGINX_PERMISSION = PermissionLib.Encode(NGINX_PERM_ARR);
 function ConnectionHandler(credential:{ uid; pid; gid; },
                            socket:net.Socket,
                            callback:(handled:boolean) => any) {
-    trace("RPC Socket Scan (PROXY) ~ " + credential.pid);
+    fatal("RPC Socket Scan (PROXY) ~ " + credential.pid);
 
     if (!NginxInstance || NginxInstance.IsChoking()
         || !NginxInstance.Process) {
@@ -73,3 +73,23 @@ export function Initialize(cb) {
 __API((cb) => {
     cb(undefined, "=w= GOOD!");
 }, "Proxy.SelfTest", NGINX_PERM_ARR);
+
+import StatBiz = require('../Common/Stat/StatBiz');
+import ConfMgr = require('../Common/Conf/ConfMgr');
+export function GetDeviceByIp(_ip, cb) {
+    var conn = ConfMgr.Get(SECTION.NETWORK);
+    var routerip = conn.RouterIP;
+    var netmask = conn.LocalNetmask;
+    var subnet = ip.cidr_num(_ip, netmask);
+    var oursub = ip.cidr_num(routerip, netmask);
+    if (oursub != subnet) {
+        //unhappy :(
+        cb(new Error("Outside current subnet"));
+    } else {
+        var mac = StatBiz.GetMacByIP(_ip);
+        cb(undefined, mac);
+    }
+
+}
+__API(GetDeviceByIp, "Proxy.CurrentDevHeader", NGINX_PERM_ARR);
+__API(GetDeviceByIp, "Network.GetDeviceByIp", [Permission.DeviceAccess, Permission.Network, Permission.Configuration]);

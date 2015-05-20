@@ -11,6 +11,13 @@ import AppManager = require('./AppManager');
 import Tracker = require('./Ports/Tracker');
 import Limit =  require('./FileSystem/Limit');
 import APIManager = require("../../Modules/RPC/API/APIManager");
+import StatMgr = require('../Common/Stat/StatMgr');
+import _StatNode = require('../Common/Stat/StatNode');
+import StatNode = _StatNode.StatNode;
+
+var pub = StatMgr.Pub(SECTION.RUNTIME, {
+    apps: {}
+});
 
 //APP_ID : APP_STRUCT
 var _pool:IDic<Runtime> = <any>{};
@@ -272,6 +279,15 @@ function StartRuntime(app_uid) {
                 return runtime.ForceError(e);
             }
             runtime.Start();
+            runtime.GetProcess().on('error', ()=>{
+                pub.Set(app_uid, runtime.Status());
+            });
+            runtime.GetProcess().on('message', ()=>{
+                pub.Set(app_uid, runtime.Status());
+            });
+            runtime.GetProcess().on('exit', ()=>{
+                pub.Set(app_uid, runtime.Status());
+            });
         });
     }
 }

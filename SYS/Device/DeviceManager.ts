@@ -151,7 +151,7 @@ function SaveToDB(callback: Callback) {
 
 function _patrolThread() {
     if (not_saved) {
-        fatal(" PATROL ".bold["magentaBG"]);
+        info(" PATROL ".bold["magentaBG"]);
         SaveToDB(() => {
             info("DONE");
         });

@@ -61,34 +61,11 @@ export function Initialize(cb) {
     ], ()=> {
         CML.Query({
             and: [
-                //{
-                //    can: /play/
-                //},
-                //{
-                //    is: 'speaker'
-                //},
-                //{
-                //    attr: ['dummyAttr']
-                //}
-
                 {
                     bus: {
                         'data.Alias': /Galaxy/
                     }
                 }
-
-
-
-
-                //{
-                //    attr: {
-                //        $: {
-                //            tag: 'dummy'
-                //        },
-                //        expand: true, //full (das) auto
-                //        depth: -1
-                //    }
-                //}
             ]
         }, (err, result) => {
             if (err) error('CML error...', err);

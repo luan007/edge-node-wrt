@@ -1,4 +1,5 @@
 ﻿import net = require("net");
+import fs = require("fs");
 import rpc = require("../../Modules/RPC/index");
 import perm = require("./Permission");
 import evhub = require("./EventHub");
@@ -13,13 +14,13 @@ export interface TypedRPCEndpoint extends rpc.RPCEndpoint {
 }
 
 var _port;
-var _proc: API_Socket_Processor[] = [];
+var _proc:API_Socket_Processor[] = [];
 
-var _api_server: net.Server = net.createServer({ allowHalfOpen: true }, (sock) => {
+var _api_server:net.Server = net.createServer({allowHalfOpen: true}, (sock) => {
     _api_server_on_new_socket(sock);
 });
 
-function _api_server_on_new_socket(socket: net.Socket) {
+function _api_server_on_new_socket(socket:net.Socket) {
     //Get Unix Socket UID/PID
 
     socket.pause();
@@ -42,7 +43,7 @@ function _api_server_on_new_socket(socket: net.Socket) {
                 });
             })(socket, res, i);
         }
-        async.series(temp_closure, (err_or_quit: any, result) => {
+        async.series(temp_closure, (err_or_quit:any, result) => {
             if (err_or_quit !== true) {
                 //KILL THIS SOCKET
                 warn("Socket is not Handled, Destroy - Sock_PID = " + (res.pid + "").bold);
@@ -54,12 +55,12 @@ function _api_server_on_new_socket(socket: net.Socket) {
     });
 }
 
-export function AddHandler(connection_Processor: API_Socket_Processor) {
+export function AddHandler(connection_Processor:API_Socket_Processor) {
     trace(("#" + _proc.length).bold + " Pushing Handler into API Server Stack");
     _proc.push(connection_Processor);
 }
 
-export function Serve(socket: net.Socket, remoteType, remoteId, clientId_for_event, cb?: PCallback<TypedRPCEndpoint>) {
+export function Serve(socket:net.Socket, remoteType, remoteId, clientId_for_event, cb?:PCallback<TypedRPCEndpoint>) {
     socket.removeAllListeners("error");
     var r = <TypedRPCEndpoint> new rpc.RPCEndpoint(socket);
 
@@ -102,21 +103,32 @@ export function GetAPIJSON() {
     return rpc.APIManager.ToJSON();
 }
 
-function SenderType(context): string {
+function SenderType(context):string {
     return context.rpc.type;
 }
 
-function SenderId(context): string {
+function SenderId(context):string {
     return context.rpc.remote;
 }
+
+function GenerateStartupScript(port) {
+    var conf = 'API_Endpoint="unix:' + port + '"\n' +
+        'API = {}\n' +
+        'API["Proxy.SelfTest"]=9\n' +
+        'API["Proxy.GetTarget"]=23\n' +
+        'API["Proxy.AuthUser"]=25\n' +
+        'require("Init")\n';
+    return fs.writeFileSync(CONF.LUA_NGINX_SOCKET, conf, {flag: 'w'});
+};
 
 export function Initialize(cb) {
 
     SYS_ON(SYS_EVENT_TYPE.LOADED, () => {
         if (CONF.IS_DEBUG) {
-            trace(" ** API DUMP ** ");
-            trace("\n" + util.inspect(JSON.parse(rpc.APIManager.ToJSON().toString())));
-        } trace(" ** -------- ** ");
+            fatal(" ** API DUMP ** ");
+            fatal("\n" + util.inspect(JSON.parse(rpc.APIManager.ToJSON().toString())));
+        }
+        fatal(" ** -------- ** ");
     });
 
     trace("Setting up TypedRPCEndpoint Functions");
@@ -127,6 +139,7 @@ export function Initialize(cb) {
     _api_server.listen(_port, () => {
         exec("chown", "nobody", _port, () => {
             exec("chmod", "777", _port, () => {
+                GenerateStartupScript(_port);
                 trace("API Port Permission is set");
                 cb();
             });

@@ -27,10 +27,16 @@ domain.run(function () {
         , './Device/Bus/BluetoothBus'
         , './Device/DeviceManager'
         , './Device/DriverManager'
-        , './Frontends/HttpProxy'
         , './API/Server'
+        , './Frontends/MainUI'
+        , './Frontends/HttpProxy'
         , './APP/RuntimePool'
         , './APP/Test/Deployment/Server'
+        , './Router/Network/Firewall/__Test'
+        , './Device/Graphd/__Test'
+        , './Device/__Test'
+        , './APP/Test/FakeData/Generator'
+        , './APP/Resource/__Test'
     ];
     var initializes = [];
     var subscribes = [];
@@ -50,27 +56,7 @@ domain.run(function () {
         })(i);
     }
 
-    //test cases
-    var testModules = [
-        './Router/Network/Firewall/__Test'
-        , './Device/Graphd/__Test'
-        , './Device/__Test'
-        , './APP/Test/FakeData/Generator'
-        , './APP/Resource/__Test'
-    ];
-    var tests = [];
-    for (var i = 0, len = testModules.length; i < len; i++) {
-        ((_i) => {
-            var m = require(testModules[_i]);
-            if (m.Initialize) {
-                tests.push((cb) => {
-                    m.Initialize(cb);
-                });
-            }
-        })(i);
-    }
-
-    async.series(subscribes.concat(initializes).concat(tests), (err) => {
+    async.series(subscribes.concat(initializes), (err) => {
         fatal('========>>> entire series executed, then daemon.');
         if (err) {
             SYS_TRIGGER(SYS_EVENT_TYPE.ERROR, err);
