@@ -108,10 +108,7 @@ class Configuration extends Configurable {
         if (has(delta, 'APP')) {
             for (var appUid in delta.APP) {
                 var appConfig = delta.APP[appUid];
-                if (appConfig.Recycle) {
-                    console.log('^______________^ APP Shut');
-                }
-                else if (has(appConfig, 'Hosts')) {
+                if (has(appConfig, 'Hosts')) {
                     for (var t in appConfig.Hosts)
                         console.log('^______________^ APP Set Hosts', appConfig.Hosts[t]);
                     //dnsmasq.Hosts[appUid][t] = delta.APP[appUid].Hosts[t];
@@ -139,6 +136,11 @@ class Configuration extends Configurable {
         } else {
             async.series(jobs, cb);
         }
+    }
+
+    _recycle = (appUid, cb) => {
+        console.log('^______________^ APP _recycle Shut', appUid);
+        cb();
     }
 }
 

@@ -8,6 +8,7 @@ export class Configurable {
     constructor(key:string, conf:any) {
         this.ConfigHandler = ConfMgr.Register(key, conf);
         this.ConfigHandler.on('commit', this.Apply);
+        this.ConfigHandler.on('recycle', this.Recycle);
     }
 
     /**
@@ -30,6 +31,19 @@ export class Configurable {
                 } else {
                     this.ConfigHandler.Flush();
                     trace(this.ConfigHandler.key, "Applied");
+                    queue_cb();
+                }
+            });
+        }, cb);
+    };
+
+    Recycle = (appUid:string, cb) => {
+        intoQueue("_APP_Recycle_" , (queue_cb) => {
+            this._recycle(appUid, (err) => {
+                if(err) {
+                    error(err);
+                    queue_cb(err);
+                } else {
                     queue_cb();
                 }
             });
@@ -68,4 +82,8 @@ export class Configurable {
     protected _apply = (mod, raw, cb:Callback) => {
         throw new Error("Virtual Method");
     };
+
+    protected _recycle=(appUid, cb:Callback) => {
+        throw new Error("Virtual Method");
+    }
 }

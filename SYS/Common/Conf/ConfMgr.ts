@@ -43,11 +43,11 @@ class ConfMgr extends events.EventEmitter {
         }
     }
 
-    AppShut = (k:string, appUid:string) => { // [moduleName][appUid]
+    AppShut = (k:string, appUid:string, cb) => { // [moduleName][appUid]
         if (!this._transients[k]) this._transients[k] = {};
-        this._transients[k][appUid] = {
-            Recycle: true
-        };
+        this._transients[k][appUid] = undefined;
+        if(this._handlers[k])
+            this._handlers[k].emit('recycle', appUid, cb);
     }
 
     Commit = () => {

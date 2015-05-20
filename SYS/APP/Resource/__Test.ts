@@ -16,8 +16,8 @@ function Install() {
 
 export function Initialize(cb) {
     Install();
-    setTimeout(() => {
-        AppConfig.Dispose(SECTION.NETWORK, appUid, (err)=> {
+    setTask('app_shut', () => {
+        AppConfig.Shut(SECTION.NETWORK, appUid, (err)=> {
             if(err) console.log('^______________^ App shut failed', err);
             else console.log('^______________^  App shut success.');
         });
