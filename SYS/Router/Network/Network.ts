@@ -14,7 +14,7 @@ import Dnsmasq = require('../../Common/Native/dnsmasq');
 
 var dnsmasq = new Dnsmasq.dnsmasq();
 
-var ssdpDirectories: ssdp.SimpleUPNPRecord[] = [{}];
+var ssdpDirectories:ssdp.SimpleUPNPRecord[] = [{}];
 var ssdpServices = [];
 
 var pub = StatMgr.Pub(SECTION.NETWORK, {
@@ -67,10 +67,10 @@ class Configuration extends Configurable {
             addr["Address"] = delta.RouterIP;
 
             //SSDP
-            while(ssdpServices.length){
+            while (ssdpServices.length) {
                 ssdpServices.pop().Stop();
             }
-            for(var i = 0; i < ssdpDirectories.length; i++){
+            for (var i = 0; i < ssdpDirectories.length; i++) {
                 var s = new ssdp.SSDP_Server(ssdpDirectories[i], delta.RouterIP);
                 ssdpServices.push(s);
                 s.Start();
@@ -95,14 +95,30 @@ class Configuration extends Configurable {
                 Interface: delta.Uplink
             };
         }
-        if (has(original, "DNS")) {
+        if (has(delta, "DNS")) {
             dhcp_hotplug = true;
-            dnsmasq.DNSRules[0] = original.DNS;
+            dnsmasq.DNSRules[0] = delta.DNS;
         }
-        if (has(original, "DHCPHosts")) {
+        if (has(delta, "DHCPHosts")) {
             dhcp_hotplug = true;
-            dnsmasq.DHCP_Hosts[0] = original.DHCPHosts;
+            dnsmasq.DHCP_Hosts[0] = delta.DHCPHosts;
         }
+
+        //APP  [moduleName]['APP'][appUid]
+        if (has(delta, 'APP')) {
+            for (var appUid in delta.APP) {
+                var appConfig = delta.APP[appUid];
+                if (appConfig.Recycle) {
+                    console.log('==========>> APP Shut');
+                }
+                else if (has(appConfig, 'Hosts')) {
+                    for (var t in appConfig.Hosts)
+                        console.log('==========>> APP Set Hosts', appConfig.Hosts[t]);
+                    //dnsmasq.Hosts[appUid][t] = delta.APP[appUid].Hosts[t];
+                }
+            }
+        }
+
         if (addr_change) {
             network.NetworkAddress = addr["Address"] + '/' + addr["Prefix"];
         }
@@ -117,6 +133,7 @@ class Configuration extends Configurable {
         if (Object.keys(network).length) {
             this.pub.Set('network', network);
         }
+
         if (jobs.length == 0) {
             cb(); //success!
         } else {
@@ -146,7 +163,7 @@ export function Initialize(cb) {
 
     async.series([
         (cb)=> {
-            iproute2.Initialize(()=>{
+            iproute2.Initialize(()=> {
                 iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_NEW, (neighRecord:NeighRecord) => {
                     pub.arp.Set(neighRecord.Mac, neighRecord);
                 });
@@ -170,7 +187,7 @@ export function Initialize(cb) {
         (cb)=> {
             confNetwork.Initialize(cb);
         }
-    ], ()=>{
+    ], ()=> {
         cb();
     });
 
@@ -189,20 +206,20 @@ export function Initialize(cb) {
         pub.leases.Del(lease.Mac);
     });
 
-    ssdp.SSDP_Browser.on(ssdp.SSDP_Browser.EVENT_SERVICE_UP, (IP, headers)=>{
+    ssdp.SSDP_Browser.on(ssdp.SSDP_Browser.EVENT_SERVICE_UP, (IP, headers)=> {
         //console.log('ssdp device up', IP, headers);
         pub.ssdp.Set(IP, headers);
     });
-    ssdp.SSDP_Browser.on(ssdp.SSDP_Browser.EVENT_SERVICE_DOWN, (IP, headers)=>{
+    ssdp.SSDP_Browser.on(ssdp.SSDP_Browser.EVENT_SERVICE_DOWN, (IP, headers)=> {
         //console.log('ssdp device down', IP, headers);
         pub.ssdp.Del(IP);
     });
 
-    mdns.Browser.on(mdns.Browser.EVENT_SERVICE_UP, (IP, service)=>{
+    mdns.Browser.on(mdns.Browser.EVENT_SERVICE_UP, (IP, service)=> {
         //console.log('mdns device up', IP, service);
         pub.mdns.Set(IP, service);
     });
-    mdns.Browser.on(mdns.Browser.EVENT_SERVICE_DOWN, (IP, service)=>{
+    mdns.Browser.on(mdns.Browser.EVENT_SERVICE_DOWN, (IP, service)=> {
         //console.log('mdns device down', IP, service);
         pub.mdns.Del(IP);
     });

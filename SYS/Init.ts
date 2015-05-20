@@ -56,6 +56,7 @@ domain.run(function () {
         , './Device/Graphd/__Test'
         , './Device/__Test'
         , './APP/Test/FakeData/Generator'
+        , './APP/Resource/__Test'
     ];
     var tests = [];
     for (var i = 0, len = testModules.length; i < len; i++) {

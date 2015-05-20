@@ -41,7 +41,7 @@ class ManagedProcess extends events.EventEmitter {
             this.Forever = restart;
             this.Process.kill();
         }
-        else if (restart) {
+        if (restart) {
             this.Forever = restart;
             this.Start();
         }

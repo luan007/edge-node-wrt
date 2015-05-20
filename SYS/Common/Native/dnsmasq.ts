@@ -678,8 +678,9 @@ export class dnsmasq extends Process {
         }
     }
 
-    ApplyChange = () => {
+    ApplyChange = (cb) => {
         this.Stop(true);
+        cb();
     };
 
     public OnChoke() {
