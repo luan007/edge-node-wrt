@@ -247,7 +247,7 @@ class Runtime {
         trace("--with Env" + "\n" + ('' + JSON.stringify(env)).bold);
         this._process = child_process.spawn("node", ["./APP/Sandbox/Sandbox.js"], {
             env: env,
-            stdio: CONF.IS_DEBUG ? [process.stdin, process.stdout, 'pipe'] : 'ignore',
+            stdio: CONF.IS_DEBUG ? [process.stdin, 'pipe', 'pipe'] : 'ignore',
             detached: CONF.DO_NOT_DETACH ? false : true //important
         });
         trace("Process Started With PID " + (this._process.pid + "").bold);
@@ -259,6 +259,10 @@ class Runtime {
         this._process.on("exit", this._proc_on_exit);
 
         if (CONF.IS_DEBUG) {
+            this._process.stdout.on('data', (data) => {
+                console.log('process stdout data:', data.toString());
+            });
+
             this._process.stderr.on("data", (data) => {
                 error(data.toString());
             });

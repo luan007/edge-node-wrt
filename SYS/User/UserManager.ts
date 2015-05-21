@@ -1,8 +1,8 @@
 ﻿//IMPLEMENT LIST USER / ADD USER / REMOVE USER
 
 /*
-    *mostly* copied from last rev (rev_1)
-*/
+ *mostly* copied from last rev (rev_1)
+ */
 
 
 import DeviceManager = require('../Device/DeviceManager');
@@ -15,11 +15,11 @@ import _ITicket = require('../DB/Models/Ticket');
 import ITicket = _ITicket.ITicket;
 import Ticket = _ITicket.Ticket;
 
-export var DB_UserList: IDic<IUser> = {};
-export var DB_Ticket: IDic<ITicket> = {};
+export var DB_UserList:IDic<IUser> = {};
+export var DB_Ticket:IDic<ITicket> = {};
 
-export var DeviceAlive: IDic<IDic<IDevice>> = {};
-export var UserStatus: IDic<number> = {};
+export var DeviceAlive:IDic<IDic<IDevice>> = {};
+export var UserStatus:IDic<number> = {};
 
 
 /* abstracted for future replacement */
@@ -32,18 +32,17 @@ function getUser(userId) {
     return DB_UserList[userId];
 }
 
-export function UserAppear(
-    userid: string,
-    ticket: string,
-    device: string,
-    expire: number,
-    callback: PCallback<IUser>) {
+export function UserAppear(userid:string,
+                           ticket:string,
+                           device:string,
+                           expire:number,
+                           callback:PCallback<IUser>) {
 
     var usr = getUser(userid);
     var ath = getTicket(ticket);
     if (!usr) { // local user does not exist
         //Query for username and all sort
-        Orbit.Get("User/", Orbit.PKG(ticket, device),(err, u: {
+        Orbit.Get("User/", Orbit.PKG(ticket, device), (err, u:{
             name;
             uid;
             data;
@@ -51,11 +50,12 @@ export function UserAppear(
             if (err) {
                 return callback(err, null);
             }
+
             var _u = new User();
             _u.name = u.name;
             _u.uid = u.uid;
             _u.data = u.data;
-            User.table().create(_u,(err, usr) => {
+            User.table().create(_u, (err, usr) => {
                 if (err) {
                     return callback(err, null);
                 }
@@ -72,7 +72,7 @@ export function UserAppear(
         _a.owner_uid = usr.uid;
         _a.owner = usr;
         _a.uid = ticket;
-        Ticket.table().create(_a,(err, ath) => {
+        Ticket.table().create(_a, (err, ath) => {
             if (err) {
                 return callback(err, null);
             }
@@ -86,19 +86,18 @@ export function UserAppear(
 
 }
 
-export function Login(
-    identity: string,
-    password: string,
-    deviceid: string,
-    callback: (err, result?) => any) {
+export function Login(identity:string,
+                      password:string,
+                      deviceid:string,
+                      callback:(err, result?) => any) {
 
     Orbit.Post("Ticket", Orbit.PKG(undefined, deviceid, {
         id: identity,
         pass: password
-    }),(err, result) => {
-            error(err);
-            if (err && err.code == ErrorCode.DEVICE_NOT_FOUND && !callback["retry"]) {
-                DeviceManager.OrbitSync(deviceid,(err, result) => {
+    }), (err, result) => {
+        if (err) {
+            if (err.code == ErrorCode.DEVICE_NOT_FOUND && !callback["retry"]) {
+                DeviceManager.OrbitSync(deviceid, (err, result) => {
                     if (err) {
                         error(err);
                         return callback(err);
@@ -106,32 +105,33 @@ export function Login(
                     callback["retry"] = true;
                     Login(identity, password, deviceid, callback);
                 });
-            } else if (err) {
-                return callback(err);
             } else {
-                UserAppear(
-                    result.owner_uid,
-                    result.accessToken,
-                    deviceid,
-                    result.expire,(err, user) => {
-                        return callback(err, user ? {
-                            atoken: result.accessToken,
-                            rtoken: result.refreshToken,
-                            user: {
-                                data: user.data,
-                                name: user.name,
-                                uid: user.uid
-                            }
-                        } : undefined);
-                    });
+                error(err);
+                return callback(err);
             }
-        });
+        } else {
+            UserAppear(
+                result.owner_uid,
+                result.accessToken,
+                deviceid,
+                result.expire, (err, user) => {
+                    return callback(err, user ? {
+                        atoken: result.accessToken,
+                        rtoken: result.refreshToken,
+                        user: {
+                            data: user.data,
+                            name: user.name,
+                            uid: user.uid
+                        }
+                    } : undefined);
+                });
+        }
+    });
 
 }
 
-export function Logout(
-    atoken: string,
-    callback: (err) => any) {
+export function Logout(atoken:string,
+                       callback:(err) => any) {
 
     //clean local entries
     if (DB_Ticket[atoken]) {
@@ -143,40 +143,39 @@ export function Logout(
 }
 
 export function Register(name, email, password, cb) {
-    Orbit.Post("User", { name: name, email: email, password: password }, cb);
+    Orbit.Post("User", {name: name, email: email, password: password}, cb);
 }
 
-export function Renew(
-    atoken: string,
-    rtoken: string,
-    deviceid: string,
-    callback: (err, result?) => any) {
+export function Renew(atoken:string,
+                      rtoken:string,
+                      deviceid:string,
+                      callback:(err, result?) => any) {
 
     Orbit.Put("Ticket", Orbit.PKG(atoken, deviceid, {
         rtoken: rtoken
-    }),(err, result) => {
-            error(err);
-            if (err) return callback(err);
-            UserAppear(
-                result.owner_uid,
-                result.accessToken,
-                deviceid,
-                result.expire,(err, user) => {
-                    return callback(err, {
-                        atoken: result.accessToken,
-                        rtoken: result.refreshToken,
-                        user: {
-                            data: user.data,
-                            name: user.name,
-                            uid: user.uid
-                        }
-                    });
+    }), (err, result) => {
+        error(err);
+        if (err) return callback(err);
+        UserAppear(
+            result.owner_uid,
+            result.accessToken,
+            deviceid,
+            result.expire, (err, user) => {
+                return callback(err, {
+                    atoken: result.accessToken,
+                    rtoken: result.refreshToken,
+                    user: {
+                        data: user.data,
+                        name: user.name,
+                        uid: user.uid
+                    }
                 });
-        });
+            });
+    });
 }
 
 //Called in AuthServer
-export function GetCurrentUserId(auth: string) {
+export function GetCurrentUserId(auth:string) {
     if (!has(DB_Ticket, auth)) {
         return undefined;
     }
@@ -194,12 +193,12 @@ export function LoadFromDB() {
     trace("Load Users");
     DB_UserList = {};
     DB_Ticket = {};
-    User.table().all({},(err, _users) => {
+    User.table().all({}, (err, _users) => {
         _users.forEach((user, i, all) => {
             DB_UserList[user.uid] = user;
         });
         trace("Load AuthTickets");
-        Ticket.table().all({},(err, _auth) => {
+        Ticket.table().all({}, (err, _auth) => {
             for (var t = 0; t < _auth.length; t++) {
                 var ticket = _auth[t];
                 DB_Ticket[ticket.uid] = ticket;
@@ -235,13 +234,13 @@ export function GetUser(userid) {
     return DB_UserList[userid];
 }
 
-export function List(opts: {
+export function List(opts:{
     state?: number
 }) {
     opts = opts || {};
     var results = {};
     for (var i in DB_UserList) {
-        if ((opts.state === undefined || 
+        if ((opts.state === undefined ||
             (opts.state === GetState(i)))) {
             results[i] = DB_UserList[i];
         }
@@ -253,7 +252,7 @@ export function All() {
     return DB_UserList;
 }
 
-export function GetOwnedDevices(user, ops: {
+export function GetOwnedDevices(user, ops:{
     state?: number;
     bus?: string | string[];
 }) {
@@ -288,7 +287,7 @@ function _UpdateOnlineState(userid) {
     }
 }
 
-function _DeviceOnwershipTransfer(devid, dev: IDevice, newOwner, oldOwner) {
+function _DeviceOnwershipTransfer(devid, dev:IDevice, newOwner, oldOwner) {
     if (dev && oldOwner && oldOwner !== "" && DB_UserList[oldOwner]) {
         if (!DeviceAlive[oldOwner]) {
             DeviceAlive[oldOwner] = {};
@@ -308,7 +307,7 @@ function _DeviceOnwershipTransfer(devid, dev: IDevice, newOwner, oldOwner) {
     if (oldOwner !== newOwner) _UpdateOnlineState(oldOwner);
 }
 
-function _DeviceOnline(devId, dev: IDevice) {
+function _DeviceOnline(devId, dev:IDevice) {
     if (dev && dev.owner && DB_UserList[dev.owner]) {
         if (!DeviceAlive[dev.owner]) {
             DeviceAlive[dev.owner] = {};
@@ -320,7 +319,7 @@ function _DeviceOnline(devId, dev: IDevice) {
     }
 }
 
-function _DeviceOffline(devId, dev: IDevice) {
+function _DeviceOffline(devId, dev:IDevice) {
     if (dev && dev.owner && DB_UserList[dev.owner]) {
         if (!DeviceAlive[dev.owner]) {
             DeviceAlive[dev.owner] = {};
@@ -332,7 +331,7 @@ function _DeviceOffline(devId, dev: IDevice) {
     }
 }
 
-export function Initialize(callback: Callback) {
+export function Initialize(callback:Callback) {
     trace("Init..");
     LoadFromDB();
     trace("Starting AuthTicket Patrol " + (CONF.USERAUTH_PATROL_INTERVAL + "")["cyanBG"].bold);

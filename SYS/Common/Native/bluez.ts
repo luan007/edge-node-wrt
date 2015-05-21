@@ -220,9 +220,9 @@ export class Bluez extends Process {
         dev.GetProperties((err, props) => {
             if (err) return;
             props = dbus_magic(props);
-            if (!dev.Properties) dev.Properties = props;
+            if (!this._dev_cache[addr].Properties) this._dev_cache[addr].Properties = props;
             else {
-                delta_add(dev.Properties, props, true);
+                delta_add(this._dev_cache[addr].Properties, props, true);
             }
             this._dev_cache[addr].Properties.Alive = true;
             this._dev_cache[addr].Properties.PropertyStamp = Date.now();

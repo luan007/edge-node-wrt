@@ -35,7 +35,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 function SetCookie(cookie, atoken, expire, d) {
-    cookie.Set("edge_atoken", atoken,
+    cookie.set("edge_atoken", atoken,
         {
             httpOnly: true,
             overwrite: true,
@@ -46,7 +46,8 @@ function SetCookie(cookie, atoken, expire, d) {
 }
 
 function SetRtoken(cookie, rtoken, expire) {
-    cookie.Set("edge_rtoken", rtoken, {
+    console.log('=============== ((( before:    SetRtoken\n', rtoken, cookie.set);
+    return cookie.set("edge_rtoken", rtoken, {
         httpOnly: true,
         overwrite: true,
         path: "/renew",
@@ -56,7 +57,12 @@ function SetRtoken(cookie, rtoken, expire) {
 }
 
 function LoginSuccess(req, res, expire, cookies, atoken, rtoken) {
+    console.log('=============== (((', Object.keys(arguments).length);
+    console.log('=============== ((( expire:\n', expire);
+    console.log('=============== ((( atoken:\n', atoken);
+    console.log('=============== ((( rtoken:\n', rtoken);
     SetRtoken(cookies, rtoken, expire);
+    console.log('=============== ((( after:    SetRtoken\n', req.query, AUTH_DOMAIN);
     return res.render("Distribute.ejs", {
         originalQuery: querystring.stringify(req.query),
         query: querystring.stringify({
@@ -105,6 +111,8 @@ app.get("/",(req, res) => {
 });
 
 app.post("/auth",(req, res) => {
+    console.log('=============== ((( /auth POST');
+
     var host = req.header("edge-host").toLowerCase();
     if (host !== AUTH_DOMAIN) {
         return res.json({ err: { message: "outside authdomain" } });

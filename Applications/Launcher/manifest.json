@@ -1,10 +1,11 @@
 ﻿{
     "name": "Launcher",
     "permission": [ 1 ],
+    "isLauncher": 1,
     "drivers": {
         "TestDriver": {
             "Buses": [ "WLAN" ],
-            "Interest": { 
+            "Interest": {
                 "all":  false
             }
         }

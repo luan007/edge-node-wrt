@@ -4,6 +4,7 @@ import path = require('path');
 import PermissionLib = require('../API/Permission');
 import Server = require('../API/Server');
 import nginx = require('../Common/Native/nginx');
+import DeviceManager = require('../Device/DeviceManager');
 
 function ConnectionHandler(credential:{ uid; pid; gid; },
                            socket:net.Socket,
@@ -84,7 +85,11 @@ export function GetDeviceByIp(_ip, cb) {
         cb(new Error("Outside current subnet"));
     } else {
         var mac = StatBiz.GetMacByIP(_ip);
-        cb(undefined, mac);
+        if(mac) {
+            var deviceId = DeviceManager.GetDevIdByHWAddr(mac);
+            cb(undefined, deviceId);
+        } else
+            cb(new Error('device does not exist'));
     }
 
 }

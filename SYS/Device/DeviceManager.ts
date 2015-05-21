@@ -322,6 +322,7 @@ export function GetDevIdByHWAddr(mac): string {
 
 export function OrbitSync(devId, cb) {
     if (!has(db_devices, devId)) {
+        fatal('==========<< devId', devId);
         process.nextTick(cb.bind(null, new Error("Device not found")));
     }
     Orbit.Post("Device", Orbit.PKG(undefined, devId, {
