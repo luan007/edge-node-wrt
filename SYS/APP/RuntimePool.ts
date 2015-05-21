@@ -279,7 +279,7 @@ function StartRuntime(app_uid) {
                 return runtime.ForceError(e);
             }
             runtime.Start();
-            process.nextTick(()=> {
+            process.nextTick(()=> { // process online
                 var status = runtime.Status();
                 pub.apps.Set(app_uid, {
                     State: status.State,
@@ -424,25 +424,25 @@ function _RaiseQuota(delta, callback) {
 }
 
 function _SetupReverseAPI(api, callback) {
-    var curPackage:Runtime = GetCallingRuntime(this);
+    var runtime:Runtime = GetCallingRuntime(this);
     //
-    if (!curPackage || !curPackage.RPC) {
+    if (!runtime || !runtime.RPC) {
         var err = new Error("Who are you? / or I didnt find any RPC socket :(");
-        curPackage && curPackage.ForceError(err.message);
+        runtime && runtime.ForceError(err.message);
         return callback(err, undefined);
     }
 
     if (!api) {
-        curPackage.ForceError("Corrupt Reverse API");
+        runtime.ForceError("Corrupt Reverse API");
         return callback(new Error("Corrupt API :("));
     }
-    var real = APIManager.GetAPI(api, curPackage.RPC);
+    var real = APIManager.GetAPI(api, runtime.RPC);
     //NICE
     //return callback(undefined, true);
 
     /**UPDATE PERMISSION**/
     try {
-        info("Elevating Permission ~ " + curPackage.App.uid.bold);
+        info("Elevating Permission ~ " + runtime.App.uid.bold);
         //Trusted?
 
         //TODO: ADD trust splitter here
@@ -460,20 +460,20 @@ function _SetupReverseAPI(api, callback) {
         //info("Permission set! " + GetCallingRuntime(this).App.uid.bold);
         //info(JSON.stringify(PermissionLib.Decode(perm)));
 
-        var perm = curPackage.Manifest.permission;
+        var perm = runtime.Manifest.permission;
         PermissionLib.SetPermission(SenderId(this), <any>perm);
-        info("Permission set! " + curPackage.App.name.bold);
+        info("Permission set! " + runtime.App.name.bold);
         info(JSON.stringify(
                 PermissionLib.DecodeToString(
                     PermissionLib.GetPermission(SenderId(this))))
         );
-        curPackage.AfterLaunch(real);
+        runtime.AfterLaunch(real);
         return callback(undefined, true);
 
     } catch (e) {
-        error("Error elevating permission, might be dangerous, killing " + (curPackage.GetPID() + "").bold);
+        error("Error elevating permission, might be dangerous, killing " + (runtime.GetPID() + "").bold);
         error(e);
-        return curPackage.ForceError(e);
+        return runtime.ForceError(e);
     }
 
 }

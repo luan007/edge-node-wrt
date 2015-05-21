@@ -69,17 +69,6 @@ class Runtime {
 
     public Driver:IDic<IDriver> = {};
 
-    //public DeathHooks:IDic<Function> = {};
-
-    ////Release me babyyyy
-    //public RegisterDeathHook = (name, func) => {
-    //    this.DeathHooks[name] = func;
-    //};
-    //
-    //public ReleaseDeathHook = (name, func) => {
-    //    delete this.DeathHooks[name];
-    //};
-
     constructor(runtimeId, app:Application) {
         this.App = app;
         this.RuntimeId = runtimeId;
@@ -173,11 +162,6 @@ class Runtime {
 
     private _proc_on_exit = () => {
 
-        //for (var i in this.DeathHooks) {
-        //    this.DeathHooks[i](this);
-        //}
-        //
-        //this.DeathHooks = {};
         if (this._status.State == -2)
             return; //BROKEN
 
@@ -186,7 +170,7 @@ class Runtime {
         }
         this._reset_launch_timeout();
         this._process.removeAllListeners();
-        this._process = undefined;
+        //this._process = undefined;
         this.Strobe_SafeQuit = false;
         this.Stop();
     };
@@ -255,7 +239,8 @@ class Runtime {
             stdio: CONF.IS_DEBUG ? [process.stdin, 'pipe', 'pipe'] : 'ignore',
             detached: CONF.DO_NOT_DETACH ? false : true //important
         });
-        fatal("Process Started With PID " + (this._process.pid + "").bold);
+        info("Process Started With PID " + (this._process.pid + "").bold);
+
         this._process.on("error", this._proc_on_error);
         this._process.on("message", (e) => {
             this._push_fail("Error", e);
