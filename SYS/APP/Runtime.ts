@@ -100,7 +100,12 @@ class Runtime {
             LaunchTime: -1,
             PlannedLaunchTime: -1,
             StabilityRating: 1,
-            State: 0
+            State: 0,
+            IsLauncher : this.Manifest.is_launcher ? true : false,
+            AppName : this.Manifest.name,
+            MainSock : this._mainsock,
+            WebExSock: this._webexsock,
+            RuntimeId: runtimeId
         };
 
         this.Registry = Registry.Sector(
@@ -250,7 +255,7 @@ class Runtime {
             stdio: CONF.IS_DEBUG ? [process.stdin, 'pipe', 'pipe'] : 'ignore',
             detached: CONF.DO_NOT_DETACH ? false : true //important
         });
-        trace("Process Started With PID " + (this._process.pid + "").bold);
+        fatal("Process Started With PID " + (this._process.pid + "").bold);
         this._process.on("error", this._proc_on_error);
         this._process.on("message", (e) => {
             this._push_fail("Error", e);

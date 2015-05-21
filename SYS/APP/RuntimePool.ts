@@ -180,7 +180,7 @@ function _ensure_user(runtimeId, cb) {
                             return (new Error("Cannot Create User"), undefined);
                         }
                         User.Get(runtimeId, (err, user) => {
-                            fatal('Get User', runtimeId);
+                            //info('Get User', runtimeId);
                             if (err) {
                                 return (new Error("Cannot Create User"), undefined);
                             }
@@ -218,13 +218,13 @@ function quota(runtimeId, cb, newval?) {
         });
     }
 };
-function _setup_quota (runtimeId, cb) {
+function _setup_quota(runtimeId, cb) {
     quota(runtimeId, (err, _quota) => {
         if (err) return cb(err);
         quota(runtimeId, cb, _quota);
     });
 };
-function quata_usage(runtimeId, cb){
+function quata_usage(runtimeId, cb) {
     var runtime = GetAppByRID(runtimeId);
     if (!runtime.IsRunning()) {
         return cb(new Error("Not Running"));
@@ -279,14 +279,23 @@ function StartRuntime(app_uid) {
                 return runtime.ForceError(e);
             }
             runtime.Start();
-            runtime.GetProcess().on('error', ()=>{
-                pub.Set(app_uid, runtime.Status());
+            process.nextTick(()=> {
+                var status = runtime.Status();
+                pub.apps.Set(app_uid, {
+                    State: status.State,
+                    PlannedLaunchTime: status.PlannedLaunchTime,
+                    LaunchTime: status.LaunchTime,
+                    StabilityRating: status.StabilityRating,
+                    AppName: status.AppName,
+                    IsLauncher: status.IsLauncher,
+                    MainSock: status.MainSock,
+                    WebExSock: status.WebExSock,
+                    RuntimeId: status.RuntimeId
+                });
             });
-            runtime.GetProcess().on('message', ()=>{
-                pub.Set(app_uid, runtime.Status());
-            });
-            runtime.GetProcess().on('exit', ()=>{
-                pub.Set(app_uid, runtime.Status());
+            runtime.GetProcess().on('exit', ()=> {
+                console.log('============((( runtime process exit');
+                pub.apps.Del(app_uid);
             });
         });
     }

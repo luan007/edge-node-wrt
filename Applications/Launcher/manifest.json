@@ -1,7 +1,7 @@
 ﻿{
     "name": "Launcher",
     "permission": [ 1 ],
-    "isLauncher": 1,
+    "is_launcher": true,
     "drivers": {
         "TestDriver": {
             "Buses": [ "WLAN" ],

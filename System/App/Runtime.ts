@@ -85,7 +85,8 @@ class Runtime {
             LaunchTime: -1,
             PlannedLaunchTime: -1,
             StabilityRating: 1,
-            State: 0
+            State: 0,
+            RuntimeId: this.RuntimeId
         };
 
         this.Registry = Core.Data.Registry.Sector(

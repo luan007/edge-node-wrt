@@ -10,6 +10,9 @@ import AppManager = require('../APP/AppManager');
 import RuntimePool = require('../APP/RuntimePool');
 import UserManager = require('../User/UserManager');
 import nginx = require('../Common/Native/nginx');
+import StatMgr = require('../Common/Stat/StatMgr');
+import _StatNode = require('../Common/Stat/StatNode');
+import StatNode = _StatNode.StatNode;
 
 var LauncherMainPort;
 var LauncherAuthPort;
@@ -21,7 +24,38 @@ export var HostnameTable = {
     //owner_id: [ prefix, dest ]
 };
 
-function GetTarget(host: string, Uri: string, authenticated: string, cb) {
+function pushStack(obj, key, val){
+    if(!has(obj, key)){
+        obj[key] = val;
+    }
+}
+function popStack(obj, key) {
+    if(has(obj, key)){
+        delete obj[key];
+    }
+}
+
+export function Subscribe(cb) {
+    var sub = StatMgr.Sub(SECTION.RUNTIME);
+    sub.apps.on('set', (appUid, oldStatus, newStatus) => {
+        if (!newStatus.IsLauncher) {
+            console.log(')))) ======= (((( runtime pool apps set', appUid, newStatus);
+            var pair =  [newStatus.AppName, newStatus.MainSock];
+            pushStack(PrefixTable, newStatus.RuntimeId, pair);
+            pushStack(HostnameTable, newStatus.RuntimeId, pair);
+        }
+    });
+    sub.apps.on('del', (appUid, oldStatus) => {
+        if (!oldStatus.IsLauncher) {
+            console.log(')))) ======= (((( runtime pool apps set', appUid, oldStatus);
+            popStack(PrefixTable, oldStatus.RuntimeId);
+            popStack(HostnameTable, oldStatus.RuntimeId);
+        }
+    });
+    cb();
+}
+
+function GetTarget(host:string, Uri:string, authenticated:string, cb) {
     var base = "";
     var cookie_affect_range = "/" + UUIDstr() + "/"; //safe heaven :p
     var uri = Uri;

@@ -22,7 +22,7 @@ export class StatNode extends events.EventEmitter {
     }
 
     _wrap = (self, _k) => {
-        if (!self.__value[_k].hasOwnProperty('_wrap') && typeof self.__value[_k] === 'object') {
+        if (!has(self.__value[_k], '_wrap') && typeof self.__value[_k] === 'object') {
             self.__value[_k] = new StatNode(_k, self.__value[_k], self);
         }
         if (!self.hasOwnProperty(_k)) {

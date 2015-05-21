@@ -41,7 +41,11 @@ declare module local {
                 Error?: any;
             }[];
             StabilityRating: number;
-            
+            AppName?:string;
+            IsLauncher?:boolean;
+            MainSock?:string;
+            WebExSock?:string;
+            RuntimeId:string;
         }
 
 
@@ -52,6 +56,7 @@ declare module local {
                 Buses: string[];
                 Interest: IDriverInterest;
             }>;
+            is_launcher?:boolean;
         }
 
     }
