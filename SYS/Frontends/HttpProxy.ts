@@ -5,9 +5,6 @@ import PermissionLib = require('../API/Permission');
 import Server = require('../API/Server');
 import nginx = require('../Common/Native/nginx');
 
-export var NGINX_PERM_ARR = [Permission.Proxy];
-export var NGINX_PERMISSION = PermissionLib.Encode(NGINX_PERM_ARR);
-
 function ConnectionHandler(credential:{ uid; pid; gid; },
                            socket:net.Socket,
                            callback:(handled:boolean) => any) {
@@ -15,7 +12,7 @@ function ConnectionHandler(credential:{ uid; pid; gid; },
 
     if (!NginxInstance || NginxInstance.IsChoking()
         || !NginxInstance.Process) {
-        trace("NO MATCH, Moving on.. " + credential.pid);
+        fatal("NO MATCH, Moving on.. " + credential.pid);
         return callback(undefined);
     }
 
@@ -29,20 +26,20 @@ function ConnectionHandler(credential:{ uid; pid; gid; },
         var content = fs.readFileSync("/proc/" + credential.pid + "/stat").toString();
         var ppid = Number(content.split(" ")[3].trim());
         if (ppid == NginxInstance.Process.pid) {
-            trace("Proxy Socket Inbound " + credential.pid);
-            PermissionLib.SetPermission(nginx_runtime_id, NGINX_PERMISSION);
+            fatal("Proxy Socket Inbound " + credential.pid);
+            PermissionLib.SetPermission(nginx_runtime_id, nginx.NGINX_PERMISSION);
             //Start serving STUFF
             Server.Serve(socket, CONF.SENDER_TYPE_PROXY, nginx_runtime_id,
                 undefined);
-            info("Proxy RPC is Bound with " + credential.pid);
+            fatal("Proxy RPC is Bound with " + credential.pid);
         }
         else {
-            trace("NO MATCH, Moving on.. " + credential.pid);
+            fatal("NO MATCH, Moving on.. " + credential.pid);
             callback(undefined);
         }
     } catch (e) {
-        warn("Error fetching parent pid " + credential.pid);
-        warn(e);
+        fatal("Error fetching parent pid " + credential.pid);
+        fatal(e);
     }
 }
 
@@ -52,7 +49,7 @@ export var NginxInstance:nginx.nginx;
 
 export function Initialize(cb) {
     nginx_runtime_id = UUIDstr();
-    NginxInstance = new nginx.nginx(NGINX_PERMISSION);
+    NginxInstance = new nginx.nginx(nginx.NGINX_PERMISSION);
     //NginxInstance.Ctrl.Init((err) => {
     cb();
     SYS_ON(SYS_EVENT_TYPE.LOADED, () => {
@@ -72,7 +69,7 @@ export function Initialize(cb) {
 
 __API((cb) => {
     cb(undefined, "=w= GOOD!");
-}, "Proxy.SelfTest", NGINX_PERM_ARR);
+}, "Proxy.SelfTest", nginx.NGINX_PERM_ARR);
 
 import StatBiz = require('../Common/Stat/StatBiz');
 import ConfMgr = require('../Common/Conf/ConfMgr');
@@ -91,5 +88,5 @@ export function GetDeviceByIp(_ip, cb) {
     }
 
 }
-__API(GetDeviceByIp, "Proxy.CurrentDevHeader", NGINX_PERM_ARR);
+__API(GetDeviceByIp, "Proxy.CurrentDevHeader", nginx.NGINX_PERM_ARR);
 __API(GetDeviceByIp, "Network.GetDeviceByIp", [Permission.DeviceAccess, Permission.Network, Permission.Configuration]);

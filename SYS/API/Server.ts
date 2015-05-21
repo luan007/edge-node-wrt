@@ -1,12 +1,14 @@
 ﻿import net = require("net");
 import fs = require("fs");
 import rpc = require("../../Modules/RPC/index");
+import APIManager = require('../../Modules/RPC/API/APIManager');
 import perm = require("./Permission");
 import evhub = require("./EventHub");
 import events = require("events");
 import async = require("async");
 import uscred = require("unix-socket-credentials");
 import util = require("util");
+import nginx = require('../Common/Native/nginx');
 
 export interface TypedRPCEndpoint extends rpc.RPCEndpoint {
     type: string;
@@ -112,14 +114,28 @@ function SenderId(context):string {
 }
 
 function GenerateStartupScript(port) {
-    var conf = 'API_Endpoint="unix:' + port + '"\n' +
-        'API = {}\n' +
-        'API["Proxy.SelfTest"]=9\n' +
-        'API["Proxy.GetTarget"]=23\n' +
-        'API["Proxy.AuthUser"]=25\n' +
-        'require("Init")\n';
-    return fs.writeFileSync(CONF.LUA_NGINX_SOCKET, conf, {flag: 'w'});
+    var _ngx_api = 'API = {}\n';
+    var _ngx_permission = (nginx.NGINX_PERMISSION);
+    var _api = JSON.parse(APIManager.ToJSON((f, p) => {
+        return perm.Check(_ngx_permission, f["_p"]);
+    }))["f"];
+    Object.keys(_api).forEach((v, i, a) => { _ngx_api += 'API["' + v + '"]=' + _api[v] + '\n'; });
+    var _script =
+        'API_Endpoint=' + '"unix:' + port + '"\n'
+        + _ngx_api + 'require("Init")\n';
+
+    //var conf = 'API_Endpoint="unix:' + port + '"\n' +
+    //    'API = {}\n' +
+    //    'API["Proxy.SelfTest"]=9\n' +
+    //    'API["Proxy.GetTarget"]=23\n' +
+    //    'API["Proxy.AuthUser"]=25\n' +
+    //    'require("Init")\n';
+    return fs.writeFileSync(CONF.LUA_NGINX_SOCKET, _script, {flag: 'w'});
 };
+
+trace("Setting up TypedRPCEndpoint Functions");
+global.SenderType = SenderType;
+global.SenderId = SenderId;
 
 export function Initialize(cb) {
 
@@ -130,10 +146,6 @@ export function Initialize(cb) {
         }
         fatal(" ** -------- ** ");
     });
-
-    trace("Setting up TypedRPCEndpoint Functions");
-    global.SenderType = SenderType;
-    global.SenderId = SenderId;
 
     _port = getSock(UUIDstr());
     _api_server.listen(_port, () => {

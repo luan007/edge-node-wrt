@@ -18,7 +18,12 @@ function __API(
     if (global.trace) {
         trace("EXPOSE " + path);
     }
-    func._p = perm;
+    //func._p = perm;
+
+    //if(path === 'Proxy.CurrentDevHeader'){
+    //    fatal('===========>> set permission', path, permission, perm);
+    //}
+
     var shell = function (...params) {
         if (CONF.IS_DEBUG && CONF.RPC_FUNC_LOG) {
             trace("* " + path);
@@ -26,7 +31,8 @@ function __API(
         var args = arguments;
         var rpc = (<rpc.RPCEndpoint>this.rpc);
         var sender = this.sender = rpc["remote"]; //from RPC call
-        if (!pm.Check(pm.GetPermission(sender), func._p)) {
+        //fatal('===========<< get permission', path, pm.GetPermission(sender), permission, func._p);
+        if (!pm.Check(pm.GetPermission(sender), shell['_p'])) {
             return args[args.length - 1](new EvalError("Permission Denied"));
         }
         func.apply(this, arguments);

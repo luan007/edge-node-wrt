@@ -9,8 +9,7 @@ import Configurable = _Configurable.Configurable;
 import AppManager = require('../APP/AppManager');
 import RuntimePool = require('../APP/RuntimePool');
 import UserManager = require('../User/UserManager');
-
-var MainServer;
+import nginx = require('../Common/Native/nginx');
 
 var LauncherMainPort;
 var LauncherAuthPort;
@@ -87,7 +86,7 @@ function SetupLauncherPort(main, auth, cb) {
     });
 }
 
-__API(GetTarget, "Proxy.GetTarget", HttpProxy.NGINX_PERM_ARR);
+__API(GetTarget, "Proxy.GetTarget", nginx.NGINX_PERM_ARR);
 __API(SetupLauncherPort, "Launcher.SetupPort", [Permission.Launcher]);
 
 __API(function (atoken, cb) {
@@ -96,4 +95,4 @@ __API(function (atoken, cb) {
     } else {
         cb(undefined, UserManager.DB_Ticket[atoken].owner_uid);
     }
-}, "Proxy.AuthUser", HttpProxy.NGINX_PERM_ARR);
+}, "Proxy.AuthUser", nginx.NGINX_PERM_ARR);
