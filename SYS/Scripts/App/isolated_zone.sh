@@ -30,7 +30,14 @@ if [ -e /SagittariusA/aquota.group ]; then echo Quota Generated! ; fi
 
 
 ####nginx
-
-killall nginx
+echo nginx operation
+killall nginx >/dev/null
 if [ ! -e /etc/nginx/nginx.conf ]; then cp Scripts/frontends/nginx.conf /etc/nginx/nginx.conf ; fi
 if [ ! -e /opt/nginx/conf/nginx.conf ]; then cp Scripts/frontends/nginx.conf /opt/nginx/conf/nginx.conf ; fi
+
+####users
+echo mkdir User
+if [ ! -e /User ]; then mkdir /User ; fi
+if [ ! -e /User/FileTransfer ]; then mkdir /User/FileTransfer ; fi
+chown nobody -R /User
+chmod 777 /User

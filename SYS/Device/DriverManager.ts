@@ -280,7 +280,7 @@ function _is_interested_in(drv: IDriver, dev: IDevice, currentStage, tracker: _t
 export function DeviceChange(dev: IDevice, tracker: _tracker, assump: IDeviceAssumption, busDelta: IBusData, config: KVSet, ownership, stateChange?) {
 
     if (stateChange) {
-        trace("Device Online - " + dev.bus.name + " [" + dev.bus.hwaddr + "] ");
+        fatal("Device Online - " + dev.bus.name + " [" + dev.bus.hwaddr + "] ");
     }
 
     __EMIT("Device.change", dev.id, dev, {
