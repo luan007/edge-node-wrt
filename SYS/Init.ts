@@ -32,6 +32,7 @@ domain.run(function () {
         , './API/Server'
         , './Frontends/MainUI'
         , './Frontends/HttpProxy'
+        , './APP/Remote/Client'
         , './APP/RuntimePool'
         , './APP/Test/Deployment/Server'
         , './Router/Network/Firewall/__Test'

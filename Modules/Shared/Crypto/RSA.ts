@@ -91,8 +91,8 @@ function LoadFromFile(keyname) {
     } else {
         var data = fs.readFileSync(f, 'utf8').toString();
         LoadPubkey(keyname, data);
-        info("* GOT PEM " + keyname["greenBG"].bold);
-        info("* KEY LENGTH = " + temp_keystore[keyname].getKeySize());
+        fatal("* GOT PEM " + keyname["greenBG"].bold);
+        fatal("* KEY LENGTH = " + temp_keystore[keyname].getKeySize());
     }
 }
 

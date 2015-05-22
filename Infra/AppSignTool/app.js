@@ -23,7 +23,7 @@ function GenSalt(len) {
 /*Implement this as a lib (future)*/
 function _hash_subdir(dir) {
     var res = "";
-    if (!fs.existsSync(dir)) {
+    if (!fs.existsSync(dir) || (fs.statSync(dir).isDirectory() && path.basename(dir)==='Data')) {
         return "";
     } else if (fs.statSync(dir).isDirectory()) {
         var d = fs.readdirSync(dir).sort();
@@ -31,7 +31,8 @@ function _hash_subdir(dir) {
         for (var i = 0; i < d.length; i++) {
             var target = path.join(dir, d[i]);
             console.log(d[i]);
-            res += d[i] + "~" + _hash_subdir(target);
+            if(path.basename(target) !== 'Data')
+                res += d[i] + "~" + _hash_subdir(target);
         }
     } else {
         var hash = crypto.createHash('sha512');
@@ -93,6 +94,7 @@ while (true) {
                     continue;
                 var hash = HashDirectory(t, salt);
                 var snapshot = salt.toString("hex") + hash.toString("hex");
+                console.log(snapshot);
                 var result = pubkey.verify(snapshot, sig, "utf8", "hex");
                 _("Authentic? : " + (result ? "Yes" : "No"));
                 break;

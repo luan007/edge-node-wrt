@@ -85,6 +85,35 @@ export function LoadApplication(app_uid:string, callback:PCallback<string>) {
         var runtime:Runtime;
         try {
             runtime = new Runtime(id, result);
+            runtime.on('launched', ()=> { // process online
+                console.log('============((( runtime was launched..', app_uid);
+                var status = runtime.Status();
+                pub.apps.Set(app_uid, {
+                    State: status.State,
+                    PlannedLaunchTime: status.PlannedLaunchTime,
+                    LaunchTime: status.LaunchTime,
+                    StabilityRating: status.StabilityRating,
+                    AppName: status.AppName,
+                    IsLauncher: status.IsLauncher,
+                    MainSock: status.MainSock,
+                    WebExSock: status.WebExSock,
+                    RuntimeId: status.RuntimeId
+                });
+            });
+            runtime.on('relaunch', (nextLaunchTime)=> { // need relaunch
+                setTask('relaunch_' + app_uid, () => {
+                    console.log('============((( runtime was relaunched..', app_uid);
+                    runtime.Start();
+                }, nextLaunchTime);
+            });
+            runtime.on('terminated', ()=> { // terminate by external process.
+                console.log('============((( runtime was terminated', app_uid);
+                pub.apps.Del(app_uid);
+            });
+            runtime.on('broken', () => {
+                console.log('============((( runtime was broken', app_uid);
+                pub.apps.Del(app_uid);
+            });
         } catch (e) {
             error("Runtime Load Failed! Bad Man-fest maybe?");
             error(e);
@@ -150,7 +179,7 @@ function _clean_up(runtimeId, cb) {
     }
     else cb();
 };
-function _check(target_dir, api_salt, cb) {
+function _check(target_dir, api_salt, sig, cb) {
     if (CONF.IS_DEBUG && CONF.BYPASS_APP_SIGCHECK) {
         warn("!!Sigcheck Bypassed!!");
         return cb(undefined, true);
@@ -159,7 +188,10 @@ function _check(target_dir, api_salt, cb) {
         var salt = new Buffer(api_salt, "hex");
         var hash = HashDir(target_dir, salt);
         var snapshot = salt.toString("hex") + hash.toString("hex");
-        return cb(undefined, RSA_Verify("App", api_salt, snapshot));
+        fatal('[[[ ========= snapshot [[[ ', snapshot);
+        fatal('[[[ ========= api_salt [[[ ', api_salt);
+        fatal('[[[ ========= sig [[[ ', sig);
+        return cb(undefined, RSA_Verify("App", sig, snapshot));
     } catch (e) {
         return cb(e, false);
     }
@@ -240,7 +272,7 @@ function StartRuntime(app_uid) {
         async.series([
             _clean_up.bind(null, runtime.RuntimeId),
             (cb) => {
-                _check(AppManager.GetAppRootPath(runtime.App.uid), runtime.App.appsig.substr(0, 512), (err, result) => {
+                _check(AppManager.GetAppRootPath(runtime.App.uid), runtime.App.appsig.substr(0, 512), runtime.App.appsig.substring(512), (err, result) => {
                     if (err || !result) {
                         runtime.Broken();
                     }
@@ -281,30 +313,6 @@ function StartRuntime(app_uid) {
                 return runtime.ForceError(e);
             }
             runtime.Start();
-            runtime.on('launched', ()=> { // process online
-                var status = runtime.Status();
-                pub.apps.Set(app_uid, {
-                    State: status.State,
-                    PlannedLaunchTime: status.PlannedLaunchTime,
-                    LaunchTime: status.LaunchTime,
-                    StabilityRating: status.StabilityRating,
-                    AppName: status.AppName,
-                    IsLauncher: status.IsLauncher,
-                    MainSock: status.MainSock,
-                    WebExSock: status.WebExSock,
-                    RuntimeId: status.RuntimeId
-                });
-            });
-            runtime.on('relaunch', (nextLaunchTime)=> { // need relaunch
-                setTask('relaunch_' + app_uid, () => {
-                    console.log('runtime was relaunched..', app_uid);
-                    runtime.Start();
-                }, nextLaunchTime);
-            });
-            runtime.on('terminated', ()=> { // terminate by external process.
-                console.log('============((( runtime was terminated');
-                pub.apps.Del(app_uid);
-            });
         });
     }
 }

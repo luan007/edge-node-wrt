@@ -186,11 +186,13 @@ export class Runtime extends events.EventEmitter{
     };
 
     Start = () => {
-        error("WARNING, CHMOD 0711 IS NOT SECURE!!");
         if (this._status.State == RuntimeStatusEnum.Broken) {
-            warn("[ SKIP ] App is marked Broken " + this.App.name.bold);
-            return;
+            error("[ SKIP ] App is marked Broken " + this.App.name.bold);
+            return this.Stop();
         }
+
+        warn("WARNING, CHMOD 0711 IS NOT SECURE!!");
+
         if (this._process) {
             //Kill it if being alive
             this.Stop();
@@ -261,11 +263,6 @@ export class Runtime extends events.EventEmitter{
 
     Stop = () => {
 
-        if (this._status.State == RuntimeStatusEnum.Broken) {
-            warn("[ STOP ] App is marked Broken " + this.App.name.bold);
-            return;
-        }
-
         if (this.RPC) {
             warn("Releasing RPC event listeners..");
             this.RPC.Destroy();
@@ -303,6 +300,9 @@ export class Runtime extends events.EventEmitter{
             this.emit('relaunch', this._status.PlannedLaunchTime);
         } else if (this._status.State == RuntimeStatusEnum.Terminated) {
             this.emit('terminated');
+        } else if (this._status.State == RuntimeStatusEnum.Broken) {
+            warn("[ STOP ] App is marked Broken " + this.App.name.bold);
+            this.emit('broken');
         }
 
         this.removeAllListeners();

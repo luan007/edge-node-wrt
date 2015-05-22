@@ -70,6 +70,7 @@ export function SetOwner_Recursive(folder, owner, cb) {
 export function SetAppsRoot_Upward(folder){
     do {
         fs.chownSync(folder, 0, 0);
+        fs.chmodSync(folder, '0744');
         folder = path.dirname(folder);
     } while (folder !== '/');
 }
@@ -81,7 +82,7 @@ export function SetupAppDataDir(app_id, runtime_id, cb) {
     var done = (err, result) => {
         cb(err, path);
     };
-    error("CHMOD 711 IS NOT SECURE!!!!!!");
+    warn("CHMOD 711 IS NOT SECURE!!!!!!");
     if (fs.exists(path, (exist) => {
             if (!exist) {
                 fs.mkdir(path, (err) => {
