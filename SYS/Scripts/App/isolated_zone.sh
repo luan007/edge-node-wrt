@@ -31,7 +31,7 @@ if [ -e /SagittariusA/aquota.group ]; then echo Quota Generated! ; fi
 
 ####nginx
 echo nginx operation
-killall nginx >/dev/null
+killall nginx
 if [ ! -e /etc/nginx/nginx.conf ]; then cp Scripts/frontends/nginx.conf /etc/nginx/nginx.conf ; fi
 if [ ! -e /opt/nginx/conf/nginx.conf ]; then cp Scripts/frontends/nginx.conf /opt/nginx/conf/nginx.conf ; fi
 

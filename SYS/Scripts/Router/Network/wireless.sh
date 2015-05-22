@@ -1,7 +1,7 @@
 #!/bin/bash
 
 rfkill unblock wlan
-killall hostapd >/dev/null
+killall hostapd
 
 iw ap0 del
 sleep 1s

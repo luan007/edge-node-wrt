@@ -74,6 +74,7 @@ var defaultConfig = {
 };
 
 export function Initialize(cb) {
+    fatal('[[[ Samba ]]] Initialize');
     var configSamba = new Configuration(SECTION.SAMBA, defaultConfig);
     configSamba.Initialize(cb);
 }
