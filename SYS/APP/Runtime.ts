@@ -2,6 +2,7 @@
 import child_process = require('child_process');
 import fs = require('fs');
 import path = require('path');
+import events = require('events');
 import InAppDriver = require("./Driver/InAppDriver");
 import RuntimePool = require('./RuntimePool');
 import AppManager = require('./AppManager');
@@ -31,21 +32,28 @@ import Server = require('../API/Server');
  *  -1 >  Error
  *  -2 >  Banned
  *  -3 >  Broken
+ *  -4 >  Terminated
  *  */
 
 var _FAIL_STACK_SIZE:number = 30;
 
-var _LAUNCH_TIMEOUT:number = 15000;
+export class RuntimeStatusEnum {
+    static Ready:number = 0;
+    static Launching:number = 1;
+    static Launched:number = 2;
+    static Error:number = -1;
+    static Banned:number = -2;
+    static Broken:number = -3;
+    static Terminated:number = -4;
+}
 
-class Runtime {
+export class Runtime extends events.EventEmitter{
 
     private _process:child_process.ChildProcess = undefined;
 
     private _API_Endpoint:APIManager.API_Endpoint;
 
     private _status:local.App.RuntimeStatus;
-
-    private _launch_wait_clock;
 
     private _mainsock = getSock(UUIDstr());
 
@@ -63,13 +71,13 @@ class Runtime {
 
     public RuntimeId:any;
 
-    public Strobe_SafeQuit = false;
-
     public UserId:any;
 
     public Driver:IDic<IDriver> = {};
 
     constructor(runtimeId, app:Application) {
+        super();
+
         this.App = app;
         this.RuntimeId = runtimeId;
         //FS CHECK
@@ -89,7 +97,7 @@ class Runtime {
             LaunchTime: -1,
             PlannedLaunchTime: -1,
             StabilityRating: 1,
-            State: 0,
+            State: RuntimeStatusEnum.Ready,
             IsLauncher : this.Manifest.is_launcher ? true : false,
             AppName : this.Manifest.name,
             MainSock : this._mainsock,
@@ -116,22 +124,6 @@ class Runtime {
         trace("Runtime Initiated.. " + this.App.uid.bold);
     }
 
-    private _reset_launch_timeout = () => {
-        if (this._launch_wait_clock !== undefined) {
-            clearTimeout(this._launch_wait_clock);
-            this._launch_wait_clock = undefined;
-        }
-    };
-
-    private _start_launch_timeout = () => {
-        this._reset_launch_timeout();
-        this._launch_wait_clock = setTimeout(() => {
-            warn("Launch Timed out... sorry " + this.App.name.bold);
-            this._reset_launch_timeout();
-            this.ForceError("Launch Sequence Timeout");
-        }, _LAUNCH_TIMEOUT);
-    };
-
     private _push_fail = (reason, err?) => {
         error(JSON.stringify(reason));
         this._status.FailHistory.unshift({
@@ -146,7 +138,7 @@ class Runtime {
             this._status.FailHistory.pop();
         }
         this._status.LaunchTime = -1;
-        this._status.State = -1;
+        this._status.State = RuntimeStatusEnum.Error;
 
         var avgLife = 0;
         for (var i = 0; i < this._status.FailHistory.length; i++) {
@@ -162,27 +154,16 @@ class Runtime {
 
     private _proc_on_exit = () => {
 
-        if (this._status.State == -2)
+        if (this._status.State == RuntimeStatusEnum.Broken)
             return; //BROKEN
 
-        if (!this.Strobe_SafeQuit) {
-            this._push_fail("Sudden Termination");
-        }
-        this._reset_launch_timeout();
         this._process.removeAllListeners();
         //this._process = undefined;
-        this.Strobe_SafeQuit = false;
-        this.Stop();
-    };
-
-    private _proc_on_error = (e) => {
-        this._push_fail(e);
-        this.Strobe_SafeQuit = true;
         this.Stop();
     };
 
     private _on_heartbeat = (err, deltaT) => {
-        if (this._status.State <= 1) {
+        if (this._status.State != RuntimeStatusEnum.Launching && this._status.State != RuntimeStatusEnum.Launched) {
             return; //throw away
         }
         else if (err) {
@@ -206,7 +187,7 @@ class Runtime {
 
     Start = () => {
         error("WARNING, CHMOD 0711 IS NOT SECURE!!");
-        if (this._status.State == -2) {
+        if (this._status.State == RuntimeStatusEnum.Broken) {
             warn("[ SKIP ] App is marked Broken " + this.App.name.bold);
             return;
         }
@@ -216,11 +197,10 @@ class Runtime {
         }
         var path = AppManager.GetAppDataDir(this.App.uid);
 
-        this._start_launch_timeout();
         trace("Launching " + this.App.name.bold);
         trace("--with Data Path " + path);
         trace("--with RuntimeId " + this.RuntimeId.bold);
-        this._status.State = 1; //Launching
+        this._status.State = RuntimeStatusEnum.Launching; //Launching
         this._status.LaunchTime = -1; //wait..
         this._status.PlannedLaunchTime = -1;
         var env:any = <local.App.Init_Env>{
@@ -241,7 +221,10 @@ class Runtime {
         });
         info("Process Started With PID " + (this._process.pid + "").bold);
 
-        this._process.on("error", this._proc_on_error);
+        this._process.on("error", (e) => {
+            this._push_fail(e);
+            this.Stop();
+        });
         this._process.on("message", (e) => {
             this._push_fail("Error", e);
             this.Stop();
@@ -271,14 +254,18 @@ class Runtime {
         return this._webexsock;
     }
 
+    Terminate = () => { // terminate by external process.
+        this._status.State = RuntimeStatusEnum.Terminated;
+        this.Stop();
+    }
+
     Stop = () => {
 
-        if (this._status.State == -2) {
+        if (this._status.State == RuntimeStatusEnum.Broken) {
             warn("[ STOP ] App is marked Broken " + this.App.name.bold);
             return;
         }
 
-        this._reset_launch_timeout();
         if (this.RPC) {
             warn("Releasing RPC event listeners..");
             this.RPC.Destroy();
@@ -301,8 +288,8 @@ class Runtime {
             this._process = undefined;
         }
 
-        if (this._status.State > 0) {
-            this._status.State = 0;
+        if (this._status.State == RuntimeStatusEnum.Launching || this._status.State == RuntimeStatusEnum.Launched) {
+            this._status.State = RuntimeStatusEnum.Ready;
         }
 
         if (fs.existsSync(this._mainsock)) {
@@ -311,26 +298,35 @@ class Runtime {
         if (fs.existsSync(this._webexsock)) {
             fs.unlinkSync(this._webexsock);
         }
+
+        if(this._status.State == RuntimeStatusEnum.Error) {
+            this.emit('relaunch', this._status.PlannedLaunchTime);
+        } else if (this._status.State == RuntimeStatusEnum.Terminated) {
+            this.emit('terminated');
+        }
+
+        this.removeAllListeners();
     };
 
     ForceError = (e) => {
-        if (this._status.State >= 0) { // >= error
+        if (this._status.State == RuntimeStatusEnum.Launching || this._status.State == RuntimeStatusEnum.Launched) { // >= error
             error("Forcing Error! " + e + " " + this.App.name.bold);
-            this._proc_on_error(e);
+            this._push_fail(e);
+            this.Stop();
         }
     };
 
     Broken = () => {
         error("Package is Broken / Tampered!! " + this.App.name.bold.red);
-        this._status.State = -2;
+        this._status.State = RuntimeStatusEnum.Broken;
         if (this._process) {
             this._process.kill();
         }
     };
 
     AfterLaunch = (API) => {
-        if (this._status.State == 1) {
-            this._status.State = 2;
+        if (this._status.State == RuntimeStatusEnum.Launching) {
+            this._status.State = RuntimeStatusEnum.Launched;
             this._status.LaunchTime = Date.now();
             this._API_Endpoint = API;
             this.API = this._API_Endpoint.API;
@@ -341,7 +337,6 @@ class Runtime {
             exec("chown nobody " + this._webexsock, () => {
             });
 
-            this._reset_launch_timeout();
             for (var i in this.Driver) {
                 DriverManager.LoadDriver(this.Driver[i], (err) => {
                     if (err) {
@@ -350,6 +345,8 @@ class Runtime {
                     }
                 }); //in-app-drv
             }
+
+            this.emit('launched'); // ==> notify runtime-pool
         }
         else {
             warn("AfterLaunch cannot be called multiple times (or in wrong state) " + this.App.name.bold);
@@ -358,7 +355,7 @@ class Runtime {
 
     UpdateResponsiveness = () => {
         //if we are in a solid launched state
-        if (this._status.State > 1) {
+        if (this.IsRunning()) {
             if (!this.API.Heartbeat) {
                 return this.ForceError("Heartbeat is missing :(");
             }
@@ -368,15 +365,13 @@ class Runtime {
     };
 
     SafeQuit = () => {
-        this._reset_launch_timeout();
-        if (this._status.State > 1) {
-            this.Strobe_SafeQuit = true;
+        if (this.IsRunning()) {
             this.Stop();
         }
     };
 
     IsRunning = () => {
-        return this._status.State > 1;
+        return this._status.State == RuntimeStatusEnum.Launched;
     };
 
     Quota = (cb, newval?) => {
@@ -400,5 +395,3 @@ class Runtime {
         }
     };
 }
-
-export = Runtime;

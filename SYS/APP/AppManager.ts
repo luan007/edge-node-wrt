@@ -1,4 +1,5 @@
-import Runtime = require("./Runtime");
+import _Runtime = require("./Runtime");
+import Runtime = _Runtime.Runtime;
 import fs = require("fs");
 import net = require('net');
 import path = require('path');

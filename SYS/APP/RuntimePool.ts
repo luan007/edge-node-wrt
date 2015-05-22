@@ -1,4 +1,6 @@
-﻿import Runtime = require("./Runtime");
+﻿import _Runtime = require("./Runtime");
+import Runtime = _Runtime.Runtime;
+import RuntimeStatusEnum = _Runtime.RuntimeStatusEnum;
 import fs = require("fs");
 import net = require('net');
 import PermissionLib = require('../API/Permission');
@@ -279,7 +281,7 @@ function StartRuntime(app_uid) {
                 return runtime.ForceError(e);
             }
             runtime.Start();
-            process.nextTick(()=> { // process online
+            runtime.on('launched', ()=> { // process online
                 var status = runtime.Status();
                 pub.apps.Set(app_uid, {
                     State: status.State,
@@ -293,8 +295,14 @@ function StartRuntime(app_uid) {
                     RuntimeId: status.RuntimeId
                 });
             });
-            runtime.GetProcess().on('exit', ()=> {
-                console.log('============((( runtime process exit');
+            runtime.on('relaunch', (nextLaunchTime)=> { // need relaunch
+                setTask('relaunch_' + app_uid, () => {
+                    console.log('runtime was relaunched..', app_uid);
+                    runtime.Start();
+                }, nextLaunchTime);
+            });
+            runtime.on('terminated', ()=> { // terminate by external process.
+                console.log('============((( runtime was terminated');
                 pub.apps.Del(app_uid);
             });
         });
@@ -313,10 +321,6 @@ export function GetSnapshot(runtime:Runtime) {
     info(" * Snap * " + JSON.stringify(_snapshot));
     return _snapshot;
 };
-
-export function GetLauncher() {
-    return _pool[CONF.CORE_PARTS["LAUNCHER"]];
-}
 
 export function GetAppByRID(runtimeId):Runtime {
     if (_runtime_map[runtimeId]) {

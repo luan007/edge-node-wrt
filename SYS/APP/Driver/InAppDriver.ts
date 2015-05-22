@@ -1,4 +1,5 @@
-﻿import Runtime = require("../Runtime");
+﻿import _Runtime = require("../Runtime");
+import Runtime = _Runtime.Runtime;
 /*
  * Abstraction of an In-App-Driver
 */
