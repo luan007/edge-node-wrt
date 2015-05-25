@@ -89,7 +89,7 @@ app.post('/', <any>[multer({
                 fs.createReadStream(file)
                     .pipe(unzip.Extract({ path: '../Applications/' + name }))
                     .on("close",() => {
-                    AppManager.Install(name, target, "",(err) => {
+                    AppManager.InsertOrUpdate(name, target, "",(err) => {
                         if (err) error(err);
                         else {
                             res.status(200).end();

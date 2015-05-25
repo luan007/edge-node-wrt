@@ -364,12 +364,6 @@ export class Runtime extends events.EventEmitter{
         //just skip
     };
 
-    SafeQuit = () => {
-        if (this.IsRunning()) {
-            this.Stop();
-        }
-    };
-
     IsRunning = () => {
         return this._status.State == RuntimeStatusEnum.Launched;
     };
