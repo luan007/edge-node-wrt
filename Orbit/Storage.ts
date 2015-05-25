@@ -58,7 +58,7 @@ function LoadSingleModel(modelName: string) {
     }
     var print = ("[" + modelName.toUpperCase() + "]")["magentaBG"].bold;
     model.table();
-    var def = GetDefFromClass(model);
+    var def = <any>GetDefFromClass(model);
     for (var t in def) {
         if (def.hasOwnProperty(t)) {
             var name = t;

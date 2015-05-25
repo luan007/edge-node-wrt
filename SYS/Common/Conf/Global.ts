@@ -127,7 +127,7 @@ if (arch !== "arm") {
 console.log(CONF);
 
 class _global_mac_conf {
-    ROUTERID = "TEST_ROUTER_0";
+    ROUTERID = process.env.ROUTERID || "TEST_ROUTER_0";
     ModelName = "Edge Dev";
     ModelNumber = " _D_E_V_ ";
     Serial = "______";

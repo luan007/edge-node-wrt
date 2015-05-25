@@ -13,7 +13,8 @@ export class Router {
     accessTime: Date = new Date();
     state: number = 0;
     attributes: KVSet = {};
-    checksumkey: string = "";
+    appkey: string = "";
+    routerkey:string = "";
 
     static table(): orm.Typed.TypedModel<IRouter> {
         if (!Table) {

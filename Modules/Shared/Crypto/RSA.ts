@@ -6,7 +6,6 @@ import path = require("path");
 
 //this one will disappear when we swapped into trustzone implementation babe
 var temp_keystore = <any>{};
-var temp_private_keystore = <any>{};
 
 /**
  *
@@ -92,37 +91,11 @@ function LoadFromFile(keyname) {
         var data = fs.readFileSync(f, 'utf8').toString();
         LoadPubkey(keyname, data);
         fatal("* GOT PEM " + keyname["greenBG"].bold);
-        fatal("* KEY LENGTH = " + temp_private_keystore[keyname].getKeySize());
-    }
-}
-
-function LoadPrivateKey(keyname, PEM) {
-    try {
-        var key = new rsa(PEM);
-        if (!key.isPrivate()) {
-            throw new Error("Not a valid public key");
-        }
-        else {
-            temp_private_keystore[keyname] = key;
-        }
-    } catch (e) {
-        error("RSA Failuare! ".bold + e);
-        error("PEM = " + PEM);
-    }
-}
-function LoadFromPrivateKey(keyname) {
-    warn("* Loading PEM (REMOVE THIS W/RTM V) " + keyname["magentaBG"].bold);
-    var f = path.join(CONF.BASE_PATH, "../Modules/Shared/Crypto/Keys/" + keyname + ".pr");
-    if (!fs.existsSync(f)) {
-        error("* PEM NOT FOUND " + keyname["redBG"].bold);
-        return false;
-    } else {
-        var data = fs.readFileSync(f, 'utf8').toString();
-        LoadPrivateKey(keyname, data);
-        fatal("* GOT PEM " + keyname["greenBG"].bold);
         fatal("* KEY LENGTH = " + temp_keystore[keyname].getKeySize());
     }
 }
+
+
 
 /**
  * Sig should be in hex encoding
@@ -148,29 +121,12 @@ function _RSA_Verify(keyname, sig, data) {
 function GenSalt(len) {
     return crypto.randomBytes(len);
 }
-function _SIGN_APP(dir) {
-    var keyname = 'app';
-    trace("Validating sig using " + keyname.bold);
-    if (!temp_private_keystore.hasOwnProperty(keyname)) {
-        return false;
-    }
-    else {
-        var rsa = temp_private_keystore[keyname];
-        if (!rsa.isPrivate()) {
-            return false;
-        } else {
-            var salt = GenSalt(256);
-            var hashCode = HashDir(dir, salt);
-            return rsa.sign(hashCode, "hex", "utf8");
-        }
-    }
-}
 
 global.RSA_Verify = _RSA_Verify;
 global.Unsafe_SyncRSAEncrypt_Fast = Unsafe_SyncRSAEncrypt_Fast;
 global.Safe_SyncRSAEncrypt_Fast = Safe_SyncRSAEncrypt_Fast;
-global.Sign_App = _SIGN_APP;
+global.Gen_Salt = GenSalt;
 trace("Temporary Public Key Store is UP");
 LoadFromFile("App");
 LoadFromFile("Router");
-LoadFromPrivateKey("APP");
+

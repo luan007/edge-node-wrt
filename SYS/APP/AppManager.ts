@@ -13,8 +13,8 @@ import User = require('../Common/Native/user');
 import http = require('http');
 var unzip = require("unzip");
 
-function GetAppURL(app_uid:string, callback:Callback) {
-    callback(null, app_uid);
+function GetAppURL(order_id:string, callback:Callback) {
+    callback(null, order_id);
 }
 /**
  * Install APP
@@ -77,10 +77,10 @@ export function Install(app_uid:string, callback:Callback) {
                                 })
                                 .on("close", () => {
                                     var app_sig = "";
-                                    if (!CONF.BYPASS_APP_SIGCHECK) { // ==> sig
-                                        fatal("Sign APP..");
-                                        app_sig = _SIGN_APP(appPath);
-                                    }
+                                    //if (!CONF.BYPASS_APP_SIGCHECK) { // ==> sig
+                                    //    fatal("Sign APP..");
+                                    //    app_sig = _SIGN_APP(appPath);
+                                    //}
                                     InsertOrUpdate(name, target, app_sig, (err) => {
                                         if (err) {
                                             error(err);
@@ -93,7 +93,7 @@ export function Install(app_uid:string, callback:Callback) {
                                     });
                                 });
                         } else {
-
+                            callback(new Error("Missing manifest :("));
                         }
                     });
             });
