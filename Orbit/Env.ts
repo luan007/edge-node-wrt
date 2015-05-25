@@ -4,7 +4,7 @@ global.qs = require("querystring");
 global.async = require("async");
 global._ = require("underscore");
 require("colors");
+global.trace = global.warn = global.error = global.fatal = global.debug = global.info = console.log;
 require("./Common/Global");
 require('../Modules/Shared/use');
 require("../Modules/Shared/Crypto/HashDir");
-require("../Modules/Shared/Crypto/RSA");

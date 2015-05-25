@@ -79,7 +79,7 @@ export function RequestFidelity(req: ExpressServerRequest, res: ExpressServerRes
     db.Models.Router.Table.get(req.param("rid"),(err, router) => {
         if (!router) return next(new Error("Router Not Found"));
         req.router = router;
-        var privateKey = router.appkey; //prvKey
+        var privateKey = router.routerkey; //prvKey
         var k = sha256_Obj(req.method == "GET" || req.method == "DEL" ? req.query : req.body, { "ck": true });
         var t = new Buffer(req.param("ck"), "hex");
         var should_match = forsake.decrypt(new Buffer(req.param("ck"), "hex"), privateKey).toString();

@@ -1,5 +1,4 @@
 var rsa:any = require("node-rsa");
-var forsake:any = require("forsake");
 import crypto = require('crypto');
 import fs = require("fs");
 import path = require("path");
@@ -25,6 +24,11 @@ function _Hash_Directory(dir, salt) {
     return crypto.pbkdf2Sync(res, salt, 1000, 256);
 }
 
+/**
+ *
+ * @returns {{RouterPair: ({privateKey, publicKey}), AppPair: ({privateKey, publicKey})}}
+ * @constructor
+ */
 export function GenKeyPairs() {
     var routerPair = _Gen_KeyPair(256);
     var appPair = _Gen_KeyPair(4096);
@@ -41,17 +45,17 @@ export function GenKeyPairs() {
  */
 export function SignApp(routerId:string, app_uid:string, callback:Callback) {
     var keyname = 'app';
-    trace("Validating sig using " + keyname.bold);
+    console.log("Validating sig using " + keyname.bold);
     var appPath = path.join(ORBIT_CONF.APP_BASE_PATH, app_uid);
     if (!fs.existsSync(appPath)) {
         callback(new Error('app does not exist: ' + app_uid));
     }
     else {
         Data.Models.Router.Table.get(routerId, (err, router) => {
-            if (err)
+            if (err || !router)
                 return callback(err);
-            Data.Models.Application.Table.get(app_uid, (err) => {
-                if (err)
+            Data.Models.Application.Table.get(app_uid, (err, app) => {
+                if (err || !app)
                     return callback(err);
                 try {
                     var salt = _Gen_Salt(256);

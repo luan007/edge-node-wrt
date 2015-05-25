@@ -38,7 +38,8 @@ export function DefineTable(table_name, module_class, options) {
 
 export function Initialize(_db, callback: (err, db) => any) {
     console.log("Init DB");
-    orm.connect("sqlite://" + _db, (err, db) => {
+    //orm.connect("sqlite://" + _db, (err, db) => {
+    orm.connect("mysql://" + _db, (err, db) => {
         if (!err) {
             console.log("[CON] " + _db.cyanBG.bold);
             Database = db;

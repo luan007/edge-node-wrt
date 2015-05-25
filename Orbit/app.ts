@@ -1,6 +1,6 @@
-﻿require("./Env");
-process.env.ROOT_PATH = __dirname;
+﻿process.env.ROOT_PATH = __dirname;
 process.env.NODE_PATH = __dirname;
+require("./Env");
 global.wait = require("wait.for");
 global.async = require("async");
 import middlewares = require("./Middlewares");
@@ -86,7 +86,8 @@ export function Initialize(port, callback:Callback) {
 
 
 function InitDB(cb) {
-    Data.Initialize("data.db", (err, db) => {
+    Data.Initialize("root:system@localhost/edge", (err, db) => {
+    //Data.Initialize("data.db", (err, db) => {
         cb(err, db);
         //    //test router:
         //    //UID: f0dd5972a9fd46a2bf371c7f681fd367
@@ -140,7 +141,6 @@ function InitDB(cb) {
         //});
     });
 }
-
 
 function GenerateDummyData(cb) {
     var routerkey = "-----BEGIN RSA PRIVATE KEY-----\n" +

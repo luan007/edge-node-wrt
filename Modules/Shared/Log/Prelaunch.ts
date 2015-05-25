@@ -60,7 +60,7 @@ import Stack = require("./Stack");
         logger.info.apply(logger, args);
     };
 
-    if (CONF.LOG_LEVELS.length > 0) {
+    if (CONF.LOG_LEVELS && CONF.LOG_LEVELS.length > 0) {
         var loggers = ['trace', 'warn', 'error', 'fatal', 'debug', 'info'];
         for (var i = 0, len = loggers.length; i < len; i++) {
             if (CONF.LOG_LEVELS.indexOf(loggers[i]) === -1) {

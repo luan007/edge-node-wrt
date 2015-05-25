@@ -118,15 +118,9 @@ function _RSA_Verify(keyname, sig, data) {
 
 }
 
-function GenSalt(len) {
-    return crypto.randomBytes(len);
-}
-
 global.RSA_Verify = _RSA_Verify;
 global.Unsafe_SyncRSAEncrypt_Fast = Unsafe_SyncRSAEncrypt_Fast;
 global.Safe_SyncRSAEncrypt_Fast = Safe_SyncRSAEncrypt_Fast;
-global.Gen_Salt = GenSalt;
 trace("Temporary Public Key Store is UP");
 LoadFromFile("App");
 LoadFromFile("Router");
-
