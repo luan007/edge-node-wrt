@@ -82,6 +82,7 @@ export function RequestFidelity(req:ExpressServerRequest, res:ExpressServerRespo
     throwIf(!validator.isLength(req.param("rid"), 10, 100), "Missing RouterId");
     db.Models.Router.Table.get(req.param("rid"), (err, router) => {
         if (!router) return next(new Error("Router Not Found"));
+        if (!router.produced) return next(new Error("Illegal Router"));
         req.router = router;
         var privateKey = router.routerkey; //prvKey
         try {

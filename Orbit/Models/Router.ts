@@ -19,7 +19,7 @@ export class Router {
     active:boolean = false;
     produced:boolean = false;
 
-    static meta() {  
+    static meta() {
         return {
             appkey: {type: 'text', size: 512},
             routerkey: {type: 'text', size: 4096}
