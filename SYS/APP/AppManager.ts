@@ -69,6 +69,7 @@ export function Install(app_uid:string, callback:Callback) {
                             });
                             entry.on("end", () => {
                                 try {
+                                    json = json.replace(/\s/gmi, '');
                                     console.log('=======((('["cyanBG"].bold, json, typeof json);
                                     //var obj = JSON.parse(json.replace(/\n/gmi, ''));
                                     target = JSON.parse(json);
