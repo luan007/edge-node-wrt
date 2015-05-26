@@ -9,6 +9,7 @@ export class RouterApp {
     uid: string = "";
     router_uid: string = "";
     app_uid: string = "";
+    app_sig:string = "";
     orderTime: Date = new Date();
     installTime: Date = new Date();
 

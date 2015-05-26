@@ -21,8 +21,8 @@ export class Router {
 
     static meta() {
         return {
-            appkey: {type: 'text', size: 512},
-            routerkey: {type: 'text', size: 4096}
+            appkey: {type: 'text', size: 4096 },
+            routerkey: {type: 'text', size: 512 }
         };
     }
 

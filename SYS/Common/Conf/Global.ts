@@ -97,6 +97,7 @@ class _sys_global_conf {
     LOG_LEVELS = ['error', 'fatal']; // 'error', 'fatal'
     ON_BOARD = false; //on-board
     LUA_NGINX_SOCKET = '/var/lua_nginx_socket';
+    APP_TMP_PATH = '/var/app_tmp';
 }
 
 class _global_section {

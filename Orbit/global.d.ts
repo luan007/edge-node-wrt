@@ -3,6 +3,7 @@
 
 declare var SERVER: ExpressApplication;
 
+
 interface ExpressServerRequest {
     router: any;
     ticket: any;

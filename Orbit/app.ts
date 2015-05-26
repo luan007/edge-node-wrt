@@ -140,6 +140,8 @@ function GenerateDummyData(cb) {
                 router.routerkey = routerkey;
                 router.appkey = appkey;
                 router.uid = "TEST_ROUTER_0";
+                router.produced = true;
+                router.active = true;
                 Data.Models.Router.Table.create(router, cb);
             } else {
                 cb();

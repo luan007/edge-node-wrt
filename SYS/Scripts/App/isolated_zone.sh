@@ -41,3 +41,8 @@ if [ ! -e /User ]; then mkdir /User ; fi
 if [ ! -e /User/FileTransfer ]; then mkdir /User/FileTransfer ; fi
 chown nobody -R /User
 chmod 777 /User
+
+####apps
+echo mkdir /var/app_tmp
+if [ ! -e /var/app_tmp ]; then mkdir /var/app_tmp ; fi
+rm -rf /var/app_tmp/*

@@ -1,6 +1,9 @@
 import Storage = require("../Storage");
 import validator = require("validator");
 import Data = require("../Storage");
+import path = require('path');
+import RSA  = require('../Common/RSA');
+import fs = require('fs');
 
 get("/App/all", (req, res, next) => {
     var page = parseInt(req.param('page'));
@@ -11,23 +14,46 @@ get("/App/all", (req, res, next) => {
     });
 });
 
-post('/App/purchase', (req, res, next) => {
-    var app_uid = req.param('app_uid');
-    var router_uid = req.router.router_uid;
-    Data.Models.RouterApp.Table.find({app_uid: app_uid, router_uid: router_uid}, (err, routerApp)=> {
+post('/App/purchase/:app_uid', (req, res, next) => { // ===> app_sig
+    var app_uid = req.params.app_uid;
+    var router_uid = req.router.uid;
+    var app_key = req.router.appkey;
+    Data.Models.RouterApp.Table.find({app_uid: app_uid, router_uid: router_uid}, (err, routerApps)=> {
         if (err) return next(err);
-        if (!routerApp) {
+        console.log('routerApps', routerApps, app_uid, router_uid);
+        if (routerApps.length <= 0) {
+            var app_path = path.join(ORBIT_CONF.APP_BASE_PATH, app_uid);
+            var app_sig = RSA.SignApp(app_key, app_path);
+            var app_router_uid = UUIDstr();
             Data.Models.RouterApp.Table.create({
-                router_uid: app_uid,
-                app_uid: router_uid,
+                uid: app_router_uid,
+                router_uid: router_uid,
+                app_uid: app_uid,
+                app_sig: app_sig,
                 orderTime: new Date(),
                 installTime: new Date()
-            }, (err, items)=> {
-                if(err) return next(err);
-                return res.json(items);
+            }, (err)=> {
+                if (err)
+                    return next(err);
+                return res.json({app_sig: app_sig, app_router_uid: app_router_uid});
             });
         } else {
-            return res.json('{}');
+            return res.json({app_sig: routerApps[0].app_sig, app_router_uid: routerApps[0].uid});
+        }
+    });
+});
+
+post('/App/download/:app_router_uid', (req, res, next) => {
+    var app_router_uid = req.params.app_router_uid;
+    Data.Models.RouterApp.Table.get(app_router_uid, (err, routerApp)=> {
+        if (err) return next(err);
+        console.log('routerApp', routerApp);
+        if (routerApp) {
+            var appPackagePath = path.join(ORBIT_CONF.APP_BASE_PATH, routerApp.app_uid + '.zip');
+            console.log('appPackagePath'["cyanBG"].bold, appPackagePath);
+            fs.createReadStream(appPackagePath).pipe(<any>res);
+        } else {
+            return next(new Error('you have not purchased.'));
         }
     });
 });

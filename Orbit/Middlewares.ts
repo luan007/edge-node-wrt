@@ -84,11 +84,9 @@ export function RequestFidelity(req:ExpressServerRequest, res:ExpressServerRespo
         if (!router) return next(new Error("Router Not Found"));
         if (!router.produced) return next(new Error("Illegal Router"));
         req.router = router;
-        var privateKey = router.routerkey; //prvKey
         try {
-            console.log('private', privateKey)
             var k = sha256_Obj(req.method == "GET" || req.method == "DEL" ? req.query : req.body, {"ck": true});
-            var should_match = forsake.decrypt(new Buffer(req.param("ck"), "hex"), privateKey).toString();
+            var should_match = forsake.decrypt(new Buffer(req.param("ck"), "hex"), router.routerkey).toString();
             if (k !== should_match) {
                 return next(new Error("Bad ``equest"));
             }

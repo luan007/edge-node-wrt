@@ -117,6 +117,47 @@ class _orbit {
 
     Put: _request = this.GenericRequest.bind(this, "PUT");
 
+    Download = (targetpath, pkg, callback: Callback, timeout = CONF.ORBIT.DEFAULT_TIMEOUT) => {
+        var _method = "POST";
+
+        pkg = pkg ? pkg : {};
+
+        var retry = callback["retry"];
+
+        callback = must(callback, timeout);
+
+        var headers = {
+            'Content-Type': 'application/json'
+        };
+        if (!this.appendChecksum(pkg)) {
+            return callback(new Error("Failed to generate pkg-checksum :("));
+        }
+        var _body = JSON.stringify(pkg);
+
+        trace(_method.bold + " > " + targetpath + " " + JSON.stringify(pkg));
+
+        var options = {
+            hostname: CONF.ORBIT.HOST,
+            port: CONF.ORBIT.PORT,
+            path: "/" + targetpath,
+            method: _method,
+            headers: headers
+        };
+
+        var req = http.request(options, function (res : any) {
+            callback(null, res);
+        });
+
+        req.once("error", function (err) {
+            req.removeAllListeners();
+            return callback(err, null);
+            req.abort();
+        });
+        if (_body) {
+            req.write(_body);
+        }
+        req.end();
+    };
 }
 
 var Orbit = new _orbit;

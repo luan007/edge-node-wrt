@@ -13,29 +13,44 @@ import User = require('../Common/Native/user');
 import http = require('http');
 var unzip = require("unzip");
 
-function GetAppURL(order_id:string, callback:Callback) {
-    callback(null, order_id);
+/**
+ * Purchase APP
+ */
+export function Purchase(app_uid:string, callback:Callback) {
+    Orbit.Post('App/purchase/' + app_uid, {},  (err, orbitResult)=> {
+        if(err) return callback(err);
+        try {
+            return callback(null, orbitResult);
+        } catch (err) {
+            return callback(err);
+        }
+    });
 }
 /**
  * Install APP
  */
 export function Install(app_uid:string, callback:Callback) {
-    GetAppURL(app_uid, (err, url) => {
+    Purchase(app_uid, (err, orbitResult) => {
         if(err){
             error(err);
             return callback(err);
         }
-        var fileName = path.basename(url);
+        if(!orbitResult.app_sig) {
+            fatal('orbit purchase result', orbitResult);
+            return callback(new Error('purchase failed.'));
+        }
+        fatal('app_sig'["cyanBG"].bold, orbitResult.app_sig);
         var appPath = "";
-        var appPackagePath = path.join(CONF.APP_BASE_PATH, fileName);
+        var appPackagePath = path.join(CONF.APP_TMP_PATH, app_uid + '.zip');
+        if(fs.existsSync(appPackagePath))
+            fs.unlinkSync(appPackagePath);
         var appStream = fs.createWriteStream(appPackagePath);
-        http.get(url, (res)=> {
-            res.pipe(appStream);
-        })
-            .on('error', (err) => {
-                error(err);
-                return callback(err);
-            });
+
+        Orbit.Download('App/download/' + orbitResult.app_router_uid, {}, (err, result)=> {
+            if(err) return callback(err);
+            result.pipe(appStream);
+        });
+
         appStream
             .on('error', (err)=> {
                 error(err);
@@ -54,7 +69,8 @@ export function Install(app_uid:string, callback:Callback) {
                             });
                             entry.on("end", () => {
                                 try {
-                                    info(JSON.parse(json));
+                                    console.log('=======((('["cyanBG"].bold, json, typeof json);
+                                    //var obj = JSON.parse(json.replace(/\n/gmi, ''));
                                     target = JSON.parse(json);
                                 } catch (err) {
                                     error(err);
@@ -76,12 +92,7 @@ export function Install(app_uid:string, callback:Callback) {
                                     return callback(err);
                                 })
                                 .on("close", () => {
-                                    var app_sig = "";
-                                    //if (!CONF.BYPASS_APP_SIGCHECK) { // ==> sig
-                                    //    fatal("Sign APP..");
-                                    //    app_sig = _SIGN_APP(appPath);
-                                    //}
-                                    InsertOrUpdate(name, target, app_sig, (err) => {
+                                    InsertOrUpdate(name, target, orbitResult.app_sig, (err) => {
                                         if (err) {
                                             error(err);
                                             return callback(err);
@@ -99,6 +110,7 @@ export function Install(app_uid:string, callback:Callback) {
             });
     });
 }
+
 
 /**
  * UnInstall APP
