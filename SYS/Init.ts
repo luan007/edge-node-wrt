@@ -40,6 +40,7 @@ domain.run(function () {
         , './Device/__Test'
         , './APP/Test/FakeData/Generator'
         , './APP/Resource/__Test'
+        , './APP/__Test'
     ];
     var initializes = [];
     var subscribes = [];

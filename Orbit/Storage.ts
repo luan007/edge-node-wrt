@@ -18,9 +18,12 @@ function Type(obj) {
 function GetDefFromClass(dataclass) {
     var def = {};
     var t: Object = new dataclass();
-
+    var meta:Object =dataclass.meta ? dataclass.meta() : {};
     for (var typename in t) {
-        if (t.hasOwnProperty(typename)) {
+        if(meta.hasOwnProperty(typename)){
+            def[typename] = meta[typename];
+        }
+        else if (t.hasOwnProperty(typename)) {
             var tname = Type(t[typename]);
             var tfunc = global[tname];
             def[typename] = tfunc;
@@ -38,7 +41,6 @@ export function DefineTable(table_name, module_class, options) {
 
 export function Initialize(_db, callback: (err, db) => any) {
     console.log("Init DB");
-    //orm.connect("sqlite://" + _db, (err, db) => {
     orm.connect("mysql://" + _db, (err, db) => {
         if (!err) {
             console.log("[CON] " + _db.cyanBG.bold);
@@ -59,15 +61,6 @@ function LoadSingleModel(modelName: string) {
     }
     var print = ("[" + modelName.toUpperCase() + "]")["magentaBG"].bold;
     model.table();
-    var def = <any>GetDefFromClass(model);
-    for (var t in def) {
-        if (def.hasOwnProperty(t)) {
-            var name = t;
-            var type = FuncName(def[t]);
-            print += " " + name.bold;
-        }
-    }
-    console.log(print);
 }
 
 function LoadModels(callback: (err, db) => any) {
