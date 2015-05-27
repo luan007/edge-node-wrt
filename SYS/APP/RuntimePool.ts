@@ -93,6 +93,7 @@ export function LoadApplication(app_uid:string, callback:PCallback<string>) {
                     PlannedLaunchTime: status.PlannedLaunchTime,
                     LaunchTime: status.LaunchTime,
                     StabilityRating: status.StabilityRating,
+                    AppUrl: status.AppUrl,
                     AppName: status.AppName,
                     IsLauncher: status.IsLauncher,
                     MainSock: status.MainSock,
@@ -101,10 +102,16 @@ export function LoadApplication(app_uid:string, callback:PCallback<string>) {
                 });
             });
             runtime.on('relaunch', (nextLaunchTime)=> { // need relaunch
-                setTask('relaunch_' + app_uid, () => {
-                    console.log('============((( runtime was relaunched..', app_uid);
-                    runtime.Start();
-                }, nextLaunchTime);
+                if(runtime.System) {
+                    process.nextTick(() => { // system app
+                        runtime.Start();
+                    });
+                } else {
+                    setTask('relaunch_' + app_uid, () => {
+                        console.log('============((( runtime was relaunched..', app_uid);
+                        runtime.Start();
+                    }, nextLaunchTime);
+                }
             });
             runtime.on('terminated', ()=> { // terminate by external process.
                 console.log('============((( runtime was terminated', app_uid);

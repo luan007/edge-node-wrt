@@ -12,6 +12,13 @@ import Server = require('../API/Server');
 import User = require('../Common/Native/user');
 import http = require('http');
 var unzip = require("unzip");
+import StatMgr = require('../Common/Stat/StatMgr');
+import _StatNode = require('../Common/Stat/StatNode');
+import StatNode = _StatNode.StatNode;
+
+var pub = StatMgr.Pub(SECTION.APP, {
+    apps: {}
+});
 
 /**
  * Purchase APP

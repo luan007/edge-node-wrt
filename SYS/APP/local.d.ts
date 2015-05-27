@@ -1,5 +1,4 @@
-﻿
-// [0] ENV Extraction
+﻿// [0] ENV Extraction
 //  |
 //  +----------+---- target_cwd: path of the executable (parent)
 //             |---- rt_id: runtime id of the application
@@ -42,6 +41,7 @@ declare module local {
             }[];
             StabilityRating: number;
             AppName?:string;
+            AppUrl?:string;
             IsLauncher?:boolean;
             MainSock?:string;
             WebExSock?:string;
@@ -51,12 +51,13 @@ declare module local {
 
         export interface ApplicationManifest {
             name: string;
+            url:string;
             permission: number[];
             drivers: IDic<{
                 Buses: string[];
                 Interest: IDriverInterest;
             }>;
-            is_launcher?:boolean;
+            is_system?:boolean;
         }
 
     }

@@ -38,15 +38,15 @@ function popStack(obj, key) {
 export function Subscribe(cb) {
     var sub = StatMgr.Sub(SECTION.RUNTIME);
     sub.apps.on('set', (appUid, oldStatus, newStatus) => {
-        if (!newStatus.IsLauncher) {
+        if (!newStatus.AppUrl) {
             console.log(')))) ======= (((( runtime pool apps set', appUid, newStatus);
-            var pair =  [newStatus.AppName, newStatus.MainSock];
+            var pair =  [newStatus.AppUrl, newStatus.MainSock];
             pushStack(PrefixTable, newStatus.RuntimeId, pair);
             pushStack(HostnameTable, newStatus.RuntimeId, pair);
         }
     });
     sub.apps.on('del', (appUid, oldStatus) => {
-        if (!oldStatus.IsLauncher) {
+        if (!oldStatus.AppUrl) {
             console.log(')))) ======= (((( runtime pool apps set', appUid, oldStatus);
             popStack(PrefixTable, oldStatus.RuntimeId);
             popStack(HostnameTable, oldStatus.RuntimeId);

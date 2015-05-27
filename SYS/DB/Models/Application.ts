@@ -1,29 +1,32 @@
 ﻿import orm = require("orm");
 import store = require("../Storage");
 
-export interface IApplication extends Application, orm.Instance { }
-export var Table: orm.Typed.TypedModel<IApplication> = undefined; //YOU HAVE TO SET THIS MAN
+export interface IApplication extends Application, orm.Instance {
+}
+export var Table:orm.Typed.TypedModel<IApplication> = undefined; //YOU HAVE TO SET THIS MAN
 
 export class Application {
 
-    uid: string = "";
+    uid:string = "";
 
-    appsig: string = "";
+    appsig:string = "";
 
-    name: string = "";
+    name:string = "";
 
-    urlName: string = "";
+    urlName:string = "";
 
-    static table(): orm.Typed.TypedModel<IApplication> {
+    system :boolean = false;
+
+    static table():orm.Typed.TypedModel<IApplication> {
         if (!Table) {
-            Table = <any>store.DefineTable("Application", Application, { id: ["uid"] });
+            Table = <any>store.DefineTable("Application", Application, {id: ["uid"]});
         }
         return Table;
     }
 
-    static Strip(App: Application): Application {
+    static Strip(App:Application):Application {
         return <Application>{
-            uid : App.uid
+            uid: App.uid
         };
     }
 }

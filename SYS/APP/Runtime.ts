@@ -75,11 +75,14 @@ export class Runtime extends events.EventEmitter{
 
     public Driver:IDic<IDriver> = {};
 
+    public System:boolean = false;
+
     constructor(runtimeId, app:Application) {
         super();
 
         this.App = app;
         this.RuntimeId = runtimeId;
+        this.System = this.Manifest.is_system;
         //FS CHECK
         //
         if (!fs.existsSync(AppManager.GetAppRootPath(app.uid))
@@ -98,7 +101,8 @@ export class Runtime extends events.EventEmitter{
             PlannedLaunchTime: -1,
             StabilityRating: 1,
             State: RuntimeStatusEnum.Ready,
-            IsLauncher : this.Manifest.is_launcher ? true : false,
+            IsLauncher : this.Manifest.is_system ? true : false,
+            AppUrl: this.Manifest.url,
             AppName : this.Manifest.name,
             MainSock : this._mainsock,
             WebExSock: this._webexsock,

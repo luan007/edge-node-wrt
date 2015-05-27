@@ -1,4 +1,5 @@
 ﻿{
-    "name": "TestApp",
-    "permission": [ 1 ]
+  "name": "TestApp",
+  "url": "TestApp",
+  "permission": [1]
 }

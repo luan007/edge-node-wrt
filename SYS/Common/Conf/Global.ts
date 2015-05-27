@@ -111,6 +111,7 @@ class _global_section {
     SAMBA = 'SAMBA';
     OBEX = 'OBEX';
     RUNTIME = 'RUNTIME';
+    APP = "APP";
 }
 
  var CONF = new _sys_global_conf();
