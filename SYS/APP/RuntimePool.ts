@@ -378,8 +378,9 @@ export function Initialize(cb) {
             }
 
             trace("Autoloading All Apps, Implementation is a total mess, fix this !!");
-            //TODO: FIX THIS (LoadApp ( dupe ))
+
             AppManager.GetAllApplications((err, results) => {
+                fatal('************************** GetAllApplications ========(((', results);
                 if (err) {
                     return error(err);
                 } else {

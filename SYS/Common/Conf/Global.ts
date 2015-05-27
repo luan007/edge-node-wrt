@@ -37,7 +37,7 @@ class _sys_global_conf {
     APP_TRUST_LIFE = 5;
     APP_SPAN_SCALER = 1.5; // Max = 10 ^ 1.5 = 316sec
     APP_RESP_SCAN_INTERVAL = 5000; // Max = 10 ^ 2.5 = 316sec
-    AUTO_LOAD_APPS = false;
+    AUTO_LOAD_APPS = true;
     ISO_DEFAULT_LIMIT = 1024 * 1500; //1500MB
     DO_NOT_DETACH = true;
     ENABLE_EXEC_QUEUEING = true;

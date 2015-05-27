@@ -33,14 +33,14 @@ domain.run(function () {
         , './Frontends/MainUI'
         , './Frontends/HttpProxy'
         , './APP/Remote/Client'
+        , './APP/Test/FakeData/Generator'
         , './APP/RuntimePool'
         , './APP/Test/Deployment/Server'
         , './Router/Network/Firewall/__Test'
         , './Device/Graphd/__Test'
         , './Device/__Test'
-        , './APP/Test/FakeData/Generator'
         , './APP/Resource/__Test'
-        , './APP/__Test'
+        //, './APP/__Test'
     ];
     var initializes = [];
     var subscribes = [];

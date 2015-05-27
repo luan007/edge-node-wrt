@@ -46,7 +46,7 @@ export function Install(app_uid:string, callback:Callback) {
             fatal('orbit purchase result', orbitResult);
             return callback(new Error('purchase failed.'));
         }
-        fatal('app_sig'["cyanBG"].bold, orbitResult.app_sig);
+        //fatal('app_sig'["cyanBG"].bold, orbitResult.app_sig);
         var appPath = "";
         var appPackagePath = path.join(CONF.APP_TMP_PATH, app_uid + '.zip');
         if(fs.existsSync(appPackagePath))

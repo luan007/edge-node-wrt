@@ -150,21 +150,6 @@ function GenerateDummyData(cb) {
     });
 
     jobs.push((cb)=> {
-        Data.Models.Router.Table.get('Launcher', (err, result) => {
-            if (!result) {
-                var app = new Data.Models.Application.Application();
-                app.uid = 'Launcher';
-                app.appsig = '';
-                app.name = 'Launcher';
-                app.urlName = '';
-                Data.Models.Application.Table.create(app, cb);
-            } else {
-                cb();
-            }
-        });
-    });
-
-    jobs.push((cb)=> {
         Data.Models.Router.Table.get('TestApp', (err, result) => {
             if (!result) {
                 var app = new Data.Models.Application.Application();

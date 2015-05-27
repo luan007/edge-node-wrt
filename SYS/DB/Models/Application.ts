@@ -15,8 +15,6 @@ export class Application {
 
     urlName:string = "";
 
-    system :boolean = false;
-
     static table():orm.Typed.TypedModel<IApplication> {
         if (!Table) {
             Table = <any>store.DefineTable("Application", Application, {id: ["uid"]});

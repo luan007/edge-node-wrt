@@ -82,7 +82,6 @@ export class Runtime extends events.EventEmitter{
 
         this.App = app;
         this.RuntimeId = runtimeId;
-        this.System = this.Manifest.is_system;
         //FS CHECK
         //
         if (!fs.existsSync(AppManager.GetAppRootPath(app.uid))
@@ -108,6 +107,8 @@ export class Runtime extends events.EventEmitter{
             WebExSock: this._webexsock,
             RuntimeId: runtimeId
         };
+
+        this.System = this.Manifest.is_system;
 
         this.Registry = Registry.Sector(
             Registry.RootKeys.App,
