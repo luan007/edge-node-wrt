@@ -1,0 +1,37 @@
+﻿{
+  "name": "DriverApp",
+  "url": "DriverApp",
+  "permission": [1],
+  "drivers": {
+    "NameServices": {
+      "Buses": ["WLAN"],
+      "Interest": {
+        "match": {
+          "config": {
+            "$or": [
+              {"name": {"$exists": true}},
+              {"alias": {"$exists": true}}
+            ]
+          },
+          "bus": {
+            "data.Lease": {"$exists": true}
+          }
+        },
+        "change": {
+          "delta": {
+            "bus": {
+              "Lease": {"$exists": true}
+            }
+          },
+          "stateChange": true
+        }
+      }
+    },
+    "OUI": {
+      "Buses": ["WLAN"],
+      "Interest": {
+        "stateChange": true
+      }
+    }
+  }
+}
