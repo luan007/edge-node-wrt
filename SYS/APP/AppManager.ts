@@ -24,11 +24,18 @@ var pub = StatMgr.Pub(SECTION.APP, {
  * Purchase APP
  */
 export function Purchase(app_uid:string, callback:Callback) {
-    Orbit.Post('App/purchase/' + app_uid, {},  (err, orbitResult)=> {
-        if(err) return callback(err);
+    Orbit.Post('App/purchase/' + app_uid, {}, (err, orbitResult)=> {
+        if (err) return callback(err);
         try {
+            pub.apps.set(app_uid, {
+                State: 'purchasing'
+            });
             return callback(null, orbitResult);
         } catch (err) {
+            pub.apps.set(app_uid, {
+                State: 'error',
+                Error: err
+            });
             return callback(err);
         }
     });
@@ -38,33 +45,46 @@ export function Purchase(app_uid:string, callback:Callback) {
  */
 export function Install(app_uid:string, callback:Callback) {
     Purchase(app_uid, (err, orbitResult) => {
-        if(err){
+        if (err) {
             error(err);
             return callback(err);
         }
-        if(!orbitResult.app_sig) {
-            fatal('orbit purchase result', orbitResult);
-            return callback(new Error('purchase failed.'));
-        }
-        //fatal('app_sig'["cyanBG"].bold, orbitResult.app_sig);
+
         var appPath = "";
         var appPackagePath = path.join(CONF.APP_TMP_PATH, app_uid + '.zip');
-        if(fs.existsSync(appPackagePath))
+        if (fs.existsSync(appPackagePath))
             fs.unlinkSync(appPackagePath);
         var appStream = fs.createWriteStream(appPackagePath);
 
+        pub.apps.set(app_uid, {
+            State: 'downloading'
+        });
+
         Orbit.Download('App/download/' + orbitResult.app_router_uid, {}, (err, result)=> {
-            if(err) return callback(err);
+            if (err) {
+                pub.apps.set(app_uid, {
+                    State: 'error',
+                    Error: err
+                });
+                return callback(err);
+            }
             result.pipe(appStream);
         });
 
         appStream
             .on('error', (err)=> {
+                pub.apps.set(app_uid, {
+                    State: 'error',
+                    Error: err
+                });
                 error(err);
                 return callback(err);
             })
             .on('finish', ()=> {
                 var target = <any>undefined;
+                pub.apps.set(app_uid, {
+                    State: 'analyzing'
+                });
                 fs.createReadStream(appPackagePath)
                     .pipe(unzip.Parse())
                     .on('entry', function (entry) {
@@ -90,6 +110,9 @@ export function Install(app_uid:string, callback:Callback) {
                         }
                     }).on("close", () => {
                         if (target) {
+                            pub.apps.set(app_uid, {
+                                State: 'extracting'
+                            });
                             var name = target.name;
                             appPath = path.join(CONF.APP_BASE_PATH, name);
                             fatal("Extracting..");
@@ -102,21 +125,42 @@ export function Install(app_uid:string, callback:Callback) {
                                 .on("close", () => {
                                     InsertOrUpdate(name, target, orbitResult.app_sig, (err) => {
                                         if (err) {
+                                            pub.apps.set(app_uid, {
+                                                State: 'error',
+                                                Error: err
+                                            });
                                             error(err);
                                             return callback(err);
                                         }
                                         else {
                                             fatal("Deploy Complete");
-                                            RuntimePool.LoadApplication(app_uid, (err, pool_id:string)=>{
-                                                if(err) return callback(err);
-                                                else return callback(null, pool_id);
+                                            pub.apps.set(app_uid, {
+                                                State: 'loading'
+                                            });
+                                            RuntimePool.LoadApplication(app_uid, (err, pool_id:string)=> {
+                                                if (err) {
+                                                    pub.apps.set(app_uid, {
+                                                        State: 'error',
+                                                        Error: err
+                                                    });
+                                                    return callback(err);
+                                                }
+                                                pub.apps.set(app_uid, {
+                                                    State: 'installed'
+                                                });
+                                                return callback(null, pool_id);
                                             });
 
                                         }
                                     });
                                 });
                         } else {
-                            callback(new Error("Missing manifest :("));
+                            var err = new Error("Missing manifest :(");
+                            pub.apps.set(app_uid, {
+                                State: 'error',
+                                Error: err
+                            });
+                            callback(err);
                         }
                     });
             });
@@ -135,8 +179,8 @@ export function UnInstall(app_uid:string, callback:Callback) {
                 record.remove((err)=> { // 2. remove from DB
                     if (err) error(err);
                     var appPath = path.join(CONF.APP_BASE_PATH, app_uid);
-                    exec('rm', '-rf', appPath, (err)=>{ // 3. remove from disk
-                        if(err) return callback(err);
+                    exec('rm', '-rf', appPath, (err)=> { // 3. remove from disk
+                        if (err) return callback(err);
                         else return callback();
                     });
                 });

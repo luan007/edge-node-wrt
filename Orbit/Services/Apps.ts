@@ -32,10 +32,7 @@ post('/App/purchase/:app_uid', (req, res, next) => { // ===> app_sig
 
             Data.Models.RouterApp.Table.find({app_uid: app_uid, router_uid: router_uid}, (err, routerApps)=> {
                 if (err) return next(err);
-                console.log('routerApps', routerApps, app_uid, router_uid);
                 if (routerApps.length <= 0) {
-                    //var app_path = path.join(ORBIT_CONF.APP_BASE_PATH, app_uid);
-                    //var app_sig = RSA.SignApp(app_key, app_path);
                     var app_router_uid = UUIDstr();
                     Data.Models.RouterApp.Table.create({
                         uid: app_router_uid,
