@@ -5,7 +5,8 @@ class StatMgr {
     private _statuses:{ [key: string]: StatNode; } = {};
 
     Pub = (k:string, statusObject:Object):any => {
-        this._statuses[k] = new StatNode(k, statusObject);
+        if(!this._statuses[k])
+            this._statuses[k] = new StatNode(k, statusObject);
         return this._statuses[k];
     }
 

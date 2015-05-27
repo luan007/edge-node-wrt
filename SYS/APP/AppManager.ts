@@ -115,7 +115,7 @@ export function Install(app_uid:string, callback:Callback) {
                             });
                             var name = target.name;
                             appPath = path.join(CONF.APP_BASE_PATH, name);
-                            fatal("Extracting..");
+                            //fatal("Extracting..");
                             fs.createReadStream(appPackagePath)
                                 .pipe(unzip.Extract({path: appPath}))
                                 .on('error', (err)=> {
@@ -172,16 +172,42 @@ export function Install(app_uid:string, callback:Callback) {
  * UnInstall APP
  */
 export function UnInstall(app_uid:string, callback:Callback) {
+    pub.apps.set(app_uid, {
+        State: 'unloading'
+    });
     RuntimePool.UnloadApplication(app_uid, () => {// 1.unload
+        pub.apps.set(app_uid, {
+            State: 'uninstalling'
+        });
         Application.table().get(app_uid, (err, record) => {
-            if (err) callback(err);
+            if (err) {
+                pub.apps.set(app_uid, {
+                    State: 'error',
+                    Error(err);
+                });
+                callback(err);
+            }
             else {
+                pub.apps.set(app_uid, {
+                    State: 'removing'
+                });
                 record.remove((err)=> { // 2. remove from DB
                     if (err) error(err);
                     var appPath = path.join(CONF.APP_BASE_PATH, app_uid);
                     exec('rm', '-rf', appPath, (err)=> { // 3. remove from disk
-                        if (err) return callback(err);
-                        else return callback();
+                        if (err) {
+                            pub.apps.set(app_uid, {
+                                State: 'error',
+                                Error(err);
+                            });
+                            return callback(err);
+                        }
+                        else {
+                            pub.apps.set(app_uid, {
+                                State: 'uninstalled'
+                            });
+                            return callback();
+                        }
                     });
                 });
             }
