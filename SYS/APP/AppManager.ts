@@ -27,12 +27,12 @@ export function Purchase(app_uid:string, callback:Callback) {
     Orbit.Post('App/purchase/' + app_uid, {}, (err, orbitResult)=> {
         if (err) return callback(err);
         try {
-            pub.apps.set(app_uid, {
+            pub.apps.Set(app_uid, {
                 State: 'purchasing'
             });
             return callback(null, orbitResult);
         } catch (err) {
-            pub.apps.set(app_uid, {
+            pub.apps.Set(app_uid, {
                 State: 'error',
                 Error: err
             });
@@ -56,13 +56,13 @@ export function Install(app_uid:string, callback:Callback) {
             fs.unlinkSync(appPackagePath);
         var appStream = fs.createWriteStream(appPackagePath);
 
-        pub.apps.set(app_uid, {
+        pub.apps.Set(app_uid, {
             State: 'downloading'
         });
 
         Orbit.Download('App/download/' + orbitResult.app_router_uid, {}, (err, result)=> {
             if (err) {
-                pub.apps.set(app_uid, {
+                pub.apps.Set(app_uid, {
                     State: 'error',
                     Error: err
                 });
@@ -73,7 +73,7 @@ export function Install(app_uid:string, callback:Callback) {
 
         appStream
             .on('error', (err)=> {
-                pub.apps.set(app_uid, {
+                pub.apps.Set(app_uid, {
                     State: 'error',
                     Error: err
                 });
@@ -82,7 +82,7 @@ export function Install(app_uid:string, callback:Callback) {
             })
             .on('finish', ()=> {
                 var target = <any>undefined;
-                pub.apps.set(app_uid, {
+                pub.apps.Set(app_uid, {
                     State: 'analyzing'
                 });
                 fs.createReadStream(appPackagePath)
@@ -110,7 +110,7 @@ export function Install(app_uid:string, callback:Callback) {
                         }
                     }).on("close", () => {
                         if (target) {
-                            pub.apps.set(app_uid, {
+                            pub.apps.Set(app_uid, {
                                 State: 'extracting'
                             });
                             var name = target.name;
@@ -125,7 +125,7 @@ export function Install(app_uid:string, callback:Callback) {
                                 .on("close", () => {
                                     InsertOrUpdate(name, target, orbitResult.app_sig, (err) => {
                                         if (err) {
-                                            pub.apps.set(app_uid, {
+                                            pub.apps.Set(app_uid, {
                                                 State: 'error',
                                                 Error: err
                                             });
@@ -134,18 +134,18 @@ export function Install(app_uid:string, callback:Callback) {
                                         }
                                         else {
                                             fatal("Deploy Complete");
-                                            pub.apps.set(app_uid, {
+                                            pub.apps.Set(app_uid, {
                                                 State: 'loading'
                                             });
                                             RuntimePool.LoadApplication(app_uid, (err, pool_id:string)=> {
                                                 if (err) {
-                                                    pub.apps.set(app_uid, {
+                                                    pub.apps.Set(app_uid, {
                                                         State: 'error',
                                                         Error: err
                                                     });
                                                     return callback(err);
                                                 }
-                                                pub.apps.set(app_uid, {
+                                                pub.apps.Set(app_uid, {
                                                     State: 'installed'
                                                 });
                                                 return callback(null, pool_id);
@@ -156,7 +156,7 @@ export function Install(app_uid:string, callback:Callback) {
                                 });
                         } else {
                             var err = new Error("Missing manifest :(");
-                            pub.apps.set(app_uid, {
+                            pub.apps.Set(app_uid, {
                                 State: 'error',
                                 Error: err
                             });
@@ -172,23 +172,23 @@ export function Install(app_uid:string, callback:Callback) {
  * UnInstall APP
  */
 export function UnInstall(app_uid:string, callback:Callback) {
-    pub.apps.set(app_uid, {
+    pub.apps.Set(app_uid, {
         State: 'unloading'
     });
     RuntimePool.UnloadApplication(app_uid, () => {// 1.unload
-        pub.apps.set(app_uid, {
+        pub.apps.Set(app_uid, {
             State: 'uninstalling'
         });
         Application.table().get(app_uid, (err, record) => {
             if (err) {
-                pub.apps.set(app_uid, {
+                pub.apps.Set(app_uid, {
                     State: 'error',
-                    Error(err);
+                    Error : err
                 });
                 callback(err);
             }
             else {
-                pub.apps.set(app_uid, {
+                pub.apps.Set(app_uid, {
                     State: 'removing'
                 });
                 record.remove((err)=> { // 2. remove from DB
@@ -196,16 +196,17 @@ export function UnInstall(app_uid:string, callback:Callback) {
                     var appPath = path.join(CONF.APP_BASE_PATH, app_uid);
                     exec('rm', '-rf', appPath, (err)=> { // 3. remove from disk
                         if (err) {
-                            pub.apps.set(app_uid, {
+                            pub.apps.Set(app_uid, {
                                 State: 'error',
-                                Error(err);
+                                Error: err
                             });
                             return callback(err);
                         }
                         else {
-                            pub.apps.set(app_uid, {
+                            pub.apps.Set(app_uid, {
                                 State: 'uninstalled'
                             });
+                            pub.apps.Del(app_uid);
                             return callback();
                         }
                     });

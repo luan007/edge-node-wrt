@@ -40,7 +40,7 @@ domain.run(function () {
         , './Device/Graphd/__Test'
         , './Device/__Test'
         , './APP/Resource/__Test'
-        //, './APP/__Test'
+        , './APP/__Test'
     ];
     var initializes = [];
     var subscribes = [];
