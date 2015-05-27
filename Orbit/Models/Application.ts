@@ -8,14 +8,14 @@ export var Table:orm.Typed.TypedModel<IApplication> = undefined; //YOU HAVE TO S
 export class Application {
 
     uid:string = "";
-    appsig:string = "";
+    dirHashCode:string = "";
     name:string = "";
     urlName:string = "";
 
     static meta() {
         return {
             uid: {type: 'text', size: 255},
-            appsig: {type: 'text', size: 4096}
+            dirHashCode: {type: 'text', size: 4096}
         }
     }
 

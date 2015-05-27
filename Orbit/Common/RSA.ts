@@ -4,11 +4,6 @@ import fs = require("fs");
 import path = require("path");
 import Data = require("../Storage");
 
-
-function _Gen_Salt(len) {
-    return crypto.randomBytes(len);
-}
-
 function _Gen_KeyPair(keylen?:number, exponent?:number) {
     keylen = keylen || 4096;
     exponent = exponent || 65537;
@@ -34,16 +29,34 @@ export function GenKeyPairs() {
         AppPair: appPair
     };
 }
+
+export function GenSalt(len) {
+    return crypto.randomBytes(len);
+}
 /**
  *
  @callback(err, result) :
  result: app_sig
  */
 export function SignApp(appKey:string, appPath:string) {
-    var salt = _Gen_Salt(256);
+    var salt = GenSalt(256);
     var hash =  HashDir(appPath, salt);
     var prvkey = new rsa(appKey);
     var snapshot = salt.toString("hex") + hash.toString("hex");
+    var sign = prvkey.sign(snapshot, "hex", "utf8");
+    var app_sig = salt.toString("hex") + sign.toString();
+    return app_sig;
+}
+
+/**
+ *
+ * @param appKey
+ * @param dirHashCode
+ * @returns {string}
+ */
+export function SignAppByHashCode(appKey:string, salt:Buffer, dirHashCode:string) {
+    var prvkey = new rsa(appKey);
+    var snapshot = salt.toString("hex") + dirHashCode;
     var sign = prvkey.sign(snapshot, "hex", "utf8");
     var app_sig = salt.toString("hex") + sign.toString();
     return app_sig;

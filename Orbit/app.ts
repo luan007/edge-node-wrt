@@ -154,7 +154,7 @@ function GenerateDummyData(cb) {
             if (!result) {
                 var app = new Data.Models.Application.Application();
                 app.uid = 'TestApp';
-                app.appsig = '';
+                app.dirHashCode = '';
                 app.name = 'TestApp';
                 app.urlName = 'TestApp';
                 Data.Models.Application.Table.create(app, cb);

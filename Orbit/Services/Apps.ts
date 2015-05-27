@@ -22,8 +22,13 @@ post('/App/purchase/:app_uid', (req, res, next) => { // ===> app_sig
     Data.Models.Application.Table.get(app_uid, (err, app) => { // should be exist in DB
         if(err) return next(err);
         else {
-            var app_path = path.join(ORBIT_CONF.APP_BASE_PATH, app.uid);
-            var app_sig = RSA.SignApp(app_key, app_path); // sum per time.
+            var salt = RSA.GenSalt(256);
+            if(app.dirHashCode.trim() === '') {
+                var app_path = path.join(ORBIT_CONF.APP_BASE_PATH, app.uid);
+                app.dirHashCode =  HashDir(app_path, salt).toString("hex");
+                app.save();
+            }
+            var app_sig = RSA.SignAppByHashCode(app_key, salt, app.dirHashCode); // sum per time.
 
             Data.Models.RouterApp.Table.find({app_uid: app_uid, router_uid: router_uid}, (err, routerApps)=> {
                 if (err) return next(err);
