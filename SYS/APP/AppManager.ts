@@ -100,7 +100,11 @@ export function Install(app_uid:string, callback:Callback) {
                                         }
                                         else {
                                             fatal("Deploy Complete");
-                                            return callback();
+                                            RuntimePool.LoadApplication(app_uid, (err, pool_id:string)=>{
+                                                if(err) return callback(err);
+                                                else return callback(null, pool_id);
+                                            });
+
                                         }
                                     });
                                 });
