@@ -80,7 +80,11 @@ put("/Ticket",(req, res, next) => {
 
     var hashedRKey = wait.for(hash, oldrtoken, ticket.refreshSalt);
 
+
     if (hashedRKey !== ticket.refreshToken) {
+        console.log('hashedRKey', hashedRKey);
+        console.log('refreshToken', ticket.refreshToken);
+
         throw new Error("Wrong Token");
     }
 

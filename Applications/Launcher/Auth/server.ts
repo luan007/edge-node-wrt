@@ -46,7 +46,6 @@ function SetCookie(cookie, atoken, expire, d) {
 }
 
 function SetRtoken(cookie, rtoken, expire) {
-    console.log('=============== ((( before:    SetRtoken\n', rtoken, cookie.set);
     return cookie.set("edge_rtoken", rtoken, {
         httpOnly: true,
         overwrite: true,
@@ -62,7 +61,6 @@ function LoginSuccess(req, res, expire, cookies, atoken, rtoken) {
     console.log('=============== ((( atoken:\n', atoken);
     console.log('=============== ((( rtoken:\n', rtoken);
     SetRtoken(cookies, rtoken, expire);
-    console.log('=============== ((( after:    SetRtoken\n', req.query, AUTH_DOMAIN);
     return res.render("Distribute.ejs", {
         originalQuery: querystring.stringify(req.query),
         query: querystring.stringify({
@@ -137,6 +135,7 @@ app.post("/auth",(req, res) => {
 });
 
 app.get("/renew",(req, res) => {
+    console.log('=============== ((( POST renew:\n');
     res.render("Renew.ejs", {
         query: querystring.stringify(req.query)
     });
@@ -145,6 +144,7 @@ app.get("/renew",(req, res) => {
 app.post("/renew",(req, res) => {
     var expire = new Date();
     expire.setTime(new Date().getTime() + (60 * 1000 * 60 * 24));
+    console.log('=============== ((( POST renew:\n', expire);
     var host = req.header("edge-host").toLowerCase();
     if (host !== AUTH_DOMAIN) {
         return res.redirect("http://" + AUTH_DOMAIN + "/?" + querystring.stringify(req.query));

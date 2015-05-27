@@ -58,6 +58,7 @@ export function Authentication(req:ExpressServerRequest, res:ExpressServerRespon
 
 export function Device(req:ExpressServerRequest, res:ExpressServerResponse, next) {
     if (req.param("did")) {
+        console.log('Device'["magentaBG"].bold, req.router.uid, req.param("did"));
         db.Models.Device.Table.one({
             and: [{router_uid: req.router.uid},
                 {local_dev_uid: req.param("did")}]

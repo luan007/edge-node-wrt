@@ -42,7 +42,7 @@ class _sys_global_conf {
     DO_NOT_DETACH = true;
     ENABLE_EXEC_QUEUEING = true;
     PROCESS_DEBUG = false;
-    BYPASS_APP_SIGCHECK = false;
+    BYPASS_APP_SIGCHECK = true;
     SHOW_NGINX_CONF = true;
     DEVICE_SAVE_INTERVAL = 30000;
     USERAUTH_PATROL_INTERVAL = 30000;

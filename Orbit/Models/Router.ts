@@ -21,6 +21,9 @@ export class Router {
 
     static meta() {
         return {
+            uid: { type:'text', size:255},
+            hashedkey: {type: 'text', size: 4096 },
+            salt: {type: 'text', size: 4096 },
             appkey: {type: 'text', size: 4096 },
             routerkey: {type: 'text', size: 512 }
         };

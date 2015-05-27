@@ -178,10 +178,6 @@ export function GetInstalledApps(callback:(err:Error, result:IApplication[]) => 
     });
 }
 
-export function GetAllApplications(callback) {
-    Application.table().all({}, callback);
-}
-
 export function GetOneByUID(uid, callback) {
     Application.table().one({uid: uid}, callback);
 }

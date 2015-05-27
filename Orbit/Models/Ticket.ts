@@ -24,6 +24,14 @@ export class Ticket {
     attributes: KVSet = {};
     accessTime: Date = new Date();
 
+    static meta() {
+        return {
+            uid: {type: 'text', size: 255 },
+            refreshToken: {type: 'text', size: 4096 },
+            refreshSalt: {type: 'text', size: 4096 }
+        };
+    }
+
     static table(): orm.Model {
         if (!Table) {
             var db = store.Database;

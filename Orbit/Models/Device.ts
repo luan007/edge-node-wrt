@@ -21,6 +21,12 @@ export class Device {
     updateTime: Date = new Date();
     attributes: KVSet = {};
 
+    static meta() {
+        return {
+            uid: {type: 'text', size: 255 }
+        };
+    }
+
     static table(): orm.Typed.TypedModel<IDevice> {
         if (!Table) {
             var db = store.Database;

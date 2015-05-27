@@ -379,7 +379,7 @@ export function Initialize(cb) {
 
             trace("Autoloading All Apps, Implementation is a total mess, fix this !!");
 
-            AppManager.GetAllApplications((err, results) => {
+            AppManager.GetInstalledApps((err, results) => {
                 fatal('************************** GetAllApplications ========(((', results);
                 if (err) {
                     return error(err);

@@ -38,7 +38,7 @@ function popStack(obj, key) {
 export function Subscribe(cb) {
     var sub = StatMgr.Sub(SECTION.RUNTIME);
     sub.apps.on('set', (appUid, oldStatus, newStatus) => {
-        if (!newStatus.AppUrl) {
+        if (newStatus.AppUrl.trim() !== '') {
             console.log(')))) ======= (((( runtime pool apps set', appUid, newStatus);
             var pair =  [newStatus.AppUrl, newStatus.MainSock];
             pushStack(PrefixTable, newStatus.RuntimeId, pair);
@@ -46,7 +46,7 @@ export function Subscribe(cb) {
         }
     });
     sub.apps.on('del', (appUid, oldStatus) => {
-        if (!oldStatus.AppUrl) {
+        if (oldStatus.AppUrl.trim() !== '') {
             console.log(')))) ======= (((( runtime pool apps set', appUid, oldStatus);
             popStack(PrefixTable, oldStatus.RuntimeId);
             popStack(HostnameTable, oldStatus.RuntimeId);
@@ -69,6 +69,11 @@ function GetTarget(host:string, Uri:string, authenticated:string, cb) {
 
         cookie_affect_range = "";
         base = LauncherMainPort;
+
+        //fatal('HOST:');
+        //fatal(HostnameTable);
+        //fatal('PREFIX:');
+        //fatal(PrefixTable);
 
         if (hostsplit.length === 3) {
             var h = hostsplit[0];
@@ -99,7 +104,7 @@ function GetTarget(host:string, Uri:string, authenticated:string, cb) {
     }
     base = "http://unix:/" + base + ":";
     var result = base + uri;
-    info(result);
+    fatal(result);
     cb(undefined, [result, cookie_affect_range]);
 }
 

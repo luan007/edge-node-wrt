@@ -13,6 +13,12 @@ export class RouterApp {
     orderTime: Date = new Date();
     installTime: Date = new Date();
 
+    static meta() {
+        return {
+            uid: {type: 'text', size: 255 }
+        };
+    }
+
     static table(): orm.Typed.TypedModel<IRouterApp> {
         if (!Table) {
             var db = store.Database;

@@ -13,6 +13,14 @@ export class User {
     data: KVSet = {};
     hashedkey: string = "";
 
+    static meta() {
+        return {
+            uid: {type: 'text', size: 255 },
+            salt: {type: 'text', size: 4096 },
+            hashedkey: {type: 'text', size: 4096 }
+        };
+    }
+
     static table(): orm.Typed.TypedModel<IUser> {
         if (!Table) {
             var db = store.Database;
