@@ -121,13 +121,17 @@ export function Install(app_uid:string, callback:Callback) {
  * UnInstall APP
  */
 export function UnInstall(app_uid:string, callback:Callback) {
-    RuntimePool.UnloadApplication(app_uid, () => {
+    RuntimePool.UnloadApplication(app_uid, () => {// 1.unload
         Application.table().get(app_uid, (err, record) => {
             if (err) callback(err);
             else {
-                record.remove((err)=> {
+                record.remove((err)=> { // 2. remove from DB
                     if (err) error(err);
-                    callback();
+                    var appPath = path.join(CONF.APP_BASE_PATH, app_uid);
+                    exec('rm', '-rf', appPath, (err)=>{ // 3. remove from disk
+                        if(err) return callback(err);
+                        else return callback();
+                    });
                 });
             }
         });
