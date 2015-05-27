@@ -73,7 +73,7 @@ export class Runtime extends events.EventEmitter{
 
     public UserId:any;
 
-    public Driver:IDic<IDriver> = {};
+    public Drivers:IDic<IDriver> = {};
 
     public System:boolean = false;
 
@@ -122,7 +122,7 @@ export class Runtime extends events.EventEmitter{
                     id,
                     this.Manifest.drivers[id].Buses,
                     this.Manifest.drivers[id].Interest);
-                this.Driver[id] = drv;
+                this.Drivers[id] = drv;
             }
         }
 
@@ -342,8 +342,8 @@ export class Runtime extends events.EventEmitter{
             exec("chown nobody " + this._webexsock, () => {
             });
 
-            for (var i in this.Driver) {
-                DriverManager.LoadDriver(this.Driver[i], (err) => {
+            for (var i in this.Drivers) {
+                DriverManager.LoadDriver(this.Drivers[i], (err) => {
                     if (err) {
                         error(err);
                         error("InAppDriver failed to load: " + i);

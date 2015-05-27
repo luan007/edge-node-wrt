@@ -1,5 +1,5 @@
 ﻿
-class OUI_Identifier implements IDriver {
+export class OUI_Identifier implements IDriver {
 
     id = () => {
         return "_OUI_";
