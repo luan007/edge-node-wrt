@@ -1,5 +1,4 @@
-﻿
-//Resolve Device Name into DNS domains
+﻿//Resolve Device Name into DNS domains
 //Also generates generic "name" if there's nothing set
 //
 class NameService implements IDriver {
@@ -16,18 +15,18 @@ class NameService implements IDriver {
         match: {
             config: {
                 $or: [
-                    { name: { $exists: true } },
-                    { alias: { $exists: true } }
+                    {name: {$exists: true}},
+                    {alias: {$exists: true}}
                 ]
             },
             bus: {
-                "data.Lease": { $exists: true }
+                "data.Lease": {$exists: true}
             }
         },
         change: {
             delta: {
                 bus: {
-                    "Lease": { $exists: true }
+                    "Lease": {$exists: true}
                 }
             },
             stateChange: true
@@ -38,7 +37,7 @@ class NameService implements IDriver {
         return "NameService";
     };
 
-    interest = (): IDriverInterest=> {
+    interest = ():IDriverInterest=> {
         return this._interest;
     };
 
@@ -50,7 +49,7 @@ class NameService implements IDriver {
         return 1; //always on..
     };
 
-    bus = (): string[]=> {
+    bus = ():string[]=> {
         return ["WLAN"];
     };
 
@@ -59,7 +58,7 @@ class NameService implements IDriver {
         var cur = name;
         var counter = 0;
         var job = () => {
-            API.Network.CheckNameAvailability(cur,(result) => {
+            API.Network.CheckNameAvailability(cur, (result) => {
                 if (result) {
                     cb(cur);
                 }
@@ -72,9 +71,10 @@ class NameService implements IDriver {
         process.nextTick(job);
     };
 
-    private _update_name = (dev: IDevice, _cb) => {
-        _cb = _cb || (() => { });
-        intoQueue("dhcp_operation",(c) => {
+    private _update_name = (dev:IDevice, _cb) => {
+        _cb = _cb || (() => {
+        });
+        intoQueue("dhcp_operation", (cb) => {
             //delete this._name_cache[0][dev.id];
             //delete this._name_cache[1][dev.id];
             //delete this._name_cache[2][dev.id];
@@ -86,7 +86,7 @@ class NameService implements IDriver {
             var alias = dev.config.alias;
 
             if (!lease) {
-                return c();
+                return cb();
             }
 
             //if (host == "Windows-Phone") {
@@ -104,10 +104,9 @@ class NameService implements IDriver {
             //    });
             //}
             var changed = false;
-            if (name && name != "" && name.indexOf("*") < 0 && name != host &&
-                !_.isEqual(this._name_cache[1][dev.id], { name: ip })) {
+            if (name && name != "" && name.indexOf("*") < 0 && name != host && !_.isEqual(this._name_cache[1][dev.id], {name: ip})) {
                 //good
-                this._name_cache[1][dev.id] = { name: ip };
+                this._name_cache[1][dev.id] = {name: ip};
                 changed = true;
             }
             if (Array.isArray(alias)) {
@@ -136,65 +135,72 @@ class NameService implements IDriver {
                 }
             }
             if (!changed) {
-                c();
+                cb();
             }
             else {
-                //Core.Router.Network.dnsmasq.SIGHUP_Update(c);
+                var hostnames = {};
+                hostnames[name] = ip;
+                for (var i = 0; i < alias.length; i++) {
+                    hostnames[alias[i]] = ip;
+                }
+                API.Network.SetDNSHostname(dev.id, hostnames, cb);
             }
         }, _cb);
     };
 
-    private _remove_name = (dev: IDevice, cb) => {
-        cb = cb || (() => { });
-        intoQueue("dhcp_operation",(c) => {
+    private _remove_name = (dev:IDevice, cb) => {
+        cb = cb || (() => {
+        });
+        intoQueue("dhcp_operation", (c) => {
             delete this._name_cache[0][dev.id];
             delete this._name_cache[1][dev.id];
             delete this._name_cache[2][dev.id];
-            //Core.Router.Network.dnsmasq.SIGHUP_Update(c);
+            API.Network.RevokeDNSHostname()
         }, cb);
     };
 
-    match = (dev: IDevice, delta, cb: Callback) => {
+    match = (dev:IDevice, delta, cb:Callback) => {
         //IpAddress is required
         return cb(undefined, !!dev.bus.data.Lease);
     }
 
-    attach = (dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) => {
+    attach = (dev:IDevice, delta, matchResult:any, cb:PCallback<IDeviceAssumption>) => {
         if (!dev.bus.data.Lease) {
             return cb(new Error("Lease is missing"), undefined);
         } else {
             //What's your name?
-            this._update_name(dev,() => {
+            this._update_name(dev, () => {
                 //do nothing
             });
-            cb(undefined, { valid : true });
+            cb(undefined, {valid: true});
         }
     }
 
-    change = (dev: IDevice, delta: IDriverDetla, cb: PCallback<IDeviceAssumption>) => {
+    change = (dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) => {
         if (!dev.bus.data.Lease) {
-            this._remove_name(dev,() => { });
+            this._remove_name(dev, () => {
+            });
         } else {
-            this._update_name(dev,() => {
+            this._update_name(dev, () => {
                 //do nothing
             });
         }
-        return cb(undefined, { valid: true });
+        return cb(undefined, {valid: true});
     }
 
-    detach = (dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) => {
-        this._remove_name(dev,() => {
+    detach = (dev:IDevice, delta, cb:PCallback<IDeviceAssumption>) => {
+        this._remove_name(dev, () => {
             //do nothing
         });
-        return cb(undefined, { valid: true });
+        return cb(undefined, {valid: true});
     }
 
-    load = (cb: Callback) => {
+    load = (cb:Callback) => {
         //Core.Router.Network.dnsmasq.Hosts[this._key] = this._name_cache; //no clash
         return cb();
     };
 
-    unload = (cb: Callback) => {
+    unload = (cb:Callback) => {
         return cb();
     }
 

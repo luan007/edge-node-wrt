@@ -43,7 +43,7 @@ class ConfMgr extends events.EventEmitter {
         }
     }
 
-    AppShut = (k:string, appUid:string, cb) => { // [moduleName][appUid]
+    AppRevoke = (k:string, appUid:string, cb) => { // [moduleName][appUid]
         if (!this._transients[k]) this._transients[k] = {};
         this._transients[k][appUid] = undefined;
         if(this._handlers[k])

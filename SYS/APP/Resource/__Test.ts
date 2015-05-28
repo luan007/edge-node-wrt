@@ -18,7 +18,7 @@ function Install() {
 export function Initialize(cb) {
     Install();
     setTask('app_shut', () => {
-        AppConfig.Shut(SECTION.NETWORK, appUid, (err)=> {
+        AppConfig.Revoke(SECTION.NETWORK, appUid, (err)=> {
             if(err) console.log('^______________^ App shut failed', err);
             else console.log('^______________^  App shut success.');
         });

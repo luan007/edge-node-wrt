@@ -5,7 +5,7 @@ export function Set(moduleName:string, appUid:string, conf:any, cb){
     ConfMgr.CommitByAPP(moduleName, cb);
 }
 
-export function Shut (moduleName:string, appUid:string, cb){
-    ConfMgr.AppShut(moduleName, appUid, cb);
+export function Revoke (moduleName:string, appUid:string, cb){
+    ConfMgr.AppRevoke(moduleName, appUid, cb);
     //ConfMgr.CommitByAPP(moduleName, cb);
 }

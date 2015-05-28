@@ -82,6 +82,7 @@ export function GenerateReverseAPI(r: rpc.RPCEndpoint): any {
     rpc.APIManager.RegisterFunction(DriverChange, "Driver.Change");
     rpc.APIManager.RegisterFunction(DriverAttach, "Driver.Attach");
     rpc.APIManager.RegisterFunction(DriverDetach, "Driver.Detach");
+    rpc.APIManager.RegisterFunction(DriverInvoke, "Driver.Invoke");
     rpc.APIManager.ServeAPI(r);
     return rpc.APIManager.ToJSON();
 }

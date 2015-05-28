@@ -141,10 +141,10 @@ export function Initialize(cb) {
 
     SYS_ON(SYS_EVENT_TYPE.LOADED, () => {
         if (CONF.IS_DEBUG) {
-            info(" ** API DUMP ** ");
-            info("\n" + util.inspect(JSON.parse(rpc.APIManager.ToJSON().toString())));
+            fatal(" ** API DUMP ** ");
+            fatal("\n" + util.inspect(JSON.parse(rpc.APIManager.ToJSON().toString())));
         }
-        info(" ** -------- ** ");
+        fatal(" ** -------- ** ");
     });
 
     _port = getSock(UUIDstr());
