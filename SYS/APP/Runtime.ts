@@ -370,7 +370,7 @@ export class Runtime extends events.EventEmitter{
     };
 
     IsRunning = () => {
-        return this._status.State == RuntimeStatusEnum.Launched;
+        return this._status.State === RuntimeStatusEnum.Launched;
     };
 
     Quota = (cb, newval?) => {

@@ -25,49 +25,49 @@ function Heartbeat(time_in, cb) {
 
 function DriverLoad(driverid, cb: PCallback<any>) {
     if (!global.Drivers[driverid] || !global.Drivers[driverid].load) {
-        return cb(new Error("Driver Not Found / Corrupted"));
+        return cb(new Error("[DriverLoad] Driver Not Found / Corrupted " + driverid));
     }
     global.Drivers[driverid].load(cb);
 }
 
 function DriverUnload(driverid, cb: PCallback<any>) {
     if (!global.Drivers[driverid] || !global.Drivers[driverid].unload) {
-        return cb(new Error("Driver Not Found / Corrupted"));
+        return cb(new Error("[DriverUnload] Driver Not Found / Corrupted " + driverid));
     }
     global.Drivers[driverid].unload(cb);
 }
 
 function DriverMatch(driverid, dev: IDevice, cb: PCallback<any>) {
     if (!global.Drivers[driverid] || !global.Drivers[driverid].match) {
-        return cb(new Error("Driver Not Found / Corrupted"));
+        return cb(new Error("[DriverMatch] Driver Not Found / Corrupted " + driverid));
     }
     global.Drivers[driverid].match(dev, cb);
 }
 
 function DriverAttach(driverid, dev: IDevice, matchResult: any, cb: PCallback<IDeviceAssumption>) {
     if (!global.Drivers[driverid] || !global.Drivers[driverid].attach) {
-        return cb(new Error("Driver Not Found / Corrupted"));
+        return cb(new Error("[DriverAttach] Driver Not Found / Corrupted " + driverid));
     }
     global.Drivers[driverid].attach(dev, matchResult, cb);
 }
 
 function DriverChange(driverid, dev: IDevice, delta_from_other_driver: IDeviceAssumption, cb: PCallback<IDeviceAssumption>) {
     if (!global.Drivers[driverid] || !global.Drivers[driverid].change) {
-        return cb(new Error("Driver Not Found / Corrupted"));
+        return cb(new Error("[DriverChange] Driver Not Found / Corrupted " + driverid));
     }
     global.Drivers[driverid].change(dev, delta_from_other_driver, cb);
 }
 
 function DriverDetach(driverid, dev: IDevice, cb: PCallback<IDeviceAssumption>) {
     if (!global.Drivers[driverid] || !global.Drivers[driverid].detach) {
-        return cb(new Error("Driver Not Found / Corrupted"));
+        return cb(new Error("[DriverDetach] Driver Not Found / Corrupted " + driverid));
     }
     global.Drivers[driverid].detach(dev, cb);
 }
 
 function DriverInvoke(driverid, dev: IDevice, actionId, params, cb) {
     if (!global.Drivers[driverid] || !global.Drivers[driverid].invoke) {
-        return cb(new Error("Driver Not Found / Corrupted"));
+        return cb(new Error("[DriverInvoke] Driver Not Found / Corrupted " + driverid));
     }
     global.Drivers[driverid].invoke(actionId, params, cb);
 }

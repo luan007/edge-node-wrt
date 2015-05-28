@@ -150,13 +150,28 @@ function GenerateDummyData(cb) {
     });
 
     jobs.push((cb)=> {
-        Data.Models.Router.Table.get('TestApp', (err, result) => {
+        Data.Models.Application.Table.get('TestApp', (err, result) => {
             if (!result) {
                 var app = new Data.Models.Application.Application();
                 app.uid = 'TestApp';
                 app.dirHashCode = '';
                 app.name = 'TestApp';
                 app.urlName = 'TestApp';
+                Data.Models.Application.Table.create(app, cb);
+            } else {
+                cb();
+            }
+        });
+    });
+
+    jobs.push((cb)=> {
+        Data.Models.Application.Table.get('DriverApp', (err, result) => {
+            if (!result) {
+                var app = new Data.Models.Application.Application();
+                app.uid = 'DriverApp';
+                app.dirHashCode = '';
+                app.name = 'DriverApp';
+                app.urlName = 'DriverApp';
                 Data.Models.Application.Table.create(app, cb);
             } else {
                 cb();

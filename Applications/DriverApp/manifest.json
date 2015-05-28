@@ -3,8 +3,8 @@
   "url": "DriverApp",
   "permission": [1],
   "drivers": {
-    "NameServices": {
-      "Buses": ["WLAN"],
+    "NameService": {
+      "Buses": ["WIFI"],
       "Interest": {
         "match": {
           "config": {
@@ -28,7 +28,7 @@
       }
     },
     "OUI": {
-      "Buses": ["WLAN"],
+      "Buses": ["WIFI"],
       "Interest": {
         "stateChange": true
       }

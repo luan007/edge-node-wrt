@@ -3,6 +3,7 @@ import Runtime = _Runtime.Runtime;
 import RuntimeStatusEnum = _Runtime.RuntimeStatusEnum;
 import fs = require("fs");
 import net = require('net');
+import path = require('path');
 import PermissionLib = require('../API/Permission');
 import _Application = require('../DB/Models/Application');
 import Application = _Application.Application;
@@ -66,6 +67,8 @@ function ConnectionHandler(credential:{ uid; pid; gid; }, socket:net.Socket, cal
 }
 
 export function LoadApplication(app_uid:string, callback:PCallback<string>) {
+    var appPath = path.join(CONF.APP_BASE_PATH, app_uid);
+    AppManager.SetAppsRoot_Upward(appPath);
 
     if (!app_uid) return callback(new Error("Invalid Parameter"));
     if (_pool[app_uid] && !_pool[app_uid].IsRunning()) {
@@ -365,7 +368,6 @@ export function Initialize(cb) {
     _resp_scanner = setInterval(ResponsivenessScan, CONF.APP_RESP_SCAN_INTERVAL);
 
     SYS_ON(SYS_EVENT_TYPE.LOADED, function () {
-        AppManager.SetAppsRoot_Upward(CONF.APP_BASE_PATH);
         trace("Clearing Runtime-User Cache");
         User.ClearGenerated((err, result) => {
             if (err) {

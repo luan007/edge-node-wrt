@@ -60,8 +60,12 @@ post('/App/download/:app_router_uid', (req, res, next) => {
         console.log('routerApp', routerApp);
         if (routerApp) {
             var appPackagePath = path.join(ORBIT_CONF.APP_BASE_PATH, routerApp.app_uid + '.zip');
-            console.log('appPackagePath'["cyanBG"].bold, appPackagePath);
-            fs.createReadStream(appPackagePath).pipe(<any>res);
+            if(fs.existsSync(appPackagePath)) {
+                console.log('appPackagePath'["cyanBG"].bold, appPackagePath);
+                fs.createReadStream(appPackagePath).pipe(<any>res);
+            } else {
+                return next(new Error('.zip not exist on the server.'));
+            }
         } else {
             return next(new Error('you have not purchased.'));
         }

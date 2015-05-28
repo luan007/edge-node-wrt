@@ -19,7 +19,7 @@ domain.run(function () {
         , './DB/Registry'
         , './Device/Graphd/DB'
         , './Router/Storage/Samba'
-        , './Router/Storage/Obex'
+        //, './Router/Storage/Obex'
         , './Router/Network/Network'
         , './Router/Network/Firewall/Firewall'
         , './Router/Network/Firewall/TrafficAccountant'

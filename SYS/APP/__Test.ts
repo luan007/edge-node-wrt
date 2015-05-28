@@ -15,16 +15,23 @@ export function Subscribe(cb) {
 }
 
 export function Initialize(cb) {
-    AppManager.Install('TestApp', (err) => {
-        if (err) error(err);
+    AppManager.Install('DriverApp', (err) => {
+        if (err) {
+            error(err);
+            cb(err);
+        }
         else {
             info('Install successfully.');
-            AppManager.UnInstall('TestApp', (err)=> {
-                if (err) error(err);
-                else {
-                    info('UnInstall successfully.');
-                }
-            });
+            //AppManager.UnInstall('DriverApp', (err)=> {
+            //    if (err) {
+            //        error(err);
+            //        cb(err);
+            //    }
+            //    else {
+            //        cb();
+            //        info('UnInstall successfully.');
+            //    }
+            //});
         }
     });
 }

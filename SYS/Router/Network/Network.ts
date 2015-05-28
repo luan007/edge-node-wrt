@@ -110,9 +110,10 @@ class Configuration extends Configurable {
             for (var appUid in delta.APP) {
                 var appConfig = delta.APP[appUid];
                 if (has(appConfig, 'Hosts')) {
+                    dnsmasq.Hosts[appUid] = dnsmasq.Hosts[appUid] || {};
                     for (var t in appConfig.Hosts) {
-                        dnsmasq.Hosts[appUid][t] = delta.APP[appUid].Hosts[t];
-                        console.log('^______________^ APP Set Hosts', appConfig.Hosts[t]);
+                        dnsmasq.Hosts[appUid][t] = appConfig.Hosts[t];
+                        console.log('^______________^ APP Set Hosts', t, appConfig.Hosts[t]);
                     }
                     dhcp_hotplug = true;
                 }
@@ -123,9 +124,11 @@ class Configuration extends Configurable {
             network.NetworkAddress = addr["Address"] + '/' + addr["Prefix"];
         }
         if (dhcp_reboot) {
+            console.log('^______________^ dhcp_reboot');
             dnsmasq.Start(true);
             jobs.push(dnsmasq.StabilityCheck);
         } else if (dhcp_hotplug) {
+            console.log('^______________^ dhcp_hotplug');
             jobs.push(dnsmasq.ApplyChange);
             jobs.push(dnsmasq.StabilityCheck);
         }
@@ -134,16 +137,22 @@ class Configuration extends Configurable {
             this.pub.Set('network', network);
         }
 
+        console.log('^______________^ jobs', jobs.length);
+
         if (jobs.length == 0) {
             cb(); //success!
         } else {
-            async.series(jobs, cb);
+            intoQueue('DNSMASQ_dhcphotplug', (queue_cb) => {
+                async.series(jobs, ()=>{
+                    queue_cb();
+                });
+            }, cb);
         }
     }
 
     _recycle = (appUid, cb) => {
         if (dnsmasq.Hosts[appUid]) {
-            console.log('^______________^ APP _recycle Shut', appUid);
+            console.log('^______________^ APP _revoke Shut', appUid);
             dnsmasq.Hosts[appUid] = undefined;
             delete dnsmasq.Hosts[appUid];
             var jobs = [];

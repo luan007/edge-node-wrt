@@ -6,13 +6,5 @@
   "author": {
     "name": "luanc_000",
     "email": ""
-  },
-  "dependencies": {
-    "ejs": "^1.0.0",
-    "express": "*",
-    "querystring": "*",
-    "morgan": "*",
-    "serve-static": "*",
-    "body-parser":  "*"
   }
 }

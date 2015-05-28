@@ -18,6 +18,7 @@ class InAppDriver implements IDriver {
     }
 
     interest = () => {
+        fatal(this.Interest);
         return this.Interest;
     };
 
@@ -30,6 +31,7 @@ class InAppDriver implements IDriver {
     };
 
     status = () => {
+        fatal('---=-=-============-=-=-==-=-= app status', this.App.Status());
         return (this.Loaded && this.Switch && this.App && this.App.IsRunning()) ? 1 : 0;
     };
 
@@ -38,26 +40,31 @@ class InAppDriver implements IDriver {
     }
 
     match = (dev: IDevice, delta, cb: Callback) => {
+        fatal('Match ' + this.name());
         if (!this.status()) return cb(new Error("Driver is Offline"));
         this.App.API.Driver.Match(this.InApp_DriverId, dev, cb);
     };
 
     attach = (dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) => {
+        fatal('Attach ' + this.name());
         if (!this.status()) return cb(new Error("Driver is Offline"));
         this.App.API.Driver.Attach(this.InApp_DriverId, dev, matchResult, cb);
     };
 
     change = (dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) => {
+        fatal('Change ' + this.name());
         if (!this.status()) return cb(new Error("Driver is Offline"));
         this.App.API.Driver.Change(this.InApp_DriverId, dev, delta, cb);
     };
 
     detach = (dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) => {
+        fatal('Detach ' + this.name());
         if (!this.status()) return cb(new Error("Driver is Offline"));
         this.App.API.Driver.Detach(this.InApp_DriverId, dev, cb);
     };
 
     load = (cb: Callback) => {
+        fatal('Load ' + this.name());
         if (this.Loaded) {
             return cb(undefined, true);
         } else {
@@ -67,6 +74,7 @@ class InAppDriver implements IDriver {
             });
         }
     };
+
 
     unload = (cb: Callback) => {
         if (!this.Loaded) {

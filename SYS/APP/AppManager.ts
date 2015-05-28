@@ -284,7 +284,7 @@ export function SetOwner_Recursive(folder, owner, cb) {
 export function SetAppsRoot_Upward(folder) {
     do {
         fs.chownSync(folder, 0, 0);
-        fs.chmodSync(folder, '0744');
+        fs.chmodSync(folder, '0740');
         folder = path.dirname(folder);
     } while (folder !== '/');
 }
