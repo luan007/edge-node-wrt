@@ -49,7 +49,6 @@ export function LoadDriver(drv:IDriver, cb) {
             }
             var devs = DeviceManager.Devices();
             for (var q in devs) {
-                //fatal('=========== buese match', buses, devs[q].bus);
                 if (buses.indexOf(devs[q].bus.name) > -1) {
                     _notify_driver(drv, devs[q], {
                         depth: 1,
@@ -74,6 +73,7 @@ function _sanity_check(ver, dev:IDevice, drv:IDriver, err = false) {
 }
 
 function _update_driver_data(drv:IDriver, dev:IDevice, assump:IDeviceAssumption, tracker:_tracker) {
+    console.log('[ assumption ] ========== >>>', assump);
     if (!drv || !drv.status() || !dev || !Drivers[drv.id()]) return;
     var real:IDeviceAssumption = <any>{};
     var changed = false;
@@ -139,7 +139,6 @@ function _update_driver_data(drv:IDriver, dev:IDevice, assump:IDeviceAssumption,
     if (Object.keys(delta).length == 0) {
         return; //skipped
     }
-    fatal(delta);
 
     Events.emit("change", dev, drv, delta);
 
@@ -165,10 +164,7 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
         var drvId = driver.id();
         var version = dev.time.getTime();
         var myAssump = dev.assumptions[drvId];
-        fatal('====----====[[[ before check', myAssump, dev.bus.hwaddr);
         if (!_sanity_check(version, dev, driver)) return; //WTF??
-        //console.log(JSON.stringify(dev));
-        fatal('====----====[[[ myAssump', myAssump, dev.bus.hwaddr);
         try {
             if (myAssump && myAssump.valid && _is_interested_in(driver, dev, 1, tracker, delta, deltaBus, deltaConf, deltaOwn, stateChange)) {
                 trace("Change -> " + driver.name());
@@ -184,7 +180,7 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
                 }));
             } else if (!(myAssump && myAssump.valid) && _is_interested_in(driver, dev, 0, tracker, delta, deltaBus, deltaConf, deltaOwn, stateChange)) {
                 trace("Match -> " + driver.name());
-                console.log(' ^______________^  else if !(myAssump)', driver.name());
+                //console.log(' ^______________^  else if !(myAssump)', driver.name());
                 //need match/attach
                 //TODO: Verify EmitterizeCB's impact/influence on GC, to see if it solves the 'ghost CB' prob
                 driver.match(dev, {
@@ -193,11 +189,11 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
                     config: deltaConf,
                     ownership: deltaOwn
                 }, <any>must((err, data) => {
-                    console.log(' ^______________^  callback ->', err, data, 'version', version, 'status',
-                        driver.status() ,'getTime()-version', dev.time.getTime() - version);
+                    //console.log(' ^______________^  callback ->', err, data, 'version', version, 'status',
+                    //    driver.status() ,'getTime()-version', dev.time.getTime() - version);
                     if (!data || !_sanity_check(version, dev, driver, err)) return;
                     try {
-                        console.log(' ^______________^  try Attach ->', driver.name());
+                        //console.log(' ^______________^  try Attach ->', driver.name());
                         trace("Attach -> " + driver.name());
                         driver.attach(dev, {
                             assumption: delta,
@@ -223,8 +219,6 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
 function _is_interested_in(drv:IDriver, dev:IDevice, currentStage, tracker:_tracker, d_assump, d_bus, d_conf, d_ownership, stateChange?) {
 
     var interested = drv.interest();
-
-    //fatal(interested);
 
     if (interested.otherDriver == false && tracker && tracker.parent) return 0;
 
@@ -321,17 +315,6 @@ export function DeviceChange(dev:IDevice, tracker:_tracker, assump:IDeviceAssump
         warn("Max DriverChain Exceeded (" + tracker.depth + ") ! ROOT_CAUSE:" + tracker.root);
     }
 
-    //fatal("Device Change");
-    //fatal("Id");
-    //trace(dev.id);
-    //fatal("Bus");
-    //trace(dev.bus);
-    //fatal("Assumptions");
-    //for (var i in dev.assumptions) {
-    //    trace(i);
-    //    trace(dev.assumptions[i]);
-    //}
-
     //trace(Drivers);
     /* UNLEASHHH DA POWER OF..  */
     /* ..cpu  ->  hot from now  */
@@ -357,7 +340,6 @@ export function DeviceDrop(dev:IDevice, busDelta?) {
     var version = dev.time;
     fatal("Drop - " + dev.bus.name + " [" + dev.bus.hwaddr + "] " + (dev.state ? " UP" : " DOWN"));
     for (var i in dev.assumptions) {
-        fatal(i);
         if (!has(dev.assumptions, i) || !dev.assumptions[i].valid || !Drivers[i] || !Drivers[i].status() || !Drivers_BusMapping[dev.bus.name][i]) {
             continue;
         }

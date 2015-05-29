@@ -21,7 +21,7 @@ class OUI_Identifier implements IDriver {
     };
 
     bus = (): string[]=> {
-        return ["WLAN"];
+        return ["WIFI"];
     };
 
     match = (dev: IDevice, delta, cb: Callback) => {

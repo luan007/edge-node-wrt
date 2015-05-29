@@ -22,6 +22,7 @@ export function Initialize(cb) {
         }
         else {
             info('Install successfully.');
+            cb();
             //AppManager.UnInstall('DriverApp', (err)=> {
             //    if (err) {
             //        error(err);

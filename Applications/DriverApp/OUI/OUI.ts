@@ -27,8 +27,7 @@ export function Rebuild(fileName, cb) {
 
         function doneCheck() {
             if (loaded && cur >= total) {
-                //done
-                console.log((cur + "").bold);
+                //console.log((cur + "").bold);
                 console.log("Done Loading.. Hotplug in progress");
                 done();
                 cb();
@@ -43,7 +42,7 @@ export function Rebuild(fileName, cb) {
                 var n3 = arr[3].toString().toLowerCase();
                 total++;
                 var corp = arr[4];
-                console.log(n1 + ":" + n2 + ":" + n3 + "~" + corp);
+                //console.log(n1 + ":" + n2 + ":" + n3 + "~" + corp);
                 db.put(n1 + ":" + n2 + ":" + n3, corp, check);
             }
         });

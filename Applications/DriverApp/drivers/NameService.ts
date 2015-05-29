@@ -50,7 +50,7 @@ class NameService implements IDriver {
     };
 
     bus = ():string[]=> {
-        return ["WLAN"];
+        return ["WIFI"];
     };
 
     private find_good_spot = (name, cb) => {
