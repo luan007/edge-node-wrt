@@ -22,7 +22,7 @@ export function ClearGenerated(cb) {
         if (err) return cb(err, undefined);
         async.each(users, (u, cb) => {
             if (u.username.length === 32) {
-                console.log('[ =============== delete user]', u.username);
+                //console.log('[ =============== delete user]', u.username);
                 Delete(u.username, cb);
             } else {
                 cb(undefined, {});
