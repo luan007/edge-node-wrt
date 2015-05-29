@@ -1,5 +1,5 @@
 var nameService = require('./drivers/NameService');
-var oui = require('./drivers/OUI');
+var oui = require('./drivers/OUIService');
 
 global.Drivers = {
     NameService: nameService.Instance,

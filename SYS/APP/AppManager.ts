@@ -21,6 +21,19 @@ var pub = StatMgr.Pub(SECTION.APP, {
 });
 
 /**
+ * Set app dir priviledges
+ * @param folder
+ * @constructor
+ */
+export function SetAppsRoot_Upward(folder) {
+    do {
+        fs.chownSync(folder, 0, 0);
+        fs.chmodSync(folder, '0744');
+        folder = path.dirname(folder);
+    } while (folder !== '/');
+}
+
+/**
  * Purchase APP
  */
 export function Purchase(app_uid:string, callback:Callback) {
@@ -279,14 +292,6 @@ export function GetSDataPath(pth) {
 
 export function SetOwner_Recursive(folder, owner, cb) {
     exec("chown", "-R", owner, folder, cb);
-}
-
-export function SetAppsRoot_Upward(folder) {
-    do {
-        fs.chownSync(folder, 0, 0);
-        fs.chmodSync(folder, '0740');
-        folder = path.dirname(folder);
-    } while (folder !== '/');
 }
 
 export function SetupAppDataDir(app_id, runtime_id, cb) {

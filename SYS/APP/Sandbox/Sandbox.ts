@@ -168,7 +168,9 @@ function _post_reverse_api(cb) {
     try {
         require("/driver");
     } catch (e) {
+        console.log('require driver -======------ error', e);
     }
+    console.log('require driver -======------ ', global.Drivers);
     var json = reverseAPI.GenerateReverseAPI(_rpc);
     API.Sandbox.SetupReverseAPI(json, cb);
 }

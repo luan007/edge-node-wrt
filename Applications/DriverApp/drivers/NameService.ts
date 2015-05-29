@@ -197,7 +197,7 @@ class NameService implements IDriver {
 
     load = (cb:Callback) => {
         //Core.Router.Network.dnsmasq.Hosts[this._key] = this._name_cache; //no clash
-        return cb();
+        return cb(undefined, true);
     };
 
     unload = (cb:Callback) => {
@@ -205,7 +205,7 @@ class NameService implements IDriver {
     }
 
     invoke = (dev, actionId, params, cb) => {
-
+        return cb();
     }
 
 }

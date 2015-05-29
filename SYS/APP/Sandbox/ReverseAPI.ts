@@ -24,6 +24,7 @@ function Heartbeat(time_in, cb) {
  */
 
 function DriverLoad(driverid, cb: PCallback<any>) {
+    //console.log('=============== global.Drivers', global.Drivers);
     if (!global.Drivers[driverid] || !global.Drivers[driverid].load) {
         return cb(new Error("[DriverLoad] Driver Not Found / Corrupted " + driverid));
     }

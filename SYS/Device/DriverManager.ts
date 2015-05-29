@@ -49,7 +49,7 @@ export function LoadDriver(drv:IDriver, cb) {
             }
             var devs = DeviceManager.Devices();
             for (var q in devs) {
-                fatal('=========== buese match', buses, devs[q].bus);
+                //fatal('=========== buese match', buses, devs[q].bus);
                 if (buses.indexOf(devs[q].bus.name) > -1) {
                     _notify_driver(drv, devs[q], {
                         depth: 1,
@@ -165,10 +165,10 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
         var drvId = driver.id();
         var version = dev.time.getTime();
         var myAssump = dev.assumptions[drvId];
-        fatal('before check', myAssump);
+        fatal('====----====[[[ before check', myAssump);
         if (!_sanity_check(version, dev, driver)) return; //WTF??
         //console.log(JSON.stringify(dev));
-        fatal('myAssump', myAssump);
+        fatal('====----====[[[ myAssump', myAssump);
         try {
             if (myAssump && myAssump.valid && _is_interested_in(driver, dev, 1, tracker, delta, deltaBus, deltaConf, deltaOwn, stateChange)) {
                 trace("Change -> " + driver.name());
@@ -332,7 +332,12 @@ export function DeviceChange(dev:IDevice, tracker:_tracker, assump:IDeviceAssump
     /* UNLEASHHH DA POWER OF..  */
     /* ..cpu  ->  hot from now  */
     for (var driver_id in Drivers) {
-        if (driver_id == tracker.parent || !has(Drivers, driver_id) || !Drivers_BusMapping[dev.bus.name] || !Drivers[driver_id].status() || !Drivers_BusMapping[dev.bus.name][driver_id]) continue;
+        //console.log('1 ====----====', 'driver_id == tracker.parent', driver_id, tracker.parent);
+        //console.log('2 ====----====', '!Drivers_BusMapping[dev.bus.name]', !Drivers_BusMapping[dev.bus.name], dev.bus.name);
+        //console.log('3 ====----====', '!Drivers[driver_id].status()',Drivers[driver_id].status());
+        //console.log('4 ====----====', '!Drivers_BusMapping[dev.bus.name][driver_id]', Drivers_BusMapping[dev.bus.name], driver_id);
+        if (driver_id == tracker.parent || !has(Drivers, driver_id) || !Drivers_BusMapping[dev.bus.name] || !Drivers[driver_id].status() ||
+            (!Drivers_BusMapping[dev.bus.name] && !Drivers_BusMapping[dev.bus.name][driver_id]) ) continue;
         //TODO: Add Driver Preference Here!!!! HIGH PRIORITY
         //TODO: Finish Driver-Interest - this is not completed
 

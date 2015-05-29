@@ -31,7 +31,7 @@ class InAppDriver implements IDriver {
     };
 
     status = () => {
-        fatal('---=-=-============-=-=-==-=-= app status', this.App.Status());
+        //console.log('3.1 ====----====', this.Loaded, this.Switch, this.App.IsRunning());
         return (this.Loaded && this.Switch && this.App && this.App.IsRunning()) ? 1 : 0;
     };
 

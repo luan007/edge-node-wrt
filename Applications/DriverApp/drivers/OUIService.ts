@@ -1,5 +1,6 @@
-﻿
-export class OUI_Identifier implements IDriver {
+﻿import OUI = require('../OUI/OUI');
+
+class OUI_Identifier implements IDriver {
 
     id = () => {
         return "_OUI_";
@@ -28,11 +29,11 @@ export class OUI_Identifier implements IDriver {
     };
 
     attach = (dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) => {
-        //info("OUI ATTACH Called");
+        console.log("OUI ATTACH Called");
         var _oui_Str = (dev.bus.hwaddr + "").substr(0, 8);
-        OUI_Find(_oui_Str,(err, result) => {
+        OUI.OUI_Find(_oui_Str,(err, result) => {
             if (!result) {
-                fatal("OUI Not Found " + _oui_Str);
+                console.log("OUI Not Found " + _oui_Str);
                 return cb(undefined, undefined);
             }
             cb(undefined, {
@@ -58,7 +59,7 @@ export class OUI_Identifier implements IDriver {
     };
 
     load = (cb: Callback) => {
-        cb();
+        return cb(undefined, true);
     };
 
     unload = (cb: Callback) => {
@@ -66,7 +67,7 @@ export class OUI_Identifier implements IDriver {
     };
 
     invoke = (dev, actionId, params, cb) => {
-
+        return cb();
     };
 
 }
