@@ -73,12 +73,12 @@ export function Initialize(cb) {
     level = require("levelup");
     var fs = require("fs");
     var rebulid = false;
-    var dbPath = path.join(process.env.ROOT_PATH, 'Data'); // oops
+    var dbPath = path.join(process.env.ROOT_PATH, 'Data/OUIDB'); // oops
     if (!fs.existsSync(dbPath)) {
         rebulid = true;
-        //fs.mkdirSync(dbPath);
-        //fs.chownSync(dbPath, process.getuid(), process.getgid());
-        //fs.chmodSync(dbPath, '0775');
+        fs.mkdirSync(dbPath);
+        fs.chownSync(dbPath, process.getuid(), process.getgid());
+        fs.chmodSync(dbPath, '0775');
     }
     db = level(dbPath);
     db.open();

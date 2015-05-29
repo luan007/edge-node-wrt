@@ -1,6 +1,7 @@
 ﻿import rpc = require("../../../Modules/RPC/index");
 
-declare var sandbox: local.Sandbox.SandboxEnvironment; //global sandbox
+declare
+var sandbox:local.Sandbox.SandboxEnvironment; //global sandbox
 
 /*Called by host to ensure responsiveness*/
 function Heartbeat(time_in, cb) {
@@ -23,7 +24,7 @@ function Heartbeat(time_in, cb) {
  *               *DONE
  */
 
-function DriverLoad(driverid, cb: PCallback<any>) {
+function DriverLoad(driverid, cb:PCallback<any>) {
     //console.log('=============== global.Drivers', global.Drivers);
     if (!global.Drivers[driverid] || !global.Drivers[driverid].load) {
         return cb(new Error("[DriverLoad] Driver Not Found / Corrupted " + driverid));
@@ -31,50 +32,50 @@ function DriverLoad(driverid, cb: PCallback<any>) {
     global.Drivers[driverid].load(cb);
 }
 
-function DriverUnload(driverid, cb: PCallback<any>) {
+function DriverUnload(driverid, cb:PCallback<any>) {
     if (!global.Drivers[driverid] || !global.Drivers[driverid].unload) {
         return cb(new Error("[DriverUnload] Driver Not Found / Corrupted " + driverid));
     }
     global.Drivers[driverid].unload(cb);
 }
 
-function DriverMatch(driverid, dev: IDevice, cb: PCallback<any>) {
+function DriverMatch(driverid, dev:IDevice, delta, cb:PCallback<any>) {
     if (!global.Drivers[driverid] || !global.Drivers[driverid].match) {
         return cb(new Error("[DriverMatch] Driver Not Found / Corrupted " + driverid));
     }
-    global.Drivers[driverid].match(dev, cb);
+    global.Drivers[driverid].match(dev, delta, cb);
 }
 
-function DriverAttach(driverid, dev: IDevice, matchResult: any, cb: PCallback<IDeviceAssumption>) {
+function DriverAttach(driverid, dev:IDevice, delta, matchResult:any, cb:PCallback<IDeviceAssumption>) {
     if (!global.Drivers[driverid] || !global.Drivers[driverid].attach) {
         return cb(new Error("[DriverAttach] Driver Not Found / Corrupted " + driverid));
     }
-    global.Drivers[driverid].attach(dev, matchResult, cb);
+    global.Drivers[driverid].attach(dev, delta, matchResult, cb);
 }
 
-function DriverChange(driverid, dev: IDevice, delta_from_other_driver: IDeviceAssumption, cb: PCallback<IDeviceAssumption>) {
+function DriverChange(driverid, dev:IDevice, delta_from_other_driver:IDeviceAssumption, cb:PCallback<IDeviceAssumption>) {
     if (!global.Drivers[driverid] || !global.Drivers[driverid].change) {
         return cb(new Error("[DriverChange] Driver Not Found / Corrupted " + driverid));
     }
     global.Drivers[driverid].change(dev, delta_from_other_driver, cb);
 }
 
-function DriverDetach(driverid, dev: IDevice, cb: PCallback<IDeviceAssumption>) {
+function DriverDetach(driverid, dev:IDevice, delta, cb:PCallback<IDeviceAssumption>) {
     if (!global.Drivers[driverid] || !global.Drivers[driverid].detach) {
         return cb(new Error("[DriverDetach] Driver Not Found / Corrupted " + driverid));
     }
-    global.Drivers[driverid].detach(dev, cb);
+    global.Drivers[driverid].detach(dev, delta, cb);
 }
 
-function DriverInvoke(driverid, dev: IDevice, actionId, params, cb) {
+function DriverInvoke(driverid, dev:IDevice, actionId, params, cb) {
     if (!global.Drivers[driverid] || !global.Drivers[driverid].invoke) {
         return cb(new Error("[DriverInvoke] Driver Not Found / Corrupted " + driverid));
     }
-    global.Drivers[driverid].invoke(actionId, params, cb);
+    global.Drivers[driverid].invoke(dev, actionId, params, cb);
 }
 
 
-export function GenerateReverseAPI(r: rpc.RPCEndpoint): any {
+export function GenerateReverseAPI(r:rpc.RPCEndpoint):any {
     /*Create Reverse API*/
     rpc.APIManager.RegisterFunction(Heartbeat, "Heartbeat");
     rpc.APIManager.RegisterFunction(DriverLoad, "Driver.Load");

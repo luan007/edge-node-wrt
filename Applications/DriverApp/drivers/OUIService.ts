@@ -25,7 +25,8 @@ class OUI_Identifier implements IDriver {
     };
 
     match = (dev: IDevice, delta, cb: Callback) => {
-        cb(undefined, dev.bus.hwaddr.length > 8 ? {} : undefined);
+        var matched = dev.bus.hwaddr.length > 8 ? {} : undefined;
+        cb(undefined, matched);
     };
 
     attach = (dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) => {
@@ -63,11 +64,11 @@ class OUI_Identifier implements IDriver {
     };
 
     unload = (cb: Callback) => {
-        cb();
+        return cb(undefined, true);
     };
 
     invoke = (dev, actionId, params, cb) => {
-        return cb();
+        return cb(undefined, true);
     };
 
 }

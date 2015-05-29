@@ -18,7 +18,7 @@ class InAppDriver implements IDriver {
     }
 
     interest = () => {
-        fatal(this.Interest);
+        //fatal(this.Interest);
         return this.Interest;
     };
 
@@ -42,13 +42,13 @@ class InAppDriver implements IDriver {
     match = (dev: IDevice, delta, cb: Callback) => {
         fatal('Match ' + this.name());
         if (!this.status()) return cb(new Error("Driver is Offline"));
-        this.App.API.Driver.Match(this.InApp_DriverId, dev, cb);
+        this.App.API.Driver.Match(this.InApp_DriverId, dev, delta, cb);
     };
 
     attach = (dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) => {
         fatal('Attach ' + this.name());
         if (!this.status()) return cb(new Error("Driver is Offline"));
-        this.App.API.Driver.Attach(this.InApp_DriverId, dev, matchResult, cb);
+        this.App.API.Driver.Attach(this.InApp_DriverId, dev, delta, matchResult, cb);
     };
 
     change = (dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) => {
@@ -60,7 +60,7 @@ class InAppDriver implements IDriver {
     detach = (dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) => {
         fatal('Detach ' + this.name());
         if (!this.status()) return cb(new Error("Driver is Offline"));
-        this.App.API.Driver.Detach(this.InApp_DriverId, dev, cb);
+        this.App.API.Driver.Detach(this.InApp_DriverId, dev, delta, cb);
     };
 
     load = (cb: Callback) => {

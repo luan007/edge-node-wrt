@@ -165,10 +165,10 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
         var drvId = driver.id();
         var version = dev.time.getTime();
         var myAssump = dev.assumptions[drvId];
-        fatal('====----====[[[ before check', myAssump);
+        fatal('====----====[[[ before check', myAssump, dev.bus.hwaddr);
         if (!_sanity_check(version, dev, driver)) return; //WTF??
         //console.log(JSON.stringify(dev));
-        fatal('====----====[[[ myAssump', myAssump);
+        fatal('====----====[[[ myAssump', myAssump, dev.bus.hwaddr);
         try {
             if (myAssump && myAssump.valid && _is_interested_in(driver, dev, 1, tracker, delta, deltaBus, deltaConf, deltaOwn, stateChange)) {
                 trace("Change -> " + driver.name());
@@ -184,6 +184,7 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
                 }));
             } else if (!(myAssump && myAssump.valid) && _is_interested_in(driver, dev, 0, tracker, delta, deltaBus, deltaConf, deltaOwn, stateChange)) {
                 trace("Match -> " + driver.name());
+                console.log(' ^______________^  else if !(myAssump)', driver.name());
                 //need match/attach
                 //TODO: Verify EmitterizeCB's impact/influence on GC, to see if it solves the 'ghost CB' prob
                 driver.match(dev, {
@@ -192,8 +193,11 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
                     config: deltaConf,
                     ownership: deltaOwn
                 }, <any>must((err, data) => {
+                    console.log(' ^______________^  callback ->', err, data, 'version', version, 'status',
+                        driver.status() ,'getTime()-version', dev.time.getTime() - version);
                     if (!data || !_sanity_check(version, dev, driver, err)) return;
                     try {
+                        console.log(' ^______________^  try Attach ->', driver.name());
                         trace("Attach -> " + driver.name());
                         driver.attach(dev, {
                             assumption: delta,
@@ -220,7 +224,7 @@ function _is_interested_in(drv:IDriver, dev:IDevice, currentStage, tracker:_trac
 
     var interested = drv.interest();
 
-    fatal(interested);
+    //fatal(interested);
 
     if (interested.otherDriver == false && tracker && tracker.parent) return 0;
 
