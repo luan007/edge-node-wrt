@@ -186,9 +186,9 @@ export function Install(app_uid:string, callback:Callback) {
  */
 export function UnInstall(app_uid:string, callback:Callback) {
     var manifest = GetAppManifest(app_uid);
-    if(!manifest)
+    if (!manifest)
         return callback(new Error("Missing manifest :("));
-    if(manifest.is_system)
+    if (manifest.is_system)
         return callback(new Error('Can not uninstall a system app.'));
     pub.apps.Set(app_uid, {
         State: 'unloading'
@@ -201,7 +201,7 @@ export function UnInstall(app_uid:string, callback:Callback) {
             if (err) {
                 pub.apps.Set(app_uid, {
                     State: 'error',
-                    Error : err
+                    Error: err
                 });
                 callback(err);
             }
@@ -211,22 +211,29 @@ export function UnInstall(app_uid:string, callback:Callback) {
                 });
                 record.remove((err)=> { // 2. remove from DB
                     if (err) error(err);
-                    var appPath = path.join(CONF.APP_BASE_PATH, app_uid);
-                    exec('rm', '-rf', appPath, (err)=> { // 3. remove from disk
-                        if (err) {
-                            pub.apps.Set(app_uid, {
-                                State: 'error',
-                                Error: err
-                            });
-                            return callback(err);
-                        }
-                        else {
-                            pub.apps.Set(app_uid, {
-                                State: 'uninstalled'
-                            });
-                            pub.apps.Del(app_uid);
-                            return callback();
-                        }
+                    var dataDir = GetAppDataLn(app_uid);
+                    pub.apps.Set(app_uid, {
+                        State: 'umounting'
+                    });
+                    umount_till_err(dataDir, (err)=> {
+                        if(err) error(err);
+                        var appPath = path.join(CONF.APP_BASE_PATH, app_uid);
+                        exec('rm', '-rf', appPath, (err)=> { // 3. remove from disk
+                            if (err) {
+                                pub.apps.Set(app_uid, {
+                                    State: 'error',
+                                    Error: err
+                                });
+                                return callback(err);
+                            }
+                            else {
+                                pub.apps.Set(app_uid, {
+                                    State: 'uninstalled'
+                                });
+                                pub.apps.Del(app_uid);
+                                return callback();
+                            }
+                        });
                     });
                 });
             }
@@ -271,10 +278,10 @@ export function GetOneByUID(uid, callback) {
     Application.table().one({uid: uid}, callback);
 }
 
-export function GetAppManifest(app_uid) : local.App.ApplicationManifest{
+export function GetAppManifest(app_uid):local.App.ApplicationManifest {
     var appPath = GetAppRootPath(app_uid);
     var manifestPath = path.join(appPath, 'manifest.json');
-    if(!fs.existsSync(manifestPath)) {
+    if (!fs.existsSync(manifestPath)) {
         return null;
     }
     var json = fs.readFileSync(manifestPath).toString();

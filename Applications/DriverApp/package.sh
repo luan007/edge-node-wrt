@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rm -rf ./Data/OUIDB
-umount /SagittariusA/Data/App/DriverApp/
+umount ./Data
+rm -rf ./Data
 rm -rf ../DriverApp.zip
 zip -r ../DriverApp.zip ./*
