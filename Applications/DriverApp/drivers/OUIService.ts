@@ -1,28 +1,6 @@
 ﻿import OUI = require('../OUI/OUI');
 
-class OUI_Identifier implements IDriver {
-
-    id = () => {
-        return "_OUI_";
-    };
-
-    interest = (): IDriverInterest => {
-        return {
-            stateChange: true
-        };
-    };
-
-    name = () => {
-        return "OUI Identifier";
-    };
-
-    status = () => {
-        return 1; //always on..
-    };
-
-    bus = (): string[]=> {
-        return ["WIFI"];
-    };
+class OUI_Identifier implements IInAppDriver {
 
     match = (dev: IDevice, delta, cb: Callback) => {
         var matched = dev.bus.hwaddr.length > 8 ? {} : undefined;

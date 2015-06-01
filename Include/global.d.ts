@@ -111,13 +111,17 @@ interface IDriverDetla {
     ownership;
 }
 
-interface IDriver {
+interface IDriver extends IInAppDriver {
     id();
     name();
     status();
     bus(): string[];
     interest(): IDriverInterest;
 
+}
+
+
+interface IInAppDriver {
     match(dev: IDevice, delta: IDriverDetla , cb: Callback);
 
     attach(dev: IDevice, delta: IDriverDetla, matchResult: any, cb: PCallback<IDeviceAssumption>);

@@ -37,9 +37,9 @@ domain.run(function () {
         , './APP/Test/Deployment/Server'
         , './APP/RuntimePool'
         , './Router/Network/Firewall/__Test'
-        , './Device/Graphd/__Test'
-        , './Device/__Test'
-        , './APP/Resource/__Test'
+        //, './Device/Graphd/__Test'
+        //, './Device/__Test'
+        //, './APP/Resource/__Test'
         , './APP/__Test'
     ];
     var initializes = [];

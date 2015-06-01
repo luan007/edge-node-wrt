@@ -157,16 +157,6 @@ export class Runtime extends events.EventEmitter{
         fatal(this.App.name.bold + " * StabilityRating " + (this._status.StabilityRating * 100 + "%")["yellowBG"].black.bold);
     };
 
-    private _proc_on_exit = () => {
-
-        if (this._status.State == RuntimeStatusEnum.Broken)
-            return; //BROKEN
-
-        this._process.removeAllListeners();
-        //this._process = undefined;
-        this.Stop();
-    };
-
     private _on_heartbeat = (err, deltaT) => {
         if (this._status.State != RuntimeStatusEnum.Launching && this._status.State != RuntimeStatusEnum.Launched) {
             return; //throw away
@@ -236,7 +226,7 @@ export class Runtime extends events.EventEmitter{
             this._push_fail("Error", e);
             this.Stop();
         });
-        this._process.on("exit", this._proc_on_exit);
+        this._process.on("exit", this.Stop);
 
         if (CONF.IS_DEBUG) {
             this._process.stdout.on('data', (data) => {

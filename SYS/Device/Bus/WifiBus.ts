@@ -28,12 +28,13 @@ function on_connect(mac, band) {
         MDNS: {},
         SSDP: {},
         Band: band
-    });
+    }, true);
 }
 
 export function Subscribe(cb) {
     var subNetwork = StatMgr.Sub(SECTION.NETWORK);
     subNetwork.leases.on('set', (mac, oldValue, leaseChanged) => {
+        fatal('leases set', mac, leaseChanged);
         if (StatMgr.Get(SECTION.WLAN2G).devices[mac] || StatMgr.Get(SECTION.WLAN5G).devices[mac]) {
             _wifiBus.DeviceUp(mac,
                 {
@@ -43,6 +44,7 @@ export function Subscribe(cb) {
         }
     });
     subNetwork.leases.on('del', (mac, oldValue) => {
+        fatal('leases del', mac);
         _wifiBus.DeviceUp(mac, {
             Lease: {}
         });

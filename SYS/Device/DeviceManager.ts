@@ -159,8 +159,9 @@ function _patrolThread() {
     }
 }
 
-function _OnDevice(bus: IBusData) {
+function _OnDevice(bus: IBusData, state) {
     //check device status
+
     var stateChange = false;
     if (!hwaddr_map[bus.name]) hwaddr_map[bus.name] = {};
     var devId = hwaddr_map[bus.name][bus.hwaddr];
@@ -182,25 +183,25 @@ function _OnDevice(bus: IBusData) {
             return;
         }
         busDelta = change;
-        dev.time = new Date();
         //log(" Loading DB " + dev.uid.bold);
-        if (dev.state == 0) {
+        if (dev.state == 0 && state) {
             stateChange = true;
             dev.state = 1;
+            dev.time = new Date();
         }
         else {
             //ACTIVATED
             stateChange = false;
         }
     } else {
-        stateChange = true;
+        stateChange = state;
         dev = <IDevice>{
             bus: bus,
             assumptions: {},
             id: UUIDstr(),
             config: {},
             time: new Date(),
-            state: 1,
+            state: state ? 1 : 0,
             owner: ""
         };
         busDelta = bus;

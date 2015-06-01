@@ -1,57 +1,12 @@
 ﻿//Resolve Device Name into DNS domains
 //Also generates generic "name" if there's nothing set
 //
-class NameService implements IDriver {
+class NameService implements IInAppDriver {
 
     //Le [host, name, alias]
     private _name_cache = [[], [], []]; //Le multi
 
     private _key = UUIDstr();
-
-    constructor() {
-    }
-
-    _interest = {
-        match: {
-            config: {
-                $or: [
-                    {name: {$exists: true}},
-                    {alias: {$exists: true}}
-                ]
-            },
-            bus: {
-                "data.Lease": {$exists: true}
-            }
-        },
-        change: {
-            delta: {
-                bus: {
-                    "Lease": {$exists: true}
-                }
-            },
-            stateChange: true
-        }
-    };
-
-    id = () => {
-        return "NameService";
-    };
-
-    interest = ():IDriverInterest=> {
-        return this._interest;
-    };
-
-    name = () => {
-        return "NameService";
-    };
-
-    status = () => {
-        return 1; //always on..
-    };
-
-    bus = ():string[]=> {
-        return ["WIFI"];
-    };
 
     private find_good_spot = (name, cb) => {
         trace("Finding spot for " + name);
@@ -85,6 +40,8 @@ class NameService implements IDriver {
             var name = dev.config.name;
             var alias = dev.config.alias;
 
+            console.log('lease', lease);
+
             if (!lease) {
                 return cb();
             }
@@ -104,9 +61,23 @@ class NameService implements IDriver {
             //    });
             //}
             var changed = false;
-            if (name && name != "" && name.indexOf("*") < 0 && name != host && !_.isEqual(this._name_cache[1][dev.id], {name: ip})) {
+
+
+            var h = {};
+            h[host] = ip;
+            if (host && host != "" && host.indexOf("*") < 0 && !_.isEqual(this._name_cache[0][dev.id], h)) {
                 //good
-                this._name_cache[1][dev.id] = {name: ip};
+                console.log('hostname', host, ip, dev.id);
+                this._name_cache[0][dev.id] = h;
+                changed = true;
+            }
+
+
+            var d = {};
+            d[name] = ip;
+            if (name && name != "" && name.indexOf("*") < 0 && name != host && !_.isEqual(this._name_cache[1][dev.id], d)) {
+                //good
+                this._name_cache[1][dev.id] = d;
                 changed = true;
             }
             if (Array.isArray(alias)) {
@@ -138,12 +109,15 @@ class NameService implements IDriver {
                 cb();
             }
             else {
+                console.log('-----<<<', this._name_cache);
                 var hostnames = {};
-                hostnames[name] = ip;
-                for (var i = 0; i < alias.length; i++) {
-                    hostnames[alias[i]] = ip;
+                for (var w in this._name_cache) {
+                    for (var k in this._name_cache[w]) {
+                        for (var z in this._name_cache[w][k])
+                            hostnames[z] = this._name_cache[w][k][z];
+                    }
                 }
-                API.Network.SetDNSHostname(dev.id, hostnames, cb);
+                API.Network.SetDNSHostname(hostnames, cb);
             }
         }, _cb);
     };
@@ -155,13 +129,21 @@ class NameService implements IDriver {
             delete this._name_cache[0][dev.id];
             delete this._name_cache[1][dev.id];
             delete this._name_cache[2][dev.id];
-            API.Network.RevokeDNSHostname()
+
+            var hostnames = {};
+            for (var w in this._name_cache) {
+                for (var k in this._name_cache[w]) {
+                    for (var z in this._name_cache[w][k])
+                        hostnames[z] = this._name_cache[w][k][z];
+                }
+            }
+            API.Network.SetDNSHostname(hostnames, c);
         }, cb);
     };
 
     match = (dev:IDevice, delta, cb:Callback) => {
         //IpAddress is required
-        return cb(undefined, !!dev.bus.data.Lease);
+        return cb(undefined, !!dev.bus.data.Lease && dev.state);
     }
 
     attach = (dev:IDevice, delta, matchResult:any, cb:PCallback<IDeviceAssumption>) => {
@@ -177,7 +159,8 @@ class NameService implements IDriver {
     }
 
     change = (dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) => {
-        if (!dev.bus.data.Lease) {
+        console.log('========= ((( ', dev.state, dev.bus.data);
+        if (!dev.bus.data.Lease || dev.state < 1) {
             this._remove_name(dev, () => {
             });
         } else {

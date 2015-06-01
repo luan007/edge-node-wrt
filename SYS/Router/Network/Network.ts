@@ -110,11 +110,11 @@ class Configuration extends Configurable {
             for (var appUid in delta.APP) {
                 var appConfig = delta.APP[appUid];
                 if (has(appConfig, 'Hosts')) {
-                    dnsmasq.Hosts[appUid] = dnsmasq.Hosts[appUid] || {};
-                    for (var t in appConfig.Hosts) {
-                        dnsmasq.Hosts[appUid][t] = appConfig.Hosts[t];
-                        console.log('^______________^ APP Set Hosts', t, appConfig.Hosts[t]);
-                    }
+                    dnsmasq.Hosts[appUid] = appConfig.Hosts || [];
+                    //for (var t in appConfig.Hosts) {
+                    //    dnsmasq.Hosts[appUid][t] = appConfig.Hosts[t];
+                    //    console.log('^______________^ APP Set Hosts', t, appConfig.Hosts[t]);
+                    //}
                     dhcp_hotplug = true;
                 }
             }
@@ -143,7 +143,7 @@ class Configuration extends Configurable {
             cb(); //success!
         } else {
             intoQueue('DNSMASQ_dhcphotplug', (queue_cb) => {
-                async.series(jobs, ()=>{
+                async.series(jobs, ()=> {
                     queue_cb();
                 });
             }, cb);
@@ -253,13 +253,16 @@ function CheckNameAvailability(name, cb) {
     dnsmasq.CheckNameAvailability(name, cb);
 }
 
-function SetDNSHostname(appUid, hostnames, cb) {
+function SetDNSHostname(hostnames, cb) {
+    var appUid = SenderId(this);
+    fatal('---------------------------0000000 ', appUid, hostnames);
     AppConfig.Set(SECTION.NETWORK, appUid, {Hosts: hostnames}, cb);
 }
-function RevokeDNSHostname(appuid, cb) {
-    AppConfig.Revoke(SECTION.NETWORK, appuid, cb);
-}
+//function RevokeDNSHostname(cb) {
+//    var appUid = SenderId(this);
+//    AppConfig.Revoke(SECTION.NETWORK, appUid, cb);
+//}
 
 __API(CheckNameAvailability, 'Network.CheckNameAvailability', [Permission.Network]);
 __API(SetDNSHostname, 'Network.SetDNSHostname', [Permission.Network]);
-__API(RevokeDNSHostname, 'Network.RevokeDNSHostname', [Permission.Network]);
+//__API(RevokeDNSHostname, 'Network.RevokeDNSHostname', [Permission.Network]);

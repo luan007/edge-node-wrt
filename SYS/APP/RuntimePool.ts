@@ -17,6 +17,7 @@ import APIManager = require("../../Modules/RPC/API/APIManager");
 import StatMgr = require('../Common/Stat/StatMgr');
 import _StatNode = require('../Common/Stat/StatNode');
 import StatNode = _StatNode.StatNode;
+import AppConfig = require('./Resource/AppConfig');
 
 var pub = StatMgr.Pub(SECTION.RUNTIME, {
     apps: {}
@@ -119,10 +120,12 @@ export function LoadApplication(app_uid:string, callback:PCallback<string>) {
             runtime.on('terminated', ()=> { // terminate by external process.
                 console.log('============((( runtime was terminated', app_uid);
                 pub.apps.Del(app_uid);
+                AppConfig.Revoke(SECTION.NETWORK, app_uid, ()=>{});
             });
             runtime.on('broken', () => {
                 console.log('============((( runtime was broken', app_uid);
                 pub.apps.Del(app_uid);
+                AppConfig.Revoke(SECTION.NETWORK, app_uid, ()=>{});
             });
         } catch (e) {
             error("Runtime Load Failed! Bad Man-fest maybe?");
