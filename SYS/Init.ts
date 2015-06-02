@@ -13,40 +13,52 @@ domain.on('error', function (err) {
     error(err.stack);
 });
 
+var diagnostic_report = [];
+function Diagnostic(moduleName) {
+    if (diagnostic_report.indexOf(moduleName) === -1)
+        diagnostic_report.push(moduleName);
+
+    intoQueue('write_diagnostic', (cb) => {
+        require('fs').writeFile(CONF.DIAGNOSTIC_PATH, diagnostic_report.join('\n'), cb);
+    }, () => {
+    });
+}
+
 domain.run(function () {
     var modules = [
-        './DB/Storage'
-        , './DB/Registry'
-        , './Device/Graphd/DB'
-        , './Router/Storage/Samba'
-        //, './Router/Storage/Obex'
-        , './Router/Network/Network'
-        , './Router/Network/Firewall/Firewall'
-        , './Router/Network/Firewall/TrafficAccountant'
-        , './Router/Network/Wireless/Wifi'
-        , './Router/Network/Wireless/Bluetooth'
-        , './Device/Bus/WifiBus'
-        , './Device/Bus/BluetoothBus'
-        , './Device/DeviceManager'
-        , './Device/DriverManager'
-        , './API/Server'
-        , './Frontends/MainUI'
-        , './Frontends/HttpProxy'
-        , './APP/Remote/Client'
-        , './APP/Test/FakeData/Generator'
-        , './APP/Test/Deployment/Server'
-        , './APP/RuntimePool'
-        , './Router/Network/Firewall/__Test'
-        //, './Device/Graphd/__Test'
-        //, './Device/__Test'
-        //, './APP/Resource/__Test'
-        , './APP/__Test'
+        {path: './DB/Storage', name: 'Storage'}
+        , {path: './DB/Registry', name: 'Registry'}
+        , {path: './Device/Graphd/DB', name: 'Graphd'}
+        , {path: './Router/Storage/Samba', name: 'Samba'}
+        //, {path: './Router/Storage/Obex', name: 'Obex'}
+        , {path: './Router/Network/Network', name: 'Dnsmasq'}
+        , {path: './Router/Network/Firewall/Firewall', name: 'IPtables'}
+        , {path: './Router/Network/Firewall/TrafficAccountant', name: 'TrafficAccountant'}
+        , {path: './Router/Network/Wireless/Wifi', name: 'hostapd'}
+        , {path: './Router/Network/Wireless/Bluetooth', name: 'Bluetooth'}
+        , {path: './Device/Bus/WifiBus', name: 'WifiBus'}
+        , {path: './Device/Bus/BluetoothBus', name: 'BluetoothBus'}
+        , {path: './Device/DeviceManager', name: 'DeviceManager'}
+        , {path: './Device/DriverManager', name: 'DriverManager'}
+        , {path: './API/Server', name: 'APIServer'}
+        , {path: './Frontends/MainUI', name: 'MainUI'}
+        , {path: './Frontends/HttpProxy', name: 'HttpProxy'}
+        , {path: './APP/Remote/Client', name: 'OrbitClient'}
+        , {path: './APP/Test/FakeData/Generator'}
+        , {path: './APP/Test/Deployment/Server'}
+        , {path: './APP/RuntimePool', name: 'RuntimePool'}
+        //, {path: './Router/Network/Firewall/__Test'}
+        //, {path: './Device/Graphd/__Test'}
+        //, {path: './Device/__Test'}
+        //, {path: './APP/Resource/__Test'}
+        , {path: './APP/__Test'}
     ];
     var initializes = [];
     var subscribes = [];
     for (var i = 0, len = modules.length; i < len; i++) {
         ((_i) => {
-            var m = require(modules[_i]);
+            var m = require(modules[_i].path);
+            var name = modules[_i]['name'];
             if (m.Subscribe) {
                 subscribes.push((cb) => {
                     m.Subscribe(cb);
@@ -54,7 +66,10 @@ domain.run(function () {
             }
             if (m.Initialize) {
                 initializes.push((cb) => {
-                    m.Initialize(cb);
+                    m.Initialize(() => {
+                        if (name) Diagnostic(name);
+                        cb();
+                    });
                 });
             }
         })(i);

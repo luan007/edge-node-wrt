@@ -2,7 +2,8 @@
 var arch = os.arch();
 
 
-declare var path;
+declare
+var path;
 class _sys_global_conf {
     LOADED = false; // don't touch
     IS_DEBUG = true;
@@ -99,10 +100,11 @@ class _sys_global_conf {
     LUA_NGINX_SOCKET = '/var/lua_nginx_socket';
     APP_TMP_PATH = '/var/app_tmp';
     PKG_TMP_PATH = '/var/pkg_tmp';
+    DIAGNOSTIC_PATH = '/var/diagnostic';
 }
 
 class _global_section {
-    NETWORK ='NETWORK';
+    NETWORK = 'NETWORK';
     WLAN5G = 'WLAN5G';
     WLAN2G = 'WLAN2G';
     BLUETOOTH = 'BLUETOOTH';
@@ -116,7 +118,7 @@ class _global_section {
     PKG = "PKG";
 }
 
- var CONF = new _sys_global_conf();
+var CONF = new _sys_global_conf();
 global.CONF = CONF;
 
 var SECTION = new _global_section();
