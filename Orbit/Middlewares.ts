@@ -89,7 +89,7 @@ export function RequestFidelity(req:ExpressServerRequest, res:ExpressServerRespo
             var k = sha256_Obj(req.method == "GET" || req.method == "DEL" ? req.query : req.body, {"ck": true});
             var should_match = forsake.decrypt(new Buffer(req.param("ck"), "hex"), router.routerkey).toString();
             if (k !== should_match) {
-                return next(new Error("Bad ``equest"));
+                return next(new Error("Bad Request"));
             }
         } catch (err) {
             return next(err);

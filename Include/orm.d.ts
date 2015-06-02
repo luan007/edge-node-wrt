@@ -195,6 +195,8 @@ declare module "orm" {
                 filter(callback: (result: T) => boolean): TypedChainFind<T>;
                 sort(callback: (a: T, b: T) => boolean): TypedChainFind<T>;
                 get(callback: (results: T[]) => void): TypedChainFind<T>;
+                order(property, order?:any) : TypedChainFind<T>;
+                orderRaw(str, args?:any) : TypedChainFind<T>;
             }
 
 

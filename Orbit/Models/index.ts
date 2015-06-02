@@ -4,3 +4,5 @@ export import Device = require("./Device");
 export import Ticket = require("./Ticket");
 export import User = require("./User");
 export import RouterApp = require('./RouterApp');
+export import Package = require('./Package');
+export import RouterPkg = require('./RouterPkg');

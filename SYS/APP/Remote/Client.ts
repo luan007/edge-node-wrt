@@ -94,13 +94,13 @@ class _orbit {
             res.once('error', function (err) {
                 res.removeAllListeners();
                 req.abort();
-                callback(err, null); //crashed
+                callback('Orbit error: \n' + err.message, null); //crashed
             });
         });
 
         req.once("error", function (err) {
             req.removeAllListeners();
-            return callback(err, null);
+            return callback('Orbit error: \n' +err, null);
             req.abort();
         });
         if (_body) {

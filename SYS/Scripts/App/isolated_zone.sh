@@ -46,3 +46,8 @@ chmod 777 /User
 echo mkdir /var/app_tmp
 if [ ! -e /var/app_tmp ]; then mkdir /var/app_tmp ; fi
 rm -rf /var/app_tmp/*
+
+####pkgs
+echo mkdir /var/pkg_tmp
+if [ ! -e /var/pkg_tmp ]; then mkdir /var/pkg_tmp ; fi
+rm -rf /var/pkg_tmp/*

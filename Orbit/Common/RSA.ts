@@ -41,9 +41,9 @@ export function GenSalt(len) {
 export function SignApp(appKey:string, appPath:string) {
     var salt = GenSalt(256);
     var hash =  HashDir(appPath, salt);
-    var prvkey = new rsa(appKey);
+    var pubkey = new rsa(appKey);
     var snapshot = salt.toString("hex") + hash.toString("hex");
-    var sign = prvkey.sign(snapshot, "hex", "utf8");
+    var sign = pubkey.sign(snapshot, "hex", "utf8");
     var app_sig = salt.toString("hex") + sign.toString();
     return app_sig;
 }
@@ -55,10 +55,9 @@ export function SignApp(appKey:string, appPath:string) {
  * @returns {string}
  */
 export function SignAppByHashCode(appKey:string, salt:Buffer, dirHashCode:string) {
-    var prvkey = new rsa(appKey);
+    var pubkey = new rsa(appKey);
     var snapshot = salt.toString("hex") + dirHashCode;
-    var sign = prvkey.sign(snapshot, "hex", "utf8");
+    var sign = pubkey.sign(snapshot, "hex", "utf8");
     var app_sig = salt.toString("hex") + sign.toString();
     return app_sig;
 }
-

@@ -98,6 +98,7 @@ class _sys_global_conf {
     ON_BOARD = false; //on-board
     LUA_NGINX_SOCKET = '/var/lua_nginx_socket';
     APP_TMP_PATH = '/var/app_tmp';
+    PKG_TMP_PATH = '/var/pkg_tmp';
 }
 
 class _global_section {
@@ -112,6 +113,7 @@ class _global_section {
     OBEX = 'OBEX';
     RUNTIME = 'RUNTIME';
     APP = "APP";
+    PKG = "PKG";
 }
 
  var CONF = new _sys_global_conf();
