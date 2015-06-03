@@ -51,22 +51,29 @@ export var NginxInstance:nginx.nginx;
 export function Initialize(cb) {
     nginx_runtime_id = UUIDstr();
     NginxInstance = new nginx.nginx(nginx.NGINX_PERMISSION);
-    //NginxInstance.Ctrl.Init((err) => {
-    cb();
+
     SYS_ON(SYS_EVENT_TYPE.LOADED, () => {
         //Add this to the bottom, cause we are using ps command to filter out credentials
         //thus slows everything down :p
+
         Server.AddHandler(ConnectionHandler);
-        //async.series([
-        //    require("./MainUI").Initialize,
-        //    require("./WebEx").Initialize
-        //], () => {
+
         NginxInstance.Start(true);
-        //});
     });
-    //});
+
+    return cb();
 }
 
+export function Diagnose(callback:Callback) {
+    SYS_ON(SYS_EVENT_TYPE.LOADED, () => {
+        setTask('stability_check_http_proxy', ()=> {
+            NginxInstance.StabilityCheck((err, stable)=> {
+                if (err) return callback(err);
+                return callback(null, stable);
+            });
+        }, 5000);
+    });
+}
 
 __API((cb) => {
     cb(undefined, "=w= GOOD!");
@@ -85,7 +92,7 @@ export function GetDeviceByIp(_ip, cb) {
         cb(new Error("Outside current subnet"));
     } else {
         var mac = StatBiz.GetMacByIP(_ip);
-        if(mac) {
+        if (mac) {
             var deviceId = DeviceManager.GetDevIdByHWAddr(mac);
             cb(undefined, deviceId);
         } else

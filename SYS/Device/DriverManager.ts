@@ -9,7 +9,7 @@ var InterestCache = {};
 export var Events = new events.EventEmitter();
 
 var query = require("underscore-query")(_);
-var pursuit = require("pursuit"); //TODO: Investigate Underscore_Query's performance
+//var pursuit = require("pursuit"); //TODO: Investigate Underscore_Query's performance
 
 export function InvalidateDrvInterest(drvId) {
     //TODO: swap to pursuit if you want..

@@ -14,6 +14,7 @@ var device_updates: KVSet = {};
 export var Events = new events.EventEmitter();
 
 var not_saved = false;
+var loaded = false;
 
 function LoadFromDB(callback: Callback) {
     trace("Resuming from DB");
@@ -57,7 +58,8 @@ function LoadFromDB(callback: Callback) {
                 }
             }
         }
-        trace((total + "").bold + " LOADED");
+        info((total + "").bold + " LOADED");
+        loaded = true;
         callback(null, null);
     });
 }
@@ -289,6 +291,11 @@ export function Initialize(cb) {
         info("UP");
         cb();
     });
+}
+
+export function Diagnose(callback:Callback) {
+    if(!loaded) return callback(new Error('Device loading failed.'), false);
+    return callback(null, true);
 }
 
 export function RegisterBus(bus) {

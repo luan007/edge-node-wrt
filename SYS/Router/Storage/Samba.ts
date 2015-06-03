@@ -38,12 +38,12 @@ class Configuration extends Configurable {
             else {
                 smbInstance.Config.CommonSections["global"]["Netbios_Name"] =
                     ConfMgr.Get(SECTION.NETWORK).NetworkName;
-                    //Core.Router.Network.Config.Get().NetworkName; //TODO: NetworkName should be changed into Self
+                //Core.Router.Network.Config.Get().NetworkName; //TODO: NetworkName should be changed into Self
             }
         }
         if (has(delta, "Folders")) {
             reload = true;
-            for(var k in delta.Folders){
+            for (var k in delta.Folders) {
                 smbInstance.Config.Folders[k] = delta.Folders[k];
             }
         }
@@ -61,7 +61,7 @@ var defaultConfig = {
     Enabled: true,
     Name: "edge",
     UseRouterName: false,
-    Folders : {
+    Folders: {
         Shared: {
             Guest_Ok: true,
             ReadOnly: false,
@@ -77,4 +77,13 @@ export function Initialize(cb) {
     fatal('[[[ Samba ]]] Initialize');
     var configSamba = new Configuration(SECTION.SAMBA, defaultConfig);
     configSamba.Initialize(cb);
+}
+
+export function Diagnose(callback:Callback) {
+    setTask('stability_check_samba', ()=> {
+        smbInstance.StabilityCheck((err, stable)=> {
+            if (err) return callback(err);
+            return callback(null, stable);
+        });
+    }, 2000);
 }

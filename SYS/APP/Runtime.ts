@@ -259,7 +259,7 @@ export class Runtime extends events.EventEmitter{
     Stop = () => {
 
         if (this.RPC) {
-            warn("Releasing RPC event listeners..");
+            fatal("Releasing RPC event listeners..");
             this.RPC.Destroy();
             this.RPC = undefined;
         }
@@ -271,7 +271,7 @@ export class Runtime extends events.EventEmitter{
         }
 
         if (this._process) {
-            warn("Process " + (this._process.pid + "").bold + " KILLED ");
+            fatal("Process " + (this._process.pid + "").bold + " KILLED ");
             this._process.removeAllListeners();
             try {
                 this._process.kill();

@@ -18,6 +18,7 @@ function _emit(name, data: any[]) {
 enum SYS_EVENT_TYPE {
     LOADED,
     ERROR,
+    LAUNCHED
 }
 global.SYS_EVENT_TYPE = SYS_EVENT_TYPE;
 global.SYS_ON = _listen;

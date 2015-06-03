@@ -4,6 +4,7 @@
 import db_builder = require("./Builder");
 import fs = require('fs');
 
+var lastError:any = null;
 var HOTSWAP_NAME = "deltaV";
 
 var levelQuery :any = require('level-queryengine'),
@@ -99,11 +100,17 @@ export function RebuildDeltaV(cb) {
 export function Initialize(cb) {
     trace("Initializing DeltaV");
     init((err, result) => {
+        lastError = err;
         if (!err) {
             DB = result;
         }
         cb(err, result);
     });
+}
+
+export function Diagnose(callback:Callback) {
+    if(lastError) return callback(lastError);
+    return callback(null, true);
 }
 
 export function Find(query: any, callback: PCallback<IDescriptor[]>) {

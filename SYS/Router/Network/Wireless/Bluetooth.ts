@@ -134,3 +134,12 @@ export function Initialize(cb) {
 
     __API(withCb(configBluez.ConfigHandler.Get), "Network.Bluetooth.Config.Get", [Permission.Network, Permission.Configuration]);
 }
+
+export function Diagnose(callback:Callback) {
+    setTask('stability_check_bluez', ()=> {
+        BluezInstance.StabilityCheck((err, stable)=> {
+            if (err) return callback(err);
+            return callback(null, stable);
+        });
+    }, 2000);
+}

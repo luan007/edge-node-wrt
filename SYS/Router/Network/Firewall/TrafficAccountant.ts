@@ -29,6 +29,8 @@ interface DeviceTraffic {
     intranet_down_traffic: Traffic;
 }
 
+var lastError:any = null;
+
 export var Devices:IDic<DeviceTraffic> = {};
 var IpMacMapping:IDic<string> = {};
 var deltaDevices = [];
@@ -71,7 +73,10 @@ function extractTraffic(trafficChain, chainName) {
 }
 function parseTraffic() {
     exec('sh', scriptPath, (err, res)=> {
-        if (err) error(err);
+        if (err) {
+            lastError = err;
+            error(err);
+        }
         else {
             try {
                 deltaDevices.length = 0; // clear
@@ -94,6 +99,7 @@ function parseTraffic() {
                 }
                 deltaDevices.length = 0; // clear
             } catch (err) {
+                lastError = err;
                 error(err);
             }
         }
@@ -158,6 +164,11 @@ export function Initialize(cb) {
     setJob(jobName, parseTraffic, CONF.IPTABLES_TRAFFIC_INTERVAL);
 
     cb();
+}
+
+export function Diagnose(callback:Callback) {
+    if (lastError) return callback(lastError);
+    return callback(null, true);
 }
 
 function setTraffic(networkAddress) {

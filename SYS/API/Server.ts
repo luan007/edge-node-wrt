@@ -119,7 +119,9 @@ function GenerateStartupScript(port) {
     var _api = JSON.parse(APIManager.ToJSON((f, p) => {
         return perm.Check(_ngx_permission, f["_p"]);
     }))["f"];
-    Object.keys(_api).forEach((v, i, a) => { _ngx_api += 'API["' + v + '"]=' + _api[v] + '\n'; });
+    Object.keys(_api).forEach((v, i, a) => {
+        _ngx_api += 'API["' + v + '"]=' + _api[v] + '\n';
+    });
     var _script =
         'API_Endpoint=' + '"unix:' + port + '"\n'
         + _ngx_api + 'require("Init")\n';
@@ -159,5 +161,11 @@ export function Initialize(cb) {
     });
     trace("API Server Listening on " + _port.bold.magenta);
 
+}
+
+export function Diagnose(callback:Callback) {
+    var exist = fs.existsSync(CONF.LUA_NGINX_SOCKET) && fs.existsSync(_port);
+    if (!exist) return callback(new Error('Server listening failed.'));
+    return callback(null, true);
 }
 

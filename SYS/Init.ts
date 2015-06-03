@@ -14,12 +14,13 @@ domain.on('error', function (err) {
 });
 
 var diagnostic_report = [];
-function Diagnostic(moduleName) {
+function Success(moduleName) {
     if (diagnostic_report.indexOf(moduleName) === -1)
         diagnostic_report.push(moduleName);
 
     intoQueue('write_diagnostic', (cb) => {
-        require('fs').writeFile(CONF.DIAGNOSTIC_PATH, diagnostic_report.join('\n'), cb);
+        require('fs').writeFile(CONF.DIAGNOSTIC_PATH, diagnostic_report.join('\n'), ()=> {});
+        cb();
     }, () => {
     });
 }
@@ -34,7 +35,7 @@ domain.run(function () {
         , {path: './Router/Network/Network', name: 'Dnsmasq'}
         , {path: './Router/Network/Firewall/Firewall', name: 'IPtables'}
         , {path: './Router/Network/Firewall/TrafficAccountant', name: 'TrafficAccountant'}
-        , {path: './Router/Network/Wireless/Wifi', name: 'hostapd'}
+        , {path: './Router/Network/Wireless/Wifi', name: 'Hostapd'}
         , {path: './Router/Network/Wireless/Bluetooth', name: 'Bluetooth'}
         , {path: './Device/Bus/WifiBus', name: 'WifiBus'}
         , {path: './Device/Bus/BluetoothBus', name: 'BluetoothBus'}
@@ -67,7 +68,14 @@ domain.run(function () {
             if (m.Initialize) {
                 initializes.push((cb) => {
                     m.Initialize(() => {
-                        if (name) Diagnostic(name);
+                        if (m.Diagnose && name) {
+                            m.Diagnose((err, status)=> {
+                                console.log('who diagnose:', name, 'err', err, 'status:', status);
+                                if (err) return error(err);
+                                if (!status) return error('module was corrupted:', name);
+                                Success(name);
+                            });
+                        }
                         cb();
                     });
                 });

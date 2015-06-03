@@ -72,3 +72,12 @@ export function Initialize(cb) {
     var configObex = new Configuration(SECTION.OBEX, defaultConfig);
     configObex.Initialize(cb);
 }
+
+export function Diagnose(callback:Callback) {
+    setTask('stability_check_obex', ()=> {
+        Obexd.StabilityCheck((err, stable)=> {
+            if (err) return callback(err);
+            return callback(null, stable);
+        });
+    }, 2000);
+}

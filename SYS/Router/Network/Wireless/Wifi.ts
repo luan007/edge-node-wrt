@@ -207,7 +207,7 @@ function parseIWStationDump() {
                 .replace(/yes/gmi, 'true').replace(/no/gmi, 'false')
                 .replace(/"preamble":([^,]+)/gmi, '"preamble":"$1"').replace(/"tx_bitrate":([^,]+)/gmi, '"tx_bitrate":"$1"');
             //info('parse IW', json, res);
-            try{
+            try {
                 var iwStations = JSON.parse(json);
                 //trace('parse iw station dump', require('util').inspect(iwStations));
 
@@ -231,7 +231,7 @@ function parseIWStationDump() {
                         delta5GStations.length = 0;
                     });
                 }
-            } catch(err) {
+            } catch (err) {
                 error(err);
             }
         }
@@ -273,6 +273,22 @@ export function Initialize(cb) {
 
     __API(withCb(config2G4.ConfigHandler.Get), "Network.Wifi2G.Config.Get", [Permission.Network, Permission.Configuration]);
     __API(withCb(config5G7.ConfigHandler.Get), "Network.Wifi5G.Config.Get", [Permission.Network, Permission.Configuration]);
+}
+
+export function Diagnose(callback:Callback) {
+    setTask('stability_check_wifi', ()=> {
+        var jobs = [];
+        jobs.push((cb) => {
+            Hostapd2G4.StabilityCheck(cb)
+        });
+        jobs.push((cb) => {
+            Hostapd5G7.StabilityCheck(cb)
+        });
+        async.series(jobs, (err, results)=> {
+            if (err) return callback(err);
+            return callback(null, true);
+        });
+    }, 5000);
 }
 
 /**

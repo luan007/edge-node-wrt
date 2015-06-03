@@ -88,3 +88,7 @@ export function Initialize(cb) {
         return Rebuild(undefined, cb);
     }
 }
+
+process.on('exit', ()=> {
+    db.close();
+});

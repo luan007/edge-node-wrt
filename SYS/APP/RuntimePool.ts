@@ -4,6 +4,7 @@ import RuntimeStatusEnum = _Runtime.RuntimeStatusEnum;
 import fs = require("fs");
 import net = require('net');
 import path = require('path');
+import events = require('events');
 import PermissionLib = require('../API/Permission');
 import _Application = require('../DB/Models/Application');
 import Application = _Application.Application;
@@ -23,6 +24,7 @@ var pub = StatMgr.Pub(SECTION.RUNTIME, {
     apps: {}
 });
 
+var emitter = new events.EventEmitter();
 //APP_ID : APP_STRUCT
 var _pool:IDic<Runtime> = <any>{};
 //RUNTIME_ID: APP_ID
@@ -92,6 +94,8 @@ export function LoadApplication(app_uid:string, callback:PCallback<string>) {
             runtime.on('launched', ()=> { // process online
                 console.log('============((( runtime was launched..', app_uid);
                 var status = runtime.Status();
+                if (emitter)
+                    emitter.emit('launched', app_uid);
                 pub.apps.Set(app_uid, {
                     State: status.State,
                     PlannedLaunchTime: status.PlannedLaunchTime,
@@ -106,7 +110,7 @@ export function LoadApplication(app_uid:string, callback:PCallback<string>) {
                 });
             });
             runtime.on('relaunch', (nextLaunchTime)=> { // need relaunch
-                if(runtime.System) {
+                if (runtime.System) {
                     process.nextTick(() => { // system app
                         runtime.Start();
                     });
@@ -120,12 +124,14 @@ export function LoadApplication(app_uid:string, callback:PCallback<string>) {
             runtime.on('terminated', ()=> { // terminate by external process.
                 console.log('============((( runtime was terminated', app_uid);
                 pub.apps.Del(app_uid);
-                AppConfig.Revoke(SECTION.NETWORK, app_uid, ()=>{});
+                AppConfig.Revoke(SECTION.NETWORK, app_uid, ()=> {
+                });
             });
             runtime.on('broken', () => {
                 console.log('============((( runtime was broken', app_uid);
                 pub.apps.Del(app_uid);
-                AppConfig.Revoke(SECTION.NETWORK, app_uid, ()=>{});
+                AppConfig.Revoke(SECTION.NETWORK, app_uid, ()=> {
+                });
             });
         } catch (e) {
             error("Runtime Load Failed! Bad Man-fest maybe?");
@@ -162,29 +168,36 @@ function _clean_up(runtimeId, cb) {
 
     var runtime = GetAppByRID(runtimeId);
     if (runtime) {
+        fatal('----------clean up data folder....');
         Tracker.ReleaseByOwner(runtimeId, (err, result) => {
-            if (err) warn(err);
+            if (err) error(err);
+
+            fatal('---------clean up data folder....');
+
             umount_till_err(AppManager.GetAppDataLn(runtime.App.uid), (err, result) => {
                 try {
+                    fatal('---------try clean up data folder....', AppManager.GetAppDataLn(runtime.App.uid), fs.existsSync(AppManager.GetAppDataLn(runtime.App.uid)));
                     if (fs.existsSync(AppManager.GetAppDataLn(runtime.App.uid))) {
-                        fs.rmdirSync(AppManager.GetAppDataLn(runtime.App.uid)); //that's it..
+                        exec('rm', '-rf', AppManager.GetAppDataLn(runtime.App.uid));
+                        //fs.rmdirSync(AppManager.GetAppDataLn(runtime.App.uid)); //that's it..
                     }
+                    fatal('---------after clean up data folder....', AppManager.GetAppDataLn(runtime.App.uid), fs.existsSync(AppManager.GetAppDataLn(runtime.App.uid)));
                 } catch (e) {
-                    warn("Failed to remove AppData Folder, but that's possibly OK");
+                    error("Failed to remove AppData Folder, but that's possibly OK");
                 }
                 try {
                     if (fs.existsSync(runtime.MainSock())) {
                         fs.rmdirSync(runtime.MainSock()); //that's it..
                     }
                 } catch (e) {
-                    warn("Failed to remove MainSocket, but that's possibly OK");
+                    error("Failed to remove MainSocket, but that's possibly OK");
                 }
                 try {
                     if (fs.existsSync(runtime.WebExSock())) {
                         fs.rmdirSync(runtime.WebExSock()); //that's it..
                     }
                 } catch (e) {
-                    warn("Failed to remove WebSocket, but that's possibly OK");
+                    error("Failed to remove WebSocket, but that's possibly OK");
                 }
                 return cb();
             });
@@ -386,6 +399,8 @@ export function Initialize(cb) {
 
             AppManager.GetInstalledApps((err, results) => {
                 fatal('************************** GetAllApplications ========(((', results);
+                if (emitter)
+                    emitter.emit('total', results.length);
                 if (err) {
                     return error(err);
                 } else {
@@ -498,10 +513,48 @@ function _SetupReverseAPI(api, callback) {
     } catch (e) {
         error("Error elevating permission, might be dangerous, killing " + (runtime.GetPID() + "").bold);
         error(e);
-        return runtime.ForceError(e);
+        runtime.ForceError(e);
+        return callback(e);
     }
 
 }
+
+function revokeEmitter() {
+    if (emitter) {
+        emitter.removeAllListeners();
+        emitter = undefined;
+    }
+}
+export function Diagnose(callback:Callback) {
+    emitter.on('total', (total)=> {
+        if (total === 0) {
+            revokeEmitter();
+            return callback(null, true);
+        }
+        var launched = 0;
+        emitter.on('launched', (app_uid) => {
+            console.log('app_uid', app_uid);
+            launched += 1;
+            if (launched === total) {
+                revokeEmitter();
+                console.log('runtime pool was launched.');
+                return callback(null, true);
+            }
+        });
+        setTask('launch_apps_check', ()=> {
+            if (launched !== total) return callback(new Error('Launch apps timeout.'));
+        }, 60 * 1000);
+    });
+}
+
+//process.on('SIGINT', ()=> {
+//    fatal('main process exiting....');
+//    for(var k in _pool) {
+//        var runtime = _pool[k];
+//        runtime.Terminate();
+//    }
+//    process.exit(1);
+//});
 
 (__API(_SetupReverseAPI, "Sandbox.SetupReverseAPI", [Permission.AppPreLaunch]));
 (__API(_GetQuota, "IO.Quota.Stat", [Permission.AnyApp, Permission.IO]));

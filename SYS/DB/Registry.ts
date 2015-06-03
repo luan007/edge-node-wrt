@@ -2,7 +2,8 @@
 import sub = require("level-subkey");
 //var codec = require("level-subkey/lib/codec");
 var codec = require("level-subkey/codec");  // VERSION???
-
+import path = require('path');
+import fs = require('fs');
 var join = require('path').join;
 
 var _ROOT = "/ROOT/";
@@ -67,4 +68,13 @@ export function Sector(...layers): Subkey {
     trace(layers);
     var key = join.apply(undefined, layers);
     return root.subkey(key);
+}
+
+export function Diagnose(callback:Callback) {
+    var lockPath = path.join(CONF.MAIN_REGISTRY_PATH, 'LOCK');
+    var exist = fs.existsSync(lockPath);
+    if(exist)
+        return callback(null, true);
+    else
+        return callback(new Error('Register level DB was corrupted.'));
 }

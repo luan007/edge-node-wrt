@@ -3,6 +3,7 @@ import fs = require("fs");
 import path = require("path");
 
 export var Database: orm.ORM;
+var lastError:any = null;
 
 function FuncName(func) {
     return func.toString().match(/function (.*)\(/)[1];
@@ -42,6 +43,7 @@ export function Initialize(callback: (err, db) => any) {
             Database = db;
             LoadModels(callback);
         } else {
+            lastError = err;
             error(err, "DB Initialize Failed");
             return callback(err, db);
         }
@@ -79,12 +81,18 @@ function LoadModels(callback: (err, db) => any) {
     trace("SYNCING"["cyanBG"].bold);
     Database.sync((err) => {
         if (err) {
+            lastError = err;
             error(err, "ERROR SYNCING DB");
         } else {
             trace("UP");
         }
         callback(err, Database);
     });
+}
+
+export function Diagnose(callback:Callback) {
+    if(lastError) return callback(lastError);
+    return callback(null, true);
 }
 
 

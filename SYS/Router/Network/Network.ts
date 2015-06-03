@@ -124,11 +124,11 @@ class Configuration extends Configurable {
             network.NetworkAddress = addr["Address"] + '/' + addr["Prefix"];
         }
         if (dhcp_reboot) {
-            console.log('^______________^ dhcp_reboot');
+            //console.log('^______________^ dhcp_reboot');
             dnsmasq.Start(true);
             jobs.push(dnsmasq.StabilityCheck);
         } else if (dhcp_hotplug) {
-            console.log('^______________^ dhcp_hotplug');
+            //console.log('^______________^ dhcp_hotplug');
             jobs.push(dnsmasq.ApplyChange);
             jobs.push(dnsmasq.StabilityCheck);
         }
@@ -137,7 +137,7 @@ class Configuration extends Configurable {
             this.pub.Set('network', network);
         }
 
-        console.log('^______________^ jobs', jobs.length);
+        //console.log('^______________^ jobs', jobs.length);
 
         if (jobs.length == 0) {
             cb(); //success!
@@ -152,7 +152,7 @@ class Configuration extends Configurable {
 
     _recycle = (appUid, cb) => {
         if (dnsmasq.Hosts[appUid]) {
-            console.log('^______________^ APP _revoke Shut', appUid);
+            //console.log('^______________^ APP _revoke Shut', appUid);
             dnsmasq.Hosts[appUid] = undefined;
             delete dnsmasq.Hosts[appUid];
             var jobs = [];
@@ -248,6 +248,14 @@ export function Initialize(cb) {
     });
 }
 
+export function Diagnose(callback:Callback) {
+    setTask('stability_check_dnsmasq', ()=> {
+        dnsmasq.StabilityCheck((err, stable)=> {
+            if (err) return callback(err);
+            return callback(null, stable);
+        });
+    }, 2000);
+}
 
 function CheckNameAvailability(name, cb) {
     dnsmasq.CheckNameAvailability(name, cb);
@@ -258,11 +266,8 @@ function SetDNSHostname(hostnames, cb) {
     fatal('---------------------------0000000 ', appUid, hostnames);
     AppConfig.Set(SECTION.NETWORK, appUid, {Hosts: hostnames}, cb);
 }
-//function RevokeDNSHostname(cb) {
-//    var appUid = SenderId(this);
-//    AppConfig.Revoke(SECTION.NETWORK, appUid, cb);
-//}
 
 __API(CheckNameAvailability, 'Network.CheckNameAvailability', [Permission.Network]);
 __API(SetDNSHostname, 'Network.SetDNSHostname', [Permission.Network]);
-//__API(RevokeDNSHostname, 'Network.RevokeDNSHostname', [Permission.Network]);
+
+
