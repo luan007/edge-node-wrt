@@ -31,7 +31,7 @@ export class nginx extends Process {
 
     Start(forever:boolean = true) {
         if (this.firstTime) {
-            fatal('---------------------------NGINX first starting');
+            //fatal('---------------------------NGINX first starting');
 
             return killall("nginx", (err, result) => {
                 this.firstTime = false;

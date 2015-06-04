@@ -108,6 +108,8 @@ export function Install(version, callback) {
                 });
 
                 pkgExtractedPath = path.join(CONF.PKG_TMP_PATH, version);
+                if(!fs.existsSync(pkgExtractedPath))
+                    fs.mkdirSync(pkgExtractedPath);
                 fs.createReadStream(pkgPath)
                     .pipe(unzip.Extract({path:pkgExtractedPath}))
                     .on('error', (err)=> {

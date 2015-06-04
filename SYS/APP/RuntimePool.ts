@@ -169,7 +169,7 @@ function _clean_up(runtimeId, cb) {
 
     var runtime = GetAppByRID(runtimeId);
     if (runtime) {
-        fatal('----------clean up data folder....');
+        //fatal('----------clean up data folder....');
         Tracker.ReleaseByOwner(runtimeId, (err, result) => {
             if (err) error(err);
 
