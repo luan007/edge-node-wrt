@@ -71,7 +71,9 @@ domain.run(function () {
                         if (m.Diagnose && name) {
                             m.Diagnose((err, status)=> {
                                 console.log('who diagnose:', name, 'err', err, 'status:', status);
-                                if (err) return error(err);
+                                if (err) {
+                                    return error(name + ' error: \n' + err.message);
+                                }
                                 if (!status) return error('module was corrupted:', name);
                                 Success(name);
                             });

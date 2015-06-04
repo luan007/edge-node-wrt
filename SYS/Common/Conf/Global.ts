@@ -36,7 +36,7 @@ class _sys_global_conf {
     GRAPHD_UPGRADE_LOCATION = path.join(this.BASE_PATH, "Device/Graphd");
     MAIN_REGISTRY_PATH = path.join(this.DATA_DIR, "reg");
     APP_TRUST_LIFE = 5;
-    APP_SPAN_SCALER = 1.5; // Max = 10 ^ 1.5 = 316sec
+    APP_SPAN_SCALER = 2.6; // Max = 10 ^ 1.5 = 316sec
     APP_RESP_SCAN_INTERVAL = 5000; // Max = 10 ^ 2.5 = 316sec
     AUTO_LOAD_APPS = true;
     ISO_DEFAULT_LIMIT = 1024 * 1500; //1500MB
@@ -101,6 +101,7 @@ class _sys_global_conf {
     APP_TMP_PATH = '/var/app_tmp';
     PKG_TMP_PATH = '/var/pkg_tmp';
     DIAGNOSTIC_PATH = '/var/diagnostic';
+    APP_PID_PATH = '/var/app_pid';
 }
 
 class _global_section {

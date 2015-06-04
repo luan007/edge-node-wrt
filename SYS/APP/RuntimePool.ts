@@ -115,6 +115,7 @@ export function LoadApplication(app_uid:string, callback:PCallback<string>) {
                         runtime.Start();
                     });
                 } else {
+                    console.log('============((( runtime relaunching.. nextLaunchTime', nextLaunchTime);
                     setTask('relaunch_' + app_uid, () => {
                         console.log('============((( runtime was relaunched..', app_uid);
                         runtime.Start();
@@ -172,16 +173,11 @@ function _clean_up(runtimeId, cb) {
         Tracker.ReleaseByOwner(runtimeId, (err, result) => {
             if (err) error(err);
 
-            fatal('---------clean up data folder....');
-
             umount_till_err(AppManager.GetAppDataLn(runtime.App.uid), (err, result) => {
                 try {
-                    fatal('---------try clean up data folder....', AppManager.GetAppDataLn(runtime.App.uid), fs.existsSync(AppManager.GetAppDataLn(runtime.App.uid)));
                     if (fs.existsSync(AppManager.GetAppDataLn(runtime.App.uid))) {
-                        exec('rm', '-rf', AppManager.GetAppDataLn(runtime.App.uid));
-                        //fs.rmdirSync(AppManager.GetAppDataLn(runtime.App.uid)); //that's it..
+                        fs.rmdirSync(AppManager.GetAppDataLn(runtime.App.uid)); //that's it..
                     }
-                    fatal('---------after clean up data folder....', AppManager.GetAppDataLn(runtime.App.uid), fs.existsSync(AppManager.GetAppDataLn(runtime.App.uid)));
                 } catch (e) {
                     error("Failed to remove AppData Folder, but that's possibly OK");
                 }
@@ -547,14 +543,6 @@ export function Diagnose(callback:Callback) {
     });
 }
 
-//process.on('SIGINT', ()=> {
-//    fatal('main process exiting....');
-//    for(var k in _pool) {
-//        var runtime = _pool[k];
-//        runtime.Terminate();
-//    }
-//    process.exit(1);
-//});
 
 (__API(_SetupReverseAPI, "Sandbox.SetupReverseAPI", [Permission.AppPreLaunch]));
 (__API(_GetQuota, "IO.Quota.Stat", [Permission.AnyApp, Permission.IO]));

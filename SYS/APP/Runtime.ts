@@ -47,7 +47,7 @@ export class RuntimeStatusEnum {
     static Terminated:number = -4;
 }
 
-export class Runtime extends events.EventEmitter{
+export class Runtime extends events.EventEmitter {
 
     private _process:child_process.ChildProcess = undefined;
 
@@ -100,10 +100,10 @@ export class Runtime extends events.EventEmitter{
             PlannedLaunchTime: -1,
             StabilityRating: 1,
             State: RuntimeStatusEnum.Ready,
-            IsLauncher : this.Manifest.is_system ? true : false,
+            IsLauncher: this.Manifest.is_system ? true : false,
             AppUrl: this.Manifest.url,
-            AppName : this.Manifest.name,
-            MainSock : this._mainsock,
+            AppName: this.Manifest.name,
+            MainSock: this._mainsock,
             WebExSock: this._webexsock,
             RuntimeId: runtimeId
         };
@@ -152,9 +152,11 @@ export class Runtime extends events.EventEmitter{
         }
 
         this._status.StabilityRating = Math.min(CONF.APP_TRUST_LIFE, avgLife / 1000 / 60) / CONF.APP_TRUST_LIFE; // Maxout if avg > 5
-        this._status.PlannedLaunchTime = Date.now() + Math.pow(10, (1 - this._status.StabilityRating) * CONF.APP_SPAN_SCALER) * 1000
-        * (this._status.FailHistory.length / _FAIL_STACK_SIZE) * (this._status.FailHistory.length / _FAIL_STACK_SIZE);
+        this._status.PlannedLaunchTime = //Date.now() +
+            Math.pow(10, (1 - this._status.StabilityRating) * CONF.APP_SPAN_SCALER) * 1000
+            * (this._status.FailHistory.length / _FAIL_STACK_SIZE) * (this._status.FailHistory.length / _FAIL_STACK_SIZE);
         fatal(this.App.name.bold + " * StabilityRating " + (this._status.StabilityRating * 100 + "%")["yellowBG"].black.bold);
+        console.log('^------------------^ PlannedLaunchTime', this._status.PlannedLaunchTime);
     };
 
     private _on_heartbeat = (err, deltaT) => {
@@ -213,30 +215,39 @@ export class Runtime extends events.EventEmitter{
         trace("--with Env" + "\n" + ('' + JSON.stringify(env)).bold);
         this._process = child_process.spawn("node", ["./APP/Sandbox/Sandbox.js"], {
             env: env,
-            stdio: CONF.IS_DEBUG ? [process.stdin, 'pipe', 'pipe'] : 'ignore',
+            stdio: CONF.IS_DEBUG ? [process.stdin, process.stdout, 'pipe'] : 'ignore',
             detached: CONF.DO_NOT_DETACH ? false : true //important
         });
         info("Process Started With PID " + (this._process.pid + "").bold);
 
         this._process.on("error", (e) => {
+            console.log('^------------------^ process.on(error)', e);
             this._push_fail(e);
             this.Stop();
         });
         this._process.on("message", (e) => {
+            console.log('^------------------^ process.on(message)', e);
             this._push_fail("Error", e);
             this.Stop();
         });
-        this._process.on("exit", this.Stop);
+        this._process.on("exit", () => {
+            console.log('^------------------^ process.on(exit)');
+            this._push_fail("exit");
+            this.Stop();
+        });
 
-        if (CONF.IS_DEBUG) {
-            this._process.stdout.on('data', (data) => {
-                console.log('process stdout data:', data.toString());
-            });
-
-            this._process.stderr.on("data", (data) => {
-                error(data.toString());
-            });
-        }
+        //if (CONF.IS_DEBUG) {
+        //    if(this._process.stdout) {
+        //        this._process.stdout.on('data', (data) => {
+        //            console.log('process stdout data:', data.toString());
+        //        });
+        //    }
+        //    if(this._process.stderr) {
+        //        this._process.stderr.on("data", (data) => {
+        //            error(data.toString());
+        //        });
+        //    }
+        //}
     };
 
     Status = () => {
@@ -291,16 +302,18 @@ export class Runtime extends events.EventEmitter{
             fs.unlinkSync(this._webexsock);
         }
 
-        if(this._status.State == RuntimeStatusEnum.Error) {
+        if (this._status.State == RuntimeStatusEnum.Error) {
+            console.log('============((( emit relaunch',  this._status.PlannedLaunchTime);
             this.emit('relaunch', this._status.PlannedLaunchTime);
         } else if (this._status.State == RuntimeStatusEnum.Terminated) {
+            console.log('============((( emit terminated');
             this.emit('terminated');
+            this.removeAllListeners();
         } else if (this._status.State == RuntimeStatusEnum.Broken) {
-            warn("[ STOP ] App is marked Broken " + this.App.name.bold);
+            fatal("[ STOP ] App is marked Broken " + this.App.name.bold);
             this.emit('broken');
+            this.removeAllListeners();
         }
-
-        this.removeAllListeners();
     };
 
     ForceError = (e) => {

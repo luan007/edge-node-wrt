@@ -101,12 +101,18 @@ process.on('SIGTERM', function () {
 });
 
 function Jail() {
+    //console.log('aaaaaaaaaaaaaa PID=');
+    //
+    //console.log(process.pid);
     //TODO: FIX SECURITY FLAW!!!!!!!
     var result = syscall.unshare(
         //CLONE_NEWIPC |
         CLONE_FS |
+
+
         CLONE_FILES |
-        //CLONE_NEWNET |
+        CLONE_NEWNET |
+
         //CLONE_NEWPID | //TODO: Fix this by calling clone(_PID) instead of doing node-fork
         /*CLONE_NEWNS*/ /*| */ 0); //BYEBYE
     if (result < 0) {
@@ -170,7 +176,7 @@ function _post_reverse_api(cb) {
     } catch (e) {
         console.log('require driver -======------ error', e);
     }
-    console.log('require driver -======------ ', global.Drivers);
+    //console.log('require driver -======------ ', global.Drivers);
     var json = reverseAPI.GenerateReverseAPI(_rpc);
     API.Sandbox.SetupReverseAPI(json, cb);
 }

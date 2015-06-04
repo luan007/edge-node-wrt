@@ -20,6 +20,7 @@ export function Rebuild(fileName, cb) {
         var total = 0;
         var cur = 0;
         var loaded = false;
+
         function check() {
             cur++;
             doneCheck();
@@ -62,8 +63,8 @@ export function Rebuild(fileName, cb) {
     });
 }
 
-export function OUI_Find(mac: string, callback) {
-    hotswapSafe("OUI_DB", callback,(done) => {
+export function OUI_Find(mac:string, callback) {
+    hotswapSafe("OUI_DB", callback, (done) => {
         db.get(mac.toLowerCase(), {}, done);
     });
 }
@@ -79,6 +80,13 @@ export function Initialize(cb) {
         fs.chownSync(dbPath, process.getuid(), process.getgid());
         fs.chmodSync(dbPath, '0775');
     }
+    //try {
+    //    var lockPath = path.join(dbPath, 'LOCK');
+    //    if (fs.existsSync(lockPath))
+    //        fs.unlinkSync(lockPath);
+    //} catch (e) {
+    //    console.log(e);
+    //}
     db = level(dbPath);
     db.open();
     if (!rebulid) {
