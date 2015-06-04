@@ -101,9 +101,8 @@ process.on('SIGTERM', function () {
 });
 
 function Jail() {
-    //console.log('aaaaaaaaaaaaaa PID=');
-    //
-    //console.log(process.pid);
+    //console.log('aaaaaaaaaaaaaa PID=', process.pid);
+
     //TODO: FIX SECURITY FLAW!!!!!!!
     var result = syscall.unshare(
         //CLONE_NEWIPC |

@@ -13,18 +13,6 @@ domain.on('error', function (err) {
     error(err.stack);
 });
 
-var diagnostic_report = [];
-function Success(moduleName) {
-    if (diagnostic_report.indexOf(moduleName) === -1)
-        diagnostic_report.push(moduleName);
-
-    intoQueue('write_diagnostic', (cb) => {
-        require('fs').writeFile(CONF.DIAGNOSTIC_PATH, diagnostic_report.join('\n'), ()=> {});
-        cb();
-    }, () => {
-    });
-}
-
 domain.run(function () {
     var modules = [
         {path: './DB/Storage', name: 'Storage'}
@@ -56,6 +44,8 @@ domain.run(function () {
     ];
     var initializes = [];
     var subscribes = [];
+    var cleanups = [];
+
     for (var i = 0, len = modules.length; i < len; i++) {
         ((_i) => {
             var m = require(modules[_i].path);
@@ -75,7 +65,7 @@ domain.run(function () {
                                     return error(name + ' error: \n' + err.message);
                                 }
                                 if (!status) return error('module was corrupted:', name);
-                                Success(name);
+                                ReportSuccess(name);
                             });
                         }
                         cb();
@@ -85,7 +75,13 @@ domain.run(function () {
         })(i);
     }
 
-    async.series(subscribes.concat(initializes), (err) => {
+    cleanups.push((cb) => {
+        ClearDiagnostic();
+        ClearRuntimePID();
+        cb();
+    });
+
+    async.series(cleanups.concat(subscribes.concat(initializes)), (err) => {
         fatal('========>>> entire series executed, then daemon.');
         if (err) {
             SYS_TRIGGER(SYS_EVENT_TYPE.ERROR, err);

@@ -5,7 +5,6 @@ do
     process=`ps aux | grep "node init.js" | grep -v grep`
     if [ "$process" == "" ]; then
         killall node
-        sleep 1s
         node init.js
     fi
     sleep 2s;

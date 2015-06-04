@@ -80,13 +80,13 @@ export function Initialize(cb) {
         fs.chownSync(dbPath, process.getuid(), process.getgid());
         fs.chmodSync(dbPath, '0775');
     }
-    //try {
-    //    var lockPath = path.join(dbPath, 'LOCK');
-    //    if (fs.existsSync(lockPath))
-    //        fs.unlinkSync(lockPath);
-    //} catch (e) {
-    //    console.log(e);
-    //}
+    try { // FIX zombie process LOCK.
+        var lockPath = path.join(dbPath, 'LOCK');
+        if (fs.existsSync(lockPath))
+            fs.unlinkSync(lockPath);
+    } catch (e) {
+        console.log(e);
+    }
     db = level(dbPath);
     db.open();
     if (!rebulid) {

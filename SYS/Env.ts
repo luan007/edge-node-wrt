@@ -15,3 +15,4 @@ require("../Modules/Shared/Sockets/SockPath");
 require("./API/FunctionExposer");
 require("./API/EventHub");
 require("./Common/Native/commands");
+require("./Common/Runtime/Diagnostic");
