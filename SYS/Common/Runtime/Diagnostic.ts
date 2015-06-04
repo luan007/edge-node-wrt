@@ -1,9 +1,11 @@
 var fs = require('fs');
 
-var diagnostic_report = [];
+var diagnostic_count = 0;
+var diagnostic_modules = [];
 var runtime_pool_pids = [];
 
 export function ClearDiagnostic() {
+    console.log('diagnose cleared.'['magentaBG'].bold);
     if (fs.existsSync(CONF.DIAGNOSTIC_PATH))
         fs.unlinkSync(CONF.DIAGNOSTIC_PATH);
 }
@@ -24,18 +26,6 @@ export function ClearRuntimePID() {
     }
 }
 
-export function ReportSuccess(moduleName) {
-    if (diagnostic_report.indexOf(moduleName) === -1)
-        diagnostic_report.push(moduleName);
-
-    intoQueue('write_diagnostic', (cb) => {
-        fs.writeFile(CONF.DIAGNOSTIC_PATH, diagnostic_report.join('\n'), ()=> {
-        });
-        cb();
-    }, () => {
-    });
-}
-
 export function ReportRuntimePID(pid) {
     if (runtime_pool_pids.indexOf(pid) === -1)
         runtime_pool_pids.push(pid);
@@ -48,8 +38,43 @@ export function ReportRuntimePID(pid) {
     });
 }
 
+export function RegisterModule(moduleName) {
+    if (diagnostic_modules.indexOf(moduleName) === -1)
+        diagnostic_modules.push(moduleName);
+}
+
+export function ReportModuleSuccess(moduleName) {
+    if(diagnostic_modules.indexOf(moduleName) > -1)
+        diagnostic_count += 1;
+
+    if(diagnostic_count === diagnostic_modules.length) {
+        console.log('diagnose accomplished.'['magentaBG'].bold);
+        intoQueue('write_diagnostic', (cb) => {
+            fs.writeFile(CONF.DIAGNOSTIC_PATH, '1', ()=> {
+            });
+            cb();
+        }, () => {
+        });
+    }
+}
+
+export function ReportModuleFailed(moduleName) {
+    if(diagnostic_modules.indexOf(moduleName) > -1) {
+        intoQueue('write_diagnostic', (cb) => {
+            fs.writeFile(CONF.DIAGNOSTIC_PATH, '0', ()=> {
+            });
+            cb();
+        }, () => {
+        });
+    }
+}
+
+
+
 global.ClearDiagnostic = ClearDiagnostic;
-global.ReportSuccess = ReportSuccess;
+global.RegisterModule = RegisterModule;
+global.ReportModuleSuccess = ReportModuleSuccess;
+global.ReportModuleFailed = ReportModuleFailed;
 global.ClearRuntimePID = ClearRuntimePID;
 global.ReportRuntimePID = ReportRuntimePID;
 

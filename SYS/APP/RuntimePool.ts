@@ -394,9 +394,9 @@ export function Initialize(cb) {
             trace("Autoloading All Apps, Implementation is a total mess, fix this !!");
 
             AppManager.GetInstalledApps((err, results) => {
-                fatal('************************** GetAllApplications ========(((', results);
+                //fatal('************************** GetAllApplications ========(((', results);
                 if (emitter)
-                    emitter.emit('total', results.length);
+                    emitter.emit('total', 1);
                 if (err) {
                     return error(err);
                 } else {
@@ -530,7 +530,8 @@ export function Diagnose(callback:Callback) {
         var launched = 0;
         emitter.on('launched', (app_uid) => {
             console.log('app_uid', app_uid);
-            launched += 1;
+            if(app_uid === 'Launcher')
+                launched += 1;
             if (launched === total) {
                 revokeEmitter();
                 console.log('runtime pool was launched.');

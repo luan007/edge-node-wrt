@@ -263,7 +263,7 @@ function CheckNameAvailability(name, cb) {
 
 function SetDNSHostname(hostnames, cb) {
     var appUid = SenderId(this);
-    fatal('---------------------------0000000 ', appUid, hostnames);
+    //fatal('---------------------------0000000 ', appUid, hostnames);
     AppConfig.Set(SECTION.NETWORK, appUid, {Hosts: hostnames}, cb);
 }
 

@@ -73,7 +73,7 @@ function _sanity_check(ver, dev:IDevice, drv:IDriver, err = false) {
 }
 
 function _update_driver_data(drv:IDriver, dev:IDevice, assump:IDeviceAssumption, tracker:_tracker) {
-    console.log('[ assumption ] ========== >>>', assump);
+    //console.log('[ assumption ] ========== >>>', assump);
     if (!drv || !drv.status() || !dev || !Drivers[drv.id()]) return;
     var real:IDeviceAssumption = <any>{};
     var changed = false;

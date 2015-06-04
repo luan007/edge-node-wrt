@@ -102,6 +102,7 @@ class _sys_global_conf {
     PKG_TMP_PATH = '/var/pkg_tmp';
     DIAGNOSTIC_PATH = '/var/diagnostic';
     APP_PID_PATH = '/var/app_pid';
+    PKG_UPGRADE_PATH = '/var/pkg_upgrade';
 }
 
 class _global_section {

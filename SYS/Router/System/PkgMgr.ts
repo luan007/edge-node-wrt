@@ -72,6 +72,7 @@ export function Install(version, callback) {
             return callback(err);
         }
 
+        var pkgExtractedPath = "";
         var pkgPath = path.join(CONF.PKG_TMP_PATH, version + '.zip');
         if (fs.existsSync(pkgPath))
             fs.unlinkSync(pkgPath);
@@ -106,8 +107,9 @@ export function Install(version, callback) {
                     State: 'extracting'
                 });
 
+                pkgExtractedPath = path.join(CONF.PKG_TMP_PATH, version);
                 fs.createReadStream(pkgPath)
-                    .pipe(unzip.Parse())
+                    .pipe(unzip.Extract({path:pkgExtractedPath}))
                     .on('error', (err)=> {
                         error(err);
                         pub.pkgs.Set(version, {
@@ -122,7 +124,7 @@ export function Install(version, callback) {
                         });
                         var api_salt = orbitResult.pkg_sig.substr(0, 512) ,
                             sig = orbitResult.pkg_sig.substring(512);
-                        _check(pkgPath, api_salt, sig, (err, success) => {
+                        _check(pkgExtractedPath, api_salt, sig, (err, success) => {
                             if(err) {
                                 pub.pkgs.Set(version, {
                                     State: 'error',
@@ -134,10 +136,23 @@ export function Install(version, callback) {
                                 pub.pkgs.Set(version, {
                                     State: 'failed'
                                 });
-                                return callback(new Error('verify failed.'));
+                                return callback(new Error('pkg verify failed.'));
                             }
-                            //TODO: upgrade SYSTEM
-
+                            //upgrade SYSTEM
+                            fs.writeFile(CONF.PKG_UPGRADE_PATH, pkgExtractedPath, (err)=>{
+                                if(err){
+                                    error(err);
+                                    pub.pkgs.Set(version, {
+                                        State: 'error',
+                                        Error: err
+                                    });
+                                    return callback(err);
+                                }
+                                pub.pkgs.Set(version, {
+                                    State: 'upgrading'
+                                });
+                                process.exit(0); // O_O
+                            });
                         });
                     });
             });

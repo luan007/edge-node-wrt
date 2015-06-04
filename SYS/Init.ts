@@ -50,6 +50,9 @@ domain.run(function () {
         ((_i) => {
             var m = require(modules[_i].path);
             var name = modules[_i]['name'];
+            if (m.Diagnose && name) {
+                RegisterModule(name);
+            }
             if (m.Subscribe) {
                 subscribes.push((cb) => {
                     m.Subscribe(cb);
@@ -60,12 +63,16 @@ domain.run(function () {
                     m.Initialize(() => {
                         if (m.Diagnose && name) {
                             m.Diagnose((err, status)=> {
-                                console.log('who diagnose:', name, 'err', err, 'status:', status);
+                                console.log('who diagnose:'['magentaBG'].bold, name, 'err', err, 'status:', status);
                                 if (err) {
+                                    ReportModuleFailed(name);
                                     return error(name + ' error: \n' + err.message);
                                 }
-                                if (!status) return error('module was corrupted:', name);
-                                ReportSuccess(name);
+                                if (!status) {
+                                    ReportModuleFailed(name);
+                                    return error('module was corrupted:', name);
+                                }
+                                ReportModuleSuccess(name);
                             });
                         }
                         cb();

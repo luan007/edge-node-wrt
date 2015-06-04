@@ -109,7 +109,7 @@ class NameService implements IInAppDriver {
                 cb();
             }
             else {
-                console.log('-----<<<', this._name_cache);
+                //console.log('-----<<<', this._name_cache);
                 var hostnames = {};
                 for (var w in this._name_cache) {
                     for (var k in this._name_cache[w]) {
@@ -159,7 +159,7 @@ class NameService implements IInAppDriver {
     }
 
     change = (dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) => {
-        console.log('========= ((( ', dev.state, dev.bus.data);
+        //console.log('========= ((( ', dev.state, dev.bus.data);
         if (!dev.bus.data.Lease || dev.state < 1) {
             this._remove_name(dev, () => {
             });
