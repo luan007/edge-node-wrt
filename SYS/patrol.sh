@@ -7,10 +7,12 @@ first_start="$ramdisk"/first_start
 system_dir="$ramdisk"/SYS
 system_modules="$ramdisk"/node_modules
 ## pkgs
-latest_pkg_file=/var/latest.zip
-init_pkg_file=/var/init.zip
-tmp_pkg_file=/var/tmp.zip
-pkg_extracted_dir="$$ramdisk"/pkg_extracted
+pkg_latest_file=/var/latest.zip
+pkg_init_file=/var/init.zip
+pkg_tmp_file=/var/tmp.zip
+pkg_extracted_dir="$ramdisk"/pkg_extracted
+pkg_upgrade_file="$ramdisk"/pkg_upgrade
+pkg_fail_file="$ramdisk"/pkg_fail
 ## keys
 key_path=/var/keys
 app_key_file="$key_path"/App.pb
@@ -19,69 +21,69 @@ app_key=`cat $app_key_file`
 router_key_file=`cat $router_key_file`
 ## passwords
 password_path=/var/password
-init_password_file="$password_path"/init_password
-init_password=`cat $init_password_file`
-latest_password_file="$password_path"/pkg_password
+password_init_file="$password_path"/init_password
+password_init=`cat $password_init_file`
+password_latest_file="$password_path"/pkg_latest_password
+password_upgrade_file="$ramdisk"/pkg_upgrade_password
 
-## ensure pkg extracted dir
-if [ ! -e "$pkg_extracted_dir" ]; then mkdir -p "$pkg_extracted_dir" fi
-
-# extract pkg into ramdisk
-if [ ! -e "$first_start" ]; then
-    if [ -e "$latest_pkg_file" ] && [ -e "$latest_password_file" ]; then ## latest?
-        latest_password=`cat $latest_password_file`
-        openssl enc -d -aes-256-cbc -k "$latest_password" -in "$latest_pkg_file" -out "$tmp_pkg_file"
-    elif [ -e "$init_pkg_file" ]; then                                  ## init.
-        openssl enc -d -aes-256-cbc -k "$init_password" -in "$init_pkg_file" -out "$tmp_pkg_file"
+### recover from latest or init
+function recover()
+{
+    if [ -e "$pkg_latest_file" ] && [ -e "$password_latest_file" ]; then ## latest?
+        password_latest=`cat $latest_password_file`
+        openssl enc -d -aes-256-cbc -k "$password_latest" -in "$pkg_latest_file" -out "$pkg_tmp_file"
+    elif [ -e "$pkg_init_file" ]; then                                  ## init.
+        openssl enc -d -aes-256-cbc -k "$password_init" -in "$pkg_init_file" -out "$pkg_tmp_file"
     else                                                                 ## machine has been damaged!!!
         exit 1
     fi
+}
 
+function extract()
+{
     echo extracting PKG...
-    unzip -o -d "$tmp_pkg_file" "$pkg_extracted_dir"  ## unzip...
+    unzip -o -d "$pkg_tmp_file" "$pkg_extracted_dir"  ## unzip...
+    echo copying into ramdisk
+    mv -f "$pkg_extracted_dir"/SYS "$system_dir"
+    mv -f "$pkg_extracted_dir"/node_modules "$system_modules"
+}
+## ensure pkg extracted dir
+if [ ! -e "$pkg_extracted_dir" ]; then mkdir -p "$pkg_extracted_dir" ; fi
+
+# extract pkg into ramdisk
+if [ ! -e "$first_start" ]; then
+    recover ## call recover
+
+    extract ## extract tmp pkg
+
     touch "$first_start"
 fi
 
+### main loop
 while true
 do
-    process=`ps aux | grep "node init.js" | grep -v grep`
+    ### monitoring
+    process=`ps aux | grep "node $system_dir/init.js" | grep -v grep`
     if [ "$process" == "" ]; then
         echo killall node...
         killall node
         echo starting up main SYSTEM...
-        node init.js
+        node "$system_dir"/init.js
     fi
 
-    ####  need upgrade
-    if [ -e /var/pkg_upgrade ]; then
-        pkg_path=`cat /var/pkg_upgrade`
-        echo copying node_modules...
-        cp -rf "$pkg_path"/node_modules /node_modules
-        echo copying main SYSTEM...
-        cp -rf "$pkg_path"/SYS /SYS
+    #### need upgrade
+    if [ -e "$pkg_upgrade_file" ] && [ -e "password_upgrade_file" ]; then
+        pkg_path=`cat $pkg_upgrade_files`
+        upgrade_password=`cat $password_upgrade_file`
+        openssl enc -d -aes-256-cbc -k "$upgrade_password" -in "$pkg_path" -out "$pkg_tmp_file"
+
+        extract ## extract tmp pkg
     fi
 
     #### need recovery
-    if [ -e /var/pkg_fail ]; then
-        if [ ! -e /var/pkg_tmp/recovery ]; then
-            echo mkdir /var/pkg_tmp/recovery...
-            mkdir -p /var/pkg_tmp/recovery
-        fi
-
-        if [ -e /var/latest.zip ]; then
-            echo unzip latest.zip /var/pkg_tmp/recovery...
-            unzip -o -d /var/pkg_tmp/recovery /var/latest.zip
-        elif [ -e /var/init.zip ]; then
-            echo unzip init.zip /var/pkg_tmp/recovery...
-            unzip -o -d /var/pkg_tmp/recovery /var/init.zip
-        fi
-
-        echo copying node_modules...
-        cp -rf /var/pkg_tmp/recovery/node_modules "$system_modules"
-        echo copying main SYSTEM...
-        cp -rf /var/pkg_tmp/recovery/SYS "$system_dir"
+    if [ -e "$pkg_fail_file" ]; then
+        recover ## call recover
     fi
 
     sleep 2s;
 done
-

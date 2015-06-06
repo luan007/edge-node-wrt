@@ -119,9 +119,21 @@ function _RSA_Verify(keyname, sig, data) {
 
 }
 
+export function DecryptAESPassword(keyname, encrypted:Buffer) {
+    if (!temp_keystore.hasOwnProperty(keyname)) {
+        return null;
+    }
+    else {
+        var key = temp_keystore[keyname];
+        var decrypted = key.decrypt(encrypted, 'utf8');
+        return decrypted;
+    }
+}
+
 global.RSA_Verify = _RSA_Verify;
 global.Unsafe_SyncRSAEncrypt_Fast = Unsafe_SyncRSAEncrypt_Fast;
 global.Safe_SyncRSAEncrypt_Fast = Safe_SyncRSAEncrypt_Fast;
+global.DecryptAESPassword = DecryptAESPassword;
 trace("Temporary Public Key Store is UP");
 LoadFromFile("App");
 LoadFromFile("Router");

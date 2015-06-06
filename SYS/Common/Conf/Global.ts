@@ -1,9 +1,7 @@
 ﻿var os = require("os");
 var arch = os.arch();
+var path = require('path');
 
-
-declare
-var path;
 class _sys_global_conf {
     LOADED = false; // don't touch
     IS_DEBUG = true;
@@ -98,17 +96,20 @@ class _sys_global_conf {
     LOG_LEVELS = ['error', 'fatal']; // 'error', 'fatal'
     ON_BOARD = false; //on-board
     LUA_NGINX_SOCKET = '/var/lua_nginx_socket';
-    DIAGNOSTIC_FILE = '/var/diagnostic';
-    APP_TMP_DIR = '/var/app_tmp/';
-    APP_PID_FILE = '/var/app_pid';
+
+    RAM_DISK_DIR = process.env.ramdisk || '/ramdisk/';
+    DIAGNOSTIC_FILE = path.join(this.RAM_DISK_DIR, 'diagnostic');
+    APP_TMP_DIR = path.join(this.RAM_DISK_DIR, 'app_tmp/');
+    APP_PID_FILE = path.join(this.RAM_DISK_DIR, 'app_pid');
     KEY_STORE_DIR = '/var/keys/';
+    PKG_UPGRADE_FILE = path.join(this.RAM_DISK_DIR, 'pkg_upgrade');
     PKG_INIT_FILE = '/var/init.zip';
     PKG_LATEST_FILE = '/var/latest.zip';
     PKG_TMP_DIR = '/var/pkg_tmp/';
-    PKG_UPGRADE_FILE = '/var/pkg_upgrade';
-    PKG_FAIL_FILE = '/var/pkg_fail';
+    PKG_FAIL_FILE = path.join(this.RAM_DISK_DIR, 'pkg_fail');
     PKG_INIT_PASSWORD_FILE = '/var/passwords/init_password';
-    PKG_LATEST_PASSWORD_FILE = '/var/passwords/pkg_password';
+    PKG_LATEST_PASSWORD_FILE = '/var/passwords/pkg_latest_password';
+    PKG_UPGRADE_PASSWORD_FILE = path.join(this.RAM_DISK_DIR, 'pkg_upgrade_password');
 }
 
 class _global_section {
