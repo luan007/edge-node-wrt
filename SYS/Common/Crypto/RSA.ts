@@ -83,7 +83,9 @@ function LoadPubkey(keyname, PEM) {
 
 function LoadFromFile(keyname) {
     warn("* Loading PEM (REMOVE THIS W/RTM V) " + keyname["magentaBG"].bold);
-    var f = path.join(CONF.BASE_PATH, "../Modules/Shared/Crypto/Keys/" + keyname + ".pb");
+    if (!fs.existsSync(CONF.KEY_STORE_PATH))
+        fs.mkdirSync(CONF.KEY_STORE_PATH);
+    var f = path.join(CONF.KEY_STORE_PATH, keyname + ".pb");
     if (!fs.existsSync(f)) {
         error("* PEM NOT FOUND " + keyname["redBG"].bold);
         return false;
@@ -94,7 +96,6 @@ function LoadFromFile(keyname) {
         fatal("* KEY LENGTH = " + temp_keystore[keyname].getKeySize());
     }
 }
-
 
 
 /**

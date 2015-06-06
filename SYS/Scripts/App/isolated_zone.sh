@@ -51,3 +51,8 @@ rm -rf /var/app_tmp/*
 echo mkdir /var/pkg_tmp
 if [ ! -e /var/pkg_tmp ]; then mkdir /var/pkg_tmp ; fi
 rm -rf /var/pkg_tmp/*
+
+####keys
+echo copying keys
+if [ ! -e /var/keys ]; then mkdir /var/keys ; fi
+cp -rf ./Common/Crypto/Keys/*.pb /var/keys

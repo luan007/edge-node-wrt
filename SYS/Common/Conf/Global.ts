@@ -99,12 +99,12 @@ class _sys_global_conf {
     ON_BOARD = false; //on-board
     LUA_NGINX_SOCKET = '/var/lua_nginx_socket';
     DIAGNOSTIC_PATH = '/var/diagnostic';
-    APP_TMP_PATH = '/var/app_tmp';
+    APP_TMP_PATH = '/var/app_tmp/';
     APP_PID_PATH = '/var/app_pid';
-    APP_KEY_PATH = '/var/App.pb';
+    KEY_STORE_PATH = '/var/keys/';
     PKG_INIT_PATH = '/var/init.zip';
     PKG_LATEST_PATH = '/var/latest.zip';
-    PKG_TMP_PATH = '/var/pkg_tmp';
+    PKG_TMP_PATH = '/var/pkg_tmp/';
     PKG_UPGRADE_PATH = '/var/pkg_upgrade';
     PKG_FAIL_PATH = '/var/pkg_fail';
     PKG_PASSWORD_PATH = '/var/pkg_password';
