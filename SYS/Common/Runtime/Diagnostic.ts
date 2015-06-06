@@ -7,13 +7,13 @@ var runtime_pool_pids = [];
 
 export function ClearDiagnostic() {
     console.log('diagnose cleared.'['magentaBG'].bold);
-    if (fs.existsSync(CONF.DIAGNOSTIC_PATH))
-        fs.unlinkSync(CONF.DIAGNOSTIC_PATH);
+    if (fs.existsSync(CONF.DIAGNOSTIC_FILE))
+        fs.unlinkSync(CONF.DIAGNOSTIC_FILE);
 }
 
 export function ClearRuntimePID() {
-    if (fs.existsSync(CONF.APP_PID_PATH)) {
-        var pids = fs.readFileSync(CONF.APP_PID_PATH);
+    if (fs.existsSync(CONF.APP_PID_FILE)) {
+        var pids = fs.readFileSync(CONF.APP_PID_FILE);
         try {
             pids = JSON.parse(pids);
             for (var i = 0, len = pids.length; i < len; i++) {
@@ -25,7 +25,7 @@ export function ClearRuntimePID() {
             console.log(err);
         }
 
-        fs.unlinkSync(CONF.APP_PID_PATH);
+        fs.unlinkSync(CONF.APP_PID_FILE);
     }
 }
 
@@ -34,7 +34,7 @@ export function ReportRuntimePID(pid) {
         runtime_pool_pids.push(pid);
 
     intoQueue('write_runtimepool_pids', (cb) => {
-        fs.writeFile(CONF.APP_PID_PATH, JSON.stringify(runtime_pool_pids), ()=> {
+        fs.writeFile(CONF.APP_PID_FILE, JSON.stringify(runtime_pool_pids), ()=> {
         });
         cb();
     }, () => {
@@ -52,20 +52,20 @@ export function ReportModuleSuccess(moduleName) {
 
     if (diagnostic_count === diagnostic_modules.length) {
         console.log('diagnose accomplished.'['magentaBG'].bold);
-        if (fs.existsSync(CONF.PKG_UPGRADE_PATH)) { //upgrade accomplished
-            var pkgPath = fs.readFileSync(CONF.PKG_UPGRADE_PATH, {encoding: 'utf8'});
+        if (fs.existsSync(CONF.PKG_UPGRADE_FILE)) { //upgrade accomplished
+            var pkgPath = fs.readFileSync(CONF.PKG_UPGRADE_FILE, {encoding: 'utf8'});
             pkgPath = pkgPath + '.zip';
             console.log('upgrade accomplished.'['cyanBG'].bold);
-            fs.unlinkSync(CONF.PKG_UPGRADE_PATH);
+            fs.unlinkSync(CONF.PKG_UPGRADE_FILE);
             if (fs.existsSync(pkgPath)) {// ==> /var/latest.zip
-                fs.renameSync(pkgPath, CONF.PKG_LATEST_PATH);
+                fs.renameSync(pkgPath, CONF.PKG_LATEST_FILE);
             }
         }
-        if (fs.existsSync(CONF.PKG_FAIL_PATH)) {//upgrade accomplished
-            fs.unlinkSync(CONF.PKG_FAIL_PATH);
+        if (fs.existsSync(CONF.PKG_FAIL_FILE)) {//upgrade accomplished
+            fs.unlinkSync(CONF.PKG_FAIL_FILE);
         }
         intoQueue('write_diagnostic', (cb) => {
-            fs.writeFile(CONF.DIAGNOSTIC_PATH, '1', ()=> {
+            fs.writeFile(CONF.DIAGNOSTIC_FILE, '1', ()=> {
             });
             cb();
         }, () => {
@@ -75,13 +75,13 @@ export function ReportModuleSuccess(moduleName) {
 
 export function ReportModuleFailed(moduleName) {
     if (diagnostic_modules.indexOf(moduleName) > -1) {
-        if (fs.existsSync(CONF.PKG_UPGRADE_PATH)) { //upgrade failed
+        if (fs.existsSync(CONF.PKG_UPGRADE_FILE)) { //upgrade failed
             console.log('upgrade failed.'['cyanBG'].bold);
-            fs.unlinkSync(CONF.PKG_UPGRADE_PATH);
-            fs.writeFileSync(CONF.PKG_FAIL_PATH, '0');
+            fs.unlinkSync(CONF.PKG_UPGRADE_FILE);
+            fs.writeFileSync(CONF.PKG_FAIL_FILE, '0');
         }
         intoQueue('write_diagnostic', (cb) => {
-            fs.writeFile(CONF.DIAGNOSTIC_PATH, '0', ()=> {
+            fs.writeFile(CONF.DIAGNOSTIC_FILE, '0', ()=> {
             });
             cb();
         }, () => {

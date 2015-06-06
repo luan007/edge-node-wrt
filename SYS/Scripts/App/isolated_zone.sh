@@ -56,3 +56,8 @@ rm -rf /var/pkg_tmp/*
 echo copying keys
 if [ ! -e /var/keys ]; then mkdir /var/keys ; fi
 cp -rf ./Common/Crypto/Keys/*.pb /var/keys
+
+####passwords
+echo init passwords
+if [ ! -e /var/passwords ]; then mkdir /var/passwords ; fi
+cp -rf ./Common/Crypto/Keys/init_password /var/passwords/init_password

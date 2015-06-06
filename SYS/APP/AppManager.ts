@@ -64,7 +64,7 @@ export function Install(app_uid:string, callback:Callback) {
         }
 
         var appPath = "";
-        var appPackagePath = path.join(CONF.APP_TMP_PATH, app_uid + '.zip');
+        var appPackagePath = path.join(CONF.APP_TMP_DIR, app_uid + '.zip');
         if (fs.existsSync(appPackagePath))
             fs.unlinkSync(appPackagePath);
         var appStream = fs.createWriteStream(appPackagePath);

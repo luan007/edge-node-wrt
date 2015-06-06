@@ -83,9 +83,9 @@ function LoadPubkey(keyname, PEM) {
 
 function LoadFromFile(keyname) {
     warn("* Loading PEM (REMOVE THIS W/RTM V) " + keyname["magentaBG"].bold);
-    if (!fs.existsSync(CONF.KEY_STORE_PATH))
-        fs.mkdirSync(CONF.KEY_STORE_PATH);
-    var f = path.join(CONF.KEY_STORE_PATH, keyname + ".pb");
+    if (!fs.existsSync(CONF.KEY_STORE_DIR))
+        fs.mkdirSync(CONF.KEY_STORE_DIR);
+    var f = path.join(CONF.KEY_STORE_DIR, keyname + ".pb");
     if (!fs.existsSync(f)) {
         error("* PEM NOT FOUND " + keyname["redBG"].bold);
         return false;

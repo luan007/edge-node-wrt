@@ -98,16 +98,17 @@ class _sys_global_conf {
     LOG_LEVELS = ['error', 'fatal']; // 'error', 'fatal'
     ON_BOARD = false; //on-board
     LUA_NGINX_SOCKET = '/var/lua_nginx_socket';
-    DIAGNOSTIC_PATH = '/var/diagnostic';
-    APP_TMP_PATH = '/var/app_tmp/';
-    APP_PID_PATH = '/var/app_pid';
-    KEY_STORE_PATH = '/var/keys/';
-    PKG_INIT_PATH = '/var/init.zip';
-    PKG_LATEST_PATH = '/var/latest.zip';
-    PKG_TMP_PATH = '/var/pkg_tmp/';
-    PKG_UPGRADE_PATH = '/var/pkg_upgrade';
-    PKG_FAIL_PATH = '/var/pkg_fail';
-    PKG_PASSWORD_PATH = '/var/pkg_password';
+    DIAGNOSTIC_FILE = '/var/diagnostic';
+    APP_TMP_DIR = '/var/app_tmp/';
+    APP_PID_FILE = '/var/app_pid';
+    KEY_STORE_DIR = '/var/keys/';
+    PKG_INIT_FILE = '/var/init.zip';
+    PKG_LATEST_FILE = '/var/latest.zip';
+    PKG_TMP_DIR = '/var/pkg_tmp/';
+    PKG_UPGRADE_FILE = '/var/pkg_upgrade';
+    PKG_FAIL_FILE = '/var/pkg_fail';
+    PKG_INIT_PASSWORD_FILE = '/var/passwords/init_password';
+    PKG_LATEST_PASSWORD_FILE = '/var/passwords/pkg_password';
 }
 
 class _global_section {

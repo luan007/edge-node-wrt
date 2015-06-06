@@ -72,8 +72,7 @@ export function Install(version, callback) {
             return callback(err);
         }
 
-        var pkgExtractedPath = "";
-        var pkgPath = path.join(CONF.PKG_TMP_PATH, version + '.zip');
+        var pkgPath = path.join(CONF.PKG_TMP_DIR, version + '.zip');
         if (fs.existsSync(pkgPath))
             fs.unlinkSync(pkgPath);
         var pkgStream = fs.createWriteStream(pkgPath);
@@ -104,49 +103,34 @@ export function Install(version, callback) {
             })
             .on('finish', ()=> {
                 pub.pkgs.Set(version, {
-                    State: 'extracting'
+                    State: 'saving'
                 });
 
-                pkgExtractedPath = path.join(CONF.PKG_TMP_PATH, version);
-                if (!fs.existsSync(pkgExtractedPath))
-                    fs.mkdirSync(pkgExtractedPath);
-                fs.createReadStream(pkgPath)
-                    .pipe(unzip.Extract({path: pkgExtractedPath}))
-                    .on('error', (err)=> {
+                fs.writeFile(CONF.PKG_LATEST_PASSWORD_FILE, orbitResult.pkg_sig, (err)=> { //save password
+                    if (err) {
                         error(err);
                         pub.pkgs.Set(version, {
                             State: 'error',
                             Error: err
                         });
                         return callback(err);
-                    })
-                    .on("close", () => {
-                        //pub.pkgs.Set(version, {
-                        //    State: 'verifying'
-                        //});
-                        //var api_salt = orbitResult.pkg_sig.substr(0, 512) ,
-                        //    sig = orbitResult.pkg_sig.substring(512);
-                        //_check(pkgExtractedPath, api_salt, sig, (err, success) => {
-
-                        fs.writeFileSync(CONF.PKG_PASSWORD_PATH, orbitResult.pkg_sig, {flag:'w'});
-
-                        //upgrade SYSTEM
-                        fs.writeFile(CONF.PKG_UPGRADE_PATH, pkgExtractedPath, (err)=> {
-                            if (err) {
-                                error(err);
-                                pub.pkgs.Set(version, {
-                                    State: 'error',
-                                    Error: err
-                                });
-                                return callback(err);
-                            }
+                    }
+                    //upgrade SYSTEM
+                    fs.writeFile(CONF.PKG_UPGRADE_FILE, pkgPath, (err)=> { // write pkg path
+                        if (err) {
+                            error(err);
                             pub.pkgs.Set(version, {
-                                State: 'upgrading'
+                                State: 'error',
+                                Error: err
                             });
-                            process.exit(0); // O_O
+                            return callback(err);
+                        }
+                        pub.pkgs.Set(version, {
+                            State: 'upgrading'
                         });
+                        process.exit(0); // O_O
                     });
-                //});
+                });
             });
     });
 }
