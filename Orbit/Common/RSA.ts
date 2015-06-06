@@ -54,10 +54,16 @@ export function SignApp(appKey:string, appPath:string) {
  * @param dirHashCode
  * @returns {string}
  */
-export function SignAppByHashCode(appKey:string, salt:Buffer, dirHashCode:string) {
+export function SignAppByHashCode(appKey:string, salt:Buffer, dirHashCode:string|Buffer) {
     var pubkey = new rsa(appKey);
     var snapshot = salt.toString("hex") + dirHashCode;
     var sign = pubkey.sign(snapshot, "hex", "utf8");
     var app_sig = salt.toString("hex") + sign.toString();
     return app_sig;
+}
+
+export function EncryptAESPassword(appKey:string, password:Buffer) {
+    var key = new rsa(appKey);
+    var encrypted = key.encrypt(password, 'base64', 'buffer');
+    return encrypted;
 }

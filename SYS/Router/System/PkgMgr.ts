@@ -31,9 +31,9 @@ export function GetVersionNo(version) {
     return verNo;
 }
 
-export function AvaliablePkgs(page, callback){
-    Orbit.Get('Packages/all/'+ page, {}, (err, pkgs:IPackage)=> {
-        if(err) return callback(err);
+export function AvaliablePkgs(page, callback) {
+    Orbit.Get('Packages/all/' + page, {}, (err, pkgs:IPackage)=> {
+        if (err) return callback(err);
         return callback(null, pkgs);
     });
 }
@@ -108,10 +108,10 @@ export function Install(version, callback) {
                 });
 
                 pkgExtractedPath = path.join(CONF.PKG_TMP_PATH, version);
-                if(!fs.existsSync(pkgExtractedPath))
+                if (!fs.existsSync(pkgExtractedPath))
                     fs.mkdirSync(pkgExtractedPath);
                 fs.createReadStream(pkgPath)
-                    .pipe(unzip.Extract({path:pkgExtractedPath}))
+                    .pipe(unzip.Extract({path: pkgExtractedPath}))
                     .on('error', (err)=> {
                         error(err);
                         pub.pkgs.Set(version, {
@@ -121,42 +121,32 @@ export function Install(version, callback) {
                         return callback(err);
                     })
                     .on("close", () => {
-                        pub.pkgs.Set(version, {
-                            State: 'verifying'
-                        });
-                        var api_salt = orbitResult.pkg_sig.substr(0, 512) ,
-                            sig = orbitResult.pkg_sig.substring(512);
-                        _check(pkgExtractedPath, api_salt, sig, (err, success) => {
-                            if(err) {
+                        //pub.pkgs.Set(version, {
+                        //    State: 'verifying'
+                        //});
+                        //var api_salt = orbitResult.pkg_sig.substr(0, 512) ,
+                        //    sig = orbitResult.pkg_sig.substring(512);
+                        //_check(pkgExtractedPath, api_salt, sig, (err, success) => {
+
+                        fs.writeFileSync(CONF.PKG_PASSWORD_PATH, orbitResult.pkg_sig, {flag:'w'});
+
+                        //upgrade SYSTEM
+                        fs.writeFile(CONF.PKG_UPGRADE_PATH, pkgExtractedPath, (err)=> {
+                            if (err) {
+                                error(err);
                                 pub.pkgs.Set(version, {
                                     State: 'error',
                                     Error: err
                                 });
                                 return callback(err);
                             }
-                            if(!success){
-                                pub.pkgs.Set(version, {
-                                    State: 'failed'
-                                });
-                                return callback(new Error('pkg verify failed.'));
-                            }
-                            //upgrade SYSTEM
-                            fs.writeFile(CONF.PKG_UPGRADE_PATH, pkgExtractedPath, (err)=>{
-                                if(err){
-                                    error(err);
-                                    pub.pkgs.Set(version, {
-                                        State: 'error',
-                                        Error: err
-                                    });
-                                    return callback(err);
-                                }
-                                pub.pkgs.Set(version, {
-                                    State: 'upgrading'
-                                });
-                                process.exit(0); // O_O
+                            pub.pkgs.Set(version, {
+                                State: 'upgrading'
                             });
+                            process.exit(0); // O_O
                         });
                     });
+                //});
             });
     });
 }

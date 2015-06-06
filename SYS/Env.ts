@@ -14,5 +14,4 @@ require("./Common/Conf/Global");
 require("../Modules/Shared/Sockets/SockPath");
 require("./API/FunctionExposer");
 require("./API/EventHub");
-require("./Common/Native/commands");
 require("./Common/Runtime/Diagnostic");

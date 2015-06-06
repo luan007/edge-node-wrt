@@ -3,6 +3,7 @@ import validator = require("validator");
 import Data = require("../Storage");
 import path = require('path');
 import RSA  = require('../Common/RSA');
+import AES = require('../Common/AES');
 import fs = require('fs');
 
 get("/Packages/all", (req, res, next) => {
@@ -21,48 +22,44 @@ post('/Packages/purchase/:version',  (req, res, next) => { // ===> app_sig
     Data.Models.Package.Table.get(version, (err, pkg) => { // should be exist in DB
         if(err) return next(err);
         else {
-            var salt = RSA.GenSalt(256);
-            if(pkg.dirHashCode.trim() === '') {
-                var app_path = path.join(ORBIT_CONF.PKG_BASE_PATH, pkg.version);
-                pkg.dirHashCode =  HashDir(app_path, salt).toString("hex");
-                pkg.save();
-            }
-            var pkg_sig = RSA.SignAppByHashCode(app_key, salt, pkg.dirHashCode); // sum per time.
+            var aesPassword = AES.RandomPassword();
+            //var salt = RSA.GenSalt(256);
+            var pkg_sig = RSA.EncryptAESPassword(app_key, aesPassword); // sum per time.
 
-            Data.Models.RouterApp.Table.find({version: version, router_uid: router_uid}, (err, routerApps)=> {
+            Data.Models.RouterPkg.Table.find({version: version, router_uid: router_uid}, (err, routerPkgs)=> {
                 if (err) return next(err);
-                if (routerApps.length <= 0) {
-                    var app_router_uid = UUIDstr();
-                    Data.Models.RouterApp.Table.create({
-                        uid: app_router_uid,
+                if (routerPkgs.length <= 0) {
+                    Data.Models.RouterPkg.Table.create({
                         router_uid: router_uid,
                         version: version,
+                        password: aesPassword,
                         orderTime: new Date(),
                         installTime: new Date()
                     }, (err)=> {
                         if (err)
                             return next(err);
-                        return res.json({pkg_sig: pkg_sig, app_router_uid: app_router_uid});
+                        return res.json({pkg_sig: pkg_sig});
                     });
                 } else {
-                    return res.json({pkg_sig: pkg_sig, app_router_uid: routerApps[0].uid});
+                    return res.json({pkg_sig: pkg_sig});
                 }
             });
         }
     });
 });
 
-post('/Packages/download/:package_router_uid', (req, res, next) => {
-    var package_router_uid = req.params.package_router_uid;
-    var app_key = req.router.appkey;
-    Data.Models.RouterPkg.Table.get(package_router_uid, (err, routerPkg)=> {
+post('/Packages/download/:version', (req, res, next) => {
+    var version = req.params.version;
+    var router_uid = req.router.uid;
+    Data.Models.RouterPkg.Table.find({version: version, router_uid: router_uid}, (err, routerPkgs)=> {
         if (err) return next(err);
-        console.log('routerPkg', routerPkg);
-        if (routerPkg) {
+        if (routerPkgs.length > 0) {
+            var routerPkg = routerPkgs[0];
             var packagePath = path.join(ORBIT_CONF.PKG_BASE_PATH, routerPkg.pkg_version + '.zip');
             if(fs.existsSync(packagePath)) {
                 console.log('packagePath'["cyanBG"].bold, packagePath);
-                fs.createReadStream(packagePath).pipe(<any>res);
+                AES.EncryptFileSteram(packagePath, routerPkg.password).pipe(<any>res);
+                //fs.createReadStream(packagePath).pipe(<any>res);
             } else {
                 return next(new Error('.zip not exist on the server.'));
             }
