@@ -1,6 +1,10 @@
 var fs = require('fs');
 var path = require('path');
 
+var _Package = require('../../DB/Models/Package');
+var Package = _Package.Package;
+var packageManger = require('../System/PackageManager');
+
 var diagnostic_count = 0;
 var diagnostic_modules = [];
 var runtime_pool_pids = [];
@@ -60,6 +64,12 @@ export function ReportModuleSuccess(moduleName) {
             if (fs.existsSync(pkgPath)) {// ==> /var/latest.zip
                 fs.renameSync(pkgPath, CONF.PKG_LATEST_FILE);
             }
+            packageManger.CurrentVersion((err, pkg) => { // update DB state
+                if(err) error(err);
+                else {
+                    packageManger.UpdateVersion(pkg.version, 1, ()=> {});
+                }
+            });
         }
         if (fs.existsSync(CONF.PKG_FAIL_FILE)) {//upgrade accomplished
             fs.unlinkSync(CONF.PKG_FAIL_FILE);
@@ -79,7 +89,10 @@ export function ReportModuleFailed(moduleName) {
             console.log('upgrade failed.'['cyanBG'].bold);
             fs.unlinkSync(CONF.PKG_UPGRADE_FILE);
             fs.writeFileSync(CONF.PKG_FAIL_FILE, '0');
-            process.exit(0); // O_O
+            console.log('System exit...'['yellowBG'].bold);
+            process.nextTick(()=>{
+                process.exit(0); // O_O
+            });
         }
         intoQueue('write_diagnostic', (cb) => {
             fs.writeFile(CONF.DIAGNOSTIC_FILE, '0', ()=> {

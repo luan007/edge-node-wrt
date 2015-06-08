@@ -288,7 +288,7 @@ export function Diagnose(callback:Callback) {
             if (err) return callback(err);
             return callback(null, true);
         });
-    }, 5000);
+    }, 8000);
 }
 
 /**

@@ -99,16 +99,17 @@ class _sys_global_conf {
 
     RAM_DISK_DIR = process.env.ramdisk || '/ramdisk/';
     DIAGNOSTIC_FILE = path.join(this.RAM_DISK_DIR, 'diagnostic');
-    APP_TMP_DIR = path.join(this.RAM_DISK_DIR, 'app_tmp/');
+    APP_TMP_DIR = path.join(this.RAM_DISK_DIR, 'app_tmp');
     APP_PID_FILE = path.join(this.RAM_DISK_DIR, 'app_pid');
-    KEY_STORE_DIR = '/var/keys/';
+    KEY_STORE_DIR = path.join(this.RAM_DISK_DIR, 'keys');
     PKG_UPGRADE_FILE = path.join(this.RAM_DISK_DIR, 'pkg_upgrade');
-    PKG_INIT_FILE = '/var/init.zip';
-    PKG_LATEST_FILE = '/var/latest.zip';
-    PKG_TMP_DIR = '/var/pkg_tmp/';
+    PKG_INIT_FILE = path.join(this.RAM_DISK_DIR, 'init.zip');
+    PKG_LATEST_FILE = path.join(this.RAM_DISK_DIR, 'latest.zip');
+    PKG_TMP_DIR = path.join(this.RAM_DISK_DIR, 'pkg_tmp');
     PKG_FAIL_FILE = path.join(this.RAM_DISK_DIR, 'pkg_fail');
-    PKG_INIT_PASSWORD_FILE = '/var/passwords/init_password';
-    PKG_LATEST_PASSWORD_FILE = '/var/passwords/pkg_latest_password';
+    PKG_PASSWORD_DIR = path.join(this.RAM_DISK_DIR, 'password');
+    PKG_INIT_PASSWORD_FILE = path.join(this.PKG_PASSWORD_DIR, 'init_password');
+    PKG_LATEST_PASSWORD_FILE = path.join(this.PKG_PASSWORD_DIR, 'pkg_latest_password');
     PKG_UPGRADE_PASSWORD_FILE = path.join(this.RAM_DISK_DIR, 'pkg_upgrade_password');
 }
 

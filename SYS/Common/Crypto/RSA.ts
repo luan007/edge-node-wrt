@@ -125,7 +125,7 @@ export function DecryptAESPassword(keyname, encrypted:Buffer) {
     }
     else {
         var key = temp_keystore[keyname];
-        var decrypted = key.decryptPublic(encrypted, 'buffer');
+        var decrypted = key.decryptPublic(encrypted, 'hex');
         return decrypted;
     }
 }

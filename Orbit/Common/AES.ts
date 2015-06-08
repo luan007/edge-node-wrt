@@ -7,8 +7,8 @@ import child_process = require('child_process');
 var algorithm = 'aes-256-cbc';
 var passwdLength = 256;
 
-export function RandomPassword(bytesLength=passwdLength) {
-    return crypto.randomBytes(bytesLength);
+export function RandomPassword(bytesLength=passwdLength) { 
+    return crypto.randomBytes(bytesLength).toString('hex');
 }
 
 export function EncryptFileSteram(filePath:string, password:string): stream.Readable {

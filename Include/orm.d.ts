@@ -81,6 +81,7 @@ declare module "orm" {
         export interface Instance {
             on(event: string, callback): Instance;
             save(): Instance;
+            save(callback: (err: Error) => void): Instance;
             save(data: { [property: string]: any; }, callback: (err: Error) => void): Instance;
             save(data: { [property: string]: any; }, options: any, callback: (err: Error) => void): Instance;
             saved: boolean;

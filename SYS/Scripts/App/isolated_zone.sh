@@ -43,21 +43,21 @@ chown nobody -R /User
 chmod 777 /User
 
 ####apps
-echo mkdir /var/app_tmp
-if [ ! -e /var/app_tmp ]; then mkdir /var/app_tmp ; fi
-rm -rf /var/app_tmp/*
+echo mkdir /ramdisk/app_tmp
+if [ ! -e /ramdisk/app_tmp ]; then mkdir /ramdisk/app_tmp ; fi
+rm -rf /ramdisk/app_tmp/*
 
 ####pkgs
-echo mkdir /var/pkg_tmp
-if [ ! -e /var/pkg_tmp ]; then mkdir /var/pkg_tmp ; fi
-rm -rf /var/pkg_tmp/*
+echo mkdir /ramdisk/pkg_tmp
+if [ ! -e /ramdisk/pkg_tmp ]; then mkdir /ramdisk/pkg_tmp ; fi
+##rm -rf /ramdisk/pkg_tmp/*
 
 ####keys
 echo copying keys
-if [ ! -e /var/keys ]; then mkdir /var/keys ; fi
-cp -rf ./Common/Crypto/Keys/*.pb /var/keys
+if [ ! -e /ramdisk/keys ]; then mkdir /ramdisk/keys ; fi
+cp -rf ./Common/Crypto/Keys/*.pb /ramdisk/keys
 
 ####passwords
 echo init passwords
-if [ ! -e /var/passwords ]; then mkdir /var/passwords ; fi
-cp -rf ./Common/Crypto/Keys/init_password /var/passwords/init_password
+if [ ! -e /ramdisk/passwords ]; then mkdir /ramdisk/passwords ; fi
+cp -rf ./Common/Crypto/Keys/init_password /ramdisk/passwords/init_password

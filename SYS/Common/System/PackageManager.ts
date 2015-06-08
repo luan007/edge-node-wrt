@@ -18,7 +18,30 @@ var pub = StatMgr.Pub(SECTION.PKG, {
 export function CurrentVersion(cb) {
     Package.table().one({}, (err, pkg) => {
         if (err) return cb(err);
-        return cb(null, pkg.versionNo);
+        return cb(null, pkg);
+    });
+}
+
+export function UpdateVersion(version, state:number, cb) {
+    Package.table().one({}, (err, pkg) => {
+        if (err) return cb(err);
+        if (!pkg) {
+            var ver = new Package();
+            ver.uid = UUIDstr();
+            ver.version = version;
+            ver.versionNo = GetVersionNo(version);
+            ver.state = state;
+            Package.table().create(ver, (err) => {
+                return cb(err);
+            });
+        } else {
+            pkg.version = version;
+            pkg.versionNo = GetVersionNo(version);
+            pkg.state = state;
+            pkg.save((err)=> {
+                return cb(err);
+            });
+        }
     });
 }
 
@@ -142,7 +165,12 @@ export function Install(version, callback) {
                             State: 'upgrading'
                         });
                         callback(null);
-                        process.exit(0); // O_O
+                        UpdateVersion(version, 0, ()=> {
+                            console.log('System exit...'['yellowBG'].bold);
+                            process.nextTick(()=> {
+                                process.exit(0); // O_O
+                            });
+                        });
                     });
                 });
             });

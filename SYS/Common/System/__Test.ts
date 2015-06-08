@@ -12,8 +12,15 @@ export function Initialize(cb) {
     //});
 
     var version = '1.0.0';
-    PackageManager.Install(version, (err)=>{
-        if(err) error('some error occurs:', err);
-        else console.log('package installed, then upgrade SYSTEM...');
-    });
+    var pkgPath = path.join(CONF.PKG_TMP_DIR, version + '.zip');
+    console.log('package exists.'['cyanBG'].bold, pkgPath);
+    if(fs.existsSync(pkgPath)){
+        return cb();
+    } else {
+        PackageManager.Install(version, (err)=> {
+            if (err) error('some error occurs:', err);
+            else console.log('package installed, then upgrade SYSTEM...');
+            return cb();
+        });
+    }
 }

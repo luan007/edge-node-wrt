@@ -115,7 +115,7 @@ class ManagedProcess extends events.EventEmitter {
             clearTimeout(t1);
             if (!this.Process) {
                 clearTimeout(t2);
-                return cb(new Error("Process is not Running"), false);
+                return cb(new Error("Process " + this.Name + " is not Running"), false);
             }
             pid = this.Process.pid;
         }, 500);
