@@ -106,7 +106,17 @@ export function Install(version, callback) {
                     State: 'saving'
                 });
 
-                var decrypted = DecryptAESPassword('App', orbitResult.pkg_sig);
+                var decrypted = "";
+                try {
+                    decrypted = DecryptAESPassword('App', orbitResult.pkg_sig);
+                } catch (err) {
+                    error(err);
+                    pub.pkgs.Set(version, {
+                        State: 'error',
+                        Error: err
+                    });
+                    return callback(err);
+                }
                 fs.writeFile(CONF.PKG_UPGRADE_PASSWORD_FILE, decrypted, (err)=> { //save password
                     if (err) {
                         error(err);

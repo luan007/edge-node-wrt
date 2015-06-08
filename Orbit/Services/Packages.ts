@@ -6,8 +6,8 @@ import RSA  = require('../Common/RSA');
 import AES = require('../Common/AES');
 import fs = require('fs');
 
-get("/Packages/all", (req, res, next) => {
-    var page = parseInt(req.param('page'));
+get("/Packages/all/:page", (req, res, next) => {
+    var page = parseInt(req.params.page);
     var ps = 10;
     Data.Models.Package.Table.find({}).order('-versionNo').limit(ps).offset((page - 1) * ps).run((err, packages)=> {
         if (err) return next(err);
@@ -58,7 +58,11 @@ post('/Packages/download/:version', (req, res, next) => {
             var packagePath = path.join(ORBIT_CONF.PKG_BASE_PATH, routerPkg.pkg_version + '.zip');
             if(fs.existsSync(packagePath)) {
                 console.log('packagePath'["cyanBG"].bold, packagePath);
-                AES.EncryptFileSteram(packagePath, routerPkg.password).pipe(<any>res);
+                try {
+                    AES.EncryptFileSteram(packagePath, routerPkg.password).pipe(<any>res);
+                } catch(err) {
+                    return next(err);
+                }
                 //fs.createReadStream(packagePath).pipe(<any>res);
             } else {
                 return next(new Error('.zip not exist on the server.'));

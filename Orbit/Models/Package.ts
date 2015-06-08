@@ -11,6 +11,7 @@ export class Package {
     versionNo:number = 0;
     pubTime:Date = new Date();
     dirHashCode:string = "";
+    description:string = "";
 
     static meta() {
         return {

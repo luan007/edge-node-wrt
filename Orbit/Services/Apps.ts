@@ -5,8 +5,8 @@ import path = require('path');
 import RSA  = require('../Common/RSA');
 import fs = require('fs');
 
-get("/App/all", (req, res, next) => {
-    var page = parseInt(req.param('page'));
+get("/App/all/:page", (req, res, next) => {
+    var page = parseInt(req.params.page);
     var ps = 10;
     Data.Models.Application.Table.find({}).limit(ps).offset((page - 1) * ps).run((err, applications)=> {
         if (err) return next(err);

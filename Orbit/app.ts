@@ -77,6 +77,7 @@ export function Initialize(port, callback:Callback) {
     require("./Services/Ticket");
     require("./Services/User");
     require('./Services/Apps');
+    require('./Services/Packages');
 
     SERVER.use(middlewares.ErrorHandler);
 
@@ -91,6 +92,17 @@ function InitDB(cb) {
     Data.Initialize("root:system@localhost/edge", (err, db) => {
         cb(err, db);
     });
+}
+
+function GetVersionNo(version) {
+    var verNo = 0;
+    var parts = version.split('.');
+    if (parts.length < 3)
+        throw new Error('illegal version.');
+    for (var i = 0; i < 3; i++) {
+        verNo += parseInt(parts[i]) * Math.pow(10, 3 * (2 - i));
+    }
+    return verNo;
 }
 
 function GenerateDummyData(cb) {
@@ -133,7 +145,7 @@ function GenerateDummyData(cb) {
         '-----END RSA PRIVATE KEY-----';
 
     var jobs = [];
-    jobs.push((cb) => {
+    jobs.push((cb) => { // Router
         Data.Models.Router.Table.get("TEST_ROUTER_0", (err, result) => {
             if (!result) {
                 var router = new Data.Models.Router.Router();
@@ -149,7 +161,7 @@ function GenerateDummyData(cb) {
         });
     });
 
-    jobs.push((cb)=> {
+    jobs.push((cb)=> { // TestApp
         Data.Models.Application.Table.get('TestApp', (err, result) => {
             if (!result) {
                 var app = new Data.Models.Application.Application();
@@ -164,7 +176,7 @@ function GenerateDummyData(cb) {
         });
     });
 
-    jobs.push((cb)=> {
+    jobs.push((cb)=> { // DriverApp
         Data.Models.Application.Table.get('DriverApp', (err, result) => {
             if (!result) {
                 var app = new Data.Models.Application.Application();
@@ -173,6 +185,22 @@ function GenerateDummyData(cb) {
                 app.name = 'DriverApp';
                 app.urlName = 'DriverApp';
                 Data.Models.Application.Table.create(app, cb);
+            } else {
+                cb();
+            }
+        });
+    });
+
+    jobs.push((cb) => { // Package 1.0
+        Data.Models.Package.Table.get('1.0.0', (err, result) => {
+            if(!result) {
+                var pkg = new Data.Models.Package.Package();
+                pkg.version = '1.0.0';
+                pkg.versionNo = GetVersionNo(pkg.version);
+                pkg.pubTime = new Date();
+                pkg.dirHashCode = '';
+                pkg.description = '';
+                Data.Models.Package.Table.create(pkg, cb);
             } else {
                 cb();
             }
