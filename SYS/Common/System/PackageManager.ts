@@ -6,6 +6,8 @@ import StatMgr = require('../../Common/Stat/StatMgr');
 import _StatNode = require('../../Common/Stat/StatNode');
 import StatNode = _StatNode.StatNode;
 import http = require('http');
+import fs = require('fs');
+import path = require('path');
 var unzip = require("unzip");
 
 var pub = StatMgr.Pub(SECTION.PKG, {
@@ -139,6 +141,7 @@ export function Install(version, callback) {
                         pub.pkgs.Set(version, {
                             State: 'upgrading'
                         });
+                        callback(null);
                         process.exit(0); // O_O
                     });
                 });

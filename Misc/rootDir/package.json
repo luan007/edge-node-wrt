@@ -23,7 +23,7 @@
         "level-subkey":  "*",
         "level-queryengine": "*",
         "jsonquery-engine": "*",
-        "node-rsa": "0.2.10",
+        "node-rsa": "0.2.22",
         "forsake": "*",
         "node-arp": "*",
         "useragent": "*",

@@ -79,6 +79,7 @@ export function ReportModuleFailed(moduleName) {
             console.log('upgrade failed.'['cyanBG'].bold);
             fs.unlinkSync(CONF.PKG_UPGRADE_FILE);
             fs.writeFileSync(CONF.PKG_FAIL_FILE, '0');
+            process.exit(0); // O_O
         }
         intoQueue('write_diagnostic', (cb) => {
             fs.writeFile(CONF.DIAGNOSTIC_FILE, '0', ()=> {

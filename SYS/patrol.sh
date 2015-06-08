@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## ramdisk
-ramdisk=/ramdisk
+ramdisk=/staging/_Releases
 first_start="$ramdisk"/first_start
 ## main system
 system_dir="$ramdisk"/SYS
@@ -47,6 +47,23 @@ function extract()
     mv -f "$pkg_extracted_dir"/SYS "$system_dir"
     mv -f "$pkg_extracted_dir"/node_modules "$system_modules"
 }
+
+function upgrade()
+{
+    #### need upgrade
+    if [ -e "$pkg_upgrade_file" ] && [ -e "$password_upgrade_file" ]; then
+        pkg_path=`cat $pkg_upgrade_files`
+        upgrade_password=`cat $password_upgrade_file`
+        openssl enc -d -aes-256-cbc -k "$upgrade_password" -in "$pkg_path" -out "$pkg_tmp_file"
+
+        extract ## extract tmp pkg
+    fi
+
+    #### need recovery
+    if [ -e "$pkg_fail_file" ]; then
+        recover ## call recover
+    fi
+}
 ## ensure pkg extracted dir
 if [ ! -e "$pkg_extracted_dir" ]; then mkdir -p "$pkg_extracted_dir" ; fi
 
@@ -65,25 +82,11 @@ do
     ### monitoring
     process=`ps aux | grep "node $system_dir/init.js" | grep -v grep`
     if [ "$process" == "" ]; then
-        echo killall node...
-        killall node
+        echo "node $system_dir/init.js" is empty
+        #echo killall node...
+        #killall node
         echo starting up main SYSTEM...
         node "$system_dir"/init.js
+        upgrade
     fi
-
-    #### need upgrade
-    if [ -e "$pkg_upgrade_file" ] && [ -e "password_upgrade_file" ]; then
-        pkg_path=`cat $pkg_upgrade_files`
-        upgrade_password=`cat $password_upgrade_file`
-        openssl enc -d -aes-256-cbc -k "$upgrade_password" -in "$pkg_path" -out "$pkg_tmp_file"
-
-        extract ## extract tmp pkg
-    fi
-
-    #### need recovery
-    if [ -e "$pkg_fail_file" ]; then
-        recover ## call recover
-    fi
-
-    sleep 2s;
 done

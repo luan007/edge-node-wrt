@@ -62,8 +62,11 @@ export function SignAppByHashCode(appKey:string, salt:Buffer, dirHashCode:string
     return app_sig;
 }
 
+/**
+ * need node-rsa 0.2.22
+ */
 export function EncryptAESPassword(appKey:string, password:Buffer) {
     var key = new rsa(appKey);
-    var encrypted = key.encrypt(password, 'base64', 'buffer');
+    var encrypted = key.encryptPrivate(password, 'base64', 'buffer');
     return encrypted;
 }
