@@ -67,10 +67,10 @@ export function ReportModuleSuccess(moduleName) {
             if(fs.existsSync(CONF.PKG_UPGRADE_PASSWORD_FILE)){
                 fs.unlinkSync(CONF.PKG_UPGRADE_PASSWORD_FILE);
             }
-            packageManger.CurrentVersion((err, pkg) => { // update DB state
+            packageManger.CurrentVersion((err, version) => { // update DB state
                 if(err) error(err);
                 else {
-                    packageManger.UpdateVersion(pkg.version, 1, ()=> {});
+                    console.log()
                 }
             });
         }

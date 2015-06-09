@@ -1,7 +1,4 @@
 import Storage = require('../../DB/Storage');
-import _Package = require('../../DB/Models/Package');
-import Package = _Package.Package;
-import IPackage = _Package.IPackage;
 import StatMgr = require('../../Common/Stat/StatMgr');
 import _StatNode = require('../../Common/Stat/StatNode');
 import StatNode = _StatNode.StatNode;
@@ -10,39 +7,16 @@ import fs = require('fs');
 import path = require('path');
 var unzip = require("unzip");
 
+var packgeJSONPath = path.join(process.env.ROOT_PATH, 'package.json');
+
 var pub = StatMgr.Pub(SECTION.PKG, {
     pkgs: {}
 });
 
-
-export function CurrentVersion(cb) {
-    Package.table().one({}, (err, pkg) => {
-        if (err) return cb(err);
-        return cb(null, pkg);
-    });
-}
-
-export function UpdateVersion(version, state:number, cb) {
-    Package.table().one({}, (err, pkg) => {
-        if (err) return cb(err);
-        if (!pkg) {
-            var ver = new Package();
-            ver.uid = UUIDstr();
-            ver.version = version;
-            ver.versionNo = GetVersionNo(version);
-            ver.state = state;
-            Package.table().create(ver, (err) => {
-                return cb(err);
-            });
-        } else {
-            pkg.version = version;
-            pkg.versionNo = GetVersionNo(version);
-            pkg.state = state;
-            pkg.save((err)=> {
-                return cb(err);
-            });
-        }
-    });
+export function CurrentVersion() {
+    var json = fs.readFileSync(packgeJSONPath);
+    var packageInfo = JSON.parse(json.toString());
+    return packageInfo.version;
 }
 
 export function GetVersionNo(version) {
@@ -57,7 +31,7 @@ export function GetVersionNo(version) {
 }
 
 export function AvaliablePkgs(page, callback) {
-    Orbit.Get('Packages/all/' + page, {}, (err, pkgs:IPackage)=> {
+    Orbit.Get('Packages/all/' + page, {}, (err, pkgs)=> {
         if (err) return callback(err);
         return callback(null, pkgs);
     });
@@ -91,6 +65,16 @@ export function Purchase(version:string, callback:Callback) {
  * @constructor
  */
 export function Install(version, callback) {
+    try {
+        var currentVerNo = GetVersionNo(CurrentVersion());
+        var versionNo = GetVersionNo(version);
+        if (versionNo <= currentVerNo) {
+            return callback(new Error("Current version is newer."));
+        }
+    } catch (err) {
+        return callback(err);
+    }
+
     Purchase(version, (err, orbitResult) => {
         if (err) {
             error(err);
@@ -165,11 +149,9 @@ export function Install(version, callback) {
                             State: 'upgrading'
                         });
                         callback(null);
-                        UpdateVersion(version, 0, ()=> {
-                            console.log('System exit...'['yellowBG'].bold);
-                            process.nextTick(()=> {
-                                process.exit(0); // O_O
-                            });
+                        console.log('System exit...'['yellowBG'].bold);
+                        process.nextTick(()=> {
+                            process.exit(0); // O_O
                         });
                     });
                 });

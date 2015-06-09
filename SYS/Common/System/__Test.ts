@@ -1,4 +1,7 @@
 import PackageManager = require('./PackageManager');
+import StatMgr = require('../Stat/StatMgr');
+import _StatNode = require('../Stat//StatNode');
+import StatNode = _StatNode.StatNode;
 
 export function Initialize(cb) {
     //PackageManager.AvaliablePkgs(1, (err, pkgs)=> {
@@ -23,4 +26,15 @@ export function Initialize(cb) {
             return cb();
         });
     }
+}
+
+export function Subscribe(cb) {
+    var sub = StatMgr.Sub(SECTION.PKG);
+    sub.apps.on('set', (version, oldValue, status)=> {
+        console.log('========[[ Package set'["cyanBG"].bold, version, status.Error ? status.Error : status.State);
+    });
+    sub.apps.on('del', (version)=> {
+        console.log('========[[ Package delete'["cyanBG"].bold, version);
+    });
+    cb();
 }
