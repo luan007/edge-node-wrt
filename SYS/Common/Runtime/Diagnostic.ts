@@ -64,6 +64,9 @@ export function ReportModuleSuccess(moduleName) {
             if (fs.existsSync(pkgPath)) {// ==> /var/latest.zip
                 fs.renameSync(pkgPath, CONF.PKG_LATEST_FILE);
             }
+            if(fs.existsSync(CONF.PKG_UPGRADE_PASSWORD_FILE)){
+                fs.unlinkSync(CONF.PKG_UPGRADE_PASSWORD_FILE);
+            }
             packageManger.CurrentVersion((err, pkg) => { // update DB state
                 if(err) error(err);
                 else {

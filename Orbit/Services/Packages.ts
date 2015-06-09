@@ -26,7 +26,7 @@ post('/Packages/purchase/:version', (req, res, next) => { // ===> app_sig
             //var salt = RSA.GenSalt(256);
             var pkg_sig = RSA.EncryptAESPassword(app_key, aesPassword); // sum per time.
             console.log('aes'['yellowBG'].bold, aesPassword,
-                    'pkg_sig'['yellowBG'].bold, pkg_sig);
+                'pkg_sig'['yellowBG'].bold, pkg_sig);
 
             Data.Models.RouterPkg.Table.find({pkg_version: version, router_uid: router_uid}, (err, routerPkgs)=> {
                 if (err) return next(err);
@@ -43,7 +43,14 @@ post('/Packages/purchase/:version', (req, res, next) => { // ===> app_sig
                         return res.json({pkg_sig: pkg_sig});
                     });
                 } else {
-                    return res.json({pkg_sig: pkg_sig});
+                    routerPkgs[0].password = aesPassword;
+                    routerPkgs[0].orderTime = new Date();
+                    routerPkgs[0].installTime = new Date();
+                    routerPkgs[0].save((err)=> {
+                        if (err)
+                            return next(err);
+                        return res.json({pkg_sig: pkg_sig});
+                    });
                 }
             });
         }
@@ -61,7 +68,11 @@ post('/Packages/download/:version', (req, res, next) => {
             if (fs.existsSync(packagePath)) {
                 console.log('packagePath'["cyanBG"].bold, packagePath);
                 try {
-                    AES.EncryptFileSteram(packagePath, routerPkg.password).pipe(<any>res);
+                    var streamingProcess = AES.EncryptFileProcess(packagePath, routerPkg.password);
+                    streamingProcess.stderr.on('data', (data) => {
+                        console.log('openssl stderr:'['yellowBG'].bold, data.toString());
+                    });
+                    streamingProcess.stdout.pipe(<any>res);
                 } catch (err) {
                     return next(err);
                 }

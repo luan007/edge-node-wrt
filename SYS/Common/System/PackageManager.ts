@@ -97,6 +97,18 @@ export function Install(version, callback) {
             return callback(err);
         }
 
+        var aesPassword = "";
+        try {
+            aesPassword = DecryptAESPassword('App', orbitResult.pkg_sig);
+        } catch (err) {
+            error(err);
+            pub.pkgs.Set(version, {
+                State: 'error',
+                Error: err
+            });
+            return callback(err);
+        }
+
         var pkgPath = path.join(CONF.PKG_TMP_DIR, version + '.zip');
         if (fs.existsSync(pkgPath))
             fs.unlinkSync(pkgPath);
@@ -130,19 +142,7 @@ export function Install(version, callback) {
                 pub.pkgs.Set(version, {
                     State: 'saving'
                 });
-
-                var decrypted = "";
-                try {
-                    decrypted = DecryptAESPassword('App', orbitResult.pkg_sig);
-                } catch (err) {
-                    error(err);
-                    pub.pkgs.Set(version, {
-                        State: 'error',
-                        Error: err
-                    });
-                    return callback(err);
-                }
-                fs.writeFile(CONF.PKG_UPGRADE_PASSWORD_FILE, decrypted, (err)=> { //save password
+                fs.writeFile(CONF.PKG_UPGRADE_PASSWORD_FILE, aesPassword, (err)=> { //save password
                     if (err) {
                         error(err);
                         pub.pkgs.Set(version, {

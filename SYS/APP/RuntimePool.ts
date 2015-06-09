@@ -394,9 +394,9 @@ export function Initialize(cb) {
             trace("Autoloading All Apps, Implementation is a total mess, fix this !!");
 
             AppManager.GetInstalledApps((err, results) => {
-                //fatal('************************** GetAllApplications ========(((', results);
+                fatal('************************** GetAllApplications.length ========(((', results.length);
                 if (emitter)
-                    emitter.emit('total', 1);
+                    emitter.emit('total', results.length);
                 if (err) {
                     return error(err);
                 } else {

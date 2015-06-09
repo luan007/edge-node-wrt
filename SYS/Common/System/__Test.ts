@@ -13,8 +13,8 @@ export function Initialize(cb) {
 
     var version = '1.0.0';
     var pkgPath = path.join(CONF.PKG_TMP_DIR, version + '.zip');
-    console.log('package exists.'['cyanBG'].bold, pkgPath);
     if(fs.existsSync(pkgPath)){
+        console.log('package exists.'['cyanBG'].bold, pkgPath);
         return cb();
     } else {
         PackageManager.Install(version, (err)=> {
