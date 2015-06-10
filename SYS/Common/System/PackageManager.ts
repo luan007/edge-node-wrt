@@ -150,21 +150,3 @@ export function Install(version, callback) {
         });
     });
 }
-
-function _check(target_dir, api_salt, sig, cb) {
-    if (CONF.IS_DEBUG && CONF.BYPASS_APP_SIGCHECK) {
-        warn("!!Sigcheck Bypassed!!");
-        return cb(undefined, true);
-    }
-    try {
-        var salt = new Buffer(api_salt, "hex");
-        var hash = HashDir(target_dir, salt);
-        var snapshot = salt.toString("hex") + hash.toString("hex");
-        //fatal('[[[ ========= snapshot [[[ ', snapshot);
-        //fatal('[[[ ========= api_salt [[[ ', api_salt);
-        //fatal('[[[ ========= sig [[[ ', sig);
-        return cb(undefined, RSA_Verify("App", sig, snapshot));
-    } catch (e) {
-        return cb(e, false);
-    }
-};

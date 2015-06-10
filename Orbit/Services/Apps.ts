@@ -19,13 +19,23 @@ post('/App/purchase/:app_uid', (req, res, next) => { // ===> app_sig
     var app_uid = req.params.app_uid;
     var router_uid = req.router.uid;
     var app_key = req.router.appkey;
+    var router_key = req.router.routerkey;
 
     Data.Models.Application.Table.get(app_uid, (err, app) => { // should be exist in DB
         if (err) return next(err);
         else {
-            if(app) {
+            if (app) {
                 var aesPassword = AES.RandomPassword();
                 var password = RSA.EncryptAESPassword(app_key, aesPassword);
+
+                var salt = RSA.GenSalt(256);
+                if (app.dirHashCode.trim() === '') {
+                    var app_path = path.join(ORBIT_CONF.APP_BASE_PATH, app.uid);
+                    app.dirHashCode = HashDir(app_path, salt).toString("hex");
+                    app.save();
+                }
+                var app_sig = RSA.SignAppByHashCode(router_key, salt, app.dirHashCode); // sum per time.
+
                 Data.Models.RouterApp.Table.find({app_uid: app_uid, router_uid: router_uid}, (err, routerApps)=> {
                     if (err) return next(err);
                     if (routerApps.length <= 0) {
@@ -38,7 +48,7 @@ post('/App/purchase/:app_uid', (req, res, next) => { // ===> app_sig
                         }, (err)=> {
                             if (err)
                                 return next(err);
-                            return res.json({app_sig: password});
+                            return res.json({password: password, app_sig: app_sig});
                         });
                     } else {
                         routerApps[0].orderTime = new Date();
@@ -47,7 +57,7 @@ post('/App/purchase/:app_uid', (req, res, next) => { // ===> app_sig
                         routerApps[0].save((err) => {
                             if (err)
                                 return next(err);
-                            return res.json({app_sig: password});
+                            return res.json({password: password, app_sig: app_sig});
                         });
                     }
                 });

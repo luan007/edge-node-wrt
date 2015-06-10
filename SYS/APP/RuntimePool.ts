@@ -213,7 +213,7 @@ function _check(target_dir, api_salt, sig, cb) {
         //fatal('[[[ ========= snapshot [[[ ', snapshot);
         //fatal('[[[ ========= api_salt [[[ ', api_salt);
         //fatal('[[[ ========= sig [[[ ', sig);
-        return cb(undefined, RSA_Verify("App", sig, snapshot));
+        return cb(undefined, RSA_Verify("Router", sig, snapshot));
     } catch (e) {
         return cb(e, false);
     }
@@ -293,14 +293,14 @@ function StartRuntime(app_uid) {
         var path = AppManager.GetAppDataDir(runtime.App.uid);
         async.series([
             _clean_up.bind(null, runtime.RuntimeId),
-            //(cb) => {
-            //    _check(AppManager.GetAppRootPath(runtime.App.uid), runtime.App.appsig.substr(0, 512), runtime.App.appsig.substring(512), (err, result) => {
-            //        if (err || !result) {
-            //            runtime.Broken();
-            //        }
-            //        cb(err, result);
-            //    });
-            //},
+            (cb) => {
+                _check(AppManager.GetAppRootPath(runtime.App.uid), runtime.App.appsig.substr(0, 512), runtime.App.appsig.substring(512), (err, result) => {
+                    if (err || !result) {
+                        runtime.Broken();
+                    }
+                    cb(err, result);
+                });
+            },
             _ensure_user.bind(null, runtime.RuntimeId),
             (cb) => {
                 if (CONF.CODE_WRITE_LOCK) {

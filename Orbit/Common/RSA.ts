@@ -38,26 +38,26 @@ export function GenSalt(len) {
  @callback(err, result) :
  result: app_sig
  */
-export function SignApp(appKey:string, appPath:string) {
+export function SignApp(routerKey:string, appPath:string) {
     var salt = GenSalt(256);
     var hash =  HashDir(appPath, salt);
-    var pubkey = new rsa(appKey);
+    var prvkey = new rsa(routerKey);
     var snapshot = salt.toString("hex") + hash.toString("hex");
-    var sign = pubkey.sign(snapshot, "hex", "utf8");
+    var sign = prvkey.sign(snapshot, "hex", "utf8");
     var app_sig = salt.toString("hex") + sign.toString();
     return app_sig;
 }
 
 /**
  *
- * @param appKey
+ * @param routerKey
  * @param dirHashCode
  * @returns {string}
  */
-export function SignAppByHashCode(appKey:string, salt:Buffer, dirHashCode:string|Buffer) {
-    var pubkey = new rsa(appKey);
+export function SignAppByHashCode(routerKey:string, salt:Buffer, dirHashCode:string|Buffer) {
+    var prvkey = new rsa(routerKey);
     var snapshot = salt.toString("hex") + dirHashCode;
-    var sign = pubkey.sign(snapshot, "hex", "utf8");
+    var sign = prvkey.sign(snapshot, "hex", "utf8");
     var app_sig = salt.toString("hex") + sign.toString();
     return app_sig;
 }
@@ -67,7 +67,7 @@ export function SignAppByHashCode(appKey:string, salt:Buffer, dirHashCode:string
  * password: hex encoding
  */
 export function EncryptAESPassword(appKey:string, password:string) {
-    var key = new rsa(appKey);
-    var encrypted = key.encrypt(password, 'base64', 'hex');
+    var pubkey = new rsa(appKey);
+    var encrypted = pubkey.encrypt(password, 'base64', 'hex');
     return encrypted;
 }

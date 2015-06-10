@@ -63,6 +63,8 @@ export function Install(app_uid:string, callback:Callback) {
             return callback(err);
         }
 
+        console.log('orbitResult.app_sig'['cyanBG'].bold, orbitResult.app_sig);
+
         var appPath = "";
         var appPackageTmpPath = path.join(CONF.APP_TMP_DIR, app_uid + '.zip.tmp');
         if (fs.existsSync(appPackageTmpPath))
@@ -100,7 +102,7 @@ export function Install(app_uid:string, callback:Callback) {
                 pub.apps.Set(app_uid, {
                     State: 'decrypting'
                 });
-                var password = DecryptAESPassword('App', orbitResult.app_sig);
+                var password = DecryptAESPassword('App', orbitResult.password);
                 var cp = DecryptFileProcess(appPackageTmpPath, password, appPackagePath);
                 var errResult = '';
                 cp.stderr.on('data', (data)=> {
