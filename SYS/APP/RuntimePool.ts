@@ -530,8 +530,7 @@ export function Diagnose(callback:Callback) {
         var launched = 0;
         emitter.on('launched', (app_uid) => {
             console.log('app_uid', app_uid);
-            if(app_uid === 'Launcher')
-                launched += 1;
+            launched += 1;
             if (launched === total) {
                 revokeEmitter();
                 console.log('runtime pool was launched.');
