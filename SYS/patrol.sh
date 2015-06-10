@@ -23,7 +23,7 @@ pkg_extracted_dir="$ramdisk"/pkg_extracted
 pkg_upgrade_file="$ramdisk"/pkg_upgrade
 pkg_fail_file="$ramdisk"/pkg_fail
 pkg_tmp_file="$ramdisk"/pkg_tmp/tmp.zip
-## passwords 
+## passwords
 password_upgrade_file="$ramdisk"/pkg_upgrade_password
 
 ### recover from latest or init
@@ -53,8 +53,8 @@ function extract()
     unzip -o -d "$pkg_extracted_dir" "$pkg_tmp_file" ## unzip...
     echo cp -rf "$pkg_extracted_dir"/SYS "$system_dir"/../
     cp -rf "$pkg_extracted_dir"/SYS "$system_dir"/../
-    echo cp -rf "$pkg_extracted_dir"/node_modules "$system_modules"/../
-    cp -rf "$pkg_extracted_dir"/node_modules "$system_modules"/../
+    echo cp -rf "$pkg_extracted_dir"/node_modules "$system_dir"/
+    cp -rf "$pkg_extracted_dir"/node_modules "$system_dir"/
     rm -rf "$pkg_extracted_dir"
 }
 

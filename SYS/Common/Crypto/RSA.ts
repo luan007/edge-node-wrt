@@ -40,7 +40,7 @@ var temp_keystore = <any>{};
 function Unsafe_SyncRSAEncrypt_Fast(keyname, content):Buffer {
     var pem = undefined;
     //console.log(require('util').inspect(temp_keystore[keyname]));
-    if (temp_keystore[keyname] && (pem = temp_keystore[keyname].exportKey('private'))) {
+    if (temp_keystore[keyname] && (pem = temp_keystore[keyname].exportKey('public'))) {
 
         return forsake.encrypt(content, pem).toString("hex");
 
@@ -66,15 +66,10 @@ function Safe_SyncRSAEncrypt_Fast(keyname, content, cb:PCallback<Buffer>) {
 //WE WILL USE TRUSTZONE, SOMEDAY LATER
 //TODO: ENABLE TRUSTZONE & DUAL-OS SETUP
 
-function LoadPrvkey(keyname, PEM) {
+function LoadKey(keyname, PEM) {
     try {
         var key = new rsa(PEM);
-        if (!key.isPrivate()) {
-            throw new Error("Not a valid private key");
-        }
-        else {
-            temp_keystore[keyname] = key;
-        }
+        temp_keystore[keyname] = key;
     } catch (e) {
         error("RSA Failuare! ".bold + e);
         error("PEM = " + PEM);
@@ -92,7 +87,7 @@ function LoadFromFile(keyname, suffix) {
         return false;
     } else {
         var data = fs.readFileSync(f, 'utf8').toString();
-        LoadPrvkey(keyname, data);
+        LoadKey(keyname, data);
         fatal("* GOT PEM " + keyname["greenBG"].bold);
         fatal("* KEY LENGTH = " + temp_keystore[keyname].getKeySize());
     }
@@ -111,11 +106,7 @@ function _RSA_Verify(keyname, sig, data) {
     }
     else {
         var rsa = temp_keystore[keyname];
-        if (!rsa.isPrivate()) {
-            return false;
-        } else {
-            return rsa.verify(data, sig, "utf8", "hex");
-        }
+        return rsa.verify(data, sig, "utf8", "hex");
     }
 
 }
@@ -125,4 +116,4 @@ global.Unsafe_SyncRSAEncrypt_Fast = Unsafe_SyncRSAEncrypt_Fast;
 global.Safe_SyncRSAEncrypt_Fast = Safe_SyncRSAEncrypt_Fast;
 trace("Temporary Public Key Store is UP");
 LoadFromFile("App", ".pr");
-LoadFromFile("Router", ".pr");
+LoadFromFile("Router", ".pb");

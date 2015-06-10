@@ -9,10 +9,16 @@ var logger = require("morgan");
 var bodyParser = require('body-parser');
 import express = require("express");
 import async = require('async');
+var fs = require('fs');
+var child_process = require('child_process');
 
 import Data = require("./Storage");
 
 export function Initialize(port, callback:Callback) {
+    console.log("Clear tmp..."["cyanBG"].bold);
+    child_process.exec('rm -rf '+ ORBIT_CONF.PKG_TMP_PATH + '/*', (err, stdout, stderr)=> {
+        if(err) console.log('error occurs during clean:', err);
+    });
 
     console.log("Init : " + (port + "")["cyanBG"].bold);
 
@@ -106,10 +112,15 @@ function GetVersionNo(version) {
 }
 
 function GenerateDummyData(cb) {
-    var routerkey = '-----BEGIN PUBLIC KEY-----\n' +
-        'MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKy3a1HvbB01R8oBz7ulyd3bXn1iYGlu\n' +
-        'OSswkvArRXp+Mosk1XsTOT3gT9M8M5lsAOX60183if5d4dstUOr2A3cCAwEAAQ==\n' +
-        '-----END PUBLIC KEY-----';
+    var routerkey = '-----BEGIN RSA PRIVATE KEY-----\n' +
+        'MIIBOgIBAAJBAKy3a1HvbB01R8oBz7ulyd3bXn1iYGluOSswkvArRXp+Mosk1XsT\n' +
+        'OT3gT9M8M5lsAOX60183if5d4dstUOr2A3cCAwEAAQJARs4u5fkkNlkoZA0YD1Jp\n' +
+        'DlWnR/mzkqVINIeGRYVHx24WVAyR36tA53sjgqpa6CM0nZy7eyNPokkOdnF664Ul\n' +
+        'yQIhANts8ZTHjjdZzTfWRsvpFm8eFNBMLg2YMRQ1iIb+VXjtAiEAyYFdCRw1AseT\n' +
+        'HhtzabRCRtnig6INEh98k98ZwZPSVXMCIHKo3RxHovMdg/U3jUskg8qQx4OJK0+D\n' +
+        'RbIvvyX7ZSKJAiATg9bJyhSMN13VHZ140D9W80UPsIMJjUkYXRP2fmVxZwIhANnI\n' +
+        'xXK7lecV/1vQtXOmeiKFIWf1WIYtWb9dy+tDoFmG\n' +
+        '-----END RSA PRIVATE KEY-----';
 
     var appkey = '-----BEGIN PUBLIC KEY-----\n' +
         'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlfnyLpIIpNgNypJdVqf4\n' +
