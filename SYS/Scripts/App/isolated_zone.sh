@@ -43,6 +43,9 @@ chown nobody -R /User
 chmod 777 /User
 
 ####apps
+echo mkdir /storage/Apps
+if [ ! -e /storage/Apps ]; then mkdir /storage/Apps ; fi
+
 echo mkdir /ramdisk/app_tmp
 if [ ! -e /ramdisk/app_tmp ]; then mkdir /ramdisk/app_tmp ; fi
 rm -rf /ramdisk/app_tmp/*

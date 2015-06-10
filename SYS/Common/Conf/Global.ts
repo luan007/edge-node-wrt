@@ -25,7 +25,6 @@ class _sys_global_conf {
     DEV_STORAGE = "/dev/mmcblk0p1"; // system partition, as for onboard-emmc configuration: /dev/mmcblk0p1
     BASE_DATA_PATH = "/Data/";
     USER_DATA_PATH = path.join("/User/");
-    APP_BASE_PATH = path.join(this.BASE_PATH, "../Applications/");
     PLATFORM_BIAS_FS_SPLITTER = process.platform == "win32" ? "\\" : "/";
     DATA_DIR = process.env.DATA_DIR ? process.env.DATA_DIR : path.join(this.BASE_PATH, "../_data");
     MODULE_DIR = path.join(this.BASE_PATH, "../Modules");
@@ -105,6 +104,8 @@ class _sys_global_conf {
     PKG_PASSWORD_DIR = path.join(this.STORAGE_DISK_DIR, 'passwords');
     PKG_INIT_PASSWORD_FILE = path.join(this.PKG_PASSWORD_DIR, 'init_password');
     PKG_LATEST_PASSWORD_FILE = path.join(this.PKG_PASSWORD_DIR, 'pkg_latest_password');
+
+    APP_BASE_PATH = path.join(this.STORAGE_DISK_DIR, "Apps");
 
     //ramdisk
     RAM_DISK_DIR = process.env.ramdisk || '/ramdisk/';

@@ -538,7 +538,10 @@ export function Diagnose(callback:Callback) {
             }
         });
         setTask('launch_apps_check', ()=> {
-            if (launched !== total) return callback(new Error('Launch apps timeout.'));
+            if (launched !== total) {
+                console.log('Launch apps timeout.'['redBG'].bold, launched, '/', total);
+                return callback(null, true);
+            }
         }, 60 * 1000);
     });
 }

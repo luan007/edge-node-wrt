@@ -15,25 +15,25 @@ export function Subscribe(cb) {
 }
 
 export function Initialize(cb) {
-    AppManager.Install('DriverApp', (err) => {
-        if (err) {
-            error(err);
-            cb(err);
-        }
-        else {
-            info('Install successfully.');
-            cb();
-            //AppManager.UnInstall('DriverApp', (err)=> {
-            //    if (err) {
-            //        error(err);
-            //        cb(err);
-            //    }
-            //    else {
-            //        cb();
-            //        info('UnInstall successfully.');
-            //    }
-            //});
-        }
-    });
-    //cb();
+    //AppManager.Install('DriverApp', (err) => {
+    //    if (err) {
+    //        error(err);
+    //        cb(err);
+    //    }
+    //    else {
+    //        info('Install successfully.');
+    //        cb();
+    //        //AppManager.UnInstall('DriverApp', (err)=> {
+    //        //    if (err) {
+    //        //        error(err);
+    //        //        cb(err);
+    //        //    }
+    //        //    else {
+    //        //        cb();
+    //        //        info('UnInstall successfully.');
+    //        //    }
+    //        //});
+    //    }
+    //});
+    cb();
 }
