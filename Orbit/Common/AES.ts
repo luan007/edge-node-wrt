@@ -48,7 +48,3 @@ export function EncryptAESPassword(router_uid:string, password:string, pubkey:st
         callback(null, encrypted);
     });
 }
-
-//export function DecryptFileStream(encryptedFilePath:string, password:string):stream.Readable {
-//    return child_process.spawn('openssl', ['enc', '-d', '-k', password, '-in', encryptedFilePath]).stdout;
-//}

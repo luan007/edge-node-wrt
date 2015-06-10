@@ -13,7 +13,6 @@ export class RouterPkg {
 
     static meta() {
         return {
-            uid: {type: 'text', size: 255 },
             password: {type: 'text', size: 512 }
         };
     }

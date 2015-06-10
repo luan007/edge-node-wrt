@@ -111,9 +111,27 @@ function _RSA_Verify(keyname, sig, data) {
 
 }
 
+export function DecryptAESPassword(keyname, encrypted:Buffer|string) {
+    if (!temp_keystore.hasOwnProperty(keyname)) {
+        return null;
+    }
+    else {
+        var key = temp_keystore[keyname];
+        var decrypted = key.decrypt(encrypted, 'hex');
+        return decrypted;
+    }
+}
+
+var algorithm = '-aes-256-cbc';
+export function DecryptFileProcess(encryptedFilePath:string, password:string, targetPath:string):child_process.ChildProcess {
+    return child_process.spawn('openssl', ['enc', '-d', algorithm,  '-pass', 'pass:' + password,  '-in', encryptedFilePath, '-out', targetPath]);
+}
+
 global.RSA_Verify = _RSA_Verify;
 global.Unsafe_SyncRSAEncrypt_Fast = Unsafe_SyncRSAEncrypt_Fast;
 global.Safe_SyncRSAEncrypt_Fast = Safe_SyncRSAEncrypt_Fast;
+global.DecryptAESPassword = DecryptAESPassword;
+global.DecryptFileProcess = DecryptFileProcess;
 trace("Temporary Public Key Store is UP");
 LoadFromFile("App", ".pr");
 LoadFromFile("Router", ".pb");

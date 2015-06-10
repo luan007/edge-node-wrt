@@ -64,16 +64,19 @@ export function Install(app_uid:string, callback:Callback) {
         }
 
         var appPath = "";
+        var appPackageTmpPath = path.join(CONF.APP_TMP_DIR, app_uid + '.zip.tmp');
+        if (fs.existsSync(appPackageTmpPath))
+            fs.unlinkSync(appPackageTmpPath);
         var appPackagePath = path.join(CONF.APP_TMP_DIR, app_uid + '.zip');
         if (fs.existsSync(appPackagePath))
             fs.unlinkSync(appPackagePath);
-        var appStream = fs.createWriteStream(appPackagePath);
+        var appStream = fs.createWriteStream(appPackageTmpPath);
 
         pub.apps.Set(app_uid, {
             State: 'downloading'
         });
 
-        Orbit.Download('App/download/' + orbitResult.app_router_uid, {}, (err, result)=> {
+        Orbit.Download('App/download/' + app_uid, {}, (err, result)=> {
             if (err) {
                 pub.apps.Set(app_uid, {
                     State: 'error',
@@ -94,88 +97,109 @@ export function Install(app_uid:string, callback:Callback) {
                 return callback(err);
             })
             .on('finish', ()=> {
-                var target = <any>undefined;
                 pub.apps.Set(app_uid, {
-                    State: 'analyzing'
+                    State: 'decrypting'
                 });
-                fs.createReadStream(appPackagePath)
-                    .pipe(unzip.Parse())
-                    .on('entry', function (entry) {
-                        var fileName = entry.path;
-                        if (fileName === "manifest.json") {
-                            var json = "";
-                            entry.on("data", (d) => {
-                                json += d;
-                            });
-                            entry.on("end", () => {
-                                try {
-                                    json = json.replace(/\s/gmi, '');
-                                    console.log('=======((('["cyanBG"].bold, json, typeof json);
-                                    //var obj = JSON.parse(json.replace(/\n/gmi, ''));
-                                    target = JSON.parse(json);
-                                } catch (err) {
-                                    error(err);
-                                    return callback(err);
-                                }
-                            });
-                        } else {
-                            entry.autodrain();
-                        }
-                    }).on("close", () => {
-                        if (target) {
-                            pub.apps.Set(app_uid, {
-                                State: 'extracting'
-                            });
-                            var name = target.name;
-                            appPath = path.join(CONF.APP_BASE_PATH, name);
-                            //fatal("Extracting..");
-                            fs.createReadStream(appPackagePath)
-                                .pipe(unzip.Extract({path: appPath}))
-                                .on('error', (err)=> {
-                                    error(err);
-                                    return callback(err);
-                                })
-                                .on("close", () => {
-                                    InsertOrUpdate(name, target, orbitResult.app_sig, (err) => {
-                                        if (err) {
-                                            pub.apps.Set(app_uid, {
-                                                State: 'error',
-                                                Error: err
-                                            });
+                var password = DecryptAESPassword('App', orbitResult.app_sig);
+                var cp = DecryptFileProcess(appPackageTmpPath, password, appPackagePath);
+                var errResult = '';
+                cp.stderr.on('data', (data)=> {
+                    errResult += data.toString();
+                });
+                cp.on('close', ()=> {
+                    if (errResult.trim() !== '') { //some error
+                        pub.apps.Set(app_uid, {
+                            State: 'error',
+                            Error: errResult
+                        });
+                        return callback(errResult);
+                    } else if (!fs.existsSync(appPackagePath)) { // who knows?
+                        return callback(new Error('package does not exist:' + appPackagePath));
+                    } else { // unzip
+                        var target = <any>undefined;
+                        pub.apps.Set(app_uid, {
+                            State: 'analyzing'
+                        });
+                        fs.createReadStream(appPackagePath)
+                            .pipe(unzip.Parse())
+                            .on('entry', function (entry) {
+                                var fileName = entry.path;
+                                if (fileName === "manifest.json") {
+                                    var json = "";
+                                    entry.on("data", (d) => {
+                                        json += d;
+                                    });
+                                    entry.on("end", () => {
+                                        try {
+                                            json = json.replace(/\s/gmi, '');
+                                            console.log('=======((('["cyanBG"].bold, json, typeof json);
+                                            //var obj = JSON.parse(json.replace(/\n/gmi, ''));
+                                            target = JSON.parse(json);
+                                        } catch (err) {
                                             error(err);
                                             return callback(err);
                                         }
-                                        else {
-                                            fatal("Deploy Complete");
-                                            pub.apps.Set(app_uid, {
-                                                State: 'loading'
-                                            });
-                                            RuntimePool.LoadApplication(app_uid, (err, pool_id:string)=> {
+                                    });
+                                } else {
+                                    entry.autodrain();
+                                }
+                            }).on("close", () => {
+                                if (target) {
+                                    pub.apps.Set(app_uid, {
+                                        State: 'extracting'
+                                    });
+                                    var name = target.name;
+                                    appPath = path.join(CONF.APP_BASE_PATH, name);
+                                    //fatal("Extracting..");
+                                    fs.createReadStream(appPackagePath)
+                                        .pipe(unzip.Extract({path: appPath}))
+                                        .on('error', (err)=> {
+                                            error(err);
+                                            return callback(err);
+                                        })
+                                        .on("close", () => {
+                                            InsertOrUpdate(name, target, orbitResult.app_sig, (err) => {
                                                 if (err) {
                                                     pub.apps.Set(app_uid, {
                                                         State: 'error',
                                                         Error: err
                                                     });
+                                                    error(err);
                                                     return callback(err);
                                                 }
-                                                pub.apps.Set(app_uid, {
-                                                    State: 'installed'
-                                                });
-                                                return callback(null, pool_id);
-                                            });
+                                                else {
+                                                    fatal("Deploy Complete");
+                                                    pub.apps.Set(app_uid, {
+                                                        State: 'loading'
+                                                    });
+                                                    RuntimePool.LoadApplication(app_uid, (err, pool_id:string)=> {
+                                                        if (err) {
+                                                            pub.apps.Set(app_uid, {
+                                                                State: 'error',
+                                                                Error: err
+                                                            });
+                                                            return callback(err);
+                                                        }
+                                                        pub.apps.Set(app_uid, {
+                                                            State: 'installed'
+                                                        });
+                                                        return callback(null, pool_id);
+                                                    });
 
-                                        }
+                                                }
+                                            });
+                                        });
+                                } else {
+                                    var err = new Error("Missing manifest :(");
+                                    pub.apps.Set(app_uid, {
+                                        State: 'error',
+                                        Error: err
                                     });
-                                });
-                        } else {
-                            var err = new Error("Missing manifest :(");
-                            pub.apps.Set(app_uid, {
-                                State: 'error',
-                                Error: err
+                                    callback(err);
+                                }
                             });
-                            callback(err);
-                        }
-                    });
+                    }
+                });
             });
     });
 }
@@ -216,7 +240,7 @@ export function UnInstall(app_uid:string, callback:Callback) {
                         State: 'umounting'
                     });
                     umount_till_err(dataDir, (err)=> {
-                        if(err) error(err);
+                        if (err) error(err);
                         var appPath = path.join(CONF.APP_BASE_PATH, app_uid);
                         exec('rm', '-rf', appPath, (err)=> { // 3. remove from disk
                             if (err) {
