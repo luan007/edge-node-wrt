@@ -1,8 +1,5 @@
 var fs = require('fs');
 var path = require('path');
-
-var _Package = require('../../DB/Models/Package');
-var Package = _Package.Package;
 var packageManger = require('../System/PackageManager');
 
 var diagnostic_count = 0;
@@ -67,12 +64,6 @@ export function ReportModuleSuccess(moduleName) {
             if(fs.existsSync(CONF.PKG_UPGRADE_PASSWORD_FILE)){
                 fs.unlinkSync(CONF.PKG_UPGRADE_PASSWORD_FILE);
             }
-            packageManger.CurrentVersion((err, version) => { // update DB state
-                if(err) error(err);
-                else {
-                    console.log()
-                }
-            });
         }
         if (fs.existsSync(CONF.PKG_FAIL_FILE)) {//upgrade accomplished
             fs.unlinkSync(CONF.PKG_FAIL_FILE);
