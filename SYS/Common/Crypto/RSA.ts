@@ -3,6 +3,7 @@ var forsake:any = require("forsake");
 import crypto = require('crypto');
 import fs = require("fs");
 import path = require("path");
+import child_process = require('child_process');
 
 //this one will disappear when we swapped into trustzone implementation babe
 var temp_keystore = <any>{};
@@ -39,7 +40,7 @@ var temp_keystore = <any>{};
 function Unsafe_SyncRSAEncrypt_Fast(keyname, content):Buffer {
     var pem = undefined;
     //console.log(require('util').inspect(temp_keystore[keyname]));
-    if (temp_keystore[keyname] && (pem = temp_keystore[keyname].exportKey('public'))) {
+    if (temp_keystore[keyname] && (pem = temp_keystore[keyname].exportKey('private'))) {
 
         return forsake.encrypt(content, pem).toString("hex");
 
@@ -65,11 +66,11 @@ function Safe_SyncRSAEncrypt_Fast(keyname, content, cb:PCallback<Buffer>) {
 //WE WILL USE TRUSTZONE, SOMEDAY LATER
 //TODO: ENABLE TRUSTZONE & DUAL-OS SETUP
 
-function LoadPubkey(keyname, PEM) {
+function LoadPrvkey(keyname, PEM) {
     try {
         var key = new rsa(PEM);
-        if (!key.isPublic()) {
-            throw new Error("Not a valid public key");
+        if (!key.isPrivate()) {
+            throw new Error("Not a valid private key");
         }
         else {
             temp_keystore[keyname] = key;
@@ -81,17 +82,17 @@ function LoadPubkey(keyname, PEM) {
 }
 
 
-function LoadFromFile(keyname) {
+function LoadFromFile(keyname, suffix) {
     warn("* Loading PEM (REMOVE THIS W/RTM V) " + keyname["magentaBG"].bold);
     if (!fs.existsSync(CONF.KEY_STORE_DIR))
         fs.mkdirSync(CONF.KEY_STORE_DIR);
-    var f = path.join(CONF.KEY_STORE_DIR, keyname + ".pb");
+    var f = path.join(CONF.KEY_STORE_DIR, keyname + suffix);
     if (!fs.existsSync(f)) {
         error("* PEM NOT FOUND " + keyname["redBG"].bold);
         return false;
     } else {
         var data = fs.readFileSync(f, 'utf8').toString();
-        LoadPubkey(keyname, data);
+        LoadPrvkey(keyname, data);
         fatal("* GOT PEM " + keyname["greenBG"].bold);
         fatal("* KEY LENGTH = " + temp_keystore[keyname].getKeySize());
     }
@@ -110,7 +111,7 @@ function _RSA_Verify(keyname, sig, data) {
     }
     else {
         var rsa = temp_keystore[keyname];
-        if (!rsa.isPublic()) {
+        if (!rsa.isPrivate()) {
             return false;
         } else {
             return rsa.verify(data, sig, "utf8", "hex");
@@ -119,21 +120,9 @@ function _RSA_Verify(keyname, sig, data) {
 
 }
 
-export function DecryptAESPassword(keyname, encrypted:Buffer) {
-    if (!temp_keystore.hasOwnProperty(keyname)) {
-        return null;
-    }
-    else {
-        var key = temp_keystore[keyname];
-        var decrypted = key.decryptPublic(encrypted, 'hex');
-        return decrypted;
-    }
-}
-
 global.RSA_Verify = _RSA_Verify;
 global.Unsafe_SyncRSAEncrypt_Fast = Unsafe_SyncRSAEncrypt_Fast;
 global.Safe_SyncRSAEncrypt_Fast = Safe_SyncRSAEncrypt_Fast;
-global.DecryptAESPassword = DecryptAESPassword;
 trace("Temporary Public Key Store is UP");
-LoadFromFile("App");
-LoadFromFile("Router");
+LoadFromFile("App", ".pr");
+LoadFromFile("Router", ".pr");

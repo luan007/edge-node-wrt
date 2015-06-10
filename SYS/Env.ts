@@ -1,6 +1,7 @@
 global.path = require("path");
 global.http = require("http");
 global.fs = require("fs");
+global.child_process = require('child_process');
 global.qs = require("querystring");
 global.async = require("async");
 global._ = require("underscore");

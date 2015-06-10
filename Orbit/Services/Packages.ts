@@ -23,35 +23,38 @@ post('/Packages/purchase/:version', (req, res, next) => { // ===> app_sig
         if (err) return next(err);
         else {
             var aesPassword = AES.RandomPassword();
-            //var salt = RSA.GenSalt(256);
-            var pkg_sig = RSA.EncryptAESPassword(app_key, aesPassword); // sum per time.
-            console.log('aes'['yellowBG'].bold, aesPassword,
-                'pkg_sig'['yellowBG'].bold, pkg_sig);
-
-            Data.Models.RouterPkg.Table.find({pkg_version: version, router_uid: router_uid}, (err, routerPkgs)=> {
-                if (err) return next(err);
-                if (routerPkgs.length <= 0) {
-                    Data.Models.RouterPkg.Table.create({
-                        router_uid: router_uid,
-                        pkg_version: version,
-                        password: aesPassword,
-                        orderTime: new Date(),
-                        installTime: new Date()
-                    }, (err)=> {
-                        if (err)
-                            return next(err);
-                        return res.json({pkg_sig: pkg_sig});
-                    });
-                } else {
-                    routerPkgs[0].password = aesPassword;
-                    routerPkgs[0].orderTime = new Date();
-                    routerPkgs[0].installTime = new Date();
-                    routerPkgs[0].save((err)=> {
-                        if (err)
-                            return next(err);
-                        return res.json({pkg_sig: pkg_sig});
-                    });
+            //var salt = RSA.GenSalt(64);
+            AES.EncryptAESPassword(router_uid, aesPassword, app_key, (err, pkg_sig)=> {
+                if (err) {
+                    return console.log('Encrypt aes password error:'['yellowBG'].bold, err);
                 }
+                console.log('aes'['yellowBG'].bold, aesPassword, '\npkg_sig'['yellowBG'].bold, pkg_sig.toString('hex'));
+
+                Data.Models.RouterPkg.Table.find({pkg_version: version, router_uid: router_uid}, (err, routerPkgs)=> {
+                    if (err) return next(err);
+                    if (routerPkgs.length <= 0) {
+                        Data.Models.RouterPkg.Table.create({
+                            router_uid: router_uid,
+                            pkg_version: version,
+                            password: aesPassword,
+                            orderTime: new Date(),
+                            installTime: new Date()
+                        }, (err)=> {
+                            if (err)
+                                return next(err);
+                            return res.json({pkg_sig: pkg_sig});
+                        });
+                    } else {
+                        routerPkgs[0].password = aesPassword;
+                        routerPkgs[0].orderTime = new Date();
+                        routerPkgs[0].installTime = new Date();
+                        routerPkgs[0].save((err)=> {
+                            if (err)
+                                return next(err);
+                            return res.json({pkg_sig: pkg_sig});
+                        });
+                    }
+                });
             });
         }
     });

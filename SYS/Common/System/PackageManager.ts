@@ -81,29 +81,11 @@ export function Install(version, callback) {
             return callback(err);
         }
 
-        var aesPassword = "";
-        try {
-            aesPassword = DecryptAESPassword('App', orbitResult.pkg_sig);
-        } catch (err) {
-            error(err);
-            pub.pkgs.Set(version, {
-                State: 'error',
-                Error: err
-            });
-            return callback(err);
-        }
+        console.log('pkg_sig'['yellowBG'].bold, orbitResult.pkg_sig.toString('hex'));
 
-        var pkgPath = path.join(CONF.PKG_TMP_DIR, version + '.zip');
-        if (fs.existsSync(pkgPath))
-            fs.unlinkSync(pkgPath);
-        var pkgStream = fs.createWriteStream(pkgPath);
-
-        pub.pkgs.Set(version, {
-            State: 'downloading'
-        });
-
-        Orbit.Download('Packages/download/' + version, {}, (err, stream)=> {
+        fs.writeFile(CONF.PKG_UPGRADE_PASSWORD_FILE, orbitResult.pkg_sig, {encoding: 'binary'}, (err)=> { //save password
             if (err) {
+                error(err);
                 pub.pkgs.Set(version, {
                     State: 'error',
                     Error: err
@@ -111,30 +93,40 @@ export function Install(version, callback) {
                 return callback(err);
             }
 
-            stream.pipe(pkgStream);
-        });
-        pkgStream
-            .on('error', (err)=> {
-                pub.pkgs.Set(version, {
-                    State: 'error',
-                    Error: err
-                });
-                error(err);
-                return callback(err);
-            })
-            .on('finish', ()=> {
-                pub.pkgs.Set(version, {
-                    State: 'saving'
-                });
-                fs.writeFile(CONF.PKG_UPGRADE_PASSWORD_FILE, aesPassword, (err)=> { //save password
-                    if (err) {
-                        error(err);
-                        pub.pkgs.Set(version, {
-                            State: 'error',
-                            Error: err
-                        });
-                        return callback(err);
-                    }
+            var pkgPath = path.join(CONF.PKG_TMP_DIR, version + '.zip');
+            if (fs.existsSync(pkgPath))
+                fs.unlinkSync(pkgPath);
+            var pkgStream = fs.createWriteStream(pkgPath);
+
+            pub.pkgs.Set(version, {
+                State: 'downloading'
+            });
+
+            Orbit.Download('Packages/download/' + version, {}, (err, stream)=> {
+                if (err) {
+                    pub.pkgs.Set(version, {
+                        State: 'error',
+                        Error: err
+                    });
+                    return callback(err);
+                }
+
+                stream.pipe(pkgStream);
+            });
+            pkgStream
+                .on('error', (err)=> {
+                    pub.pkgs.Set(version, {
+                        State: 'error',
+                        Error: err
+                    });
+                    error(err);
+                    return callback(err);
+                })
+                .on('finish', ()=> {
+                    pub.pkgs.Set(version, {
+                        State: 'saving'
+                    });
+
                     //upgrade SYSTEM
                     fs.writeFile(CONF.PKG_UPGRADE_FILE, pkgPath, (err)=> { // write pkg path
                         if (err) {
@@ -155,7 +147,7 @@ export function Install(version, callback) {
                         });
                     });
                 });
-            });
+        });
     });
 }
 
