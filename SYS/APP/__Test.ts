@@ -15,7 +15,7 @@ export function Subscribe(cb) {
 }
 
 export function Initialize(cb) {
-    //AppManager.Install('DriverApp', (err) => {
+    //AppManager.Install('TestApp', (err) => {
     //    if (err) {
     //        error(err);
     //        cb(err);

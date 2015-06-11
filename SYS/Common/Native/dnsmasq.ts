@@ -572,7 +572,7 @@ export class dnsmasq extends Process {
         forEachFlat(this.Hosts,(host) => {
             if (!host) return;
             for (var t in host) {
-                console.log('------------- t in host', t, host[t]);
+                // console.log('------------- t in host', t, host[t]);
                 if (!has(host, t)) return;
                 _hosts += host[t] + " " + t;
                 _hosts += "\r\n";
@@ -615,7 +615,7 @@ export class dnsmasq extends Process {
             });
         }
 
-        console.log('----------<<< hosts '['cyanBG'].bold, this._cache._hosts, _hosts);
+        //console.log('----------<<< hosts '['cyanBG'].bold, this._cache._hosts, _hosts);
 
         if (!(this._cache._hosts == _hosts
             && this._cache._dns == _dns
@@ -648,19 +648,19 @@ export class dnsmasq extends Process {
     SIGHUP_Update = (cb) => {
         setTask("DNSMASQ_sighup", () => {
             intoQueue("DNSMASQ_sighup",(c) => {
-                fatal("Dnsmasq_Hotplug: in progress..");
+                //fatal("Dnsmasq_Hotplug: in progress..");
                 this.flush((err, result) => {
                         if (result == "nochange") {
-                        console.log('---------->>> nochange'['greenBG'].bold);
+                        //console.log('---------->>> nochange'['greenBG'].bold);
                         return c();
                     }
                     if (this.Process) {
-                        console.log('---------->>> SIGHUP'['greenBG'].bold);
+                        //console.log('---------->>> SIGHUP'['greenBG'].bold);
                         this.Process.kill("SIGHUP"); //no more rebootz, BITCHES
                         info("OK");
                     }
                     else {
-                        console.log('---------->>> Start(true)'['greenBG'].bold);
+                        //console.log('---------->>> Start(true)'['greenBG'].bold);
                         this.Start(true);
                     }
                     c();
@@ -692,7 +692,7 @@ export class dnsmasq extends Process {
     }
 
     ApplyChange = (cb) => {
-        console.log('---------->>> ApplyChange SIGHUP_Update'['greenBG'].bold);
+        //console.log('---------->>> ApplyChange SIGHUP_Update'['greenBG'].bold);
         this.SIGHUP_Update(cb);
         //this.Stop(true);
         //cb();

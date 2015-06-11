@@ -166,6 +166,7 @@ export class RPCEndPoint extends events.EventEmitter {
     };
 
     private _on_remote_call = (funcId, params, trackid, age) => {
+        //console.log('===========[[[ RPC params', funcId, params);
         var timeout;
         var cb = (err: Error, result) => {
             if (timeout !== undefined) {

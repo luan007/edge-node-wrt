@@ -29,7 +29,7 @@ post('/App/purchase/:app_uid', (req, res, next) => { // ===> app_sig
                 var password = RSA.EncryptAESPassword(app_key, aesPassword);
 
                 var salt = RSA.GenSalt(256);
-                if (app.dirHashCode.trim() === '') {
+                if (app.dirHashCode !== null && app.dirHashCode.trim() === '') {
                     var app_path = path.join(ORBIT_CONF.APP_BASE_PATH, app.uid);
                     app.dirHashCode = HashDir(app_path, salt).toString("hex");
                     app.save();

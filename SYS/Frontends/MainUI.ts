@@ -104,7 +104,7 @@ function GetTarget(host:string, Uri:string, authenticated:string, cb) {
     }
     base = "http://unix:/" + base + ":";
     var result = base + uri;
-    fatal(result);
+    //fatal('^_________^  GetTarget result:', result);
     cb(undefined, [result, cookie_affect_range]);
 }
 
@@ -114,8 +114,8 @@ function SetupLauncherPort(main, auth, cb) {
 
     LauncherMainPort = path.join(AppManager.GetRealAppDataDir(launcher.App.uid), main);
     LauncherAuthPort = path.join(AppManager.GetRealAppDataDir(launcher.App.uid), auth);
-    trace("Main:" + LauncherMainPort);
-    trace("Auth:" + LauncherAuthPort);
+    fatal("^_________^ Main:" + LauncherMainPort);
+    fatal("^_________^ Auth:" + LauncherAuthPort);
 
     async.series([
         exec.bind(null, "chown", "nobody", LauncherMainPort),
@@ -125,13 +125,14 @@ function SetupLauncherPort(main, auth, cb) {
     });
 }
 
-__API(GetTarget, "Proxy.GetTarget", nginx.NGINX_PERM_ARR);
-__API(SetupLauncherPort, "Launcher.SetupPort", [Permission.Launcher]);
-
-__API(function (atoken, cb) {
+function AuthUser(atoken, cb) {
     if (!UserManager.DB_Ticket[atoken]) {
         cb(new Error());
     } else {
         cb(undefined, UserManager.DB_Ticket[atoken].owner_uid);
     }
-}, "Proxy.AuthUser", nginx.NGINX_PERM_ARR);
+}
+
+__API(GetTarget, "Proxy.GetTarget", nginx.NGINX_PERM_ARR);
+__API(SetupLauncherPort, "Launcher.SetupPort", [Permission.Launcher]);
+__API(AuthUser, "Proxy.AuthUser", nginx.NGINX_PERM_ARR);

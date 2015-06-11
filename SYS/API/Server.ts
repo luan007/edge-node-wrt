@@ -32,10 +32,10 @@ function _api_server_on_new_socket(socket:net.Socket) {
     });
 
     uscred.getCredentials(socket, (err, res) => {
-        trace("New Socket Inbound, Entering loop - PID " + (res.pid + "").bold);
+        fatal("New Socket Inbound, Entering loop - PID " + (res.pid + "").bold);
         if (err) {
             //error(err); //FAILED
-            return socket.destroy();
+             return socket.destroy();
         }
         var temp_closure = [];
         for (var i = 0; i < _proc.length; i++) {

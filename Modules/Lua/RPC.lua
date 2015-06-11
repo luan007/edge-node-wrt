@@ -12,8 +12,13 @@ function GetRPCSocket()
 end
 
 function RawRPC(wait_for_resp, sock, target, params)
+	-- append uid to params
+	local uid = ngx.var._user == nil and "" or ngx.var._user
+	table.insert(params, uid)
+	-- append uid to params
+
 	local targetID = API[target]
-	local reqParams = {0,targetID,params}
+	local reqParams = {0,targetID, params}
 	local reqMsg = cjson.encode(reqParams)
 	
 	local len=#reqMsg;
@@ -27,7 +32,7 @@ function RawRPC(wait_for_resp, sock, target, params)
 	if err then 
 		ngx.log(ngx.ERR,"sock send err: " .. err)
 		return nil, err
-	end	
+	end
 	if wait_for_resp then
 		local resRecv, err = _recv(sock) --recive
 		if err then 

@@ -29,6 +29,8 @@ function MainAuth()
 	    return
 	end
 
+	Log("IP: " ..clientIp .. " Device: " .. dev .. " Host:" .. ngx.var.host)
+
 	local field, err = cookie:get("edge_atoken")
 	if not field then
 		return
@@ -39,6 +41,7 @@ function MainAuth()
 	if not err and result then
 		ngx.var._auth = "1"
 		ngx.var._user = result
+		Log("IP: " ..clientIp .. " Device: " .. dev .. " OwnerUID: " .. result)
 	end
 end
 
@@ -49,12 +52,12 @@ function MainAccess()
 		ngx.say("RPC Socket Error : " .. err)
 	end
 	local result, err = RPCCall(socket, "Proxy.GetTarget", ngx.var.host, ngx.var.request_uri, ngx.var._auth)
-	if err then 
+	if err then
 		return ngx.say("GetTarget Call Error : " .. err)
 	end
 	ngx.var._target = result[1]
 	ngx.var._cookie_path = result[2]
-
+	Log("_target: " .. result[1] .. "\n host:" .. ngx.var.host .. "\n request_uri: " .. ngx.var.request_uri .. "\n _auth: " .. ngx.var._auth)
 end
 
 local function trim(s)
@@ -120,6 +123,7 @@ function MainHeadFilter()
     ngx.header['Set-Cookie'] = newcookies
     ngx.header['Server'] = "EDGE_GATE V1"
     ngx.header['X-Powered-By'] = "Edge Router OS (dev)"
+    Log("head")
 end
 
 

@@ -179,21 +179,21 @@ function _clean_up(runtimeId, cb) {
                         fs.rmdirSync(AppManager.GetAppDataLn(runtime.App.uid)); //that's it..
                     }
                 } catch (e) {
-                    error("Failed to remove AppData Folder, but that's possibly OK");
+                    error(runtime.App.uid, ": Failed to remove AppData Folder, but that's possibly OK");
                 }
                 try {
                     if (fs.existsSync(runtime.MainSock())) {
                         fs.rmdirSync(runtime.MainSock()); //that's it..
                     }
                 } catch (e) {
-                    error("Failed to remove MainSocket, but that's possibly OK");
+                    error(runtime.App.uid, ": Failed to remove MainSocket, but that's possibly OK");
                 }
                 try {
                     if (fs.existsSync(runtime.WebExSock())) {
                         fs.rmdirSync(runtime.WebExSock()); //that's it..
                     }
                 } catch (e) {
-                    error("Failed to remove WebSocket, but that's possibly OK");
+                    error(runtime.App.uid, ": Failed to remove WebSocket, but that's possibly OK");
                 }
                 return cb();
             });
