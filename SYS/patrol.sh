@@ -53,6 +53,8 @@ function extract()
     unzip -o -d "$pkg_extracted_dir" "$pkg_tmp_file" ## unzip...
     echo cp -rf "$pkg_extracted_dir"/SYS "$system_dir"/../
     cp -rf "$pkg_extracted_dir"/SYS "$system_dir"/../
+    echo cp -rf "$pkg_extracted_dir"/Modules "$system_dir"/../
+    cp -rf "$pkg_extracted_dir"/Modules "$system_dir"/../
     echo cp -rf "$pkg_extracted_dir"/node_modules "$system_dir"/
     cp -rf "$pkg_extracted_dir"/node_modules "$system_dir"/
     rm -rf "$pkg_extracted_dir"

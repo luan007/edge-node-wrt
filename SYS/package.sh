@@ -8,4 +8,5 @@ else
     echo packaging "$1".zip ...
     zip -r ./Packages/"$1".zip /node_modules
     zip -r ./Packages/"$1".zip ./SYS
+    zip -r ./Packages/"$1".zip ./Modules
 fi
