@@ -13,6 +13,7 @@ import nginx = require('../Common/Native/nginx');
 import StatMgr = require('../Common/Stat/StatMgr');
 import _StatNode = require('../Common/Stat/StatNode');
 import StatNode = _StatNode.StatNode;
+import TokenManager = require('../User/TokenManager');
 
 var LauncherMainPort;
 var LauncherAuthPort;
@@ -24,13 +25,13 @@ export var HostnameTable = {
     //owner_id: [ prefix, dest ]
 };
 
-function pushStack(obj, key, val){
-    if(!has(obj, key)){
+function pushStack(obj, key, val) {
+    if (!has(obj, key)) {
         obj[key] = val;
     }
 }
 function popStack(obj, key) {
-    if(has(obj, key)){
+    if (has(obj, key)) {
         delete obj[key];
     }
 }
@@ -40,7 +41,7 @@ export function Subscribe(cb) {
     sub.apps.on('set', (appUid, oldStatus, newStatus) => {
         if (newStatus.AppUrl.trim() !== '') {
             console.log(')))) ======= (((( runtime pool apps set', appUid, newStatus);
-            var pair =  [newStatus.AppUrl, newStatus.MainSock];
+            var pair = [newStatus.AppUrl, newStatus.MainSock];
             pushStack(PrefixTable, newStatus.RuntimeId, pair);
             pushStack(HostnameTable, newStatus.RuntimeId, pair);
         }
@@ -129,7 +130,9 @@ function AuthUser(atoken, cb) {
     if (!UserManager.DB_Ticket[atoken]) {
         cb(new Error());
     } else {
-        cb(undefined, UserManager.DB_Ticket[atoken].owner_uid);
+        var token_uid = TokenManager.Issue(atoken);
+        cb(undefined, token_uid);
+        //cb(undefined, UserManager.DB_Ticket[atoken].owner_uid);
     }
 }
 

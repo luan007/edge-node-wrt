@@ -116,6 +116,10 @@ class _sys_global_conf {
     PKG_TMP_DIR = path.join(this.RAM_DISK_DIR, 'pkg_tmp');
     PKG_FAIL_FILE = path.join(this.RAM_DISK_DIR, 'pkg_fail');
     PKG_UPGRADE_PASSWORD_FILE = path.join(this.RAM_DISK_DIR, 'pkg_upgrade_password');
+
+    //token
+    TOKEN_PATROL_INTERVAL = 60 * 1000;
+    TOKEN_EXPIRE_SECONDS = 2 * 1000;
 }
 
 class _global_section {

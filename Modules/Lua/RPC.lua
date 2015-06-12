@@ -13,9 +13,9 @@ end
 
 function RawRPC(wait_for_resp, sock, target, params)
 	-- append uid to params
-	local uid = ngx.var._user == nil and "" or ngx.var._user
-	table.insert(params, uid)
-	-- append uid to params
+	-- local uid = "token_uid:" .. (ngx.var._user == nil and "" or ngx.var._user)
+	table.insert(params, 1, "uid:"..ngx.var._user)
+	Log(" RPC params: " .. cjson.encode(params))
 
 	local targetID = API[target]
 	local reqParams = {0,targetID, params}

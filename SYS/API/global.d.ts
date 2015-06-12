@@ -7,7 +7,8 @@
 declare function __API(
     func: Function,
     path: string,
-    permission?: Permission[]);
+    permission?: Permission[],
+    needUsersAuthorization?:boolean);
 
 
 /**
