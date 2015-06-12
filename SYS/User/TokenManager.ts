@@ -54,9 +54,7 @@ export function GetUserToken(token_uid):string {
  * @returns {boolean}
  */
 export function Verify(token_uid):boolean {
-    var now = Date.now();
-    var index = __binarySearch(now);
-    __clear(index);
+    var now = _patrolThread();
 
     if (has(TokenMap, token_uid)) {
         return TokenMap[token_uid].expire >= now;
@@ -97,4 +95,17 @@ function __binarySearch(now) {
     }
 
     return (TokenArray[middle].expire != now) ? -1 : middle;
+}
+
+function _patrolThread() {
+    var now = Date.now();
+    var index = __binarySearch(now);
+    __clear(index);
+    return now;
+}
+
+export function Initialize(cb) { // Token clean-up patrol
+    trace("Starting Patrol Thread - " + (CONF.TOKEN_PATROL_INTERVAL + "").bold["cyanBG"]);
+    setJob("TOKEN_CLEAN", _patrolThread, CONF.TOKEN_PATROL_INTERVAL);
+    cb();
 }

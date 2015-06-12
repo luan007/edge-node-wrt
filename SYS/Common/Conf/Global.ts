@@ -118,7 +118,7 @@ class _sys_global_conf {
     PKG_UPGRADE_PASSWORD_FILE = path.join(this.RAM_DISK_DIR, 'pkg_upgrade_password');
 
     //token
-    TOKEN_PATROL_INTERVAL = 60 * 1000;
+    TOKEN_PATROL_INTERVAL = 0.5 * 60 * 1000;
     TOKEN_EXPIRE_SECONDS = 2 * 1000;
 }
 
