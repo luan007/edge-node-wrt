@@ -2,7 +2,7 @@
 
 import rpc = require("../../Modules/RPC/index");
 import pm = require("./Permission");
-import UserManager = require('../User/UserManager');
+//import UserManager = require('../User/UserManager');
 import TokenManager = require('../User/TokenManager');
 var _api = rpc.APIManager;
 
@@ -40,7 +40,8 @@ function __API(func:_Function_With_Permission_Token,
 
         var token_uid = '';
         if (/token_uid:/.test(args[0])) {
-            token_uid = args.shift().split('uid:')[1];
+            token_uid = args.shift().split('token_uid:')[1];
+            console.log('detected token uid'['blueBG'].bold, token_uid);
         }
         if (needUsersAuthorization) { // need user's authorization
             if (token_uid.trim() === '') {
@@ -50,8 +51,8 @@ function __API(func:_Function_With_Permission_Token,
                 return args[args.length - 1](new EvalError("Invalid Access Token."));
             }
             var atoken = TokenManager.GetUserToken(token_uid);
-            var uid = UserManager.DB_Ticket[atoken].uid;
-            var user = UserManager.DB_UserList[uid];
+            var uid = require('../User/UserManager').DB_Ticket[atoken].uid;
+            var user = require('../User/UserManager').DB_UserList[uid];
             args.unshift({ // pass user as first argument
                 name: user.name
             });

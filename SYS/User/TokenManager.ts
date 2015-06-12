@@ -22,16 +22,21 @@ export var TokenArray:Array<Token> = [];
 export function Issue(atoken:string):string {
     var now = Date.now();
     var index = __binarySearch(now);
+    console.log('clear token array, total:'['cyanBG'].bold, TokenArray.length, ', expire index:', index);
     __clear(index);
+
+    if(TokenUUIDMap[atoken])
+        return TokenUUIDMap[atoken];
 
     var token = {
         token_uid: UUIDstr(),
-        expire: now + CONF.TOKEN_EXPIRE_SECONDS,
+        expire: Date.now() + CONF.TOKEN_EXPIRE_SECONDS,
         atoken: atoken
     };
     TokenArray.unshift(token);
     TokenMap[token.token_uid] = token;
     TokenUUIDMap[atoken] = token.token_uid;
+    console.log('((( atoken', atoken, '))) ((( token_uid', token.token_uid, ')))');
     return token.token_uid;
 }
 
@@ -48,7 +53,7 @@ export function GetUserToken(token_uid):string {
  * @param token_uid
  * @returns {boolean}
  */
-export function Verify(token_uid): boolean {
+export function Verify(token_uid):boolean {
     var now = Date.now();
     var index = __binarySearch(now);
     __clear(index);
@@ -61,6 +66,8 @@ export function Verify(token_uid): boolean {
 }
 
 function __clear(index) {
+    if (index === -1)
+        return;
     var deleted = TokenArray.splice(index);
     for (var i = 0, len = deleted.length; i < len; i++) {
         var token = TokenMap[deleted[i].token_uid];
@@ -71,11 +78,14 @@ function __clear(index) {
 }
 
 function __binarySearch(now) {
+    if (TokenArray.length === 0)
+        return -1;
+
     var startIndex = 0,
         stopIndex = TokenArray.length - 1,
         middle = Math.floor((stopIndex + startIndex) / 2);
 
-    while (TokenArray[middle].expire != now && startIndex < stopIndex) {
+    while (TokenArray[middle].expire != now && startIndex <= stopIndex) {
         if (now < TokenArray[middle].expire) {
             startIndex = middle + 1;
         } else if (now > TokenArray[middle].expire) {

@@ -56,10 +56,10 @@ function SetRtoken(cookie, rtoken, expire) {
 }
 
 function LoginSuccess(req, res, expire, cookies, atoken, rtoken) {
-    console.log('=============== (((', Object.keys(arguments).length);
-    console.log('=============== ((( expire:\n', expire);
-    console.log('=============== ((( atoken:\n', atoken);
-    console.log('=============== ((( rtoken:\n', rtoken);
+    //console.log('=============== (((', Object.keys(arguments).length);
+    //console.log('=============== ((( expire:\n', expire);
+    //console.log('=============== ((( atoken:\n', atoken);
+    //console.log('=============== ((( rtoken:\n', rtoken);
     SetRtoken(cookies, rtoken, expire);
     return res.render("Distribute.ejs", {
         originalQuery: querystring.stringify(req.query),

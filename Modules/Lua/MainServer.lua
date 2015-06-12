@@ -41,7 +41,7 @@ function MainAuth()
 	if not err and result then
 		ngx.var._auth = "1"
 		ngx.var._user = result
-		Log("IP: " ..clientIp .. " Device: " .. dev .. " OwnerUID: " .. result)
+		Log("After Proxy.AuthUser Token_UID: " .. result)
 	end
 end
 
@@ -123,7 +123,7 @@ function MainHeadFilter()
     ngx.header['Set-Cookie'] = newcookies
     ngx.header['Server'] = "EDGE_GATE V1"
     ngx.header['X-Powered-By'] = "Edge Router OS (dev)"
-    Log("head")
+    -- Log("head")
 end
 
 
