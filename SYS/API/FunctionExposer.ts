@@ -51,12 +51,18 @@ function __API(func:_Function_With_Permission_Token,
                 return args[args.length - 1](new EvalError("Invalid Access Token."));
             }
             var atoken = TokenManager.GetUserToken(token_uid);
-            var uid = require('../User/UserManager').DB_Ticket[atoken].uid;
-            var user = require('../User/UserManager').DB_UserList[uid];
+            var ticket = require('../User/UserManager').DB_Ticket[atoken];
+            if(!ticket && ticket.uid) {
+                return args[args.length - 1](new EvalError("Invalid Access Token."));
+            }
+            var user = require('../User/UserManager').DB_UserList[ticket.uid];
+            if(!user) {
+                return args[args.length - 1](new EvalError("Invalid Access Token."));
+            }
             args.unshift({ // pass user as first argument
                 name: user.name
             });
-            console.log('usercredential'['blueBG'].bold, token_uid, uid, user.name);
+            console.log('user credential'['blueBG'].bold, token_uid, ticket.uid, user.name);
         }
 
         func.apply(this, args);
