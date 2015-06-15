@@ -59,9 +59,9 @@ function __API(func:_Function_With_Permission_Token,
             if(!user) {
                 return args[args.length - 1](new EvalError("Invalid Access Token."));
             }
-            args.unshift({ // pass user as first argument
+            this.user = { // pass user as first argument
                 name: user.name
-            });
+            };
             console.log('user credential'['blueBG'].bold, token_uid, ticket.uid, user.name);
         }
 

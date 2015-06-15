@@ -7,12 +7,14 @@ export class P0F extends Process {
     static P0F_NAME = "p0f";
     static P0F_FP = "/usr/local/p0f/p0f.fp";
 
-    constructor(private interface:string, private dataHandler:Function) {
+    constructor(private interface:string, private dataHandler:Function, private sock?:string) {
         super(P0F.P0F_NAME);
     }
 
     ConcatParams() {
         var params = ['-f', P0F.P0F_FP, '-i', this.interface];
+        if(this.sock)
+            params.concat(['-s', this.sock]);
         return params;
     }
 
