@@ -37,6 +37,7 @@ domain.run(function () {
         , {path: './APP/Test/Deployment/Server'}
         , {path: './APP/RuntimePool', name: 'RuntimePool'}
         , {path: './User/TokenManager'}
+        , {path: './Device/UserAgentManager'}
         //, {path: './Router/Network/Firewall/__Test'}
         //, {path: './Device/Graphd/__Test'}
         //, {path: './Device/__Test'}
