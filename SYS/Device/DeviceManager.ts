@@ -153,7 +153,7 @@ function SaveToDB(callback: Callback) {
 
 function _patrolThread() {
     if (not_saved) {
-        info(" PATROL ".bold["magentaBG"]);
+        fatal(" device manager save DB PATROL ".bold["magentaBG"]);
         SaveToDB(() => {
             info("DONE");
         });

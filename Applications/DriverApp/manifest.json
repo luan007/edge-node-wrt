@@ -32,7 +32,8 @@
       "Interest": {
         "stateChange": true,
         "match": true,
-        "attach": true
+        "attach": true,
+        "change": true
       }
     }
   }

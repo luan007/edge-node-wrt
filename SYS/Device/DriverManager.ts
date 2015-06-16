@@ -166,8 +166,9 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
         var myAssump = dev.assumptions[drvId];
         if (!_sanity_check(version, dev, driver)) return; //WTF??
         try {
+            fatal('assumptions =====>>> ', myAssump);
             if (myAssump && myAssump.valid && _is_interested_in(driver, dev, 1, tracker, delta, deltaBus, deltaConf, deltaOwn, stateChange)) {
-                trace("Change -> " + driver.name());
+                fatal("Change -> "['greenBG'].bold, driver.name());
                 //need change
                 driver.change(dev, {
                     assumption: delta,
@@ -179,7 +180,7 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
                     _update_driver_data(driver, dev, assump, tracker);
                 }));
             } else if (!(myAssump && myAssump.valid) && _is_interested_in(driver, dev, 0, tracker, delta, deltaBus, deltaConf, deltaOwn, stateChange)) {
-                trace("Match -> " + driver.name());
+                fatal("Match -> "['greenBG'].bold, driver.name());
                 //console.log(' ^______________^  else if !(myAssump)', driver.name());
                 //need match/attach
                 //TODO: Verify EmitterizeCB's impact/influence on GC, to see if it solves the 'ghost CB' prob
@@ -217,12 +218,13 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
 
 //TODO: Finish Driver Interest
 function _is_interested_in(drv:IDriver, dev:IDevice, currentStage, tracker:_tracker, d_assump, d_bus, d_conf, d_ownership, stateChange?) {
-
     var interested = drv.interest();
 
     if (interested.otherDriver == false && tracker && tracker.parent) return 0;
 
     if (interested.all) return 1;
+
+    fatal("_is_interested_in -> 1111. "['greenBG'].bold, dev.bus.hwaddr, interested, tracker, dev);
 
     if (interested.stateChange && stateChange) {
         return 2;
@@ -232,6 +234,7 @@ function _is_interested_in(drv:IDriver, dev:IDevice, currentStage, tracker:_trac
     if (!cc) return 0;
     if (!Array.isArray(cc)) cc = [cc];
     var matched = 0;
+    fatal("_is_interested_in -> 2222. "['blueBG'].bold, dev.bus.hwaddr, interested.match, interested.change, cc, d_conf, d_bus, d_assump);
     for (var tt = 0; tt < cc["length"]; tt++) { //and logic
         var c = cc[tt];
         var result = 0;
@@ -281,6 +284,7 @@ function _is_interested_in(drv:IDriver, dev:IDevice, currentStage, tracker:_trac
     }
     //match delta first
     //cuz delta costs less
+    fatal("_is_interested_in -> return 1. "['cyanBG'].bold, dev.bus.hwaddr);
     return 1;
 }
 
@@ -324,7 +328,7 @@ export function DeviceChange(dev:IDevice, tracker:_tracker, assump:IDeviceAssump
         //console.log('3 ====----====', '!Drivers[driver_id].status()',Drivers[driver_id].status());
         //console.log('4 ====----====', '!Drivers_BusMapping[dev.bus.name][driver_id]', Drivers_BusMapping[dev.bus.name], driver_id);
         if (driver_id == tracker.parent || !has(Drivers, driver_id) || !Drivers_BusMapping[dev.bus.name] || !Drivers[driver_id].status() ||
-            (!Drivers_BusMapping[dev.bus.name] && !Drivers_BusMapping[dev.bus.name][driver_id]) ) continue;
+            (!Drivers_BusMapping[dev.bus.name] && !Drivers_BusMapping[dev.bus.name][driver_id])) continue;
         //TODO: Add Driver Preference Here!!!! HIGH PRIORITY
         //TODO: Finish Driver-Interest - this is not completed
 

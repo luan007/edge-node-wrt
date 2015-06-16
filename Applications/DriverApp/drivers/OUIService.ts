@@ -2,13 +2,7 @@
 
 class OUI_Identifier implements IInAppDriver {
 
-    match = (dev: IDevice, delta, cb: Callback) => {
-        var matched = dev.bus.hwaddr.length > 8 ? {} : undefined;
-        cb(undefined, matched);
-    };
-
-    attach = (dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) => {
-        console.log("OUI ATTACH Called");
+    __find =  (dev, cb) => {
         var _oui_Str = (dev.bus.hwaddr + "").substr(0, 8);
         OUI.OUI_Find(_oui_Str,(err, result) => {
             if (!result) {
@@ -27,6 +21,17 @@ class OUI_Identifier implements IInAppDriver {
                 valid: true
             });
         });
+    }
+
+
+    match = (dev: IDevice, delta, cb: Callback) => {
+        var matched = dev.bus.hwaddr.length > 8 ? {} : undefined;
+        cb(undefined, matched);
+    };
+
+    attach = (dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) => {
+        console.log("OUI ATTACH Called");
+        this.__find(dev, cb);
     };
 
     change = (dev: IDevice, delta: IDriverDetla, cb: PCallback<IDeviceAssumption>) => {
