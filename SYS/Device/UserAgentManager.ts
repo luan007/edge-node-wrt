@@ -30,35 +30,47 @@ var p0fInstance = new P0F(CONF.DEV.WLAN.WLAN_BR, p0fOutputHandle, sock);
  | raw_sig  = 1:Accept=[text/html, application/xhtml+xml, *//*],Accept-Language=[en-US,zh-Hans-CN;q=0.9,zh-Hans;q=0.7,en-GB;q=0.6,en;q=0.4,zh-Hant-HK;q=0.3,zh-Hant;q=0.1],User-Agent,UA-CPU=[ARM],Accept-Encoding=[gzip, deflate],Host,DNT=[1],Connection=[Keep-Alive]:Accept-Charset,Keep-Alive:Mozilla/5.0 (Mobile; Windows Phone 8.1; Android 4.0; ARM; Trident/7.0; Touch; rv:11.0; IEMobile/11.0; NOKIA; 909) like iPhone OS 7_0_3 Mac OS X AppleWebKit/537 (KHTML, like Gecko) Mobile Safari/537
  |
  `----
+
+ .-[ 192.168.66.10/54103 -> 94.31.29.154/80 (http request) ]-
+ |
+ | client   = 192.168.66.10/54103
+ | app      = ???
+ | lang     = Chinese
+ | params   = none
+ | raw_sig  = 1:Host,Connection=[keep-alive],?Cache-Control,Accept=[text/css,*//*;q=0.1],?If-None-Match,?If-Modified-Since,User-Agent,?Referer,Accept-Encoding=[gzip, deflate, sdch],Accept-Language=[zh-CN,zh;q=0.8,en;q=0.6,zh-TW;q=0.4,ja;q=0.2]:Accept-Charset,Keep-Alive:Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.81 Safari/537.36
+ |
+ `----
  */
 function p0fOutputHandle(data) {
     var info = data.toString();
-    if(/\(http request\)/.test(info)) {
+    if (/\(http request\)/.test(info)) {
         var description = <any>getDeviceInfo(info);
-        if(description && description.device.vendor === 'Apple' && description.device.model === 'iPhone') {
-            fatal("[[[ ============ ]]] \n", description);
-            __EMIT('P0F.iPhone', description);
+        if (description && description.device) {
+            fatal(sock, "\n[[[ ============ ]]] \n", description.device.vendor, description.device.model, description.ip);
+            p0fInstance.Query(description.ip, (err, res) => {
+                    fatal("p0f result \n[[[ ============ ]]] \n", err, res);
+            });
+            __EMIT('P0F.device', description);
         }
     }
 }
 
+/**
+ { browser: { name: 'IEMobile', version: '11.0', major: '11' },
+   engine: { name: 'Trident', version: '7.0' },
+   os: { name: 'Windows Phone', version: '8.1' },
+   device: { model: undefined, vendor: 'Nokia', type: 'mobile' },
+   cpu: { architecture: undefined } }
+ */
 function getDeviceInfo(data) {
+    var ip = /client\s+= ([^\/]+)/gmi.exec(data)[1];
     var description = parser.setUA(data).getResult();
-    if(description.device.vendor && description.os.name) {
+    if (description.device.vendor && description.os.name) {
+        delete description['ua'];
+        description.ip = ip;
         return description;
     }
     return null;
-    //if(/iPhone/gmi.test(data) && /Apple/gmi.test(data)) {
-    //    return {
-    //        BrandName: 'Apple',
-    //        ModelName: 'iPhone'
-    //    };
-    //} else if(/Windows Phone/gmi.test(data) && /NOKIA/gmi.test(data)) {
-    //    return {
-    //        BrandName: 'NOKIA',
-    //        ModelName: 'Windows Phone'
-    //    };
-    //}
 }
 
 export function Initialize(cb) {
@@ -66,4 +78,4 @@ export function Initialize(cb) {
     cb();
 }
 
-__EVENT('P0F.iPhone', [Permission.Driver]);
+__EVENT('P0F.device', [Permission.Driver]);
