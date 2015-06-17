@@ -112,20 +112,27 @@ function SaveToDB(callback: Callback) {
                 if (!device_updates[id] || device_updates[id] === 0) {
                     skip++;
                 } else {
-                    (function (id, DBDEV) { // closure
+                    (function (id) { // closure
                         jobs.push((cb) => {
 
-                            var DBDEV = db_devices[id];
-                            DBDEV.time = dev.time;
-                            DBDEV.hwaddr = dev.bus.hwaddr;
-                            DBDEV.ownership = dev.owner;
-                            DBDEV.time = dev.time;
-                            DBDEV.busdata = dev.bus.data;
-                            DBDEV.busname = dev.bus.name;
-                            DBDEV.state = dev.state;
-                            DBDEV.assumptions = dev.assumptions;
-                            DBDEV.config = dev.config;
-                            DBDEV.save({}, (err) => {
+                            var dbDev = db_devices[id];
+                            var devInMemory = devices[id];
+
+                            dbDev.time = devInMemory.time;
+                            dbDev.hwaddr = devInMemory.bus.hwaddr;
+                            dbDev.ownership = devInMemory.owner;
+                            dbDev.time = devInMemory.time;
+                            dbDev.busdata = devInMemory.bus.data;
+                            dbDev.busname = devInMemory.bus.name;
+                            dbDev.state = devInMemory.state;
+                            //dbDev.assumptions = {
+                            //    attributes: { vendor: 'apple'}
+                            //};
+                            if(Object.keys(devInMemory.assumptions).length > 0)
+                                dbDev.assumptions = devInMemory.assumptions;
+                            dbDev.config = devInMemory.config;
+                            dbDev.save({}, (err) => {
+                                //console.log(id,  '] ^______________^  DBDEV.save()', err, dbDev.assumptions);
                                 if (!err) {
                                     device_updates[id] = 0;
                                     pass++;
@@ -136,17 +143,20 @@ function SaveToDB(callback: Callback) {
                                 cb();
                             });
                         });
-                    })(id, DBDEV);
+                    })(id);
                 }
             }
         })(id);
     }
+
+    //fatal('] ^______________^  jobs.length', jobs.length);
+
     if (jobs.length == 0) {
-        info((pass + "")["greenBG"].bold + " SAVE " + (skip + "")["cyanBG"].bold + " SKIP " + (fail + "")["redBG"].bold + " FAIL");
+        fatal((pass + "")["greenBG"].bold + " SAVE " + (skip + "")["cyanBG"].bold + " SKIP " + (fail + "")["redBG"].bold + " FAIL");
         return callback();
     }
     async.series(jobs, () => {
-        info((pass + "")["greenBG"].bold + " SAVE " + (skip + "")["cyanBG"].bold + " SKIP " + (fail + "")["redBG"].bold + " FAIL");
+        fatal((pass + "")["greenBG"].bold + " SAVE " + (skip + "")["cyanBG"].bold + " SKIP " + (fail + "")["redBG"].bold + " FAIL");
         return callback();
     });
 }
@@ -155,6 +165,7 @@ function _patrolThread() {
     if (not_saved) {
         fatal(" device manager save DB PATROL ".bold["magentaBG"]);
         SaveToDB(() => {
+            console.log('] ^______________^   DB DONE');
             info("DONE");
         });
         not_saved = false;
@@ -252,8 +263,12 @@ export function Config(dev: IDevice, conf: any) {
 
 }
 
-function _ondriverchange(dev: IDevice) {
+function _ondriverchange(dev: IDevice, drv: IDriver, assump:IDeviceAssumption) {
     device_updates[dev.id] = 1;
+    if(assump) {
+        if(!devices[dev.id].assumptions) devices[dev.id].assumptions = {};
+        devices[dev.id].assumptions[drv.id()] = assump;
+    }
     not_saved = true;
 }
 

@@ -2,9 +2,9 @@
 
 class OUI_Identifier implements IInAppDriver {
 
-    __find =  (dev, cb) => {
+    __find = (dev, cb) => {
         var _oui_Str = (dev.bus.hwaddr + "").substr(0, 8);
-        OUI.OUI_Find(_oui_Str,(err, result) => {
+        OUI.OUI_Find(_oui_Str, (err, result) => {
             if (!result) {
                 console.log("OUI Not Found " + _oui_Str);
                 return cb(undefined, undefined);
@@ -18,35 +18,37 @@ class OUI_Identifier implements IInAppDriver {
                     }
                 },
                 classes: {},
+                aux: {},
                 valid: true
             });
         });
     }
 
 
-    match = (dev: IDevice, delta, cb: Callback) => {
+    match = (dev:IDevice, delta, cb:Callback) => {
         var matched = dev.bus.hwaddr.length > 8 ? {} : undefined;
         cb(undefined, matched);
     };
 
-    attach = (dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) => {
+    attach = (dev:IDevice, delta, matchResult:any, cb:PCallback<IDeviceAssumption>) => {
         console.log("OUI ATTACH Called");
         this.__find(dev, cb);
     };
 
-    change = (dev: IDevice, delta: IDriverDetla, cb: PCallback<IDeviceAssumption>) => {
-        cb(undefined, undefined);
+    change = (dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) => {
+        console.log("OUI CHANGE Called");
+        this.__find(dev, cb);
     };
 
-    detach = (dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) => {
-        cb(undefined, undefined);
+    detach = (dev:IDevice, delta, cb:PCallback<IDeviceAssumption>) => {
+        cb(undefined, {valid: true});
     };
 
-    load = (cb: Callback) => {
+    load = (cb:Callback) => {
         return cb(undefined, true);
     };
 
-    unload = (cb: Callback) => {
+    unload = (cb:Callback) => {
         return cb(undefined, true);
     };
 

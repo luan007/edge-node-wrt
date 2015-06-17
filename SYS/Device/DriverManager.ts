@@ -40,7 +40,7 @@ export function LoadDriver(drv:IDriver, cb) {
                 if (!Drivers_BusMapping[buses[i]]) Drivers_BusMapping[buses[i]] = {};
                 Drivers_BusMapping[buses[i]][drvId] = drv;
             }
-            //Don't care..
+            //Dovvn't care..
             info("UP - " + drv.name().bold);
             if (reload) {
                 __EMIT("Driver.reload", drv.id());
@@ -73,7 +73,6 @@ function _sanity_check(ver, dev:IDevice, drv:IDriver, err = false) {
 }
 
 function _update_driver_data(drv:IDriver, dev:IDevice, assump:IDeviceAssumption, tracker:_tracker) {
-    //console.log('[ assumption ] ========== >>>', assump);
     if (!drv || !drv.status() || !dev || !Drivers[drv.id()]) return;
     var real:IDeviceAssumption = <any>{};
     var changed = false;
@@ -110,13 +109,13 @@ function _update_driver_data(drv:IDriver, dev:IDevice, assump:IDeviceAssumption,
         }
     }
     if (!changed) {
-        warn("Empty / Malformed Assumption - Skipped");
+        fatal("Empty / Malformed Assumption - Skipped");
         return;
     }
     real.driverId = drv.id(); //make sure
     var curAssump = dev.assumptions[real.driverId];
     if (_.isEqual(curAssump, real)) {
-        warn("Exact-Same Assumption - Skipped");
+        fatal("Exact-Same Assumption - Skipped");
         return;
     }
     //warn("has change!");
@@ -135,6 +134,8 @@ function _update_driver_data(drv:IDriver, dev:IDevice, assump:IDeviceAssumption,
         real.attributes = real.attributes ? real.attributes : {};
         delta = real;
     }
+
+    console.log(drv.name(), '] ^______________^  delta ', delta, Object.keys(delta).length);
 
     if (Object.keys(delta).length == 0) {
         return; //skipped
@@ -166,9 +167,9 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
         var myAssump = dev.assumptions[drvId];
         if (!_sanity_check(version, dev, driver)) return; //WTF??
         try {
-            fatal('assumptions =====>>> ', myAssump);
             if (myAssump && myAssump.valid && _is_interested_in(driver, dev, 1, tracker, delta, deltaBus, deltaConf, deltaOwn, stateChange)) {
-                fatal("Change -> "['greenBG'].bold, driver.name());
+                if (driver.name() === 'OUI')
+                    fatal("Change -> "['greenBG'].bold, driver.name());
                 //need change
                 driver.change(dev, {
                     assumption: delta,
@@ -180,7 +181,8 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
                     _update_driver_data(driver, dev, assump, tracker);
                 }));
             } else if (!(myAssump && myAssump.valid) && _is_interested_in(driver, dev, 0, tracker, delta, deltaBus, deltaConf, deltaOwn, stateChange)) {
-                fatal("Match -> "['greenBG'].bold, driver.name());
+                if (driver.name() === 'OUI')
+                    fatal("Match -> "['greenBG'].bold, driver.name(), delta);
                 //console.log(' ^______________^  else if !(myAssump)', driver.name());
                 //need match/attach
                 //TODO: Verify EmitterizeCB's impact/influence on GC, to see if it solves the 'ghost CB' prob
@@ -195,7 +197,8 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
                     if (!data || !_sanity_check(version, dev, driver, err)) return;
                     try {
                         //console.log(' ^______________^  try Attach ->', driver.name());
-                        trace("Attach -> " + driver.name());
+                        if (driver.name() === 'OUI')
+                            fatal("Attach -> " + driver.name());
                         driver.attach(dev, {
                             assumption: delta,
                             bus: deltaBus,
@@ -224,8 +227,6 @@ function _is_interested_in(drv:IDriver, dev:IDevice, currentStage, tracker:_trac
 
     if (interested.all) return 1;
 
-    fatal("_is_interested_in -> 1111. "['greenBG'].bold, dev.bus.hwaddr, interested, tracker, dev);
-
     if (interested.stateChange && stateChange) {
         return 2;
     }
@@ -233,8 +234,6 @@ function _is_interested_in(drv:IDriver, dev:IDevice, currentStage, tracker:_trac
     var cc = currentStage == 0 ? interested.match : interested.change;
     if (!cc) return 0;
     if (!Array.isArray(cc)) cc = [cc];
-    var matched = 0;
-    fatal("_is_interested_in -> 2222. "['blueBG'].bold, dev.bus.hwaddr, interested.match, interested.change, cc, d_conf, d_bus, d_assump);
     for (var tt = 0; tt < cc["length"]; tt++) { //and logic
         var c = cc[tt];
         var result = 0;
@@ -284,14 +283,15 @@ function _is_interested_in(drv:IDriver, dev:IDevice, currentStage, tracker:_trac
     }
     //match delta first
     //cuz delta costs less
-    fatal("_is_interested_in -> return 1. "['cyanBG'].bold, dev.bus.hwaddr);
+    if (dev.bus.hwaddr === '60:d9:c7:41:d4:71' && drv.name() === 'OUI')
+        fatal("_is_interested_in -> return 1. "['cyanBG'].bold, dev.bus.hwaddr);
     return 1;
 }
 
 export function DeviceChange(dev:IDevice, tracker:_tracker, assump:IDeviceAssumption, busDelta:IBusData, config:KVSet, ownership, stateChange?) {
 
     if (stateChange) {
-        fatal("Device Online - " + dev.bus.name + " [" + dev.bus.hwaddr + "] ");
+        fatal("Device Online --- " + dev.bus.name + " [" + dev.bus.hwaddr + "] ");
     }
 
     __EMIT("Device.change", dev.id, dev, {
@@ -323,15 +323,17 @@ export function DeviceChange(dev:IDevice, tracker:_tracker, assump:IDeviceAssump
     /* UNLEASHHH DA POWER OF..  */
     /* ..cpu  ->  hot from now  */
     for (var driver_id in Drivers) {
-        //console.log('1 ====----====', 'driver_id == tracker.parent', driver_id, tracker.parent);
-        //console.log('2 ====----====', '!Drivers_BusMapping[dev.bus.name]', !Drivers_BusMapping[dev.bus.name], dev.bus.name);
-        //console.log('3 ====----====', '!Drivers[driver_id].status()',Drivers[driver_id].status());
-        //console.log('4 ====----====', '!Drivers_BusMapping[dev.bus.name][driver_id]', Drivers_BusMapping[dev.bus.name], driver_id);
         if (driver_id == tracker.parent || !has(Drivers, driver_id) || !Drivers_BusMapping[dev.bus.name] || !Drivers[driver_id].status() ||
             (!Drivers_BusMapping[dev.bus.name] && !Drivers_BusMapping[dev.bus.name][driver_id])) continue;
         //TODO: Add Driver Preference Here!!!! HIGH PRIORITY
         //TODO: Finish Driver-Interest - this is not completed
 
+        //if (dev.bus.hwaddr === '60:d9:c7:41:d4:71' && driver_id === 'App_DriverApp:OUI') {
+        //    console.log('1 ====----====', 'driver_id == tracker.parent', driver_id, tracker.parent);
+        //    console.log('2 ====----====', 'Drivers_BusMapping[dev.bus.name]', !!Drivers_BusMapping[dev.bus.name], dev.bus.name);
+        //    console.log('3 ====----====', 'Drivers[driver_id].status()', Drivers[driver_id].status());
+        //    console.log('4 ====----====', 'assump', assump);
+        //}
 
         //Preference? Sure
         //Almost done.
