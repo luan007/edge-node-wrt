@@ -152,20 +152,19 @@ function SaveToDB(callback: Callback) {
     //fatal('] ^______________^  jobs.length', jobs.length);
 
     if (jobs.length == 0) {
-        fatal((pass + "")["greenBG"].bold + " SAVE " + (skip + "")["cyanBG"].bold + " SKIP " + (fail + "")["redBG"].bold + " FAIL");
+        info((pass + "")["greenBG"].bold + " SAVE " + (skip + "")["cyanBG"].bold + " SKIP " + (fail + "")["redBG"].bold + " FAIL");
         return callback();
     }
     async.series(jobs, () => {
-        fatal((pass + "")["greenBG"].bold + " SAVE " + (skip + "")["cyanBG"].bold + " SKIP " + (fail + "")["redBG"].bold + " FAIL");
+        info((pass + "")["greenBG"].bold + " SAVE " + (skip + "")["cyanBG"].bold + " SKIP " + (fail + "")["redBG"].bold + " FAIL");
         return callback();
     });
 }
 
 function _patrolThread() {
     if (not_saved) {
-        fatal(" device manager save DB PATROL ".bold["magentaBG"]);
+        info(" device manager save DB PATROL ".bold["magentaBG"]);
         SaveToDB(() => {
-            console.log('] ^______________^   DB DONE');
             info("DONE");
         });
         not_saved = false;

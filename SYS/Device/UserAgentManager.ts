@@ -2,13 +2,14 @@ import ConfMgr = require('../Common/Conf/ConfMgr');
 import _Config = require('../Common/Conf/Config');
 import Config = _Config.Config;
 import StatMgr = require('../Common/Stat/StatMgr');
+import StatBiz = require('../Common/Stat/StatBiz');
 import _P0F = require('../Common/Native/p0f');
 var UAParser = require('ua-parser-js');
 var parser = new UAParser.UAParser();
 import P0F = _P0F.P0F;
 
 var sock = getSock(UUIDstr());
-var p0fInstance = new P0F(CONF.DEV.WLAN.WLAN_BR, p0fOutputHandle, sock);
+var p0fInstance = new P0F(CONF.DEV.WLAN.WLAN_BR, HandleP0fOutput, sock);
 
 /**
  .-[ 192.168.1.10/53680 -> 22.33.99.201/80 (http request) ]-
@@ -41,12 +42,12 @@ var p0fInstance = new P0F(CONF.DEV.WLAN.WLAN_BR, p0fOutputHandle, sock);
  |
  `----
  */
-function p0fOutputHandle(data) {
+function HandleP0fOutput(data) {
     var info = data.toString();
     if (/\(http request\)/.test(info)) {
         var description = <any>getDeviceInfo(info);
         if (description && description.device) {
-            fatal(sock, "\n[[[ ============ ]]] \n", description.device.vendor, description.device.model, description.ip);
+            fatal(sock, "\n[[[ ============ ]]] \n", description.device.vendor, description.device.model, description.ip, description.hwaddr);
             p0fInstance.Query(description.ip, (err, res) => {
                     fatal("p0f result \n[[[ ============ ]]] \n", err, res);
             });
@@ -68,6 +69,7 @@ function getDeviceInfo(data) {
     if (description.device.vendor && description.os.name) {
         delete description['ua'];
         description.ip = ip;
+        description.hwaddr = StatBiz.GetMacByIP(ip);
         return description;
     }
     return null;

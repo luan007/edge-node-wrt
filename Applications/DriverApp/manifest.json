@@ -35,6 +35,15 @@
         "attach": true,
         "change": true
       }
+    },
+    "P0F": {
+      "Buses": ["WIFI"],
+      "Interest": {
+        "stateChange": true,
+        "match": true,
+        "attach": true,
+        "change": true
+      }
     }
   }
 }
