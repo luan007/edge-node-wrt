@@ -21,6 +21,8 @@ class Bus extends events.EventEmitter implements IBus {
     }
 
     public DeviceUp = (hwaddr: string, devData, stateChanged=false) => {
+        if(hwaddr === '60:d9:c7:41:d4:71')
+            console.log('device up', hwaddr, devData);
         this.emit("device", {
             name : this._name,
             stamp: Date.now(),

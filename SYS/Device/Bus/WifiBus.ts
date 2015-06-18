@@ -27,7 +27,8 @@ function on_connect(mac, band) {
         Traffic: {},
         MDNS: {},
         SSDP: {},
-        Band: band
+        Band: band,
+        P0F: {}
     }, true);
 }
 
@@ -76,10 +77,12 @@ export function Subscribe(cb) {
         info('mdns del', IP, mac, oldService);
     });
 
-    subNetwork.p0f.on('set', (IP, description) => {
-        var mac = StatBiz.GetMacByIP(IP);
-        fatal('P0F device emerge', IP, mac);
-        __EMIT('P0F.device', description);
+    subNetwork.p0f.on('set', (IP, oldValue, description) => {
+        //fatal('P0F device emerge', IP, description);
+        _wifiBus.DeviceUp(description.hwaddr, {
+            P0F: description
+        });
+        //__EMIT('P0F.device', description);
     });
 
     var subTraffic = StatMgr.Sub(SECTION.TRAFFIC);
@@ -116,6 +119,6 @@ export function Subscribe(cb) {
     cb();
 }
 
-__EVENT('P0F.device', [Permission.Event]);
+//__EVENT('P0F.device', [Permission.Event]);
 
 

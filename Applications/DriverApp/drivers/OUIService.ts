@@ -36,8 +36,7 @@ class OUI_Identifier implements IInAppDriver {
     };
 
     change = (dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) => {
-        console.log("OUI CHANGE Called");
-        this.__find(dev, cb);
+        cb(undefined, {valid: true});
     };
 
     detach = (dev:IDevice, delta, cb:PCallback<IDeviceAssumption>) => {

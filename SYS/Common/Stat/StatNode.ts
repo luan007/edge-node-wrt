@@ -46,15 +46,15 @@ export class StatNode extends events.EventEmitter {
 
     Set = (key:string, val:any) => {
         var oldValue = this.__value[key] ? (this.__value[key].ValueOf ? this.__value[key].ValueOf() : this.__value[key]) : undefined;
-        var newValue = val.ValueOf ? val.ValueOf() : val
-        //console.log('Set', key, oldValue, 'new \n:', val);
-
-        this.__value[key] = val;
-        this._wrap(this, key);
+        var newValue = val.ValueOf ? val.ValueOf() : val;
 
         this._notifyParent(this, 'set', key, oldValue, newValue);
         this.emit(key, oldValue, newValue);
         this.emit('set', key, oldValue, newValue);
+
+        this.__value[key] = val;
+        this._wrap(this, key);
+
         if(this.__value[key] && this.__value[key].emit) //emit if child is a emitter
             this.__value[key].emit('set', key, oldValue, newValue);
     }

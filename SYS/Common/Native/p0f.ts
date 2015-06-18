@@ -36,12 +36,15 @@ class P0F extends Process {
        cpu: { architecture: undefined } }
      */
     __parseDeviceInfo(data) {
-        var ip = /client\s+= ([^\/]+)/gmi.exec(data)[1];
+        var exp = /client\s+= ([^\/]+)/gmi.exec(data);
+        var ip = exp && exp.length > 1 ? exp[1] : null;
         var description = parser.setUA(data).getResult();
         if (description.device.vendor && description.os.name) {
             delete description['ua'];
-            description.ip = ip;
-            description.hwaddr = StatBiz.GetMacByIP(ip);
+            if (ip) {
+                description.ip = ip;
+                description.hwaddr = StatBiz.GetMacByIP(ip);
+            }
             return description;
         }
         return null;
@@ -85,7 +88,8 @@ class P0F extends Process {
         var info = data.toString();
         if (/\(http request\)/.test(info)) {
             var description = <any>this.__parseDeviceInfo(info);
-            if (description && description.device) {
+            if (description && description.device && description.hwaddr) {
+                //console.log('p0f description --------->>>> ', description);
                 this.Query(description.ip, (err, assumption) => {
                     if (err) error(err);
                     else {

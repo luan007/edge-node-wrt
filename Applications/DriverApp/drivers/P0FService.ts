@@ -4,11 +4,20 @@
 class P0FService implements IInAppDriver {
 
     match(dev:IDevice, delta:IDriverDetla, cb:Callback) {
-        cb(undefined, true);
+        console.log("------------\n P0f match Called", dev.bus.data);
+        var matched = dev.bus.data.P0F ? {} : undefined;
+        cb(undefined, matched);
     }
 
     attach(dev:IDevice, delta:IDriverDetla, matchResult:any, cb:PCallback<IDeviceAssumption>) {
-        cb(undefined, {valid: true});
+        console.log("P0f ATTACH Called");
+        cb(undefined, {
+            actions: {},
+            classes: {},
+            aux: {},
+            attributes: { P0F:dev.bus.data.P0F } ,
+            valid: true
+        });
     }
 
     change(dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) {
