@@ -188,6 +188,8 @@ export function ServeAPI(rpc: RPCEndpoint) {
 }
 
 export function EmitEvent(rpc: RPCEndpoint, eventPath, params: any[]) {
+    if(eventPath === 'P0F.device')
+        console.log('remote RPC --------->>> ', _event_reverse_lookup[eventPath]);
     rpc.Emit(_event_reverse_lookup[eventPath], params);
 }
 

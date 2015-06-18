@@ -80,4 +80,4 @@ export function Initialize(cb) {
     cb();
 }
 
-__EVENT('P0F.device', [Permission.Driver]);
+__EVENT('P0F.device', [Permission.Event]);

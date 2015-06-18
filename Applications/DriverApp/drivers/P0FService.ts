@@ -2,16 +2,6 @@
 //Also generates generic "name" if there's nothing set
 //
 class P0FService implements IInAppDriver {
-    private MACDevices = {};
-
-    constructor(){
-        API.on('P0F.device', this.handleP0fDevice);
-    }
-
-    handleP0fDevice(device){
-        this.MACDevices[device.hwaddr] = device;
-        console.log('InAppDriver P0FService --->>>', device);
-    }
 
     match(dev:IDevice, delta:IDriverDetla, cb:Callback) {
         cb(undefined, true);

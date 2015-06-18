@@ -4,14 +4,14 @@ import async = require("async");
 
 var _api = rpc.APIManager;
 
-var _handled_rpc_table: {
+var _handled_rpc_table:{
     RPC: rpc.RPCEndpoint;
     Perm: any[];
 }[] = <any>{}; // SENDER_KEY <-> Permission, RPC_SOCK
 
 var _remote_event_registry = {}; // SENDER_KEY <-> EVENT_PATH
 
-export function AddToEventHub(id: any, rpc: rpc.RPCEndpoint) {
+export function AddToEventHub(id:any, rpc:rpc.RPCEndpoint) {
     if (!id || !rpc) return;
     _handled_rpc_table[id] = {
         RPC: rpc,
@@ -20,25 +20,26 @@ export function AddToEventHub(id: any, rpc: rpc.RPCEndpoint) {
     _remote_event_registry[id] = {};
 }
 
-export function RemoveFromEventHub(id: any) {
+export function RemoveFromEventHub(id:any) {
     _handled_rpc_table[id] = undefined; //faster than delete
     _remote_event_registry[id] = undefined;
 }
 
-function __EVENT(
-    path: string,
-    permission?: Permission[]) {
+function __EVENT(path:string,
+                 permission?:Permission[]) {
     _api.CreateEvent(pm.Encode(permission), path);
 }
 
-function __EMIT(
-    path: string,
-    ...data) {
+function __EMIT(path:string,
+                ...data) {
 
     //Actually Emit this event
     for (var dest in _remote_event_registry) {
         if (_handled_rpc_table[dest] && _remote_event_registry[dest][path] == 1) {
             //Emit!
+
+            //if(path === 'P0F.device')
+            //    console.log('remote RPC --------->>> ', path, data);
             _api.EmitEvent(_handled_rpc_table[dest].RPC, path, data);
         }
     }
@@ -47,6 +48,8 @@ function __EMIT(
 
 function Remote_AddListener(event_list, callback) {
     var id = this.sender;
+    var owned = pm.GetPermission(id);
+
     if (!id || !_handled_rpc_table[id]) {
         return callback(new rpc.APIError("Permission Denied", "NOT_ALLOWED"));
     }
@@ -64,7 +67,7 @@ function Remote_AddListener(event_list, callback) {
                 errs.push(new rpc.APIError("Event not found", "NOT_FOUND"));
                 continue;
             }
-            var owned = _handled_rpc_table[id].Perm;
+            //var owned = _handled_rpc_table[id].Perm;
             if (!pm.Check(owned, eobj.e)) {
                 suc.push(0);
                 errs.push(new rpc.APIError("Permission Denied", "NOT_ALLOWED", eobj.path));
@@ -81,7 +84,7 @@ function Remote_AddListener(event_list, callback) {
         if (!evobj) {
             return callback(new rpc.APIError("Event not found", "NOT_FOUND"));
         }
-        var owned = _handled_rpc_table[id].Perm;
+        //console.log('Remote_AddListener --------->>> perm', owned,  perm);
         if (!pm.Check(owned, perm)) {
             return callback(new rpc.APIError("Permission Denied", "NOT_ALLOWED"));
         }
@@ -93,4 +96,4 @@ function Remote_AddListener(event_list, callback) {
 __API(Remote_AddListener, "RegisterEvent", [Permission.Event]);
 
 global.__EVENT = __EVENT;
-global.__EMIT  = __EMIT;
+global.__EMIT = __EMIT;

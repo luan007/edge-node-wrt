@@ -124,8 +124,8 @@ export class RPCEndPoint extends events.EventEmitter {
     };
 
     private Send_Pack = (type: RPC_Message_Type, func_or_event_id: number, params: any, trackId?: number, gen?: number) => {
-        
         if (!this._sock) return;
+
         params = Array.isArray(params) ? params : [];
         var Package = [
             type,
@@ -136,6 +136,7 @@ export class RPCEndPoint extends events.EventEmitter {
             Package.push(trackId);
             Package.push(gen); //implemented by us.
         }
+
         //console.log("RPC_O > " + Package);
         this._sock.Send(Package);
     };
