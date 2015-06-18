@@ -12,6 +12,7 @@ import _Configurable = require('../../Common/Conf/Configurable');
 import Configurable = _Configurable.Configurable;
 import Dnsmasq = require('../../Common/Native/dnsmasq');
 import AppConfig = require('../../APP/Resource/AppConfig');
+import P0F = require('../../Common/Native/p0f');
 
 var dnsmasq = new Dnsmasq.dnsmasq();
 
@@ -23,7 +24,8 @@ var pub = StatMgr.Pub(SECTION.NETWORK, {
     arp: {},
     network: {},
     mdns: {},
-    ssdp: {}
+    ssdp: {},
+    p0f: {}
 });
 
 class Configuration extends Configurable {
@@ -208,6 +210,9 @@ export function Initialize(cb) {
             mdns.Initialize(cb);
         },
         (cb)=> {
+            P0F.Initialize(cb);
+        },
+        (cb)=> {
             confNetwork.Initialize(cb);
         }
     ], ()=> {
@@ -245,6 +250,10 @@ export function Initialize(cb) {
     mdns.Browser.on(mdns.Browser.EVENT_SERVICE_DOWN, (IP, service)=> {
         //console.log('mdns device down', IP, service);
         pub.mdns.Del(IP);
+    });
+
+    P0F.P0FInstance.on(P0F.P0FInstance.EVENT_DEVICE, (IP, description)=> {
+        pub.p0f.Set(IP, description);
     });
 }
 

@@ -81,6 +81,7 @@ export class StatNode extends events.EventEmitter {
     }
 
     static IsStatNode = (obj) => {
+        if(!obj) return false;
         return obj.hasOwnProperty('_wrap') && obj.hasOwnProperty('__value') && obj.hasOwnProperty('ValueOf');
     }
 

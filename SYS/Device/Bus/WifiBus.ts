@@ -76,6 +76,12 @@ export function Subscribe(cb) {
         info('mdns del', IP, mac, oldService);
     });
 
+    subNetwork.p0f.on('set', (IP, description) => {
+        var mac = StatBiz.GetMacByIP(IP);
+        fatal('P0F device emerge', IP, mac);
+        __EMIT('P0F.device', description);
+    });
+
     var subTraffic = StatMgr.Sub(SECTION.TRAFFIC);
     subTraffic.traffics.on('set', (mac, oldValue, traffic) => {
         _wifiBus.DeviceUp(mac, {
@@ -109,5 +115,7 @@ export function Subscribe(cb) {
 
     cb();
 }
+
+__EVENT('P0F.device', [Permission.Event]);
 
 
