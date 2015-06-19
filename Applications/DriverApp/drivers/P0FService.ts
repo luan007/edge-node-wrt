@@ -23,7 +23,7 @@ class P0FService implements IInAppDriver {
             aux: {},
             attributes: {
                 UserAgent: useragent,
-                assumption: dev.bus.data.P0F.assumption
+                Assumption: dev.bus.data.P0F.assumption
             },
             valid: true
         });

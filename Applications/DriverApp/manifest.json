@@ -39,11 +39,18 @@
     "P0F": {
       "Buses": ["WIFI"],
       "Interest": {
-        "all": true,
-        "stateChange": true,
-        "match": true,
-        "attach": true,
-        "change": true
+          "match": {
+            "bus": {
+              "data.P0F": { "$exists": true }
+            }
+          },
+          "change": {
+            "delta": {
+              "bus": {
+                "data.P0F": { "$exists": true }
+              }
+            }
+          }
       }
     }
   }
