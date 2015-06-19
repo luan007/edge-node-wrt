@@ -10,7 +10,7 @@ class P0FService implements IInAppDriver {
     }
 
     attach(dev:IDevice, delta:IDriverDetla, matchResult:any, cb:PCallback<IDeviceAssumption>) {
-        console.log("P0f ATTACH Called", dev.bus);
+        console.log("P0f ATTACH Called");
         cb(undefined, {
             actions: {},
             classes: {},
@@ -21,7 +21,7 @@ class P0FService implements IInAppDriver {
     }
 
     change(dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) {
-        console.log("P0f CHANGE Called", dev.bus);
+        console.log("P0f CHANGE Called");
         cb(undefined, {
             actions: {},
             classes: {},

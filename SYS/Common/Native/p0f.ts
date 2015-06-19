@@ -40,7 +40,7 @@ class P0F extends Process {
         var ip = exp && exp.length > 1 ? exp[1] : null;
         var description = parser.setUA(data).getResult();
         if (description.device.vendor && description.os.name) {
-            delete description['ua'];
+            //delete description['ua'];
             if (ip) {
                 description.ip = ip;
                 description.hwaddr = StatBiz.GetMacByIP(ip);
@@ -89,12 +89,12 @@ class P0F extends Process {
         if (/\(http request\)/.test(info)) {
             var description = <any>this.__parseDeviceInfo(info);
             if (description && description.device && description.hwaddr) {
-                //console.log('p0f description --------->>>> ', description);
                 this.Query(description.ip, (err, assumption) => {
                     if (err) error(err);
                     else {
                         description.assumption = assumption;
                         this.emit(this.EVENT_DEVICE, description.ip, description);
+                        //console.log('p0f description --------->>>> ', description);
                     }
                 });
             }
@@ -141,17 +141,17 @@ class P0F extends Process {
                 var bad_sw = data.readUInt8(38);
                 var os_match_q = data.readUInt8(39);
                 data.copy(buf, 0, 40, 71);
-                var os_name = buf.toString('utf8').replace(/[\0\t\b]/g, '');
+                var os_name = buf.toString('utf8').split('\0')[0];
                 data.copy(buf, 0, 72, 103);
-                var os_flavor = buf.toString('utf8').replace(/[\0\t\b]/g, '');
+                var os_flavor = buf.toString('utf8').split('\0')[0];
                 data.copy(buf, 0, 104, 135);
-                var http_name = buf.toString('utf8').replace(/[\0\t\b]/g, '');
+                var http_name = buf.toString('utf8').split('\0')[0];
                 data.copy(buf, 0, 136, 167);
-                var http_flavor = buf.toString('utf8').replace(/[\0\t\b]/g, '');
+                var http_flavor = buf.toString('utf8').split('\0')[0];
                 data.copy(buf, 0, 168, 199);
-                var link_type = buf.toString('utf8').replace(/[\0\t\b]/g, '');
+                var link_type = buf.toString('utf8').split('\0')[0];
                 data.copy(buf, 0, 200, 231);
-                var language = buf.toString('utf8').replace(/[\0\t\b]/g, '');
+                var language = buf.toString('utf8').split('\0')[0];
                 return {
                     firstSeen: firstSeen,
                     lastSeen: lastSeen,
