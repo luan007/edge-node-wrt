@@ -43,8 +43,7 @@
         "node-ssdp": "*",
         "dbus-native": "*",
         "posix": "*",
-        "unzip": "*",
-        "ua-parser-js" : "*"
+        "unzip": "*"
     },
     "devDependencies": {
         "cli_debug": "*",

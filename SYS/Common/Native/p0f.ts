@@ -4,8 +4,6 @@ import child_process = require("child_process");
 import events = require("events");
 import Process = require("./Process");
 import StatBiz = require('../Stat/StatBiz');
-var UAParser = require('ua-parser-js');
-var parser = new UAParser.UAParser();
 
 class P0F extends Process {
     static P0F_NAME = "p0f";
@@ -38,14 +36,13 @@ class P0F extends Process {
     __parseDeviceInfo(data) {
         var exp = /client\s+= ([^\/]+)/gmi.exec(data);
         var ip = exp && exp.length > 1 ? exp[1] : null;
-        var description = parser.setUA(data).getResult();
-        if (description.device.vendor && description.os.name) {
-            //delete description['ua'];
-            if (ip) {
-                description.ip = ip;
-                description.hwaddr = StatBiz.GetMacByIP(ip);
-            }
-            return description;
+        if (ip) {
+            //console.log('=======<<< p0f ip: ', ip);
+            return {
+                ip: ip,
+                hwaddr: StatBiz.GetMacByIP(ip),
+                ua: data
+            };
         }
         return null;
     }
@@ -88,7 +85,7 @@ class P0F extends Process {
         var info = data.toString();
         if (/\(http request\)/.test(info)) {
             var description = <any>this.__parseDeviceInfo(info);
-            if (description && description.device && description.hwaddr) {
+            if (description && description.ip && description.hwaddr) {
                 this.Query(description.ip, (err, assumption) => {
                     if (err) error(err);
                     else {

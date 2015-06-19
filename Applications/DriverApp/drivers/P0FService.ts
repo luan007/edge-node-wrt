@@ -1,6 +1,6 @@
-//Resolve Device Name into DNS domains
-//Also generates generic "name" if there's nothing set
-//
+var UAParser = require('ua-parser-js');
+var parser = new UAParser.UAParser();
+
 class P0FService implements IInAppDriver {
 
     match(dev:IDevice, delta:IDriverDetla, cb:Callback) {
@@ -11,22 +11,20 @@ class P0FService implements IInAppDriver {
 
     attach(dev:IDevice, delta:IDriverDetla, matchResult:any, cb:PCallback<IDeviceAssumption>) {
         console.log("P0f ATTACH Called");
-        cb(undefined, {
-            actions: {},
-            classes: {},
-            aux: {},
-            attributes: { P0F: dev.bus.data.P0F } ,
-            valid: true
-        });
+        cb(undefined, {valid: true});
     }
 
     change(dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) {
+        var useragent = parser.setUA(dev.bus.data.P0F.ua).getResult();
         console.log("P0f CHANGE Called");
         cb(undefined, {
             actions: {},
             classes: {},
             aux: {},
-            attributes: { P0F: dev.bus.data.P0F } ,
+            attributes: {
+                UserAgent: useragent,
+                assumption: dev.bus.data.P0F.assumption
+            },
             valid: true
         });
     }
