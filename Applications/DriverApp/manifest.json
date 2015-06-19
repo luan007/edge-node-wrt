@@ -39,6 +39,7 @@
     "P0F": {
       "Buses": ["WIFI"],
       "Interest": {
+        "all": true,
         "stateChange": true,
         "match": true,
         "attach": true,

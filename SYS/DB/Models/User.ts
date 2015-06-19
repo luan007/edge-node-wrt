@@ -9,7 +9,8 @@ export class User {
 
     uid: string = "";
     name: string = "";
-    data: KVSet = {};
+    //data: KVSet = {};
+    data: string = "";
     lastSeen: Date = new Date();
 
 

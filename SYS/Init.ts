@@ -42,7 +42,7 @@ domain.run(function () {
         //, {path: './Device/Graphd/__Test'}
         //, {path: './Device/__Test'}
         //, {path: './APP/Resource/__Test'}
-        , {path: './APP/__Test'}
+        //, {path: './APP/__Test'}
         , {path: './Common/System/__Test'}
     ];
     var initializes = [];

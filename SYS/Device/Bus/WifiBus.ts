@@ -78,7 +78,7 @@ export function Subscribe(cb) {
     });
 
     subNetwork.p0f.on('set', (IP, oldValue, description) => {
-        //fatal('P0F device emerge', IP, description);
+        fatal('P0F device emerge', IP, description);
         _wifiBus.DeviceUp(description.hwaddr, {
             P0F: description
         });

@@ -6,19 +6,19 @@ import DriverManager = require("./DriverManager");
 import StatMgr = require('../Common/Stat/StatMgr');
 import events = require('events');
 
-var devices: IDic<IDevice> = {};
-var db_devices: IDic<deviceData> = {};
-var hwaddr_map: IDic<KVSet> = {}; // <Bus<HWAddr>>
-var device_updates: KVSet = {};
+var devices:IDic<IDevice> = {};
+var db_devices:IDic<deviceData> = {};
+var hwaddr_map:IDic<KVSet> = {}; // <Bus<HWAddr>>
+var device_updates:KVSet = {};
 
 export var Events = new events.EventEmitter();
 
 var not_saved = false;
 var loaded = false;
 
-function LoadFromDB(callback: Callback) {
+function LoadFromDB(callback:Callback) {
     trace("Resuming from DB");
-    deviceTable().all({}, (err, devs: deviceData[]) => {
+    deviceTable().all({}, (err, devs:deviceData[]) => {
         var total = 0;
         devices = {};
         if (devs) {
@@ -27,14 +27,14 @@ function LoadFromDB(callback: Callback) {
                 if (!devices[dev.uid] && dev.hwaddr) {
                     info(" + " + dev.uid.bold + " - " + dev.busname.cyan);
                     var d = <IDevice>{
-                        assumptions: dev.assumptions,
+                        assumptions: JSON.parse(dev.assumptions),
                         bus: {
-                            data: dev.busdata,
+                            data: JSON.parse(dev.busdata),
                             hwaddr: dev.hwaddr,
                             name: dev.busname
                         },
                         owner: dev.ownership,
-                        config: dev.config,
+                        config: JSON.parse(dev.config),
                         id: dev.uid,
                         //state: dev.state,
                         state: 0,
@@ -64,7 +64,7 @@ function LoadFromDB(callback: Callback) {
     });
 }
 
-function SaveToDB(callback: Callback) {
+function SaveToDB(callback:Callback) {
 
     //log("Saving to DB");
     var pass = 0;
@@ -84,13 +84,13 @@ function SaveToDB(callback: Callback) {
                 var devtmp = new deviceObj();
                 devtmp.hwaddr = dev.bus.hwaddr;
                 devtmp.time = dev.time;
-                devtmp.busdata = dev.bus.data;
+                devtmp.busdata = JSON.stringify(dev.bus.data);
                 devtmp.ownership = dev.owner;
                 devtmp.busname = dev.bus.name;
                 devtmp.state = dev.state;
-                devtmp.assumptions = dev.assumptions;
+                devtmp.assumptions = JSON.stringify(dev.assumptions);
                 devtmp.uid = dev.id;
-                devtmp.config = dev.config;
+                devtmp.config = JSON.stringify(dev.config);
                 (function (id, devtmp) { // closure
                     jobs.push((cb) => {
                         trace("CREATE DBENTRY " + id);
@@ -114,42 +114,42 @@ function SaveToDB(callback: Callback) {
                 } else {
                     (function (id) { // closure
                         jobs.push((cb) => {
-
                             var dbDev = db_devices[id];
                             var devInMemory = devices[id];
 
-                            dbDev.time = devInMemory.time;
-                            dbDev.hwaddr = devInMemory.bus.hwaddr;
-                            dbDev.ownership = devInMemory.owner;
-                            dbDev.time = devInMemory.time;
-                            dbDev.busdata = devInMemory.bus.data;
-                            dbDev.busname = devInMemory.bus.name;
-                            dbDev.state = devInMemory.state;
-                            //dbDev.assumptions = {
-                            //    attributes: { vendor: 'apple'}
-                            //};
-                            if(Object.keys(devInMemory.assumptions).length > 0)
-                                dbDev.assumptions = devInMemory.assumptions;
-                            dbDev.config = devInMemory.config;
-                            dbDev.save({}, (err) => {
-                                //console.log(id,  '] ^______________^  DBDEV.save()', err, dbDev.assumptions);
-                                if (!err) {
-                                    device_updates[id] = 0;
-                                    pass++;
-                                } else {
-                                    error(err, "FAIL TO UPDATE " + id);
-                                    fail++;
-                                }
-                                cb();
-                            });
+                            if (dbDev) {
+                                dbDev.time = devInMemory.time;
+                                dbDev.hwaddr = devInMemory.bus.hwaddr;
+                                dbDev.ownership = devInMemory.owner;
+                                dbDev.time = devInMemory.time;
+                                dbDev.busdata = JSON.stringify(devInMemory.bus.data);
+                                dbDev.busname = devInMemory.bus.name;
+                                dbDev.state = devInMemory.state;
+                                dbDev.assumptions = JSON.stringify(devInMemory.assumptions);
+                                dbDev.config = JSON.stringify(devInMemory.config);
+                                dbDev.save({}, (err) => {
+                                    //if (dbDev.hwaddr === '60:d9:c7:41:d4:71') {
+                                    //    console.log('5.1 before saving  <<< ==========', dbDev.assumptions);
+                                    //    deviceTable().get(id, (err, devInDB) => {
+                                    //        console.log('5.2 saved  <<< ==========', JSON.parse(devInDB.assumptions));
+                                    //    });
+                                    //}
+                                    if (!err) {
+                                        device_updates[id] = 0;
+                                        pass++;
+                                    } else {
+                                        error(err, "FAIL TO UPDATE " + id);
+                                        fail++;
+                                    }
+                                    cb();
+                                });
+                            }
                         });
                     })(id);
                 }
             }
         })(id);
     }
-
-    //fatal('] ^______________^  jobs.length', jobs.length);
 
     if (jobs.length == 0) {
         info((pass + "")["greenBG"].bold + " SAVE " + (skip + "")["cyanBG"].bold + " SKIP " + (fail + "")["redBG"].bold + " FAIL");
@@ -171,16 +171,22 @@ function _patrolThread() {
     }
 }
 
-function _OnDevice(bus: IBusData, state) {
+//function isP0F(bus) {
+//    return bus && bus.hwaddr && bus.hwaddr === '60:d9:c7:41:d4:71' && bus.data.P0F && Object.keys(bus.data.P0F).length > 0;
+//}
+
+function _OnDevice(bus:IBusData, state) {
     //check device status
 
     var stateChange = false;
     if (!hwaddr_map[bus.name]) hwaddr_map[bus.name] = {};
     var devId = hwaddr_map[bus.name][bus.hwaddr];
+    //if (isP0F(bus))
+    //    console.log('1. _onDevice <<< ==========', devId, bus.data.P0F);
     //TODO: Re-evaluate [prev]
     //var prev = undefined;
     var busDelta = {};
-    var dev: IDevice;
+    var dev:IDevice;
     if (devId && devices[devId]) {
         //trace("Change : " + devId);
         dev = devices[devId];
@@ -188,13 +194,19 @@ function _OnDevice(bus: IBusData, state) {
             dev.bus.data = {}; //corrupt data :[!!!!
         }
         //bug fixed
-        warn('bus data', bus.name ,bus.data);
+        warn('bus data', bus.name, bus.data);
         var change = delta_add_return_changes(dev.bus.data, JSON.parse(JSON.stringify(bus.data)), true);
         if (dev.state == 1 && Object.keys(change).length == 0) {
             warn(dev.bus + " - " + dev.bus.hwaddr + " OnDevice found no change, Skipped");
             return;
         }
-        busDelta = change;
+        //if (isP0F(bus))
+        //    console.log('2. _onDevice <<< ==========', dev.state, state, '\n dev.bus.data:', dev.bus.data, '\n change:', change);
+        busDelta = {
+            data: change,
+            hwaddr: bus.hwaddr,
+            name: bus.name
+        };
         //log(" Loading DB " + dev.uid.bold);
         if (dev.state == 0 && state) {
             stateChange = true;
@@ -229,12 +241,12 @@ function _OnDevice(bus: IBusData, state) {
     not_saved = true;
 }
 
-export function Config(dev: IDevice, conf: any) {
-    
+export function Config(dev:IDevice, conf:any) {
+
     var devId = hwaddr_map[dev.bus.name][dev.bus.hwaddr];
     //TODO: Re-evaluate [prev]
     //var prev = undefined;
-    var dev: IDevice;
+    var dev:IDevice;
     if (devId && devices[devId]) {
         //trace("Change : " + devId);
         dev = devices[devId];
@@ -248,7 +260,7 @@ export function Config(dev: IDevice, conf: any) {
             return;
         }
         //prev = JSON.parse(JSON.stringify(devices[devId]));
-        
+
         device_updates[devId] = 1;
         if (dev.state == 1) {
             DriverManager.DeviceChange(dev, undefined, undefined, undefined, dt, undefined);
@@ -262,33 +274,39 @@ export function Config(dev: IDevice, conf: any) {
 
 }
 
-function _ondriverchange(dev: IDevice, drv: IDriver, assump:IDeviceAssumption) {
+function _ondriverchange(dev:IDevice, drv:IDriver, assump:IDeviceAssumption) {
     device_updates[dev.id] = 1;
-    if(assump) {
-        if(!devices[dev.id].assumptions) devices[dev.id].assumptions = {};
-        devices[dev.id].assumptions[drv.id()] = assump;
+    if (assump) {
+        //if (assump.driverId === 'App_DriverApp:P0F') {
+        //    console.log('4.5  _ondriverchange  <<< ==========', assump);
+        //}
+        if (!devices[dev.id].assumptions) devices[dev.id].assumptions = {};
+        delta_add_return_changes(devices[dev.id].assumptions[drv.id()], assump, true);
+        //devices[dev.id].assumptions[drv.id()] = assump;
     }
     not_saved = true;
 }
 
-function _OnDrop(bus: IBusData) {
+function _OnDrop(bus:IBusData) {
 
     if (!hwaddr_map[bus.name]) hwaddr_map[bus.name] = {};
     var devId = hwaddr_map[bus.name][bus.hwaddr];
     if (devId) {
-        var dev: IDevice = devices[devId];
-        dev.state = 0;
-        dev.time = new Date();
+        var dev:IDevice = devices[devId];
+        if(dev) {
+            dev.state = 0;
+            dev.time = new Date();
 
-        var delta = delta_add_return_changes(dev.bus, bus, true);
-        var d = undefined;
-        if (Object.keys(delta).length !== 0) {
-            d = delta;
+            var delta = delta_add_return_changes(dev.bus, bus, true);
+            var d = undefined;
+            if (Object.keys(delta).length !== 0) {
+                d = delta;
+            }
+            DriverManager.DeviceDrop(dev, d);
+            not_saved = true;
+            __EMIT("Device.down", dev.id, dev);
+            Events.emit("down", dev.id, dev);
         }
-        DriverManager.DeviceDrop(dev, d);
-        not_saved = true;
-        __EMIT("Device.down", dev.id, dev);
-        Events.emit("down", dev.id, dev);
     } else {
         warn("DEVICE NOT FOUND");
     }
@@ -308,7 +326,7 @@ export function Initialize(cb) {
 }
 
 export function Diagnose(callback:Callback) {
-    if(!loaded) return callback(new Error('Device loading failed.'), false);
+    if (!loaded) return callback(new Error('Device loading failed.'), false);
     return callback(null, true);
 }
 
@@ -325,14 +343,14 @@ export function Get(id) {
     return devices[id];
 }
 
-export function FromBus(hwaddr, bus) : IDevice {
+export function FromBus(hwaddr, bus):IDevice {
     if (hwaddr_map[bus] && hwaddr_map[bus][hwaddr]) {
         return devices[hwaddr_map[bus][hwaddr]];
     }
     return undefined;
 }
 
-export function GetDevIdByHWAddr(mac): string {
+export function GetDevIdByHWAddr(mac):string {
     mac = ("" + mac).toLowerCase();
     for (var busName in hwaddr_map) {
         if (has(hwaddr_map[busName], mac)) {
@@ -353,12 +371,12 @@ export function OrbitSync(devId, cb) {
     }), cb);
 }
 
-export function List(ops: {
+export function List(ops:{
     state?: number;
     bus?: string | string[];
     owner?: string
 }) {
-    
+
     ops = ops || {};
 
     var bus = Object.keys(hwaddr_map); //default
@@ -367,7 +385,7 @@ export function List(ops: {
     if (ops.bus) {
         if (typeof bus === "string") {
             bus = <any>[ops.bus];
-        } else if(Array.isArray(ops.bus)) {
+        } else if (Array.isArray(ops.bus)) {
             bus = <any>ops.bus;
         }
     }
@@ -391,7 +409,7 @@ export function List(ops: {
 
 export function SetOwnership(devId, ownership) {
 
-    var dev: IDevice;
+    var dev:IDevice;
     if (devId && devices[devId]) {
         trace("Setting Ownership of : " + devId + " TO " + ownership);
         dev = devices[devId];

@@ -76,6 +76,11 @@ function _update_driver_data(drv:IDriver, dev:IDevice, assump:IDeviceAssumption,
     if (!drv || !drv.status() || !dev || !Drivers[drv.id()]) return;
     var real:IDeviceAssumption = <any>{};
     var changed = false;
+
+    //if (assump && assump.attributes && assump.attributes['P0F'] && assump.driverId === 'App_DriverApp:P0F') {
+    //    console.log('4.3 _update_driver_data  <<< ==========');
+    //}
+
     for (var i in assump) {
         switch (i) {
             case "aux":
@@ -135,7 +140,9 @@ function _update_driver_data(drv:IDriver, dev:IDevice, assump:IDeviceAssumption,
         delta = real;
     }
 
-    console.log(drv.name(), '] ^______________^  delta ', delta, Object.keys(delta).length);
+    //if (assump && assump.attributes && assump.attributes['P0F'] && assump.driverId === 'App_DriverApp:P0F') {
+    //    console.log(drv.name(), '4.4  _update_driver_data delta <<< ==========', delta, Object.keys(delta).length);
+    //}
 
     if (Object.keys(delta).length == 0) {
         return; //skipped
@@ -165,11 +172,25 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
         var drvId = driver.id();
         var version = dev.time.getTime();
         var myAssump = dev.assumptions[drvId];
+
+        //if (isP0F(deltaBus) && driver.name() === 'DriverApp - P0F') {
+        //    console.log('4.1 _notify_driver <<< ==========',
+        //        stateChange,
+        //        driver.status(),
+        //        dev.time.getTime() - version,
+        //        _sanity_check(version, dev, driver),
+        //        myAssump,
+        //        _is_interested_in(driver, dev, 1, tracker, delta, deltaBus, deltaConf, deltaOwn, stateChange));
+        //}
+
         if (!_sanity_check(version, dev, driver)) return; //WTF??
+
         try {
             if (myAssump && myAssump.valid && _is_interested_in(driver, dev, 1, tracker, delta, deltaBus, deltaConf, deltaOwn, stateChange)) {
-                if (driver.name() === 'OUI')
-                    fatal("Change -> "['greenBG'].bold, driver.name());
+
+                //if (isP0F(deltaBus) && driver.name() === 'DriverApp - P0F') {
+                //    console.log('4.2 _notify_driver change <<< ==========', stateChange);
+                //}
                 //need change
                 driver.change(dev, {
                     assumption: delta,
@@ -181,9 +202,11 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
                     _update_driver_data(driver, dev, assump, tracker);
                 }));
             } else if (!(myAssump && myAssump.valid) && _is_interested_in(driver, dev, 0, tracker, delta, deltaBus, deltaConf, deltaOwn, stateChange)) {
-                if (driver.name() === 'OUI')
-                    fatal("Match -> "['greenBG'].bold, driver.name(), delta);
-                //console.log(' ^______________^  else if !(myAssump)', driver.name());
+
+                //if (isP0F(deltaBus) && driver.name() === 'DriverApp - P0F') {
+                //    console.log('4.2 _notify_driver match <<< ==========', stateChange);
+                //}
+
                 //need match/attach
                 //TODO: Verify EmitterizeCB's impact/influence on GC, to see if it solves the 'ghost CB' prob
                 driver.match(dev, {
@@ -197,8 +220,8 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
                     if (!data || !_sanity_check(version, dev, driver, err)) return;
                     try {
                         //console.log(' ^______________^  try Attach ->', driver.name());
-                        if (driver.name() === 'OUI')
-                            fatal("Attach -> " + driver.name());
+                        //if (driver.name() === 'OUI')
+                        //    fatal("Attach -> " + driver.name());
                         driver.attach(dev, {
                             assumption: delta,
                             bus: deltaBus,
@@ -283,10 +306,12 @@ function _is_interested_in(drv:IDriver, dev:IDevice, currentStage, tracker:_trac
     }
     //match delta first
     //cuz delta costs less
-    if (dev.bus.hwaddr === '60:d9:c7:41:d4:71' && drv.name() === 'OUI')
-        fatal("_is_interested_in -> return 1. "['cyanBG'].bold, dev.bus.hwaddr);
     return 1;
 }
+
+//function isP0F(busDelta) {
+//    return busDelta && busDelta.hwaddr && busDelta.hwaddr === '60:d9:c7:41:d4:71' && busDelta.data.P0F && Object.keys(busDelta.data.P0F).length > 0;
+//}
 
 export function DeviceChange(dev:IDevice, tracker:_tracker, assump:IDeviceAssumption, busDelta:IBusData, config:KVSet, ownership, stateChange?) {
 
@@ -318,6 +343,10 @@ export function DeviceChange(dev:IDevice, tracker:_tracker, assump:IDeviceAssump
     if (tracker.depth > CONF.MAX_DRIVERCHAIN_DEPTH) {
         warn("Max DriverChain Exceeded (" + tracker.depth + ") ! ROOT_CAUSE:" + tracker.root);
     }
+
+    //if (isP0F(busDelta)) {
+    //    console.log('3. DeviceChange <<< ==========', stateChange, busDelta.data.P0F);
+    //}
 
     //trace(Drivers);
     /* UNLEASHHH DA POWER OF..  */

@@ -78,7 +78,7 @@ function LoadModels(callback: (err, db) => any) {
         }
     }
 
-    trace("SYNCING"["cyanBG"].bold);
+    console.log("SYNCING"["cyanBG"].bold);
     Database.sync((err) => {
         if (err) {
             lastError = err;

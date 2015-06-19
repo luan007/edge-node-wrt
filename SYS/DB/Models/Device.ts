@@ -7,13 +7,16 @@ export var Table: orm.Typed.TypedModel<IDevice> = undefined; //YOU HAVE TO SET T
 export class Device {
 
     uid: string = "";
-    assumptions: IDic<IDeviceAssumption> = {};
+    //assumptions: IDic<IDeviceAssumption> = {};
+    assumptions: string = "";
     hwaddr: string = "";
     busname: string = "";
-    busdata: KVSet = {};
+    //busdata: KVSet = {};
+    busdata: string = "";
     state: number = 0;
     time: Date = new Date();
-    config: KVSet = {};
+    //config: KVSet = {};
+    config: string = "";
     ownership: string = "";
     static table(): orm.Typed.TypedModel<IDevice> {
         if (!Table) {

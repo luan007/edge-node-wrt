@@ -15,7 +15,8 @@ export class Ticket {
     device_uid: string = "";
     owner_uid: string = "";
     owner: user.IUser;
-    attributes: KVSet = {};
+    //attributes: KVSet = {};
+    attributes: string = "";
     accessTime: Date = new Date();
 
     static table(): orm.Typed.TypedModel<ITicket> {
