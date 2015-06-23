@@ -39,8 +39,8 @@ domain.run(function () {
         , {path: './User/TokenManager'}
         , {path: './Device/UserAgentManager'}
         //, {path: './Router/Network/Firewall/__Test'}
-        //, {path: './Device/Graphd/__Test'}
-        //, {path: './Device/__Test'}
+        , {path: './Device/Graphd/__Test'}
+        , {path: './Device/__Test'}
         //, {path: './APP/Resource/__Test'}
         //, {path: './APP/__Test'}
         , {path: './Common/System/__Test'}

@@ -18,8 +18,46 @@
     "desc": "",
     "owner": "generic"
   },
+  "cpu": {
+    "tag": [
+      "cpu",
+      "processor"
+    ],
+    "desc": "",
+    "owner": "generic"
+  },
+  "memory": {
+    "tag": [
+      "memory",
+      "ram"
+    ],
+    "desc": "",
+    "owner": "generic"
+  },
+  "os": {
+    "tag": [
+      "os",
+      "system"
+    ],
+    "desc": "operation system"
+  },
+  "os.version": {
+    "tag": [
+      "os",
+      "system"
+    ],
+    "desc": ""
+  },
+  "model": {
+    "tag": [
+      "model"
+    ],
+    "desc": ""
+  },
   "dummyAttr": {
-    "tag": ["dummy"],
+    "tag": [
+      "dummy"
+    ],
     "desc": "no desc available",
     "owner": "dummy"
   }

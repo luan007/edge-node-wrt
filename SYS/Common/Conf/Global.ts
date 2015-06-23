@@ -123,6 +123,13 @@ class _sys_global_conf {
     //token
     TOKEN_PATROL_INTERVAL = 0.5 * 60 * 1000;
     TOKEN_EXPIRE_SECONDS = 2 * 1000;
+
+    //ping domains
+    PING_CHECK_INTERVAL = 5 * 1000;     // ping check interval
+    PING_CHECK_WAIT_SECONDS = 3;        // ping check timeout (in seconds)
+    PING_CHECK_DOMAINS =
+        ["www.baidu.com", "www.qq.com", "www.weibo.com", "www.taobao.com", "www.jd.com"];
+
 }
 
 class _global_section {
@@ -138,6 +145,7 @@ class _global_section {
     RUNTIME = 'RUNTIME';
     APP = "APP";
     PKG = "PKG";
+    PING = "PING";
 }
 
 var CONF = new _sys_global_conf();

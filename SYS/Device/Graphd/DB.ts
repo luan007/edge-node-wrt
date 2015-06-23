@@ -20,7 +20,7 @@ var levelQuery :any = require('level-queryengine'),
 var DB;
 
 function init(cb: PCallback<any>) {
-    fatal('===> CONF.GRAPHD_LOCATION', CONF.GRAPHD_LOCATION);
+    console.log('===> CONF.GRAPHD_LOCATION'['greenBG'].bold, CONF.GRAPHD_LOCATION);
     var rawDb = levelup(CONF.GRAPHD_LOCATION, { valueEncoding: "json" });
     var db = levelQuery(rawDb);
     db.query.use(jsonqueryEngine());

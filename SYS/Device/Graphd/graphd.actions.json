@@ -3,5 +3,20 @@
     "tag": ["dummy"],
     "desc": "no desc available",
     "owner": "dummy"
+  },
+  "print": {
+    "tag": ["print"],
+    "desc": "print action",
+    "owner": "printer"
+  },
+  "play": {
+    "tag": ["play"],
+    "desc": "play action",
+    "owner": "speaker"
+  },
+  "shoot": {
+    "tag": ["shoot"],
+    "desc": "shoot action",
+    "owner": "camera"
   }
 }

@@ -10,7 +10,7 @@ function fakeDevice(mac, assumptions, cb) {
     DeviceManager.Events.on('up', (id, dev)=> {
         if (dev.bus.hwaddr === mac) {
             DeviceManager.Devices()[id].assumptions[id] = assumptions; //mock
-            console.log('fake device UP', DeviceManager.Devices()[id]);
+            //console.log('fake device UP', DeviceManager.Devices()[id]);
             cb();
         }
     });
@@ -18,12 +18,13 @@ function fakeDevice(mac, assumptions, cb) {
     var fakeDevice = new Bus('FAKE');
     fakeDevice.DeviceUp(mac, {
         Addr: mac,
-        Band: 'FAKE'
+        Band: 'FAKE',
+        Alias: 'Galaxy S5'
     });
 }
 
 export function Initialize(cb) {
-    fatal('============>>> device: CML testing...');
+    console.log('============>>> device: CML testing...'['greenBG'].bold);
 
     async.series([
         (cb) => {
@@ -69,7 +70,7 @@ export function Initialize(cb) {
             ]
         }, (err, result) => {
             if (err) error('CML error...', err);
-            else fatal('CML results', result);
+            else console.log('CML results'['greenBG'].bold, result);
         });
     });
 

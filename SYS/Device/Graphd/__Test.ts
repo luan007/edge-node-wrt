@@ -5,7 +5,7 @@ import StatMgr = require('../../Common/Stat/StatMgr');
 import DB = require('./DB');
 
 export function Initialize(cb) {
-    fatal('============>>> device: Graphd testing...');
+    console.log('============>>> device: Graphd testing...'['greenBG'].bold);
 
     DB.RebuildDeltaV(()=> {
         var $query = {
@@ -18,8 +18,7 @@ export function Initialize(cb) {
         };
         DB.Find($query, (err, des) => {
             if (err) error(err);
-            else fatal('============>>> device: Graphd result:', des);
-
+            else console.log('============>>> device: Graphd result:'['greenBG'].bold, des);
             cb();
         });
 

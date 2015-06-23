@@ -3,7 +3,7 @@ import path = require('path');
 
 export function Rebuild(cb: Callback) {
 
-    warn("Rebuilding deltaV database");
+    console.log("Rebuilding graphd deltaV database"['greenBG'].bold);
 
     //if (!fs.existsSync(path.join(CONF.GRAPHD_UPGRADE_LOCATION, "graphd.0.json"))) {
     //    return cb(new Error("graphd datafile not found"));
@@ -99,7 +99,12 @@ export function Rebuild(cb: Callback) {
                     process.nextTick(() => { //DO NOT BLOCK !
                         json[type][id].type = Number(type);
                         json[type][id].id = id; //redundancy
-                        levelmark(json[type][id]); //calculate level
+                        try {
+                            levelmark(json[type][id]); //calculate level
+                        }catch(e) {
+                            error('error'['greenBG'].bold, e, 'type:', type, 'id:', id);
+                            throw e;
+                        }
                         ws.write(<any>{
                             key: id,
                             value: json[type][id]
