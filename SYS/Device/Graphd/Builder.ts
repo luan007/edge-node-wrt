@@ -5,16 +5,30 @@ export function Rebuild(cb: Callback) {
 
     warn("Rebuilding deltaV database");
 
-    if (!fs.existsSync(path.join(CONF.GRAPHD_UPGRADE_LOCATION, "graphd.0.json"))) {
-        return cb(new Error("graphd datafile not found"));
+    //if (!fs.existsSync(path.join(CONF.GRAPHD_UPGRADE_LOCATION, "graphd.0.json"))) {
+    //    return cb(new Error("graphd datafile not found"));
+    //}
+    if(!fs.existsSync(CONF.GRAPHD_CLASSES_LOCATION)) {
+        return cb(new Error("graphd classes datafile not found"));
+    }
+    if(!fs.existsSync(CONF.GRAPHD_ATTRIBUTES_LOCATION)) {
+        return cb(new Error("graphd attributes datafile not found"));
+    }
+    if(!fs.existsSync(CONF.GRAPHD_ACTIONS_LOCATION)) {
+        return cb(new Error("graphd actions datafile not found"));
     }
 
     //TODO: perform File Sig check
     warn("Add RSA Check @ GraphD Builder");
 
-    var json;
+    var json = {};
     try {
-        json = require(path.join(CONF.GRAPHD_UPGRADE_LOCATION, "graphd.0.json"));
+        var classes = require(CONF.GRAPHD_CLASSES_LOCATION);
+        var attributes = require(CONF.GRAPHD_ATTRIBUTES_LOCATION);
+        var actions = require(CONF.GRAPHD_ACTIONS_LOCATION);
+        json['0'] = classes;
+        json['1'] = attributes;
+        json['2'] = actions;
     } catch (e) {
         return cb(e);
     }

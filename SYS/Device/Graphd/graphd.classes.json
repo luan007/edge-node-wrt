@@ -1,0 +1,30 @@
+{
+  "generic": {
+    "tag": [
+      "generic",
+      "any",
+      "all",
+      "default",
+      "unknown"
+    ],
+    "desc": "Represents a generic device",
+    "icon": 1
+  },
+  "compound": {
+    "tag": ["compound"],
+    "desc": "Represents a compound device",
+    "icon": 1
+  },
+  "dummy": {
+    "tag": ["dummy"],
+    "desc": "no desc available",
+    "icon": 0,
+    "owner": "generic"
+  },
+  "printer": {
+    "tag": ["printer"],
+    "desc": "Represents a printer",
+    "icon": 0,
+    "owner": "generic"
+  }
+}

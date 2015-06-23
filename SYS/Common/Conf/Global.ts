@@ -31,6 +31,9 @@ class _sys_global_conf {
     MAIN_SQL_PATH = <any>'/var/main.db';
     GRAPHD_LOCATION = path.join(this.BASE_PATH, "Device/Graphd/deltaV");
     GRAPHD_UPGRADE_LOCATION = path.join(this.BASE_PATH, "Device/Graphd");
+    GRAPHD_CLASSES_LOCATION = path.join(this.GRAPHD_UPGRADE_LOCATION, "graphd.classes.json");
+    GRAPHD_ATTRIBUTES_LOCATION = path.join(this.GRAPHD_UPGRADE_LOCATION, "graphd.attributes.json");
+    GRAPHD_ACTIONS_LOCATION = path.join(this.GRAPHD_UPGRADE_LOCATION, "graphd.actions.json");
     MAIN_REGISTRY_PATH = path.join(this.DATA_DIR, "reg");
     APP_TRUST_LIFE = 5;
     APP_SPAN_SCALER = 2.6; // Max = 10 ^ 1.5 = 316sec

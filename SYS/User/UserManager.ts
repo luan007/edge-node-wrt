@@ -54,7 +54,7 @@ export function UserAppear(userid:string,
             var _u = new User();
             _u.name = u.name;
             _u.uid = u.uid;
-            _u.data = u.data;
+            _u.data = JSON.stringify(u.data);
             User.table().create(_u, (err, usr) => {
                 if (err) {
                     return callback(err, null);
