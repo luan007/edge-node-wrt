@@ -20,7 +20,7 @@
         "change": {
           "delta": {
             "bus": {
-              "Lease": {"$exists": true}
+              "data.Lease": {"$exists": true}
             }
           },
           "stateChange": true

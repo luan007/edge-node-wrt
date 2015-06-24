@@ -81,8 +81,9 @@ function _assumption_check(delta:IDeviceAssumption, callback:Callback) {
                 if(err) return cb(err);
                 else {
                     for (var klass in delta.classes) { // key only
-                        if(!classes.hasOwnProperty[klass])
+                        if(!classes.hasOwnProperty(klass)) {
                             return cb(new Error('Illegal class assumption: ' + klass));
+                        }
                     }
                     return cb();
                 }
@@ -93,7 +94,7 @@ function _assumption_check(delta:IDeviceAssumption, callback:Callback) {
                 if(err) return cb(err);
                 else {
                     for (var action in delta.actions) { // key only
-                        if(!actions.hasOwnProperty[action])
+                        if(!actions.hasOwnProperty(action))
                             return cb(new Error('Illegal action assumption: ' + action));
                     }
                     return cb();
@@ -138,7 +139,7 @@ function _update_driver_data(drv:IDriver, dev:IDevice, assump:IDeviceAssumption,
                 }
                 break;
             case "classes":
-                if (_.isArray(assump.classes)) {
+                if (_.isObject(assump.classes) && !_.isArray(assump.classes)) {
                     real.classes = assump.classes;
                     changed = true;
                 }

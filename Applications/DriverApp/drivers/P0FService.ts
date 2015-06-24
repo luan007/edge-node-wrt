@@ -38,8 +38,18 @@ class P0FService implements IInAppDriver {
             if(useragent.browser['name']) assumption.attributes['browser'] = useragent.browser['name'];
             if(useragent.browser['version']) assumption.attributes['browser.version'] = useragent.browser['version'];
         }
+        if(useragent.cpu) {
+            if(useragent.cpu['architecture']) assumption.attributes['cpu'] = useragent.cpu['architecture'];
+        }
         if(queried && queried.language) {
             assumption.attributes['os.language'] = queried.language;
+        }
+        if(Object.keys(assumption.classes).length === 0) {
+            if(/Mac OS/gmi.test(useragent.os['name'])){
+                assumption.classes['pc'] = '';
+                if(!assumption.attributes['vendor']) assumption.attributes['vendor'] = 'Apple';
+                if(!assumption.attributes['model']) assumption.attributes['model'] = 'Mac';
+            }
         }
         cb(undefined, assumption);
     }

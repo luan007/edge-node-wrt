@@ -26,6 +26,11 @@
     "morgan": "*",
     "serve-static": "*",
     "serve-favicon": "*",
-    "body-parser": "*"
+    "body-parser": "*",
+    "levelup": "*",
+    "leveldown": "*",
+    "level-subkey":  "*",
+    "level-queryengine": "*",
+    "jsonquery-engine": "*"
   }
 }

@@ -28,12 +28,8 @@ class NameService implements IInAppDriver {
 
     private _update_name = (dev:IDevice, _cb) => {
         _cb = _cb || (() => {
-        });
+            });
         intoQueue("dhcp_operation", (cb) => {
-            //delete this._name_cache[0][dev.id];
-            //delete this._name_cache[1][dev.id];
-            //delete this._name_cache[2][dev.id];
-
             var lease = dev.bus.data.Lease;
             var host = lease.Hostname.trim();
             var ip = lease.Address;
@@ -46,22 +42,7 @@ class NameService implements IInAppDriver {
                 return cb();
             }
 
-            //if (host == "Windows-Phone") {
-            //    alias = ["HELLOWORLD"]; //test
-            //    trace("Found Test Subject");
-            //}
-
-            //if (host && host != "" && host.indexOf("*") < 0) {
-            //    //good
-            //    jobs.push((cb) => {
-            //        this.find_good_spot(host,(spot) => {
-            //            this._name_cache[0][dev.id] = { spot: ip };
-            //            cb();
-            //        });
-            //    });
-            //}
             var changed = false;
-
 
             var h = {};
             h[host] = ip;
@@ -124,7 +105,7 @@ class NameService implements IInAppDriver {
 
     private _remove_name = (dev:IDevice, cb) => {
         cb = cb || (() => {
-        });
+            });
         intoQueue("dhcp_operation", (c) => {
             delete this._name_cache[0][dev.id];
             delete this._name_cache[1][dev.id];
@@ -159,7 +140,7 @@ class NameService implements IInAppDriver {
     }
 
     change = (dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) => {
-        //console.log('========= ((( ', dev.state, dev.bus.data);
+        console.log('NameService CHANGE Called.');
         if (!dev.bus.data.Lease || dev.state < 1) {
             this._remove_name(dev, () => {
             });
@@ -168,7 +149,14 @@ class NameService implements IInAppDriver {
                 //do nothing
             });
         }
-        return cb(undefined, {valid: true});
+        var assumption:IDeviceAssumption = { valid: true };
+        var lease = dev.bus.data.Lease;
+        var hostname = lease.Hostname.trim();
+        if (hostname) {
+            assumption.attributes = {};
+            assumption.attributes['name'] = hostname;
+        }
+        return cb(undefined, assumption);
     }
 
     detach = (dev:IDevice, delta, cb:PCallback<IDeviceAssumption>) => {
