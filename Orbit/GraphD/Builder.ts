@@ -19,7 +19,7 @@ export function Rebuild(cb: Callback) {
     }
 
     //TODO: perform File Sig check
-    warn("Add RSA Check @ GraphD Builder");
+    console.log("Add RSA Check @ GraphD Builder");
 
     var json = {};
     try {
@@ -56,7 +56,7 @@ export function Rebuild(cb: Callback) {
         var ws = db.createWriteStream();
 
         ws.on("close", () => {
-            info("Done writing");
+            console.log("Done writing");
             cb();
         });
         ws.on("error", (err, result) => {

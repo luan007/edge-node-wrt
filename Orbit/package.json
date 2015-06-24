@@ -27,6 +27,7 @@
     "serve-static": "*",
     "serve-favicon": "*",
     "body-parser": "*",
+    "colors": "*",
     "levelup": "*",
     "leveldown": "*",
     "level-subkey":  "*",
