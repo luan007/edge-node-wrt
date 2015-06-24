@@ -20,9 +20,10 @@ class P0FService implements IInAppDriver {
         cb(undefined, {
             actions: {},
             classes: {},
-            aux: {},
+            aux: {
+                UserAgent: useragent
+            },
             attributes: {
-                UserAgent: useragent,
                 Assumption: dev.bus.data.P0F.assumption
             },
             valid: true

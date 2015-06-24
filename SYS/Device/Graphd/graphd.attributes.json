@@ -54,6 +54,13 @@
     ],
     "desc": ""
   },
+  "laser_printer": {
+    "tag": [
+      "laser"
+    ],
+    "desc": "",
+    "datatype": "boolean"
+  },
   "dummyAttr": {
     "tag": [
       "dummy"

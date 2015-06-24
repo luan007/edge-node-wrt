@@ -207,7 +207,7 @@ function _check(target_dir, api_salt, sig, cb) {
         return cb(undefined, true);
     }
     try {
-        var salt = new Buffer(api_salt, "hex");
+        var salt = <any>new Buffer(api_salt, "hex");
         var hash = HashDir(target_dir, salt);
         var snapshot = salt.toString("hex") + hash.toString("hex");
         //fatal('[[[ ========= snapshot [[[ ', snapshot);
@@ -383,7 +383,7 @@ export function Initialize(cb) {
         trace("Clearing Runtime-User Cache");
         User.ClearGenerated((err, result) => {
             if (err) {
-                return error("Oops, " + err);
+                return error("Oops, Clearing Runtime-User Cache Error: " + err);
             }
 
             //AUTO LOAD INSTALLED APPS

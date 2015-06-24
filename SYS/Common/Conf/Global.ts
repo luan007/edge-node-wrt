@@ -125,7 +125,7 @@ class _sys_global_conf {
     TOKEN_EXPIRE_SECONDS = 2 * 1000;
 
     //ping domains
-    PING_CHECK_INTERVAL = 5 * 1000;     // ping check interval
+    PING_CHECK_INTERVAL = 10 * 1000;     // ping check interval
     PING_CHECK_WAIT_SECONDS = 3;        // ping check timeout (in seconds)
     PING_CHECK_DOMAINS =
         ["www.baidu.com", "www.qq.com", "www.weibo.com", "www.taobao.com", "www.jd.com"];

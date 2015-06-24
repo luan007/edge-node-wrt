@@ -23,7 +23,7 @@ function LoadFromDB(callback:Callback) {
         devices = {};
         if (devs) {
             for (var i = 0; i < devs.length; i++) {
-                var dev = devs[i];
+                var dev = <any>devs[i];
                 if (!devices[dev.uid] && dev.hwaddr) {
                     info(" + " + dev.uid.bold + " - " + dev.busname.cyan);
                     var d = <IDevice>{

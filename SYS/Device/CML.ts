@@ -300,7 +300,7 @@ function chain(qualifier, negate, obj, query, cb) {
 //Le Loop
 export function Query(query: MatchQuery, callback) {
     var devs = DeviceManager.Devices();
-    console.log('Query devices'['greenBG'].bold);
+    //console.log('Query devices'['greenBG'].bold);
     //for(var k in devs) {
     //    console.log(devs[k].bus.data);
     //}

@@ -1,5 +1,6 @@
 ﻿/*TODO: This is so broken, total destruction IS needed*/
 import DeviceManager = require('./DeviceManager');
+import DB = require('./Graphd/DB');
 import events = require('events');
 
 var Drivers:IDic<IDriver> = {};
@@ -72,14 +73,57 @@ function _sanity_check(ver, dev:IDevice, drv:IDriver, err = false) {
     return drv.status() && dev.time.getTime() - ver == 0 && !err;
 }
 
+function _assumption_check(delta:IDeviceAssumption, callback:Callback) {
+    if (delta) {
+        var jobs = [];
+        jobs.push((cb)=> { // check for class
+            DB.QueryType(0, (err, classes)=> {
+                if(err) return cb(err);
+                else {
+                    for (var klass in delta.classes) { // key only
+                        if(!classes.hasOwnProperty[klass])
+                            return cb(new Error('Illegal class assumption: ' + klass));
+                    }
+                    return cb();
+                } 
+            });
+        });
+        jobs.push((cb)=> { // check for action
+            DB.QueryType(2, (err, actions)=> {
+                if(err) return cb(err);
+                else {
+                    for (var action in delta.actions) { // key only
+                        if(!actions.hasOwnProperty[action])
+                            return cb(new Error('Illegal action assumption: ' + action));
+                    }
+                    return cb();
+                }
+            });
+        });
+        jobs.push((cb)=> { // check for attribute
+            DB.QueryType(1, (err, attributes)=> {
+                if(err) return cb(err);
+                else {
+                    for (var attr in delta.attributes) { // verify k & v both
+                        if(!attributes.hasOwnProperty[attr])
+                            return cb(new Error('Illegal attribute assumption: ' + attr));
+                        else if(attributes[attr].datatype && attributes[attr].datatype != typeof delta.attributes[attr])
+                            return cb(new Error('wrong attribute data type: ' + attr));
+                    }
+                    return cb();
+                }
+            });
+        });
+        async.series(jobs, callback);
+    } else {
+        return callback(new Error('corrupted assumption :(')); // will not be happen
+    }
+}
+
 function _update_driver_data(drv:IDriver, dev:IDevice, assump:IDeviceAssumption, tracker:_tracker) {
     if (!drv || !drv.status() || !dev || !Drivers[drv.id()]) return;
     var real:IDeviceAssumption = <any>{};
     var changed = false;
-
-    //if (assump && assump.attributes && assump.attributes['P0F'] && assump.driverId === 'App_DriverApp:P0F') {
-    //    console.log('4.3 _update_driver_data  <<< ==========');
-    //}
 
     for (var i in assump) {
         switch (i) {
@@ -140,23 +184,25 @@ function _update_driver_data(drv:IDriver, dev:IDevice, assump:IDeviceAssumption,
         delta = real;
     }
 
-    //if (assump && assump.attributes && assump.attributes['P0F'] && assump.driverId === 'App_DriverApp:P0F') {
-    //    console.log(drv.name(), '4.4  _update_driver_data delta <<< ==========', delta, Object.keys(delta).length);
-    //}
+    _assumption_check(delta, (err) => {
+        if (err) {
+            return fatal(err);
+        } else {
+            if (Object.keys(delta).length == 0) {
+                return; //skipped
+            }
 
-    if (Object.keys(delta).length == 0) {
-        return; //skipped
-    }
+            Events.emit("change", dev, drv, delta);
 
-    Events.emit("change", dev, drv, delta);
-
-    var ntracker = {
-        depth: tracker.depth + 1,
-        parent: real.driverId,
-        root: tracker.root
-    };
-    process.nextTick(() => {
-        DeviceChange(dev, ntracker, delta, undefined, undefined, undefined);
+            var ntracker = {
+                depth: tracker.depth + 1,
+                parent: real.driverId,
+                root: tracker.root
+            };
+            process.nextTick(() => {
+                DeviceChange(dev, ntracker, delta, undefined, undefined, undefined);
+            });
+        }
     });
 }
 

@@ -21,16 +21,16 @@
 ///<reference path="msgpack.d.ts"/>
 ///<reference path="should.d.ts"/>
 
-interface Callback{
+interface Callback {
     (err?, result?): any;
 }
 
-interface PCallback<R>{
-    (err, result?: R): any;
+interface PCallback<R> {
+    (err, result?:R): any;
 }
 
 interface ExecCallback {
-    (err, result: { out: string; err: string; }): any;
+    (err, result:{ out: string; err: string; }): any;
 }
 
 interface IDic<T> {
@@ -41,7 +41,7 @@ interface KVSet {
     [key: string]: any;
 }
 
-interface Object{
+interface Object {
     toString(arg?) : string;
 }
 
@@ -122,25 +122,25 @@ interface IDriver extends IInAppDriver {
 
 
 interface IInAppDriver {
-    match(dev: IDevice, delta: IDriverDetla , cb: Callback);
+    match(dev:IDevice, delta:IDriverDetla, cb:Callback);
 
-    attach(dev: IDevice, delta: IDriverDetla, matchResult: any, cb: PCallback<IDeviceAssumption>);
+    attach(dev:IDevice, delta:IDriverDetla, matchResult:any, cb:PCallback<IDeviceAssumption>);
 
     //TODO: Evaluate if we need "prev" state
-    change(dev: IDevice, delta: IDriverDetla, cb: PCallback<IDeviceAssumption>);
+    change(dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>);
 
-    detach(dev: IDevice, delta: IDriverDetla, cb: PCallback<IDeviceAssumption>);
+    detach(dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>);
 
-    load(cb: Callback);
-    unload(cb: Callback);
+    load(cb:Callback);
+    unload(cb:Callback);
 
-    invoke(dev: IDevice, actionId, params, cb);
+    invoke(dev:IDevice, actionId, params, cb);
 }
 
 interface IBus extends NodeJS.EventEmitter {
     name: () => string;
-    start: (cb: Callback) => any;
-    stop: (cb: Callback) => any;
+    start: (cb:Callback) => any;
+    stop: (cb:Callback) => any;
 }
 
 interface IAction {
@@ -164,4 +164,5 @@ interface IDescriptor {
     type: number; //reserved
     owner?: string; //optional?
     level: number;
+    datatype?:string;
 }

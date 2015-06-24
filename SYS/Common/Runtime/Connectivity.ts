@@ -54,7 +54,7 @@ function _fetchHEAD(domain:string, cb:Callback) {
 }
 
 
-function ping(pingCallback:Callback) {
+function probe(pingCallback:Callback) {
     var jobs = [];
     for (var i = 0, len = CONF.PING_CHECK_DOMAINS.length; i < len; i++) {
         ((_i) => {
@@ -94,7 +94,7 @@ function ping(pingCallback:Callback) {
 
 function _patrolThread() {
     console.log("Starting PingService Patrol Thread - " + (CONF.PING_CHECK_INTERVAL + "").bold["cyanBG"]);
-    ping((err, results) => {
+    probe((err, results) => {
         if(err) error('PingService patrol error', err);
         else {
             for(var domain in results) {

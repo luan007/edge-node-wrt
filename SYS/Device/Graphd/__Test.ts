@@ -7,6 +7,15 @@ import DB = require('./DB');
 export function Initialize(cb) {
     console.log('============>>> device: Graphd testing...'['greenBG'].bold);
 
+    //DB.RebuildDeltaV(()=> {
+    //    var $type = 1;
+    //    DB.QueryType($type, (err, res)=> {
+    //        if (err) error(err);
+    //        else console.log('============>>> device: Query By Type:'['greenBG'].bold, $type, res);
+    //    });
+    //    cb();
+    //});
+
     DB.RebuildDeltaV(()=> {
         var $query = {
             $and: [
