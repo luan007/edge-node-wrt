@@ -12,10 +12,7 @@ class OUI_Identifier implements IInAppDriver {
             cb(undefined, {
                 actions: {},
                 attributes: {
-                    vendor: {
-                        name: result,
-                        icon: ""
-                    }
+                    vendor: result
                 },
                 classes: {},
                 aux: {},

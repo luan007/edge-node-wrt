@@ -16,18 +16,32 @@ class P0FService implements IInAppDriver {
 
     change(dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) {
         var useragent = parser.setUA(dev.bus.data.P0F.ua).getResult();
+        var queried = dev.bus.data.P0F.assumption;
         console.log("P0f CHANGE Called");
-        cb(undefined, {
-            actions: {},
+        var assumption:IDeviceAssumption = {
             classes: {},
-            aux: {
-                UserAgent: useragent
-            },
-            attributes: {
-                Assumption: dev.bus.data.P0F.assumption
-            },
+            actions: {},
+            aux: { UserAgent: useragent.ua },
+            attributes: {},
             valid: true
-        });
+        };
+        if(useragent.device) {
+            if(useragent.device['type']) assumption.classes[useragent.device['type']] = '';
+            if(useragent.device['model']) assumption.attributes['model'] = useragent.device['model'];
+            if(useragent.device['vendor']) assumption.attributes['vendor'] = useragent.device['vendor'];
+        }
+        if(useragent.os) {
+            if(useragent.os['name']) assumption.attributes['os'] = useragent.os['name'];
+            if(useragent.os['version']) assumption.attributes['os.version'] = useragent.os['version'];
+        }
+        if(useragent.browser) {
+            if(useragent.browser['name']) assumption.attributes['browser'] = useragent.browser['name'];
+            if(useragent.browser['version']) assumption.attributes['browser.version'] = useragent.browser['version'];
+        }
+        if(queried && queried.language) {
+            assumption.attributes['os.language'] = queried.language;
+        }
+        cb(undefined, assumption);
     }
 
     detach(dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) {

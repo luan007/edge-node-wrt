@@ -48,18 +48,30 @@
     ],
     "desc": ""
   },
+  "os.language": {
+    "tag": [
+      "os",
+      "system"
+    ],
+    "desc": ""
+  },
   "model": {
     "tag": [
       "model"
     ],
     "desc": ""
   },
-  "laser_printer": {
+  "browser": {
     "tag": [
-      "laser"
+      "browser"
     ],
-    "desc": "",
-    "datatype": "boolean"
+    "desc": ""
+  },
+  "browser.version": {
+    "tag": [
+      "browser"
+    ],
+    "desc": ""
   },
   "dummyAttr": {
     "tag": [

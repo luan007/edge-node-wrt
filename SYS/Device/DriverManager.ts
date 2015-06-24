@@ -85,7 +85,7 @@ function _assumption_check(delta:IDeviceAssumption, callback:Callback) {
                             return cb(new Error('Illegal class assumption: ' + klass));
                     }
                     return cb();
-                } 
+                }
             });
         });
         jobs.push((cb)=> { // check for action
@@ -105,7 +105,7 @@ function _assumption_check(delta:IDeviceAssumption, callback:Callback) {
                 if(err) return cb(err);
                 else {
                     for (var attr in delta.attributes) { // verify k & v both
-                        if(!attributes.hasOwnProperty[attr])
+                        if(!attributes.hasOwnProperty(attr))
                             return cb(new Error('Illegal attribute assumption: ' + attr));
                         else if(attributes[attr].datatype && attributes[attr].datatype != typeof delta.attributes[attr])
                             return cb(new Error('wrong attribute data type: ' + attr));

@@ -52,8 +52,8 @@
     "owner": "computer"
   },
   "pc": {
-    "tag": ["pc", "desktop computer", "station"],
-    "desc": "Represents a mobile device",
+    "tag": ["pc", "desktop computer"],
+    "desc": "Represents a personal computer",
     "icon": 0,
     "owner": "computer"
   },
