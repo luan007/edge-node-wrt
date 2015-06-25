@@ -1,18 +1,22 @@
+import path = require('path');
 process.env.ROOT_PATH = path.join(__dirname, '../');
 process.env.NODE_PATH = path.join(__dirname, '../');
 
-import fs = require('fs');
-import path = require('path');
-import child_process = require('child_process');
-import DB = require('./DB');
+require('../Env');
+
 import Data = require("../Storage");
+import DB = require('./DB');
 
 var jobs = [];
+
+jobs.push((cb)=>{ // 0. init DB
+    console.log(" [0] INIT DB");
+    Data.Initialize("root:system@localhost/edge", cb);
+});
+
 jobs.push((cb)=> { // 1. delete old verseion
     if (fs.existsSync(ORBIT_CONF.GRAPHD_LOCATION)) {
         child_process.exec('rm -rf ' + ORBIT_CONF.GRAPHD_LOCATION, (error, stdout, stderr)=> {
-            console.log('stdout: ' + stdout);
-            console.log('stderr: ' + stderr);
             if (error !== null) {
                 console.log('delete error: ' + ORBIT_CONF.GRAPHD_LOCATION, error);
             }
@@ -29,11 +33,11 @@ jobs.push((cb)=>{
         if(err) return cb(err);
 
         var graphdPackage = path.join(ORBIT_CONF.PKG_BASE_PATH, 'graphd.zip');
-        child_process.exec('zip -j ' + graphdPackage + ' ' + ORBIT_CONF.GRAPHD_LOCATION, (error, stdout, stderr)=> {
-            console.log('stdout: ' + stdout);
-            console.log('stderr: ' + stderr);
+        var cmd = 'zip -j ' + graphdPackage + ' ' + ORBIT_CONF.GRAPHD_LOCATION + '/*';
+        console.log('executing command', cmd);
+        child_process.exec(cmd, (error, stdout, stderr)=> {
             if (error !== null) {
-                console.log('delete error: ' + ORBIT_CONF.GRAPHD_LOCATION, error);
+                console.log('rebuilding error: ' + ORBIT_CONF.GRAPHD_LOCATION, error);
             }
 
             return cb(error);
@@ -53,14 +57,14 @@ function _numeric_date(date:Date) {
 
 jobs.push((cb)=>{ // 3. update DB record
     var numeric_date = _numeric_date(new Date());
-    Data.Models.Graphd.Table.one({ name: 'graphd'}, (err, result) => {
+    Data.Models.Graphd.Graphd.table().one({ name: 'graphd'}, (err, result) => {
         var upgrade = false;
         var data = <any>{};
         if (!err && result) {
             upgrade = true;
         }
         data.name = 'graphd';
-        data.numeric_date = numeric_date;
+        data.numericDate = numeric_date;
         if (upgrade) {
             console.log("Upgrading graphd", numeric_date);
             result.save(data, cb);
@@ -72,6 +76,12 @@ jobs.push((cb)=>{ // 3. update DB record
 });
 
 async.series(jobs, (err)=>{
-    if(err) console.log('rebuilding job err:', err);
-    else console.log('rebuilding success.');
+    if(err) {
+        console.log('rebuilding job err:'['redBG'].bold, err);
+        process.exit(1);
+    }
+    else {
+        console.log('rebuilding success.'['cyanBG'].bold);
+        process.exit(0);
+    }
 });
