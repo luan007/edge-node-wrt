@@ -16,7 +16,7 @@ import Data = require("./Storage");
 
 export function Initialize(port, callback:Callback) {
     console.log("Clear tmp..."["cyanBG"].bold);
-    child_process.exec('rm -rf '+ ORBIT_CONF.PKG_TMP_PATH + '/*', (err, stdout, stderr)=> {
+    child_process.exec('rm -rf '+ ORBIT_CONF.PKG_TMP_DIR + '/*', (err, stdout, stderr)=> {
         if(err) console.log('error occurs during clean:', err);
     });
 

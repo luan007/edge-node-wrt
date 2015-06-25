@@ -21,10 +21,10 @@ export function EncryptFileProcess(filePath:string, password:string):child_proce
  * password: hex encoding
  */
 export function EncryptAESPassword(router_uid:string, password:string, pubkey:string, callback:Callback) {
-    if (!fs.existsSync(ORBIT_CONF.PKG_TMP_PATH)) {
-        fs.mkdirSync(ORBIT_CONF.PKG_TMP_PATH);
+    if (!fs.existsSync(ORBIT_CONF.PKG_TMP_DIR)) {
+        fs.mkdirSync(ORBIT_CONF.PKG_TMP_DIR);
     }
-    var routerTmpPath = path.join(ORBIT_CONF.PKG_TMP_PATH, router_uid);
+    var routerTmpPath = path.join(ORBIT_CONF.PKG_TMP_DIR, router_uid);
     if (!fs.existsSync(routerTmpPath)) {
         fs.mkdirSync(routerTmpPath);
     }

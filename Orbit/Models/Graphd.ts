@@ -7,11 +7,12 @@ export var Table:orm.Typed.TypedModel<IGraphd> = undefined; //YOU HAVE TO SET TH
 
 export class Graphd {
     name:string = "graphd";    // always be 'graphd'
-    numericDate:number = 19700101;     //numberic date for comparison
+    numericDate:string = '19700101';     //numberic date for comparison
 
     static meta() {
         return {
-            name: {type: 'text', size: 10}
+            name: {type: 'text', size: 10},
+            numericDate: { type:'text', size: 8}
         };
     }
 

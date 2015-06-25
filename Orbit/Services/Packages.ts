@@ -67,7 +67,7 @@ post('/Packages/download/:version', (req, res, next) => {
         if (err) return next(err);
         if (routerPkgs.length > 0) {
             var routerPkg = routerPkgs[0];
-            var packagePath = path.join(ORBIT_CONF.PKG_BASE_PATH, routerPkg.pkg_version + '.zip');
+            var packagePath = path.join(ORBIT_CONF.PKG_BASE_DIR, routerPkg.pkg_version + '.zip');
             if (fs.existsSync(packagePath)) {
                 console.log('packagePath'["cyanBG"].bold, packagePath);
                 try {
@@ -81,10 +81,83 @@ post('/Packages/download/:version', (req, res, next) => {
                 }
                 //fs.createReadStream(packagePath).pipe(<any>res);
             } else {
-                return next(new Error('.zip not exist on the server.'));
+                return next(new Error('.zip does not exist on the server.'));
             }
         } else {
             return next(new Error('package does not exist.'));
         }
     });
+});
+
+get('/Packages/graphd/version', (req, res, next) => {
+    Data.Models.Graphd.Graphd.table().one({name: 'graphd'}, (err, graphd) => { // { name: 'graphd', numericDate: '20150625'
+        if (err) return next(err);
+        res.json(200, graphd);
+    });
+});
+
+post('/Packages/graphd/purchase', (req, res, next) => {
+    var router_uid = req.router.uid;
+    var app_key = req.router.appkey;
+    Data.Models.Graphd.Table.one({name: 'graphd'}, (err, result) => {
+        if (err) return next(err);
+
+        var numericDate = result.numericDate;
+        Data.Models.RouterGraphd.Table.get(router_uid, (err, record) => { // should be exist in DB
+            if (err) return next(err);
+
+            var upgrade = record ? true :false;
+            var data = <any>{};
+            data.router_uid = router_uid;
+            data.numericDate = numericDate;
+            data.password = AES.RandomPassword();
+            data.orderTime = new Date();
+
+            AES.EncryptAESPassword(router_uid, data.password, app_key, (err, pkg_sig)=> { // encrypt aes password
+                if (err) return next(err);
+
+                if(upgrade) {
+                    record.save(data, (err)=> {
+                        if (err) return next(err);
+                        return res.json({pkg_sig: pkg_sig});
+                    });
+                } else {
+                    Data.Models.RouterGraphd.Table.create(data, (err)=> {
+                        if (err) return next(err);
+                        return res.json({pkg_sig: pkg_sig});
+                    });
+                }
+            });
+
+        });
+    });
+});
+
+post('/Packages/graphd/download', (req, res, next) => {
+    var router_uid = req.router.uid;
+
+    if (!fs.existsSync(ORBIT_CONF.GRAPHD_PACKAGE_LOCATION)) {
+        return next(new Error('.zip does not exist on the server.'));
+    } else {
+        try {
+            Data.Models.RouterGraphd.Table.get(router_uid, (err, routerGraphd)=> {
+                if(err) return next(err);
+                if(!routerGraphd)
+                    return next(new Error('package does not exist.'));
+                if (!fs.existsSync(ORBIT_CONF.GRAPHD_PACKAGE_LOCATION))
+                    return next(new Error('.zip does not exist on the server.'));
+                try {
+                    var streamingProcess = AES.EncryptFileProcess(ORBIT_CONF.GRAPHD_PACKAGE_LOCATION, routerGraphd.password);
+                    streamingProcess.stderr.on('data', (data) => {
+                        console.log('openssl stderr:'['yellowBG'].bold, data.toString());
+                    });
+                    streamingProcess.stdout.pipe(<any>res);
+                } catch (err) {
+                    return next(err);
+                }
+            });
+        } catch (err) {
+            return next(err);
+        }
+    }
 });

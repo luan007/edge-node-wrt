@@ -30,7 +30,7 @@ post('/App/purchase/:app_uid', (req, res, next) => { // ===> app_sig
 
                 var salt = RSA.GenSalt(256);
                 if (app.dirHashCode !== null && app.dirHashCode.trim() === '') {
-                    var app_path = path.join(ORBIT_CONF.APP_BASE_PATH, app.uid);
+                    var app_path = path.join(ORBIT_CONF.APP_BASE_DIR, app.uid);
                     app.dirHashCode = HashDir(app_path, salt).toString("hex");
                     app.save();
                 }
@@ -75,7 +75,7 @@ post('/App/download/:app_uid', (req, res, next) => {
         if (err) return next(err);
         console.log('routerApps', routerApps);
         if (routerApps.length > 0) {
-            var appPackagePath = path.join(ORBIT_CONF.APP_BASE_PATH, routerApps[0].app_uid + '.zip');
+            var appPackagePath = path.join(ORBIT_CONF.APP_BASE_DIR, routerApps[0].app_uid + '.zip');
             if (fs.existsSync(appPackagePath)) {
                 console.log('appPackagePath'["cyanBG"].bold, appPackagePath);
                 try {

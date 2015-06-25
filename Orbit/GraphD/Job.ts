@@ -6,6 +6,7 @@ require('../Env');
 
 import Data = require("../Storage");
 import DB = require('./DB');
+import Util =require('../Common/Util');
 
 var jobs = [];
 
@@ -15,10 +16,10 @@ jobs.push((cb)=>{ // 0. init DB
 });
 
 jobs.push((cb)=> { // 1. delete old verseion
-    if (fs.existsSync(ORBIT_CONF.GRAPHD_LOCATION)) {
-        child_process.exec('rm -rf ' + ORBIT_CONF.GRAPHD_LOCATION, (error, stdout, stderr)=> {
+    if (fs.existsSync(ORBIT_CONF.GRAPHD_DIR)) {
+        child_process.exec('rm -rf ' + ORBIT_CONF.GRAPHD_DIR, (error, stdout, stderr)=> {
             if (error !== null) {
-                console.log('delete error: ' + ORBIT_CONF.GRAPHD_LOCATION, error);
+                console.log('delete error: ' + ORBIT_CONF.GRAPHD_DIR, error);
             }
 
             return cb(error);
@@ -32,12 +33,11 @@ jobs.push((cb)=>{
     DB.RebuildDeltaV((err)=> { // 2. rebuild & pack
         if(err) return cb(err);
 
-        var graphdPackage = path.join(ORBIT_CONF.PKG_BASE_PATH, 'graphd.zip');
-        var cmd = 'zip -j ' + graphdPackage + ' ' + ORBIT_CONF.GRAPHD_LOCATION + '/*';
+        var cmd = 'zip -j ' + ORBIT_CONF.GRAPHD_PACKAGE_LOCATION + ' ' + ORBIT_CONF.GRAPHD_DIR + '/*';
         console.log('executing command', cmd);
         child_process.exec(cmd, (error, stdout, stderr)=> {
             if (error !== null) {
-                console.log('rebuilding error: ' + ORBIT_CONF.GRAPHD_LOCATION, error);
+                console.log('rebuilding error: ' + ORBIT_CONF.GRAPHD_DIR, error);
             }
 
             return cb(error);
@@ -46,25 +46,16 @@ jobs.push((cb)=>{
     });
 });
 
-function _two_digit(number:Number) {
-    return (number < 10 ? '0' + number.toString() : number.toString());
-}
-
-function _numeric_date(date:Date) {
-    var str = date.getFullYear() + _two_digit(date.getMonth() + 1) + _two_digit(date.getDate());
-    return Number(str);
-}
-
 jobs.push((cb)=>{ // 3. update DB record
-    var numeric_date = _numeric_date(new Date());
-    Data.Models.Graphd.Graphd.table().one({ name: 'graphd'}, (err, result) => {
+    var numeric_date = Util.NumericDate(new Date());
+    Data.Models.Graphd.Table.one({ name: 'graphd'}, (err, result) => {
         var upgrade = false;
         var data = <any>{};
         if (!err && result) {
             upgrade = true;
         }
         data.name = 'graphd';
-        data.numericDate = numeric_date;
+        data.numericDate = numeric_date.toString();
         if (upgrade) {
             console.log("Upgrading graphd", numeric_date);
             result.save(data, cb);

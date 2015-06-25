@@ -36,12 +36,12 @@ export function Rebuild(cb: Callback) {
         levelup:any = require('level');
 
     
-    levelup.destroy(ORBIT_CONF.GRAPHD_LOCATION + "_swap", (err, result) => {
+    levelup.destroy(ORBIT_CONF.GRAPHD_DIR + "_swap", (err, result) => {
         if (err) return cb(err);
 
         console.log("Old DB destroyed");
 
-        var db = levelQuery(levelup(ORBIT_CONF.GRAPHD_LOCATION + "_swap", { valueEncoding: "json" }));
+        var db = levelQuery(levelup(ORBIT_CONF.GRAPHD_DIR + "_swap", { valueEncoding: "json" }));
         db.query.use(jsonqueryEngine());
 
         db.ensureIndex("name");
