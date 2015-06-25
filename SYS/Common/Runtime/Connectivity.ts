@@ -5,14 +5,20 @@ import StatMgr = require('../../Common/Stat/StatMgr');
 import _StatNode = require('../../Common/Stat/StatNode');
 import StatNode = _StatNode.StatNode;
 
-var pub = StatMgr.Pub(SECTION.PING, {
+var pub = StatMgr.Pub(SECTION.CONNECTIVITY, {
     connectivity: {}
 });
 
 function _dnsLookup(domain:string, cb:Callback) {
     cb = must(cb, CONF.PING_CHECK_WAIT_SECONDS * 1000);
     dns.lookup(domain, (err) => {
-        if (err) return cb(err);
+        if (err) {
+            pub.connectivity.set(domain, {
+                State: 'error',
+                Error: err
+            });
+            return cb(err);
+        }
         else return cb(undefined, {dns: 'OK'});
     });
 }
@@ -20,7 +26,13 @@ function _dnsLookup(domain:string, cb:Callback) {
 function _pingJob(domain:string, cb:Callback) {
     cb = must(cb, CONF.PING_CHECK_WAIT_SECONDS * 1000);
     exec('ping', '-w', CONF.PING_CHECK_WAIT_SECONDS, '-c', '1', domain, (err, res)=> {
-        if (err) return cb(err);
+        if (err) {
+            pub.connectivity.set(domain, {
+                State: 'error',
+                Error: err
+            });
+            return cb(err);
+        }
         else {
             var ttl = Number.MAX_VALUE;
             var parsed = /(\d+)% packet loss/gmi.exec(res);
@@ -28,12 +40,13 @@ function _pingJob(domain:string, cb:Callback) {
                 var loss = Number(parsed[1]);
                 if (loss < 100) {
                     parsed = /ttl=(\d+)/gmi.exec(res);
-                    if (parsed && parsed.length > 1)
+                    if (parsed && parsed.length > 1) {
                         ttl = Number(parsed[1]);
+                        return cb(undefined, {ttl: ttl, loss: loss});
+                    }
                 }
-                return cb(undefined, {ttl: ttl, loss: loss});
             }
-            return cb(undefined, {ttl: ttl, loss: 100});
+            return cb(new Error(domain + ', Loss: 100%.'));
         }
     });
 }
@@ -49,6 +62,10 @@ function _fetchHEAD(domain:string, cb:Callback) {
     http.request(options, (res)=> {
         return cb(undefined, {statusCode: res.statusCode});
     }).on('error', (err)=> {
+        pub.connectivity.set(domain, {
+            State: 'error',
+            Error: err
+        });
         return cb(err);
     });
 }
@@ -95,9 +112,9 @@ function probe(pingCallback:Callback) {
 function _patrolThread() {
     console.log("Starting PingService Patrol Thread - " + (CONF.PING_CHECK_INTERVAL + "").bold["cyanBG"]);
     probe((err, results) => {
-        if(err) error('PingService patrol error', err);
+        if (err) error('Connectivity patrol error', err);
         else {
-            for(var domain in results) {
+            for (var domain in results) {
                 pub.connectivity.set(domain, results[domain]);
             }
         }
@@ -107,4 +124,11 @@ function _patrolThread() {
 export function Initialize(cb) {
     setJob("PingService", _patrolThread, CONF.PING_CHECK_INTERVAL);
     cb();
+}
+
+global.UntilPingSuccess = function(callback:Callback) {
+    var wrapper = untilNoError((cb) => {
+        _pingJob(CONF.ORBIT.HOST, cb);
+    });
+    wrapper(callback);
 }

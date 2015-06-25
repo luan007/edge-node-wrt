@@ -90,9 +90,9 @@ post('/Packages/download/:version', (req, res, next) => {
 });
 
 get('/Packages/graphd/version', (req, res, next) => {
-    Data.Models.Graphd.Graphd.table().one({name: 'graphd'}, (err, graphd) => { // { name: 'graphd', numericDate: '20150625'
+    Data.Models.Graphd.Graphd.table().one({name: 'graphd'}, (err, graphd) => { // { name: 'graphd', numericDate: '201506251530'
         if (err) return next(err);
-        res.json(200, graphd);
+        res.json(200, {numericDate: graphd.numericDate});
     });
 });
 
@@ -106,7 +106,7 @@ post('/Packages/graphd/purchase', (req, res, next) => {
         Data.Models.RouterGraphd.Table.get(router_uid, (err, record) => { // should be exist in DB
             if (err) return next(err);
 
-            var upgrade = record ? true :false;
+            var upgrade = record ? true : false;
             var data = <any>{};
             data.router_uid = router_uid;
             data.numericDate = numericDate;
@@ -116,15 +116,15 @@ post('/Packages/graphd/purchase', (req, res, next) => {
             AES.EncryptAESPassword(router_uid, data.password, app_key, (err, pkg_sig)=> { // encrypt aes password
                 if (err) return next(err);
 
-                if(upgrade) {
+                if (upgrade) {
                     record.save(data, (err)=> {
                         if (err) return next(err);
-                        return res.json({pkg_sig: pkg_sig});
+                        return res.json({numericDate: numericDate, pkg_sig: pkg_sig});
                     });
                 } else {
                     Data.Models.RouterGraphd.Table.create(data, (err)=> {
                         if (err) return next(err);
-                        return res.json({pkg_sig: pkg_sig});
+                        return res.json({numericDate: numericDate, pkg_sig: pkg_sig});
                     });
                 }
             });
@@ -141,8 +141,8 @@ post('/Packages/graphd/download', (req, res, next) => {
     } else {
         try {
             Data.Models.RouterGraphd.Table.get(router_uid, (err, routerGraphd)=> {
-                if(err) return next(err);
-                if(!routerGraphd)
+                if (err) return next(err);
+                if (!routerGraphd)
                     return next(new Error('package does not exist.'));
                 if (!fs.existsSync(ORBIT_CONF.GRAPHD_PACKAGE_LOCATION))
                     return next(new Error('.zip does not exist on the server.'));

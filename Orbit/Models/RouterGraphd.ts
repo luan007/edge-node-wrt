@@ -6,13 +6,13 @@ export var Table: orm.Typed.TypedModel<IRouterGraphd> = undefined; //YOU HAVE TO
 
 export class RouterGraphd {
     router_uid: string = "";
-    numericDate: string = "";
+    numericDate: string = "197001010920";
     password:string = "";
     orderTime: Date = new Date();
 
     static meta() {
         return {
-            numericDate: { type:'text', size: 8},
+            numericDate: { type:'text', size: 12},
             password: {type: 'text', size: 512 }
         };
     }

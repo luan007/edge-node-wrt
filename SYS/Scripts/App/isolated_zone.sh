@@ -57,9 +57,9 @@ if [ ! -e /ramdisk/pkg_tmp ]; then mkdir /ramdisk/pkg_tmp ; fi
 
 ####keys
 echo copying keys
-if [ ! -e /ramdisk/keys ]; then mkdir /ramdisk/keys ; fi
-cp -rf ./Common/Crypto/Keys/*.pb /ramdisk/keys
-cp -rf ./Common/Crypto/Keys/*.pr /ramdisk/keys
+if [ ! -e /storage/Keys ]; then mkdir /storage/Keys ; fi
+cp -rf ./Common/Crypto/Keys/*.pb /storage/Keys
+cp -rf ./Common/Crypto/Keys/*.pr /storage/Keys
 
 ####passwords
 echo init passwords

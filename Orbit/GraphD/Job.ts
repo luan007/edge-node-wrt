@@ -47,7 +47,7 @@ jobs.push((cb)=>{
 });
 
 jobs.push((cb)=>{ // 3. update DB record
-    var numeric_date = Util.NumericDate(new Date());
+    var numeric_date = Util.NumericDateTime(new Date());
     Data.Models.Graphd.Table.one({ name: 'graphd'}, (err, result) => {
         var upgrade = false;
         var data = <any>{};

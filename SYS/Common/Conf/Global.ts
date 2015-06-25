@@ -34,6 +34,8 @@ class _sys_global_conf {
     GRAPHD_CLASSES_LOCATION = path.join(this.GRAPHD_UPGRADE_LOCATION, "graphd.classes.json");
     GRAPHD_ATTRIBUTES_LOCATION = path.join(this.GRAPHD_UPGRADE_LOCATION, "graphd.attributes.json");
     GRAPHD_ACTIONS_LOCATION = path.join(this.GRAPHD_UPGRADE_LOCATION, "graphd.actions.json");
+    GRAPHD_PASSWORD_FILE = path.join(this.GRAPHD_UPGRADE_LOCATION, "graphd.password");
+    GRAPHD_CHECK_INTERVAL = 5 * 60 * 1000;
     MAIN_REGISTRY_PATH = path.join(this.DATA_DIR, "reg");
     APP_TRUST_LIFE = 5;
     APP_SPAN_SCALER = 2.6; // Max = 10 ^ 1.5 = 316sec
@@ -101,7 +103,9 @@ class _sys_global_conf {
 
     //Storage
     STORAGE_DISK_DIR = process.env.storage || '/storage/';
-    KEY_STORE_DIR = path.join(this.STORAGE_DISK_DIR, 'keys');
+    KEY_STORE_DIR = path.join(this.STORAGE_DISK_DIR, 'Keys');
+    APP_PRV_KEY = path.join(this.KEY_STORE_DIR, 'Keys');
+    ROUTER_PUB_KEY = path.join(this.KEY_STORE_DIR, 'Keys');
     PKG_INIT_FILE = path.join(this.STORAGE_DISK_DIR, 'init.zip');
     PKG_LATEST_FILE = path.join(this.STORAGE_DISK_DIR, 'latest.zip');
     PKG_PASSWORD_DIR = path.join(this.STORAGE_DISK_DIR, 'passwords');
@@ -145,7 +149,8 @@ class _global_section {
     RUNTIME = 'RUNTIME';
     APP = "APP";
     PKG = "PKG";
-    PING = "PING";
+    DB = "DB";
+    CONNECTIVITY = "CONNECTIVITY";
 }
 
 var CONF = new _sys_global_conf();

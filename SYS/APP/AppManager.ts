@@ -36,7 +36,7 @@ export function SetAppsRoot_Upward(folder) {
 /**
  * Purchase APP
  */
-export function Purchase(app_uid:string, callback:Callback) {
+function Purchase(app_uid:string, callback:Callback) {
     Orbit.Post('App/purchase/' + app_uid, {}, (err, orbitResult)=> {
         if (err) return callback(err);
         try {

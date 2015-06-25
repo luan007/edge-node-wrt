@@ -3,6 +3,13 @@
 //TODO: need TESTS!
 import db_builder = require("./Builder");
 import fs = require('fs');
+var unzip = require("unzip");
+import _Graphd = require('../../DB/Models/Graphd');
+import Graphd = _Graphd.Graphd;
+import IGraphd = _Graphd.IGraphd;
+import StatMgr = require('../../Common/Stat/StatMgr');
+import _StatNode = require('../../Common/Stat/StatNode');
+import StatNode = _StatNode.StatNode;
 
 var lastError:any = null;
 var HOTSWAP_NAME = "deltaV";
@@ -15,6 +22,10 @@ var levelQuery:any = require('level-queryengine'),
 /*
  * To make this swappable, a queue is needed for every op
  */
+
+var pub = StatMgr.Pub(SECTION.DB, {
+    graphd: {}
+});
 
 
 var DB;
@@ -97,15 +108,187 @@ export function RebuildDeltaV(cb) {
     });
 }
 
-export function Initialize(cb) {
-    trace("Initializing DeltaV");
-    init((err, result) => {
-        lastError = err;
-        if (!err) {
-            DB = result;
+function InsertOrUpdate(numericDate:string, callback:Callback) {
+    Graphd.table().get('graphd', (err, result) => {
+        var upgrade = false;
+        var data = <any>{};
+        if (!err && result) {
+            upgrade = true;
         }
-        cb(err, result);
+        data.name = 'graphd';
+        data.name = numericDate;
+        if (upgrade) {
+            console.log(("Upgrading " + numericDate)['greenBG'].bold);
+            result.save(data, callback);
+        } else {
+            console.log(("Saving " + numericDate)['greenBG'].bold);
+            Graphd.table().create(data, callback);
+        }
     });
+}
+
+function DownloadGraphd(callback:Callback) {
+    pub.Set('graphd', {
+        State: 'downloading'
+    });
+
+    Orbit.Post('Packages/graphd/purchase', {}, (err, orbitResult)=> {
+        if (err) {
+            pub.Set('graphd', {
+                State: 'error',
+                Error: err
+            });
+            return callback(err);
+        }
+
+        console.log('orbitResult'['cyanBG'].bold, orbitResult.numericDate, orbitResult.pkg_sig.toString('hex'));
+        fs.writeFile(CONF.GRAPHD_PASSWORD_FILE, orbitResult.pkg_sig, {encoding: 'binary'}, (err)=> { //save password
+            if (err) {
+                pub.Set('graphd', {
+                    State: 'error',
+                    Error: err
+                });
+                return callback(err);
+            }
+
+            var graphdPackageTmpPath = path.join(CONF.PKG_TMP_DIR, 'graphd.zip.tmp');
+            if (fs.existsSync(graphdPackageTmpPath))
+                fs.unlinkSync(graphdPackageTmpPath);
+            var graphdPackagePath = path.join(CONF.PKG_TMP_DIR, 'graphd.zip');
+            if (fs.existsSync(graphdPackagePath))
+                fs.unlinkSync(graphdPackagePath);
+            var graphdStream = fs.createWriteStream(graphdPackageTmpPath);
+
+            Orbit.Download('Packages/graphd/download', {}, (err, result)=> {
+                if (err) {
+                    pub.Set('graphd', {
+                        State: 'error',
+                        Error: err
+                    });
+                    return callback(err);
+                }
+                result.pipe(graphdStream);
+            });
+
+            graphdStream
+                .on('error', (err)=> {
+                    pub.Set('graphd', {
+                        State: 'error',
+                        Error: err
+                    });
+                    return callback(err);
+                })
+                .on('finish', ()=> {
+                    pub.Set('graphd', {
+                        State: 'upgrading'
+                    });
+
+                    exec('openssl rsautl -decrypt -inkey ' + CONF.APP_PRV_KEY + ' -in ' + CONF.GRAPHD_PASSWORD_FILE, (err, password) => {
+                        if (err) {
+                            pub.Set('graphd', {
+                                State: 'error',
+                                Error: err
+                            });
+                            return callback(err);
+                        }
+
+                        exec('openssl enc -d -aes-256-cbc -pass pass:' + password + ' -in ' + graphdPackageTmpPath + ' -out ' + graphdPackagePath, (err)=> {
+                            if (err) {
+                                pub.Set('graphd', {
+                                    State: 'error',
+                                    Error: err
+                                });
+                                return callback(err);
+                            }
+
+                            pub.Set('graphd', {
+                                State: 'extracting'
+                            });
+
+                            fs.createReadStream(graphdPackagePath)
+                                .pipe(unzip.Extract({path: CONF.GRAPHD_LOCATION}))
+                                .on('error', (err)=> {
+                                    pub.Set('graphd', {
+                                        State: 'error',
+                                        Error: err
+                                    });
+                                    return callback(err);
+                                })
+                                .on("close", () => {
+                                    InsertOrUpdate(orbitResult.numericDate, (err)=> {
+                                        if (err) {
+                                            pub.Set('graphd', {
+                                                State: 'error',
+                                                Error: err
+                                            });
+                                            return callback(err);
+                                        }
+                                        pub.Set('graphd', {
+                                            State: 'downloaded'
+                                        });
+                                        return callback();
+                                    });
+                                });
+                        });
+                    });
+                });
+        });
+    });
+}
+
+function GetGraphdVersion(callback:Callback) {
+    Orbit.Get('Packages/graphd/version', {}, (err, orbitResult) => {
+        if (err) return callback(err);
+        return callback(undefined, orbitResult.numericDate);
+    });
+}
+
+function CheckGraphdUpdate() {
+    GetGraphdVersion((err, numericDate)=>{
+        if(err) return error(err);
+
+        Graphd.table().get('graphd', (err, graphd)=>{
+            if(err) return error(err);
+
+            var needDownload = false;
+            if(!graphd) {
+                needDownload = true;
+            } else if(Number(graphd.numericDate) < Number(numericDate)) {
+                needDownload = true;
+            }
+
+            if(needDownload) {
+                return DownloadGraphd((err)=> {
+                    if (err) return error(err);
+                    else return console.log('upgrade graphd successfully.'['greenBG'].bold);
+                });
+            }
+        });
+    });
+}
+
+export function Initialize(cb) {
+    setJob('GraphdChecking', CheckGraphdUpdate, CONF.GRAPHD_CHECK_INTERVAL);
+
+    if (fs.existsSync(CONF.GRAPHD_LOCATION) && fs.readdirSync(CONF.GRAPHD_LOCATION).length > 0) {
+        console.log("Initializing DeltaV"['greenBG'].bold);
+        init((err, result) => {
+            lastError = err;
+            if (!err) {
+                DB = result;
+            }
+            cb(err, result);
+        });
+    } else {
+        console.log("Graphd folder is empty, then wait for downloading."['greenBG'].bold);
+        UntilPingSuccess((err, res) => {
+            console.log('ping Orbit success: ', res);
+            DownloadGraphd((err)=> {
+                console.log('some error has occurred while download Graphd: '['greenBG'].bold, err);
+            });
+        });
+        cb();
+    }
 }
 
 export function Diagnose(callback:Callback) {
@@ -126,7 +309,6 @@ export function Find(query:any, callback:PCallback<IDescriptor[]>) {
         });
     });
 }
-
 
 export function QueryStream(query:any, callback:PCallback<NodeJS.ReadableStream>) {
     hotswapSafe(HOTSWAP_NAME, () => {
