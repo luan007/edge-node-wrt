@@ -18,7 +18,7 @@ function Type(obj) {
 function GetDefFromClass(dataclass) {
     var def = {};
     var t: Object = new dataclass();
-    var meta:Object =dataclass.meta ? dataclass.meta() : {};
+    var meta:Object = dataclass.meta ? dataclass.meta() : {};
     for (var typename in t) {
         if(meta.hasOwnProperty(typename)){
             def[typename] = meta[typename];
