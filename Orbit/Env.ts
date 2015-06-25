@@ -1,7 +1,9 @@
 global.path = require("path");
 global.http = require("http");
+global.fs = require("fs");
 global.qs = require("querystring");
 global.async = require("async");
+global.child_process = require('child_process');
 global._ = require("underscore");
 require("colors");
 global.trace = global.warn = global.error = global.fatal = global.debug = global.info = console.log;

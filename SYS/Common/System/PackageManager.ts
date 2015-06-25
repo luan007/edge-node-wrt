@@ -40,7 +40,7 @@ export function AvaliablePkgs(page, callback) {
 /**
  * Purchase PKG
  */
-export function Purchase(version:string, callback:Callback) {
+function Purchase(version:string, callback:Callback) {
     Orbit.Post('Packages/purchase/' + version, {}, (err, orbitResult)=> {
         if (err) return callback(err);
         try {

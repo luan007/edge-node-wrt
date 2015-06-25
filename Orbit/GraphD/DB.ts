@@ -21,8 +21,8 @@ var levelQuery:any = require('level-queryengine'),
 var DB;
 
 function init(cb:PCallback<any>) {
-    console.log('===> CONF.GRAPHD_LOCATION'['greenBG'].bold, CONF.GRAPHD_LOCATION);
-    var rawDb = levelup(CONF.GRAPHD_LOCATION, {valueEncoding: "json"});
+    console.log('===> ORBIT_CONF.GRAPHD_DIR'['greenBG'].bold, ORBIT_CONF.GRAPHD_DIR);
+    var rawDb = levelup(ORBIT_CONF.GRAPHD_DIR, {valueEncoding: "json"});
     var db = levelQuery(rawDb);
     db.query.use(jsonqueryEngine());
 
@@ -46,7 +46,7 @@ function db_hot_swap(cb) {
 
     var check = (cb) => {
         console.log(" [1] CHCK");
-        fs.exists(CONF.GRAPHD_LOCATION + "_swap", (result) => {
+        fs.exists(ORBIT_CONF.GRAPHD_DIR + "_swap", (result) => {
             cb(!result ? new Error("Swap does not exist :(") : undefined);
         });
     };
@@ -64,12 +64,12 @@ function db_hot_swap(cb) {
     var destroy = (cb) => {
         //rm -rf magic..
         console.log(" [3] REMV");
-        exec("rm", "-rf", CONF.GRAPHD_LOCATION, cb);
+        exec("rm", "-rf", ORBIT_CONF.GRAPHD_DIR, cb);
     };
 
     var swap = (cb) => {
         console.log(" [4] SWAP");
-        exec("mv", CONF.GRAPHD_LOCATION + "_swap", CONF.GRAPHD_LOCATION, cb);
+        exec("mv", ORBIT_CONF.GRAPHD_DIR + "_swap", ORBIT_CONF.GRAPHD_DIR, cb);
     };
 
     var link = (cb) => {

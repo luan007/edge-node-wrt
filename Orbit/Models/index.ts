@@ -6,3 +6,5 @@ export import User = require("./User");
 export import RouterApp = require('./RouterApp');
 export import Package = require('./Package');
 export import RouterPkg = require('./RouterPkg');
+export import Graphd = require('./Graphd');
+export import RouterGraphd = require('./RouterGraphd');

@@ -3,28 +3,28 @@ import events = require("events");
 
 global.exec = function (cmd, ...args) {
     var cb = typeof (args[args.length - 1]) === "function" ? args.pop() : () => { };
-    if (CONF.ENABLE_EXEC_QUEUEING) {
+    if (global.CONF == undefined || (global.CONF && CONF.ENABLE_EXEC_QUEUEING)) {
         var jobs = intoQueue(
             "exec_" + cmd,
             args.length == 0 ? child_process.exec.bind(null, cmd, {}) : child_process.execFile.bind(null, cmd, args, {}),
             (err, stdio, stderr) => {
                 if (err || (stderr && stderr.length > 0)) {
-                    if (CONF.CMD_DEBUG) warn(err ? err : new Error(stderr.toString()));
+                    if (global.CONF && CONF.CMD_DEBUG) warn(err ? err : new Error(stderr.toString()));
                     return cb(err ? err : new Error(stderr.toString()), stdio.toString(), stderr.toString());
                 }
                 return cb(undefined, stdio.toString(), stderr.toString());
             });
-        if (CONF.CMD_DEBUG) trace(cmd.cyan.bold + " " + args.toString() + " @" + jobs);
+        if (global.CONF && CONF.CMD_DEBUG) trace(cmd.cyan.bold + " " + args.toString() + " @" + jobs);
     }
     else {
         //UNSAFE
-        if (CONF.CMD_DEBUG) trace(cmd.cyan.bold + " " + args.toString());
+        if (global.CONF && CONF.CMD_DEBUG) trace(cmd.cyan.bold + " " + args.toString());
 
         var j = args.length == 0 ? child_process.exec.bind(null, cmd, {}) : child_process.execFile.bind(null, cmd, args, {});
 
         j((err, stdio, stderr) => {
             if (err || (stderr && stderr.length > 0)) {
-                if (CONF.CMD_DEBUG) warn(err ? err : new Error(stderr.toString()));
+                if (global.CONF && CONF.CMD_DEBUG) warn(err ? err : new Error(stderr.toString()));
                 return cb(err ? err : new Error(stderr.toString()), stdio.toString(), stderr.toString());
             }
             return cb(undefined, stdio.toString(), stderr.toString());

@@ -10,7 +10,7 @@ pkg_init_file="$storage"/init.zip
 ## keys
 key_dir="$storage"/keys
 app_key_file="$key_dir"/App.pr
-router_key_file="$key_dir"/Router.pr
+router_key_file="$key_dir"/Router.pb
 
 ## ramdisk
 ramdisk=/ramdisk

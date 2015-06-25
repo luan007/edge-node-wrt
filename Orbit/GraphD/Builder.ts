@@ -5,27 +5,24 @@ export function Rebuild(cb: Callback) {
 
     console.log("Rebuilding graphd deltaV database"['greenBG'].bold);
 
-    //if (!fs.existsSync(path.join(CONF.GRAPHD_UPGRADE_LOCATION, "graphd.0.json"))) {
-    //    return cb(new Error("graphd datafile not found"));
-    //}
-    if(!fs.existsSync(CONF.GRAPHD_CLASSES_LOCATION)) {
+    if(!fs.existsSync(ORBIT_CONF.GRAPHD_CLASSES_LOCATION)) {
         return cb(new Error("graphd classes datafile not found"));
     }
-    if(!fs.existsSync(CONF.GRAPHD_ATTRIBUTES_LOCATION)) {
+    if(!fs.existsSync(ORBIT_CONF.GRAPHD_ATTRIBUTES_LOCATION)) {
         return cb(new Error("graphd attributes datafile not found"));
     }
-    if(!fs.existsSync(CONF.GRAPHD_ACTIONS_LOCATION)) {
+    if(!fs.existsSync(ORBIT_CONF.GRAPHD_ACTIONS_LOCATION)) {
         return cb(new Error("graphd actions datafile not found"));
     }
 
     //TODO: perform File Sig check
-    console.log("Add RSA Check @ GraphD Builder");
+    //console.log("Add RSA Check @ GraphD Builder");
 
     var json = {};
     try {
-        var classes = require(CONF.GRAPHD_CLASSES_LOCATION);
-        var attributes = require(CONF.GRAPHD_ATTRIBUTES_LOCATION);
-        var actions = require(CONF.GRAPHD_ACTIONS_LOCATION);
+        var classes = require(ORBIT_CONF.GRAPHD_CLASSES_LOCATION);
+        var attributes = require(ORBIT_CONF.GRAPHD_ATTRIBUTES_LOCATION);
+        var actions = require(ORBIT_CONF.GRAPHD_ACTIONS_LOCATION);
         json['0'] = classes;
         json['1'] = attributes;
         json['2'] = actions;
@@ -39,12 +36,12 @@ export function Rebuild(cb: Callback) {
         levelup:any = require('level');
 
     
-    levelup.destroy(CONF.GRAPHD_LOCATION + "_swap", (err, result) => {
+    levelup.destroy(ORBIT_CONF.GRAPHD_DIR + "_swap", (err, result) => {
         if (err) return cb(err);
 
         console.log("Old DB destroyed");
 
-        var db = levelQuery(levelup(CONF.GRAPHD_LOCATION + "_swap", { valueEncoding: "json" }));
+        var db = levelQuery(levelup(ORBIT_CONF.GRAPHD_DIR + "_swap", { valueEncoding: "json" }));
         db.query.use(jsonqueryEngine());
 
         db.ensureIndex("name");
@@ -78,7 +75,7 @@ export function Rebuild(cb: Callback) {
 
             //orphan(not possible) or root
             if (!obj.owner) {
-                return obj.level = 0; //我觉得自己是零
+                return obj.level = 0;
             }
 
             //search for owner
