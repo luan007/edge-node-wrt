@@ -79,7 +79,6 @@ function recurse(p){
     }
 }
 
-
 recurse('.');
 
 console.log(JSON.stringify(results));
