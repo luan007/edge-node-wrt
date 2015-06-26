@@ -116,10 +116,10 @@ function _patrolThread() {
     trace("Starting Connectivity Patrol Thread - " + (CONF.CONNECTIVITY_CHECK_INTERVAL + "").bold["cyanBG"]);
     probe((err, results) => {
         if (err) {
-            console.log('Connectivity patrol error'['redBG'].bold, err);
+            warn('Connectivity patrol error'['redBG'].bold, err);
         }
         else {
-            console.log('Connectivity patrol result'['cyanBG'].bold, results);
+            info('Connectivity patrol result'['cyanBG'].bold, results);
             for (var domain in results) {
                 pub.connectivity.Set(domain, results[domain]);
             }

@@ -101,6 +101,7 @@ class ConfMgr extends events.EventEmitter {
     }
 
     private _flush = (key) => {
+        console.log('received _flush key', key);
         if (this._buffers[key]) {
 
             this.emit('changed', key, this._buffers[key], this._configs[key]);
@@ -119,12 +120,13 @@ class ConfMgr extends events.EventEmitter {
     }
 
     private _save = (key) => {
-        intoQueue('write_config_' + key, () => {
+        intoQueue('write_config_' + key, (cb) => {
             fs.writeFile(this._filePath(key), JSON.stringify(this._configs[key]), (err)=> {
                 if (err) console.log(err);
+                cb();
             });
         }, () => {
-            trace('write_config executed.', JSON.stringify(this._configs[key]), new Date().toLocaleTimeString());
+            console.log('write_config executed.'['cyanBG'], JSON.stringify(this._configs[key]), new Date().toLocaleTimeString());
         });
     }
 
