@@ -46,6 +46,9 @@ function init(cb:PCallback<any>) {
             error(err);
             return cb(err);
         }
+        pub.Set('graphd', {
+            State: 'running'
+        });
         cb(undefined, db);
     });
 }
@@ -116,7 +119,7 @@ function InsertOrUpdate(numericDate:string, callback:Callback) {
             upgrade = true;
         }
         data.name = 'graphd';
-        data.name = numericDate;
+        data.numericDate = numericDate;
         if (upgrade) {
             console.log(("Upgrading " + numericDate)['greenBG'].bold);
             result.save(data, callback);
@@ -141,7 +144,7 @@ function DownloadGraphd(callback:Callback) {
             return callback(err);
         }
 
-        console.log('orbitResult'['cyanBG'].bold, orbitResult.numericDate, orbitResult.pkg_sig.toString('hex'));
+        //console.log('orbitResult'['cyanBG'].bold, orbitResult.numericDate, orbitResult.pkg_sig.toString('hex'));
         fs.writeFile(CONF.GRAPHD_PASSWORD_FILE, orbitResult.pkg_sig, {encoding: 'binary'}, (err)=> { //save password
             if (err) {
                 pub.Set('graphd', {
@@ -183,20 +186,24 @@ function DownloadGraphd(callback:Callback) {
                         State: 'upgrading'
                     });
 
-                    exec('openssl rsautl -decrypt -inkey ' + CONF.APP_PRV_KEY + ' -in ' + CONF.GRAPHD_PASSWORD_FILE, (err, password) => {
-                        if (err) {
+                    pub.Set('graphd', {
+                        State: 'decrypting'
+                    });
+
+                    exec('openssl rsautl -decrypt -inkey ' + CONF.APP_PRV_KEY + ' -in ' + CONF.GRAPHD_PASSWORD_FILE, (err2, password) => {
+                        if (err2) {
                             pub.Set('graphd', {
                                 State: 'error',
-                                Error: err
+                                Error: err2
                             });
                             return callback(err);
                         }
 
-                        exec('openssl enc -d -aes-256-cbc -pass pass:' + password + ' -in ' + graphdPackageTmpPath + ' -out ' + graphdPackagePath, (err)=> {
-                            if (err) {
+                        exec('openssl enc -d -aes-256-cbc -pass pass:' + password + ' -in ' + graphdPackageTmpPath + ' -out ' + graphdPackagePath, (err3)=> {
+                            if (err3) {
                                 pub.Set('graphd', {
                                     State: 'error',
-                                    Error: err
+                                    Error: err3
                                 });
                                 return callback(err);
                             }
@@ -207,25 +214,27 @@ function DownloadGraphd(callback:Callback) {
 
                             fs.createReadStream(graphdPackagePath)
                                 .pipe(unzip.Extract({path: CONF.GRAPHD_LOCATION}))
-                                .on('error', (err)=> {
+                                .on('error', (err4)=> {
                                     pub.Set('graphd', {
                                         State: 'error',
-                                        Error: err
+                                        Error: err4
                                     });
-                                    return callback(err);
+                                    return callback(err4);
                                 })
                                 .on("close", () => {
-                                    InsertOrUpdate(orbitResult.numericDate, (err)=> {
-                                        if (err) {
+                                    InsertOrUpdate(orbitResult.numericDate, (err4)=> {
+                                        if (err4) {
                                             pub.Set('graphd', {
                                                 State: 'error',
-                                                Error: err
+                                                Error: err4
                                             });
-                                            return callback(err);
+                                            return callback(err4);
                                         }
+
                                         pub.Set('graphd', {
-                                            State: 'downloaded'
+                                            State: 'versioning'
                                         });
+
                                         return callback();
                                     });
                                 });
@@ -283,8 +292,16 @@ export function Initialize(cb) {
         console.log("Graphd folder is empty, then wait for downloading."['greenBG'].bold);
         UntilPingSuccess((err, res) => {
             console.log('ping Orbit success: ', res);
-            DownloadGraphd((err)=> {
-                console.log('some error has occurred while download Graphd: '['greenBG'].bold, err);
+            DownloadGraphd((err2)=> {
+                if(err2) return error(err2);
+
+                init((err, result) => {
+                    lastError = err;
+                    if (!err) {
+                        DB = result;
+                    }
+                    cb(err, result);
+                });
             });
         });
         cb();

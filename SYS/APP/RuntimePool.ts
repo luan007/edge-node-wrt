@@ -527,7 +527,9 @@ export function Diagnose(callback:Callback) {
             revokeEmitter();
             return callback(null, true);
         }
+
         var launched = 0;
+
         emitter.on('launched', (app_uid) => {
             console.log('app_uid', app_uid);
             launched += 1;
@@ -537,12 +539,14 @@ export function Diagnose(callback:Callback) {
                 return callback(null, true);
             }
         });
+
         setTask('launch_apps_check', ()=> {
             if (launched !== total) {
                 console.log('Launch apps timeout.'['redBG'].bold, launched, '/', total);
+                revokeEmitter();
                 return callback(null, true);
             }
-        }, 60 * 1000);
+        }, 5 * 60 * 1000);
     });
 }
 

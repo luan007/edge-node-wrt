@@ -104,8 +104,8 @@ class _sys_global_conf {
     //Storage
     STORAGE_DISK_DIR = process.env.storage || '/storage/';
     KEY_STORE_DIR = path.join(this.STORAGE_DISK_DIR, 'Keys');
-    APP_PRV_KEY = path.join(this.KEY_STORE_DIR, 'Keys');
-    ROUTER_PUB_KEY = path.join(this.KEY_STORE_DIR, 'Keys');
+    APP_PRV_KEY = path.join(this.KEY_STORE_DIR, 'App.pr');
+    ROUTER_PUB_KEY = path.join(this.KEY_STORE_DIR, 'Router.pb');
     PKG_INIT_FILE = path.join(this.STORAGE_DISK_DIR, 'init.zip');
     PKG_LATEST_FILE = path.join(this.STORAGE_DISK_DIR, 'latest.zip');
     PKG_PASSWORD_DIR = path.join(this.STORAGE_DISK_DIR, 'passwords');
@@ -128,10 +128,10 @@ class _sys_global_conf {
     TOKEN_PATROL_INTERVAL = 0.5 * 60 * 1000;
     TOKEN_EXPIRE_SECONDS = 2 * 1000;
 
-    //ping domains
-    PING_CHECK_INTERVAL = 10 * 1000;     // ping check interval
-    PING_CHECK_WAIT_SECONDS = 3;        // ping check timeout (in seconds)
-    PING_CHECK_DOMAINS =
+    //connectivity
+    CONNECTIVITY_CHECK_INTERVAL = 60 * 1000;     // ping check interval
+    CONNECTIVITY_CHECK_WAIT_SECONDS = 3;        // ping check timeout (in seconds)
+    CONNECTIVITY_CHECK_DOMAINS =
         ["www.baidu.com", "www.qq.com", "www.weibo.com", "www.taobao.com", "www.jd.com"];
 
 }

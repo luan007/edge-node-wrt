@@ -99,12 +99,15 @@ get('/Packages/graphd/version', (req, res, next) => {
 post('/Packages/graphd/purchase', (req, res, next) => {
     var router_uid = req.router.uid;
     var app_key = req.router.appkey;
-    Data.Models.Graphd.Table.one({name: 'graphd'}, (err, result) => {
+    console.log('graphd', '[1]');
+    Data.Models.Graphd.Table.get('graphd', (err, result) => {
         if (err) return next(err);
+        console.log('graphd', '[2]');
 
         var numericDate = result.numericDate;
-        Data.Models.RouterGraphd.Table.get(router_uid, (err, record) => { // should be exist in DB
-            if (err) return next(err);
+        Data.Models.RouterGraphd.Table.one({router_uid: router_uid}, (err2, record) => { // should be exist in DB
+            if (err2) return next(err2);
+            console.log('graphd', '[3]');
 
             var upgrade = record ? true : false;
             var data = <any>{};
@@ -113,17 +116,18 @@ post('/Packages/graphd/purchase', (req, res, next) => {
             data.password = AES.RandomPassword();
             data.orderTime = new Date();
 
-            AES.EncryptAESPassword(router_uid, data.password, app_key, (err, pkg_sig)=> { // encrypt aes password
-                if (err) return next(err);
+            AES.EncryptAESPassword(router_uid, data.password, app_key, (err3, pkg_sig)=> { // encrypt aes password
+                if (err3) return next(err3);
+                console.log('graphd', '[4]');
 
                 if (upgrade) {
-                    record.save(data, (err)=> {
-                        if (err) return next(err);
+                    record.save(data, (err4)=> {
+                        if (err4) return next(err4);
                         return res.json({numericDate: numericDate, pkg_sig: pkg_sig});
                     });
                 } else {
-                    Data.Models.RouterGraphd.Table.create(data, (err)=> {
-                        if (err) return next(err);
+                    Data.Models.RouterGraphd.Table.create(data, (err4)=> {
+                        if (err4) return next(err4);
                         return res.json({numericDate: numericDate, pkg_sig: pkg_sig});
                     });
                 }
