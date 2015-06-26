@@ -1,0 +1,24 @@
+<html>
+<head>
+    <title>test</title>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+<img id='main' style='width:100%'/>
+<video id='vid' autoplay='true' loop='true' style='width:100%'></video>
+<script>
+    var img = document.getElementById('main');
+    var vid = document.getElementById('vid');
+    var socket = io('http://192.168.31.106:8080');
+    socket.on('image', function (data) {
+        img.src = 'data:image/jpeg;base64,' + data.buffer;
+        img.style.display='block';
+    });
+    socket.on('video', function (data) {
+        vid.src=data;
+        vid.style.display='block';
+        img.style.display='none';
+    });
+</script>
+</body>
+</html>
