@@ -52,6 +52,19 @@
             }
           }
       }
+    },
+    "IPP": {
+      "Buses": ["WIFI"],
+      "Interest": {
+        "match": {
+          "bus": {
+            "data.Lease": { "$exists": true }
+          }
+        },
+        "change": {
+          "stateChange": true
+        }
+      }
     }
   }
 }
