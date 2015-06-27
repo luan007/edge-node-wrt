@@ -54,7 +54,6 @@ class _sys_global_conf {
     SENDER_TYPE_APP = "App";
     SENDER_TYPE_PROXY = "Proxy";
     BASE_FIREWALL = false;
-    SSDP_PORT = 9979;
     SSDP_DEBUG = true;
     RELOAD_DEFAULT_CONFIG = true; //Turn this on to restore sys's default config (as for Configurable.ts and its children)
     BLUETOOTH_MAXLIFE = 300 * 1000; //300 sec
@@ -124,6 +123,9 @@ class _sys_global_conf {
     PKG_FAIL_FILE = path.join(this.RAM_DISK_DIR, 'pkg_fail');
     PKG_UPGRADE_PASSWORD_FILE = path.join(this.RAM_DISK_DIR, 'pkg_upgrade_password');
 
+    TMP_DIR = "/tmp";
+    AIRSERVICES_DIR = path.join(this.TMP_DIR, 'AirService');
+
     //token
     TOKEN_PATROL_INTERVAL = 0.5 * 60 * 1000;
     TOKEN_EXPIRE_SECONDS = 2 * 1000;
@@ -134,6 +136,13 @@ class _sys_global_conf {
     PING_CHECK_DOMAINS =
         ["www.baidu.com", "www.qq.com", "www.weibo.com", "www.taobao.com", "www.jd.com"];
 
+
+    //port ranges
+    PORTS = {
+        SSDP: 9979,
+        AIRPLAY_RANGE_MIN: 37000,
+        AIRPLAY_RANGE_MAX: 37500
+    }
 }
 
 class _global_section {
