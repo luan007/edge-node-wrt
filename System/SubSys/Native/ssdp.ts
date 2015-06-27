@@ -211,7 +211,7 @@ export class SSDP_Server {
 export var SSDP_Browser = new _ssdp_Browser();
 
 export function Initialize(cb) {
-    generic_server.listen(CONF.SSDP_PORT, cb);
+    generic_server.listen(9979, cb);
     SSDP_Browser.Start();
 }
 
