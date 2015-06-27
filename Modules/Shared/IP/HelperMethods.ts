@@ -25,3 +25,14 @@ global.ip.cidr_num = function (ip, num) {
 global.ip.cidr_num_Subnet = function (ip, num) {
     return _ipaddr.isValid(ip) ? _ip["cidrSubnet"](ip + "/" + num) : undefined;
 }
+
+global.random_mac = function(prefix) {
+    var mac = prefix || '02:31:31';
+
+    for (var i = 0; i < 6; i++) {
+        if (i%2 === 0) mac += ':';
+        mac += Math.floor(Math.random()*16).toString(16);
+    }
+
+    return mac;
+};

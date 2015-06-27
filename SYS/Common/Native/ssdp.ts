@@ -178,7 +178,7 @@ export class SSDP_Server {
         o.udn = o.udn != undefined ? o.udn : "uuid:" + UUIDstr(false);
         if (!o.location) {
             this.Location = UUIDstr();
-            o.location = 'http://' + hostip + ':' + CONF.SSDP_PORT + '/' + this.Location;
+            o.location = 'http://' + hostip + ':' + CONF.PORTS.SSDP + '/' + this.Location;
         }
         this.Opt = o;
         this.Opt.unicastHost = hostip; //TODO: Change this
@@ -216,5 +216,5 @@ export var SSDP_Browser = new _ssdp_Browser();
 
 export function Initialize(cb) {
     SSDP_Browser.Start();
-    generic_server.listen(CONF.SSDP_PORT, cb);
+    generic_server.listen(CONF.PORTS.SSDP, cb);
 }

@@ -10,10 +10,7 @@ var port = 15555;
 var mac = "";
 var name = 'crap2';
 
-
-
 var sockets = {};
-
 
 getmac.getMac(function (err, _m) {
     mac = _m;

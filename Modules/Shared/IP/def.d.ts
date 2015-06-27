@@ -99,3 +99,5 @@
     var IPv6: VersionSpecificIpUtils<IPv6Address>;
 
 }
+
+declare function random_mac(prefix?): string;
