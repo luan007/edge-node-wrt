@@ -142,7 +142,7 @@ function generateUPnPresp(uuid, my) {
     return now;
 }
 
-var server_prefix = "http://wifi.network:" + CONF.SSDP_PORT + "/"; //TBC
+var server_prefix = "http://wifi.network:9979/"; //TBC
 var generic_server = express();
 
 var handled: IDic<SSDP_Server> = {};
