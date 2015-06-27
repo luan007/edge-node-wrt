@@ -153,6 +153,7 @@ class _global_section {
     FIREWALL = "FIREWALL";
     TRAFFIC = "TRAFFIC";
     MAINUI = 'MAINUI';
+    STREAMING = 'STREAMING';
     SAMBA = 'SAMBA';
     OBEX = 'OBEX';
     RUNTIME = 'RUNTIME';

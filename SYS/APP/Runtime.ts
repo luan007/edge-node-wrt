@@ -216,7 +216,7 @@ export class Runtime extends events.EventEmitter {
         this._process = child_process.spawn("node", ["./APP/Sandbox/Sandbox.js"], {
             env: env,
             stdio: CONF.IS_DEBUG ? [process.stdin, process.stdout, 'pipe'] : 'ignore',
-            detached: CONF.DO_NOT_DETACH ? false : true //important
+            detached: !CONF.DO_NOT_DETACH  //important
         });
         ReportRuntimePID(this._process.pid);
         info("Process Started With PID " + (this._process.pid + "").bold);

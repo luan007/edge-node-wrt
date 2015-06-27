@@ -18,7 +18,8 @@ var mdns = require('mdns');
 var allocatedports = {};
 var allocatedmacs = {};
 
-function allocatePort(class_reference) {
+//internal method
+function allocatePort(mac) {
     var maxCount = CONF.PORTS.AIRPLAY_RANGE_MAX - CONF.PORTS.AIRPLAY_RANGE_MIN;
     if(Object.keys(allocatedports).length >= maxCount){
         return -1;
@@ -26,42 +27,34 @@ function allocatePort(class_reference) {
         var randomPort = CONF.PORTS.AIRPLAY_RANGE_MIN +
             Math.floor(Math.random() * maxCount);
         if(allocatedports[randomPort]){
-            return allocatePort(class_reference);
+            return allocatePort(mac);
         } else {
-            allocatedports[randomPort] = class_reference;
+            allocatedports[randomPort] = mac;
             return randomPort;
         }
     }
 }
 
-function allocateMac(class_reference) {
+//returns -1 if failed
+function allocate() {
     var mac = random_mac();
     if(allocatedmacs[mac]){
-        return allocateMac(class_reference);
+        return allocate();
     } else {
-        allocatedmacs[mac] = class_reference;
+        allocatedmacs[mac] = allocatePort(mac);
+        if(allocatedmacs[mac] === -1)
+        {
+            release(mac);
+            return -1;
+        }
         return mac;
     }
 }
 
-function releaseMac(mac){
+function release(mac){
+    delete allocatedports[allocatedmacs[mac]];
     delete allocatedmacs[mac];
 }
-
-function releasePort(port){
-    delete allocatedports[port];
-}
-
-
-//Modify all these...
-
-//SHOULD NOT NEED A CLASS
-
-
-
-
-
-
 
 //with cache maybe?
 
@@ -69,22 +62,25 @@ function releasePort(port){
 var SERVERINFO_PART1 = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"> <dict> <key>deviceid</key> <string>';
 var SERVERINFO_PART2 = '</string> <key>features</key> <integer>14839</integer> <key>model</key> <string>AppleTV2,1</string> <key>protovers</key> <string>1.0</string> <key>srcvers</key> <string>130.14</string> </dict></plist>';
 
-
-
+var STATE_SERVER_DOWN = -1;
 var STATE_IMG = 1;
 var STATE_VID_LOAD = 2;
 var STATE_STOPPED = 0;
 
-export class AirPlay_BaseServer {
+export class AirPlay_BaseServer extends events.EventEmitter {
 
     private _history_len = 50;
     private _app;
-    private _mac;
-    private _port;
     private _mdns = [];
     public Queue = [];
 
     private _name = "Edge";
+
+    private running = false;
+
+    public GetMAC(){
+        return this._mac;
+    }
 
     public State() {
         return this.Queue[0] ? this.Queue[0].State : STATE_STOPPED;
@@ -94,10 +90,9 @@ export class AirPlay_BaseServer {
         return this.Queue[0] ? this.Queue[0].Session : STATE_STOPPED;
     }
 
-    constructor(name?){
+    constructor(private _mac, private _port, name?){
         if(name) this._name = name;
         this._app = express();
-        this._mac = allocateMac(this);
         this.reghooks();
     }
 
@@ -112,6 +107,7 @@ export class AirPlay_BaseServer {
         if(this.Queue.length > this._history_len) {
             this.Queue.pop();
         }
+        this.emit("state", this.Queue[0]);
     }
 
     private reghooks(){
@@ -227,32 +223,87 @@ export class AirPlay_BaseServer {
     }
 
     public start(name?) {
-        this._port = allocatePort(this);
-        if(this._port === -1){
-            //failed :(
-            releaseMac(this._mac);
-            return false;
-        }
-        else{
-            this._app.listen(this._port);
-            this.SetName(name);
-            return true;
-        }
+        if(this.running) return;
+        this.running = true;
+        this.SetName(name);
+        this._app.listen(this._port);
+        this.stateMachine(STATE_STOPPED, undefined, undefined, undefined);
     }
 
     public stop(){
+        if(this.running) return;
         while(this._mdns.length){
             var old = this._mdns.pop();
             old.stop();
         }
-        releaseMac(this._mac);
-        releasePort(this._port);
         this._app.close();
+        this.running = false;
+        this.stateMachine(STATE_SERVER_DOWN, undefined, undefined, undefined);
+    }
+
+}
+//name:server
+
+var airservers : IDic<string, AirPlay_BaseServer> = {};
+
+
+export var Events = new events.EventEmitter();
+
+// 0  name error
+//-1  mac error
+export function Add(name, type) : number | AirPlay_BaseServer {
+    if(airservers[name]) {
+        Events.emit("err_name", name);
+        return 0;
+    }
+    var mac = allocate();
+    if(mac === -1){
+        Events.emit("err_resource", name);
+        return -1;
+    }
+    var server = new AirPlay_BaseServer(mac, allocatedmacs[mac], name);
+    airservers[name] = server;
+
+    server.on("state", (state)=>{
+        Events.emit("state", name, state);
+    });
+
+    Events.emit("add", name);
+    server.start(); //kick it!
+}
+
+export function Remove(name) {
+    //you sure?
+    if(airservers[name]){
+        Stop(name);
+        release(airservers[name].GetMAC());
+        airservers[name].removeAllListeners();
+        delete airservers[name];
+        Events.emit("del", name);
     }
 }
 
-export class Airplay_MultiServer {
-
+export function Start(name){
+    if(airservers[name]){
+        airservers[name].start();
+        Events.emit("start", name);
+    }
 }
 
-/** Airtunes goes here **/
+export function Stop(name){
+    if(airservers[name]){
+        airservers[name].stop();
+        Events.emit("stop", name);
+    }
+}
+
+export function List() : IDic<string, AirPlay_BaseServer> {
+    return airservers;
+}
+
+export function Get(name): AirPlay_BaseServer{
+    return airservers[name];
+}
+
+
+

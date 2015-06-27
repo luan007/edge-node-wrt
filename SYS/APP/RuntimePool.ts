@@ -287,6 +287,12 @@ function quata_usage(runtimeId, cb) {
     }
     Limit.GetUserLimit(runtimeId, cb);
 }
+
+
+//TODO: add shared directory support
+
+
+
 function StartRuntime(app_uid) {
     var runtime = _pool[app_uid];
     if (runtime) {
