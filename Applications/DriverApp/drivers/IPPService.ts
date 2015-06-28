@@ -2,26 +2,31 @@ var ipp = require('ipp');
 
 class IPPService implements IInAppDriver {
 
-  match(dev:IDevice, delta:IDriverDetla, cb:Callback) {
-  }
+    match(dev:IDevice, delta:IDriverDetla, cb:Callback) {
+        console.log("--------------- IPP match Called");
+        cb(undefined, true);
+    }
 
-  attach(dev:IDevice, delta:IDriverDetla, matchResult:any, cb:PCallback<IDeviceAssumption>) {
-  }
+    attach(dev:IDevice, delta:IDriverDetla, matchResult:any, cb:PCallback<IDeviceAssumption>) {
+        console.log("--------------- IPP attach Called");
+        cb(undefined, true);
+    }
 
-  change(dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) {
-  }
+    change(dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) {
 
-  detach(dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) {
-  }
+    }
 
-  load(cb:Callback) {
-  }
+    detach(dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) {
+    }
 
-  unload(cb:Callback) {
-  }
+    load(cb:Callback) {
+    }
 
-  invoke(dev:IDevice, actionId, params, cb) {
-  }
+    unload(cb:Callback) {
+    }
+
+    invoke(dev:IDevice, actionId, params, cb) {
+    }
 
 }
 

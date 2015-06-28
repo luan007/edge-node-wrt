@@ -58,7 +58,10 @@
       "Interest": {
         "match": {
           "bus": {
-            "data.Lease": { "$exists": true }
+            "$and": [
+              {"data.Lease": { "$exists": true }},
+              {"data.MDNS.type": "_ipp._tcp" }
+            ]
           }
         },
         "change": {
