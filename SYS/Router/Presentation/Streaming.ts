@@ -26,11 +26,11 @@ class Configuration extends Configurable {
                     Airplay.Remove(k);
                     continue;
                 }
-                var server = Airplay.Get(k);
+                var server : number | Airplay.AirPlay_BaseServer = Airplay.Get(k);
                 if(!server) {
                     server = <any>Airplay.Add(k, 0);
                 }
-                if(server + 0 <= 0) {
+                if(<any>server + 0 <= 0) {
                     continue; //something went wrong
                 }
                 if(delta.Airplay[k] === 1){

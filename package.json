@@ -13,6 +13,7 @@
     "grunt-contrib-clean": "*",
     "grunt-contrib-copy": "*",
     "grunt-contrib-watch": "*",
-    "grunt-sync" : "*"
+    "grunt-sync" : "*",
+    "grunt-ssh" : "*"
   }
 }

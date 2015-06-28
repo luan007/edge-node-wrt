@@ -15,12 +15,12 @@ class P0F extends Process {
     public EVENT_DEVICE = 'P0F.Device';
     private sock:string;
 
-    constructor(private interface:string) {
+    constructor(private iface:string) {
         super(P0F.P0F_NAME);
     }
 
     ConcatParams() {
-        var params = ['-f', P0F.P0F_FP, '-i', this.interface];
+        var params = ['-f', P0F.P0F_FP, '-i', this.iface];
         if (this.sock)
             params = params.concat(['-s', this.sock]);
         return params;

@@ -58,7 +58,7 @@ class _mdns_Browser extends events.EventEmitter {
         if (!service.host) {
             return warn("Record is broken, need hostname");
         } 
-        dns.lookup(service.host,(err, ip, family) => {
+        dns.lookup(service.host, function(err, ip, family) {
             if (err) return warn(err);
             else {
                 info(arguments);

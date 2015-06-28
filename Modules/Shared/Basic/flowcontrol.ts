@@ -18,7 +18,7 @@ global.withCb = function (syncFunc) {
 };
 
 global.once = function (func: Function) {
-    var wrapper = () => {
+    var wrapper = function() {
         var flag = Math.random().toString();
         if (wrapper[flag] == 1) {
             //do nothing
@@ -27,7 +27,7 @@ global.once = function (func: Function) {
             wrapper[flag] = 1;
             func.apply(null, arguments);
         }
-    };
+    }
     return wrapper;
 };
 
@@ -39,7 +39,7 @@ global.emitterizeCb = function (_this, job: Function, ...args) {
             emitter.emit.apply(emitter, ["trigger"].concat(params));
         }
     };
-    emitter.once("trigger", () => {
+    emitter.once("trigger", function() {
         cb.apply(null, arguments);
         cb = undefined;
         emitter.removeAllListeners();
@@ -51,7 +51,7 @@ global.emitterizeCb = function (_this, job: Function, ...args) {
 global.must = function (cb: Function, timeout = 20000, ...defaultargs) {
     var tclock = -1;
     var flag = Math.random().toString();
-    var wrapper: Function = () => {
+    var wrapper: Function = function () {
         if (wrapper[flag] == 1) {
             //do nothing
         }
@@ -75,7 +75,7 @@ global.withdefault = function (func: Callback, result_default) {
 };
 
 global.ignore_err = function (func: Callback) {
-    var wrapper = () => {
+    var wrapper = function () {
         arguments[0] = undefined;
         func.apply(undefined, arguments);
     };
@@ -104,7 +104,7 @@ function runQueue(name) {
         _queue[name] = undefined; //ended
     } else {
         var step = _queue[name].shift();
-        step[0](() => {
+        step[0](function () {
             //console.log(bane 
             step[1].apply(undefined, arguments);
             runQueue(name);
@@ -139,7 +139,7 @@ global.hotswapSafe = function (name, cb: Function, job: (done: Function) => any)
     var index = _job_ongoing[name].push(1);
     _job_ongoing[name]["l"]++;
 
-    var done = must(once(() => {
+    var done = must(once( function () {
         _job_ongoing[name][index] = undefined;
         _job_ongoing[name]["l"]--;
         if (_job_ongoing[name]["l"] <= 0) {

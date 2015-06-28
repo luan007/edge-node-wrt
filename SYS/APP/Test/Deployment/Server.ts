@@ -32,7 +32,7 @@ app.get('/load/:id', function (req, res) {
     trace("Loading " + req.params.id);
     RuntimePool.LoadApplication(req.params.id,() => {
         trace(" -> done..");
-        trace(arguments);
+        //trace(arguments);
         res.redirect(302, "/");
     });
 });
@@ -41,7 +41,7 @@ app.get('/unload/:id', function (req, res) {
     trace("Unloading " + req.params.id);
     RuntimePool.UnloadApplication(req.params.id,() => {
         trace(" -> done..");
-        trace(arguments);
+        //trace(arguments);
         res.redirect(302, "/");
     });
 });

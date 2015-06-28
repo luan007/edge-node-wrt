@@ -1,4 +1,4 @@
-﻿enum Permissions {
+﻿enum Permission {
     System,
     Proxy,
     Event,
@@ -17,4 +17,4 @@
     /* [ONLY] ADD BELOW */
 }
 
-global.Permission = Permissions;
+global.Permission = Permission;

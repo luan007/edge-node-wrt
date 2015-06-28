@@ -131,7 +131,7 @@ class FramedSocket extends events.EventEmitter {
         //this.removeAllListeners();
     };
 
-    public Send = (object: any, encoding?: string, callback?: (err, result) => any) => {
+    public Send (object: any, encoding?: string, callback?: (err, result) => any)  {
         if (this.socket) {
             if (arguments.length == 2 && typeof arguments[1] == "function") {
                 callback = arguments[1];
@@ -154,7 +154,7 @@ class FramedSocket extends events.EventEmitter {
         else {
             throw new Error("Socket is undefined");
         }
-    };
+    }
 }
 
 

@@ -91,6 +91,8 @@ export class AirPlay_BaseServer extends events.EventEmitter {
     }
 
     constructor(private _mac, private _port, name?){
+        super();
+
         if(name) this._name = name;
         this._app = express();
         this.reghooks();
@@ -244,7 +246,7 @@ export class AirPlay_BaseServer extends events.EventEmitter {
 }
 //name:server
 
-var airservers : IDic<string, AirPlay_BaseServer> = {};
+var airservers : IDic<AirPlay_BaseServer> = {};
 
 
 export var Events = new events.EventEmitter();
@@ -297,7 +299,7 @@ export function Stop(name){
     }
 }
 
-export function List() : IDic<string, AirPlay_BaseServer> {
+export function List() : IDic<AirPlay_BaseServer> {
     return airservers;
 }
 

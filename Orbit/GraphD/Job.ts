@@ -7,6 +7,7 @@ require('../Env');
 import Data = require("../Storage");
 import DB = require('./DB');
 import Util =require('../Common/Util');
+import child_process = require('child_process');
 
 var jobs = [];
 

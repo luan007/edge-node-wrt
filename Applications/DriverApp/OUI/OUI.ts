@@ -3,7 +3,6 @@ var db;
 import path = require("path");
 var fs = require("fs");
 var readline = require("linebyline");
-require("./flowcontrol");
 
 export function update_scheduler() {
     //http://standards-oui.ieee.org/oui.txt
