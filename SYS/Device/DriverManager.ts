@@ -452,6 +452,8 @@ export function DeviceDrop(dev:IDevice, busDelta?) {
 }
 
 export function DriverInvoke(drv:IDriver, dev:IDevice, actionId, params, cb) {
+    //TODO: add invoking user info
+    // params['user']
     drv.invoke(dev, actionId, params, cb); //TODO: not finished
 }
 

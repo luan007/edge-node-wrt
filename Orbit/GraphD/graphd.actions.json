@@ -2,21 +2,31 @@
   "dummyAction": {
     "tag": ["dummy"],
     "desc": "no desc available",
-    "owner": "dummy"
+    "owner": "dummy",
+    "arguments" : {}
   },
   "print": {
     "tag": ["print"],
     "desc": "print action",
-    "owner": "printer"
+    "owner": "printer",
+    "arguments": {
+       "fd" : "fd",
+       "uri" : "string",
+       "mime_type": "string",
+       "job_name": "string"
+    }
   },
   "play": {
     "tag": ["play"],
     "desc": "play action",
-    "owner": "speaker"
+    "owner": "speaker",
+    "arguments" : {}
+
   },
   "shoot": {
     "tag": ["shoot"],
     "desc": "shoot action",
-    "owner": "camera"
+    "owner": "camera",
+    "arguments" : {}
   }
 }

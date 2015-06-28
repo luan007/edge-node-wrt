@@ -13,6 +13,7 @@ import Configurable = _Configurable.Configurable;
 import Dnsmasq = require('../../Common/Native/dnsmasq');
 import AppConfig = require('../../APP/Resource/AppConfig');
 import P0F = require('../../Common/Native/p0f');
+import StatBiz = require('../../Common/Stat/StatBiz');
 
 var dnsmasq = new Dnsmasq.dnsmasq();
 
@@ -222,6 +223,7 @@ export function Initialize(cb) {
     dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_ADD, (lease:Dnsmasq.IDHCPLease)=> { // DEVICE ADDED
         warn('EVENT_ADD', lease);
         pub.leases.Set(lease.Mac, lease);
+        pub.mdns.Set(lease.Address, {});
     });
 
     dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_CHANGE, (lease:Dnsmasq.IDHCPLease)=> { // DEVICE CHANGED
@@ -232,6 +234,7 @@ export function Initialize(cb) {
     dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_DEL, (lease:Dnsmasq.IDHCPLease)=> { // DEVICE DELETED
         warn('EVENT_DEL', lease);
         pub.leases.Del(lease.Mac);
+        pub.mdns.Del(lease.Address);
     });
 
     ssdp.SSDP_Browser.on(ssdp.SSDP_Browser.EVENT_SERVICE_UP, (IP, headers)=> {
@@ -240,16 +243,22 @@ export function Initialize(cb) {
     });
     ssdp.SSDP_Browser.on(ssdp.SSDP_Browser.EVENT_SERVICE_DOWN, (IP, headers)=> {
         //console.log('ssdp device down', IP, headers);
-        pub.ssdp.Del(IP);
+        //pub.ssdp.Del(IP);
     });
 
     mdns.Browser.on(mdns.Browser.EVENT_SERVICE_UP, (IP, service)=> {
         //console.log('mdns device up', IP, service);
-        pub.mdns.Set(IP, service);
+        if (pub.mdns[IP]) {
+            pub.mdns[IP].Set(service.type, {type: 'UP', service: service});
+        }
+        //pub.mdns.Set(IP, service);
     });
     mdns.Browser.on(mdns.Browser.EVENT_SERVICE_DOWN, (IP, service)=> {
         //console.log('mdns device down', IP, service);
-        pub.mdns.Del(IP);
+        //pub.mdns.Del(IP);
+        if (pub.mdns[IP]) {
+            pub.mdns[IP].set(service.type, {type: 'DOWN', service: service});
+        }
     });
 
     P0F.P0FInstance.on(P0F.P0FInstance.EVENT_DEVICE, (IP, description)=> {

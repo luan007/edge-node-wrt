@@ -7,8 +7,6 @@ import Configurable = _Configurable.Configurable;
 import Bus = require('./Bus');
 import StatBiz = require('../../Common/Stat/StatBiz');
 
-var mdnsServices:IDic<any> = {};
-
 var _wifiBus = new Bus('WIFI');
 function on_connect(mac, band) {
     if (!mac) return warn(" Invalid MAC - Skipped ");
@@ -19,7 +17,7 @@ function on_connect(mac, band) {
     var wlan2G4Status = StatMgr.Get(SECTION.WLAN2G);
     var wlan5G7Status = StatMgr.Get(SECTION.WLAN5G);
     var station = (wlan2G4Status.stations[mac] && wlan2G4Status.stations[mac].ValueOf())
-        || (wlan5G7Status.stations[mac] &&  wlan5G7Status.stations[mac].ValueOf())
+        || (wlan5G7Status.stations[mac] && wlan5G7Status.stations[mac].ValueOf())
         || {};
 
     _wifiBus.DeviceUp(mac, {
@@ -62,28 +60,33 @@ export function Subscribe(cb) {
             Addr: {}
         });
     });
-    subNetwork.ssdp.on('set', (IP, oldValue, headers)=>{
+    subNetwork.ssdp.on('set', (IP, oldValue, headers)=> {
         var mac = StatBiz.GetMacByIP(IP);
         info('ssdp set', IP, mac, headers);
         _wifiBus.DeviceUp(mac, {
-             SSDP : headers
+            SSDP: headers
         });
     });
-    subNetwork.ssdp.on('del', (IP, oldHeaders)=>{
+    subNetwork.ssdp.on('del', (IP, oldHeaders)=> {
         var mac = StatBiz.GetMacByIP(IP);
         info('ssdp del', IP, mac, oldHeaders);
     });
-    subNetwork.mdns.on('set', (IP, oldValue, service)=>{
-        var mac = StatBiz.GetMacByIP(IP);
-        info('mdns set', IP, mac, service);
-        mdnsServices[mac][service.type] = service;
-        _wifiBus.DeviceUp(mac, {
-            MDNS: mdnsServices[mac] //{  'ipp' : ... , 'xxx' : ...  }
-        });
-    });
-    subNetwork.mdns.on('del', (IP, oldService)=>{
-        var mac = StatBiz.GetMacByIP(IP);
-        info('mdns del', IP, mac, oldService);
+    subNetwork.mdns.on('set', (levelKey, oldValue, serviceMeta)=> {
+        if (levelKey.indexOf('.') > -1) {
+            var parts = levelKey.split('.');
+            if (parts.length === 2) {
+                var IP = parts[0];
+                var type = parts[1];
+
+                var mac = StatBiz.GetMacByIP(IP);
+                if (mac) {
+                    info('mdns set', IP, mac, type, serviceMeta);
+                    _wifiBus.DeviceUp(mac, {
+                        MDNS: subNetwork.mdns[IP].ValueOf() //{  type: 'UP/DOWN', service: any }
+                    });
+                }
+            }
+        }
     });
 
     subNetwork.p0f.on('set', (IP, oldValue, description) => {
@@ -103,8 +106,7 @@ export function Subscribe(cb) {
 
     var subWlan2G4 = StatMgr.Sub(SECTION.WLAN2G);
     subWlan2G4.devices.on('set', (mac, oldValue, online)=> {
-        info('2G device ' + online ?  'up' : 'down', mac);
-        delete mdnsServices[mac];
+        info('2G device ' + online ? 'up' : 'down', mac);
         online ? on_connect(mac, SECTION.WLAN2G) : _wifiBus.DeviceDrop(mac);
     });
     subWlan2G4.stations.on('set', (mac, oldValue, station)=> {
@@ -116,8 +118,7 @@ export function Subscribe(cb) {
 
     var subWlan5G7 = StatMgr.Sub(SECTION.WLAN5G);
     subWlan5G7.devices.on('set', (mac, oldValue, online)=> {
-        info('5G device  ' + online ?  'up' : 'down', mac);
-        delete mdnsServices[mac];
+        info('5G device  ' + online ? 'up' : 'down', mac);
         online ? on_connect(mac, SECTION.WLAN5G) : _wifiBus.DeviceDrop(mac);
     });
     subWlan5G7.stations.on('set', (mac, oldValue, station)=> {
