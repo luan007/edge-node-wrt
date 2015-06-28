@@ -90,3 +90,15 @@ export function Diagnose(callback:Callback) {
         });
     }, 2000);
 }
+
+export function Subscribe(cb) {
+    var sub = StatMgr.Sub(SECTION.NETWORK);
+    sub.network.on('NetworkName', (oldValue, newValue) => {
+        var conf = ConfMgr.Get(SECTION.SAMBA) || defaultConfig;
+        if(conf.UseRouterName){
+            smbInstance.Config.CommonSections["global"]["Netbios_Name"] = newValue;
+            smbInstance.Start(true);
+        }
+    });
+    cb();
+}
