@@ -82,4 +82,6 @@ export function AppSocketToPort(TCP_PORT, UNIX_PATH, cb) {
     });
 }
 
+//TODO: add a HTTP socket client
+
 __API(AppSocketToPort, "Port.Map", [Permission.PortExposure]);

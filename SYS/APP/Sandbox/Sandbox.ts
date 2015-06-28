@@ -172,10 +172,19 @@ function _post_reverse_api(cb) {
     global.Drivers = {};
     try {
         require("/driver");
+        if(global.Drivers) {
+            for(var drvId in global.Drivers) {
+                ((_drvId) => {
+                    var driver = global.Drivers[_drvId];
+                    driver.Change = (deviceId, assump) => {
+                        return API.Device.Change(_drvId, deviceId, assump);
+                    };
+                })(drvId);
+            }
+        }
     } catch (e) {
-        console.log('require driver -======------ error', e);
+        console.log('require driver ========= failed', e);
     }
-    //console.log('require driver -======------ ', global.Drivers);
     var json = reverseAPI.GenerateReverseAPI(_rpc);
     API.Sandbox.SetupReverseAPI(json, cb);
 }

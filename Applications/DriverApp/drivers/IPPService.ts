@@ -10,10 +10,20 @@ class IPPService implements IInAppDriver {
         }
         return null;
     }
+
     private  __ippPrinter(dev) {
         var ippUrl = this.__ippUrl(dev);
-        if(ippUrl) return ipp.Printer(ippUrl);
+        if (ippUrl) return ipp.Printer(ippUrl);
         return null;
+    }
+
+    private __ippGetJobs(ippUrl, cb) {
+        var printer = ipp.Printer(ippUrl);
+        var msg = {"operation-attributes-tag": {}};
+        printer.execute("Get-Jobs", msg, function (err, jobs) {
+            if (err) return cb(err);
+            return cb(null, jobs);
+        });
     }
 
     private __printJobCB(cb) {
@@ -24,6 +34,29 @@ class IPPService implements IInAppDriver {
                 return cb(undefined, res);
             }
         };
+    }
+
+    constructor() {
+        setInterval(this.__jobPatrol, 1 * 1000);
+    }
+
+    private __printers:IDic<any> = {};  // deviceId1: {ippUrl, jobs} / deviceId2 : {ippUrl, jobs}
+    private __jobPatrol() {
+        for (var deviceId in this.__printers) {
+            ((_deviceId) => {
+                var printer = this.__printers[_deviceId];
+                this.__ippGetJobs(printer.ippUrl, (err, jobs) => {
+                    var doneJobs = delta_add_return_changes(jobs, printer.jobs, false, true);
+                    (<any>this).Change({ // EMIT !!
+                        attributes: {
+                            "printer.doneJobs": doneJobs,
+                            "printer.queue": jobs
+                        }
+                    });
+                    this.__printers[_deviceId] = jobs;
+                });
+            })(deviceId);
+        }
     }
 
     match(dev:IDevice, delta:IDriverDetla, cb:Callback) {
@@ -43,9 +76,14 @@ class IPPService implements IInAppDriver {
         if (printer) {
             printer.execute("Get-Printer-Attributes", null, (err, res) => {
                 if (err) return cb(err);
+
+                // job scanning
+                if (!this.__printers[dev.id])
+                    this.__printers[dev.id] = {ippUrl: printer.url, jobs: {}};
+
                 //TODO: analyze ipp result
                 return cb(null, {
-                    classes: {},
+                    classes: {'printer': 1},
                     actions: {},
                     aux: {},
                     attributes: res,
@@ -58,6 +96,7 @@ class IPPService implements IInAppDriver {
     }
 
     detach(dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) {
+        delete this.__printers[dev.id];
         return cb(undefined, true);
     }
 
@@ -92,7 +131,7 @@ class IPPService implements IInAppDriver {
             } else if (params.uri) {
                 var msg = {
                     "operation-attributes-tag": {
-                        "requesting-user-name":  params.user.name,
+                        "requesting-user-name": params.user.name,
                         "job-name": params.job_name,
                         "document-format": params.mime_type,
                         "document-uri": params.uri
@@ -101,7 +140,7 @@ class IPPService implements IInAppDriver {
                 printer.execute("Print-URI", msg, this.__printJobCB(cb));
             }
         } else { // should not happen :)
-            return cb(new Error('unkown device'));
+            return cb(new Error('unknown device'));
         }
     }
 

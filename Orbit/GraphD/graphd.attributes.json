@@ -80,5 +80,17 @@
     ],
     "desc": "no desc available",
     "owner": "dummy"
+  },
+  "printer.doneJobs": {
+    "tag": [
+      "printer", "job", "queue"
+    ],
+    "desc": ""
+  },
+  "printer.queue": {
+    "tag": [
+      "printer", "job", "queue"
+    ],
+    "desc": ""
   }
 }

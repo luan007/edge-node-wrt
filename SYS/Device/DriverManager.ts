@@ -3,6 +3,8 @@ import DeviceManager = require('./DeviceManager');
 import DB = require('./Graphd/DB');
 import events = require('events');
 
+import RuntimePool = require('../APP/RuntimePool');
+
 var Drivers:IDic<IDriver> = {};
 var Drivers_BusMapping:IDic<IDic<IDriver>> = {};
 var InterestCache = {};
@@ -10,7 +12,6 @@ var InterestCache = {};
 export var Events = new events.EventEmitter();
 
 var query = require("underscore-query")(_);
-//var pursuit = require("pursuit"); //TODO: Investigate Underscore_Query's performance
 
 export function InvalidateDrvInterest(drvId) {
     //TODO: swap to pursuit if you want..
@@ -220,24 +221,10 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
         var version = dev.time.getTime();
         var myAssump = dev.assumptions[drvId];
 
-        //if (isP0F(deltaBus) && driver.name() === 'DriverApp - P0F') {
-        //    console.log('4.1 _notify_driver <<< ==========',
-        //        stateChange,
-        //        driver.status(),
-        //        dev.time.getTime() - version,
-        //        _sanity_check(version, dev, driver),
-        //        myAssump,
-        //        _is_interested_in(driver, dev, 1, tracker, delta, deltaBus, deltaConf, deltaOwn, stateChange));
-        //}
-
         if (!_sanity_check(version, dev, driver)) return; //WTF??
 
         try {
             if (myAssump && myAssump.valid && _is_interested_in(driver, dev, 1, tracker, delta, deltaBus, deltaConf, deltaOwn, stateChange)) {
-
-                //if (isP0F(deltaBus) && driver.name() === 'DriverApp - P0F') {
-                //    console.log('4.2 _notify_driver change <<< ==========', stateChange);
-                //}
                 //need change
                 driver.change(dev, {
                     assumption: delta,
@@ -249,12 +236,6 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
                     _update_driver_data(driver, dev, assump, tracker);
                 }));
             } else if (!(myAssump && myAssump.valid) && _is_interested_in(driver, dev, 0, tracker, delta, deltaBus, deltaConf, deltaOwn, stateChange)) {
-
-                //if (isP0F(deltaBus) && driver.name() === 'DriverApp - P0F') {
-                //    console.log('4.2 _notify_driver match <<< ==========', stateChange);
-                //}
-
-                //need match/attach
                 //TODO: Verify EmitterizeCB's impact/influence on GC, to see if it solves the 'ghost CB' prob
                 driver.match(dev, {
                     assumption: delta,
@@ -262,13 +243,10 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
                     config: deltaConf,
                     ownership: deltaOwn
                 }, <any>must((err, data) => {
-                    //console.log(' ^______________^  callback ->', err, data, 'version', version, 'status',
-                    //    driver.status() ,'getTime()-version', dev.time.getTime() - version);
+
                     if (!data || !_sanity_check(version, dev, driver, err)) return;
                     try {
-                        //console.log(' ^______________^  try Attach ->', driver.name());
-                        //if (driver.name() === 'OUI')
-                        //    fatal("Attach -> " + driver.name());
+
                         driver.attach(dev, {
                             assumption: delta,
                             bus: deltaBus,
@@ -355,10 +333,6 @@ function _is_interested_in(drv:IDriver, dev:IDevice, currentStage, tracker:_trac
     //cuz delta costs less
     return 1;
 }
-
-//function isP0F(busDelta) {
-//    return busDelta && busDelta.hwaddr && busDelta.hwaddr === '60:d9:c7:41:d4:71' && busDelta.data.P0F && Object.keys(busDelta.data.P0F).length > 0;
-//}
 
 export function DeviceChange(dev:IDevice, tracker:_tracker, assump:IDeviceAssumption, busDelta:IBusData, config:KVSet, ownership, stateChange?) {
 
@@ -453,20 +427,27 @@ export function DeviceDrop(dev:IDevice, busDelta?) {
 
 export function DriverInvoke(drv:IDriver, dev:IDevice, actionId, params, cb) {
     //TODO: add invoking user info
-    // params['user']
+    // plus:  params['user']
     drv.invoke(dev, actionId, params, cb); //TODO: not finished
 }
 
 export function Initialize(cb) {
     trace("Init..");
     cb();
-    //async.series([
-    //LoadDriver.bind(null,(require("./Driver/TestDriver")).Instance),
-    //LoadDriver.bind(null,(require("./Driver/OUI")).Instance),
-    //LoadDriver.bind(null,(require("./Driver/NameService")).Instance)
-    //], callback);
 }
 
+function __driverChangeDevice(inAppDrvId, deviceId, assump:IDeviceAssumption, cb) {
+    var appUid = RuntimePool.GetCallingRuntime(this).App.uid;
+    var drvId = "App_" + appUid + ":" + inAppDrvId;
+    var driver = Drivers[drvId];
+    var device = DeviceManager.Get(deviceId);
+    if(driver && device) {
+        DriverActiveUpdate(driver, device, assump);
+    }
+    cb();
+}
+
+__API(__driverChangeDevice, 'Device.Change', [Permission.Driver]);
 
 __EVENT("Device.change", [Permission.DeviceAccess]);
 __EVENT("Driver.down", [Permission.Driver]);
