@@ -73,6 +73,9 @@ import net = require("net");
 import fs = require("fs");
 import http = require("http");
 
+//TODO: Patch DNS
+
+
 var exec = require("child_process").exec;
 //var contextify = require("contextify");
 var chroot:any = require("./chroot");
@@ -154,6 +157,7 @@ function _jail(cb) {
         try {
             Jail(); //NO MORE NETWORK
             exec("./net.sh " + process.pid + _env.virtual_ip, () => {
+                exec = undefined;
                 chroot(_env.target_dir, _env.runtime_id); // YOU ARE NOBODY FROM NOW - NO MORE NOTHING
                 //process.chdir("/");
                 global.API_JSON = _env.api_obj;
