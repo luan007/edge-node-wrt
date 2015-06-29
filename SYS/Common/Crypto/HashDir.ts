@@ -4,7 +4,9 @@ import path = require('path');
 
 function _hash_subdir(dir) {
     var res = "";
-    if (!fs.existsSync(dir) || (fs.statSync(dir).isDirectory() && path.basename(dir) === 'Data')) {
+    if (!fs.existsSync(dir) || (fs.statSync(dir).isDirectory()
+        && path.basename(dir) === 'Data'
+        && path.basename(dir) === 'etc')) {
         return "";
     } else if (fs.statSync(dir).isDirectory()) {
         var d = fs.readdirSync(dir).sort();

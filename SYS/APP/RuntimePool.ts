@@ -173,6 +173,9 @@ function _clean_up(runtimeId, cb) {
         Tracker.ReleaseByOwner(runtimeId, (err, result) => {
             if (err) error(err);
 
+            umount_till_err(path.join(AppManager.GetAppRootPath(runtime.App.uid), 'etc'), (err, result) => {
+                //ignore
+            });
             umount_till_err(AppManager.GetAppDataLn(runtime.App.uid), (err, result) => {
                 try {
                     if (fs.existsSync(AppManager.GetAppDataLn(runtime.App.uid))) {
@@ -296,7 +299,7 @@ function quata_usage(runtimeId, cb) {
 function StartRuntime(app_uid) {
     var runtime = _pool[app_uid];
     if (runtime) {
-        var path = AppManager.GetAppDataDir(runtime.App.uid);
+        var _path = AppManager.GetAppDataDir(runtime.App.uid);
         async.series([
             _clean_up.bind(null, runtime.RuntimeId),
             (cb) => {
@@ -330,7 +333,13 @@ function StartRuntime(app_uid) {
             (cb:Callback) => {
                 fs.mkdir(AppManager.GetAppDataLn(runtime.App.uid), <any>ignore_err(cb));
             },
-            mount_auto.bind(null, path, AppManager.GetAppDataLn(runtime.App.uid), ["--bind"]),
+            (cb:Callback) => {
+                fs.mkdir(path.join(AppManager.GetAppRootPath(runtime.App.uid), 'etc'), <any>ignore_err(cb));
+            },
+            mount_auto.bind(null, _path, AppManager.GetAppDataLn(runtime.App.uid), ["--bind"]),
+            mount_auto.bind(null, '/etc', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'etc'),
+                ["--bind", '-o noexec,nosuid,nodev']),
+            exec.bind(null, "mount", "--remount", '-o ro', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'etc')),
             exec.bind(null, "chown", "root", AppManager.GetAppRootPath(runtime.App.uid)),
             exec.bind(null, "chmod", "0755", AppManager.GetAppRootPath(runtime.App.uid)),
             exec.bind(null, "chown", runtime.RuntimeId, AppManager.GetAppDataLn(runtime.App.uid)),

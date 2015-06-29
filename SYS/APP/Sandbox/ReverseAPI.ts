@@ -1,7 +1,7 @@
 ﻿import rpc = require("../../../Modules/RPC/index");
 
 declare
-var sandbox:local.Sandbox.SandboxEnvironment; //global sandbox
+var sandbox:local.sandbox.SandboxEnvironment; //global sandbox
 
 /*Called by host to ensure responsiveness*/
 function Heartbeat(time_in, cb) {

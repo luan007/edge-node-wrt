@@ -37,6 +37,34 @@ import Server = require('../API/Server');
 
 var _FAIL_STACK_SIZE:number = 30;
 
+
+const COUNT = 65533;
+var VirtualIpLeases = new Array(COUNT);
+
+
+function LeaseVirtualIp(){
+
+    if(Object.keys(VirtualIpLeases).length >= COUNT) {
+        return undefined;
+    }
+    else {
+        for(var i = 0; i < COUNT; i++) {
+            if(!VirtualIpLeases[i]) {
+                VirtualIpLeases[i] = 1;
+                return "169.254." + ((i + 1) >> 8) + "." + ((i + 1) & 0xFF);
+            }
+        }
+    }
+
+}
+
+function ReleaseVirtualIp(i){
+    if(VirtualIpLeases[i])
+        VirtualIpLeases[i] = 0;
+}
+
+
+
 export class RuntimeStatusEnum {
     static Ready:number = 0;
     static Launching:number = 1;
@@ -58,6 +86,8 @@ export class Runtime extends events.EventEmitter {
     private _mainsock = getSock(UUIDstr());
 
     private _webexsock = getSock(UUIDstr());
+
+    private _virtualip;
 
     public Registry:Subkey;
 
@@ -187,7 +217,11 @@ export class Runtime extends events.EventEmitter {
             error("[ SKIP ] App is marked Broken " + this.App.name.bold);
             return this.Stop();
         }
-
+        this._virtualip = LeaseVirtualIp();
+        if(!this._virtualip){
+            this._push_fail(new Error('Run out of virtual Ip!'));
+            return this.Stop();
+        }
         warn("WARNING, CHMOD 0711 IS NOT SECURE!!");
 
         if (this._process) {
@@ -209,6 +243,7 @@ export class Runtime extends events.EventEmitter {
             webex_socket: this._webexsock,
             //api_salt: this.App.appsig.substr(0, 512),
             runtime_id: this.RuntimeId,
+            virtual_ip: this._virtualip,
             api_obj: Server.GetAPIJSON()
         };
         env.NODE_PATH = process.env.NODE_PATH;
@@ -270,6 +305,7 @@ export class Runtime extends events.EventEmitter {
 
     Stop = () => {
 
+        ReleaseVirtualIp(this._virtualip);
         if (this.RPC) {
             fatal("Releasing RPC event listeners..");
             this.RPC.Destroy();

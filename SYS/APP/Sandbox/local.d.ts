@@ -1,6 +1,6 @@
 ﻿
 declare module local {
-    export module Sandbox {
+    export module sandbox {
         export interface SandboxEnvironment {
             Drivers: {
                 match   :   Function;

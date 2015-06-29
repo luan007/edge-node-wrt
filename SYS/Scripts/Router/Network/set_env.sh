@@ -13,3 +13,9 @@ rm -rf /tmp/fdsock
 if [ ! -d /tmp/fdsock ]; then mkdir -p /tmp/fdsock; fi
 
 if [ ! -d /${PWD%/*}/_data ]; then mkdir -p /${PWD%/*}/_data; fi
+
+brctl delbr VETH
+brctl addbr VETH
+
+#virtual bridge
+ifconfig VETH 169.254.0.1/8

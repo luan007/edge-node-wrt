@@ -23,6 +23,7 @@ declare module local {
             options: any;
             main_socket;
             webex_socket;
+            virtual_ip: string;
         }
 
         export interface RuntimeStatus {

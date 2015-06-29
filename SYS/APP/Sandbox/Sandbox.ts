@@ -64,7 +64,7 @@ process.on("uncaughtException",(err) => {
     _p.exit();
 });
 
-declare var sandbox: local.Sandbox.SandboxEnvironment; //global sandbox
+declare var sandbox: local.sandbox.SandboxEnvironment; //global sandbox
 
 import rpc = require("../../../Modules/RPC/index");
 import reverseAPI = require("./ReverseAPI");
@@ -73,10 +73,11 @@ import net = require("net");
 import fs = require("fs");
 import http = require("http");
 
+var exec = require("child_process").exec;
 //var contextify = require("contextify");
-var chroot = require("./chroot");
-var ffi = require("ffi");
-var async = require("async");
+var chroot:any = require("./chroot");
+var ffi:any = require("ffi");
+var async:any = require("async");
 
 var CLONE_NEWNET = 0x40000000;
 var CLONE_NEWPID = 0x20000000;
@@ -152,15 +153,17 @@ function _jail(cb) {
     mainServer.listen(_env.main_socket,() => {
         try {
             Jail(); //NO MORE NETWORK
-            chroot(_env.target_dir, _env.runtime_id); // YOU ARE NOBODY FROM NOW - NO MORE NOTHING
-            //process.chdir("/");
-            global.API_JSON = _env.api_obj;
-            process.env = {};
-            process.argv = [];
-            process.title = "";
-            _env = undefined;
-            chroot = syscall = ffi = undefined; //for .. sake
-            cb();
+            exec("./net.sh " + process.pid + _env.virtual_ip, () => {
+                chroot(_env.target_dir, _env.runtime_id); // YOU ARE NOBODY FROM NOW - NO MORE NOTHING
+                //process.chdir("/");
+                global.API_JSON = _env.api_obj;
+                process.env = {};
+                process.argv = [];
+                process.title = "";
+                _env = undefined;
+                chroot = syscall = ffi = undefined; //for .. sake
+                cb();
+            });
         } catch (e) {
             console.log(e);
             cb(e);
