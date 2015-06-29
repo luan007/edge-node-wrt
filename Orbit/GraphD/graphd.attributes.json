@@ -85,12 +85,14 @@
     "tag": [
       "printer", "job", "queue"
     ],
-    "desc": ""
+    "desc": "",
+    "owner": "printer"
   },
   "printer.queue": {
     "tag": [
       "printer", "job", "queue"
     ],
-    "desc": ""
+    "desc": "",
+    "owner": "printer"
   }
 }

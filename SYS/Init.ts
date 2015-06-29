@@ -15,8 +15,8 @@ domain.on('error', function (err) {
 
 domain.run(function () {
     var modules = [
-        {path: './Common/Runtime/Connectivity'}
-        , {path: './DB/Storage', name: 'Storage'}
+        {path: './Common/Runtime/Connectivity'} ,
+        {path: './DB/Storage', name: 'Storage'}
         , {path: './DB/Registry', name: 'Registry'}
         , {path: './Device/Graphd/DB', name: 'Graphd'}
         , {path: './Router/Storage/Samba', name: 'Samba'}

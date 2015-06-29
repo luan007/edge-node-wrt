@@ -3,10 +3,10 @@ var util = require('util');
 
 class IPPService implements IInAppDriver {
     private __ippUrl(dev:IDevice) {
-        var mdnsData = dev.bus.data.MDNS['_ipp._tcp'];
-        if (mdnsData.port && mdnsData.txtRecord && mdnsData.txtRecord.rp) {
+        var ipp = dev.bus.data.MDNS['ipp'];
+        if (ipp && ipp.service.port && ipp.service.txtRecord && ipp.service.txtRecord.rp) {
             return util.format('http://%s:%d/%s', dev.bus.data.Lease.Address
-                , mdnsData.port, mdnsData.txtRecord.rp);
+                , ipp.service.port, ipp.service.txtRecord.rp);
         }
         return null;
     }
@@ -60,9 +60,13 @@ class IPPService implements IInAppDriver {
     }
 
     match(dev:IDevice, delta:IDriverDetla, cb:Callback) {
-        console.log("--------------- IPP match Called", dev.bus.data.MDNS);
-        var matched = dev.bus.data.MDNS.type === '_ipp._tcp';
-        cb(undefined, matched);
+        var ipp = dev.bus.data.MDNS['ipp'];
+        if(ipp) {
+            console.log("--------------- IPP match Called");
+            var matched = ipp.type === 'UP' && ipp.service.addresses && ipp.service.txtRecord;
+            return cb(undefined, matched);
+        }
+        return cb(undefined, false);
     }
 
     attach(dev:IDevice, delta:IDriverDetla, matchResult:any, cb:PCallback<IDeviceAssumption>) {
@@ -71,15 +75,19 @@ class IPPService implements IInAppDriver {
     }
 
     change(dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) {
-        console.log("--------------- IPP change Called", dev.bus.data.MDNS);
+        console.log("--------------- IPP change Called");
         var printer = this.__ippPrinter(dev);
+        console.log('printer [1]', printer);
         if (printer) {
+            console.log('printer [2]', printer);
             printer.execute("Get-Printer-Attributes", null, (err, res) => {
+                console.log('printer [3]', err, res);
                 if (err) return cb(err);
 
+                console.log('ipp url.href', printer.url.href);
                 // job scanning
                 if (!this.__printers[dev.id])
-                    this.__printers[dev.id] = {ippUrl: printer.url, jobs: {}};
+                    this.__printers[dev.id] = {ippUrl: printer.url.href, jobs: {}};
 
                 //TODO: analyze ipp result
                 return cb(null, {

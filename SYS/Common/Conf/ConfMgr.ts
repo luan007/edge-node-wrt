@@ -101,7 +101,7 @@ class ConfMgr extends events.EventEmitter {
     }
 
     private _flush = (key) => {
-        console.log('received _flush key', key);
+        //console.log('received _flush key', key);
         if (this._buffers[key]) {
 
             this.emit('changed', key, this._buffers[key], this._configs[key]);

@@ -76,18 +76,22 @@ export function Subscribe(cb) {
         }
     });
     subNetwork.mdns.on('set', (levelKey, oldValue, serviceMeta)=> {
+        //console.log('mdns -------]]', levelKey);
         if (levelKey.indexOf('.') > -1) {
             var parts = levelKey.split('.');
-            if (parts.length === 2) {
-                var IP = parts[0];
-                var type = parts[1];
+            if (parts.length === 5) { //ip.typename
+                var execResult = /(\d+.\d+.\d+.\d+)/gmi.exec(levelKey);
+                if(execResult.length > 1) {
+                    var IP = execResult[1];
+                    var type = parts[1];
 
-                var mac = StatBiz.GetMacByIP(IP);
-                if (mac) {
-                    info('mdns set', IP, mac, type, serviceMeta);
-                    _wifiBus.DeviceUp(mac, {
-                        MDNS: subNetwork.mdns[IP].ValueOf() //{  type: 'UP/DOWN', service: any }
-                    });
+                    var mac = StatBiz.GetMacByIP(IP);
+                    if (mac) {
+                        //console.log('mdns set', IP, mac, type, serviceMeta);
+                        _wifiBus.DeviceUp(mac, {
+                            MDNS: subNetwork.mdns[IP].ValueOf() //{  type: 'UP/DOWN', service: any }
+                        });
+                    }
                 }
             }
         }

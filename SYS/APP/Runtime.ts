@@ -219,7 +219,7 @@ export class Runtime extends events.EventEmitter {
             detached: !CONF.DO_NOT_DETACH  //important
         });
         ReportRuntimePID(this._process.pid);
-        info("Process Started With PID " + (this._process.pid + "").bold);
+        console.log("Process Started With PID " + (this._process.pid + "").bold);
 
         this._process.on("error", (e) => {
             console.log('^------------------^ process.on(error)', e);

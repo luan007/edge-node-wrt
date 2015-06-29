@@ -67,7 +67,7 @@ class _mdns_Browser extends events.EventEmitter {
             //if (!ip) return;
             trace((event ? "+" : "-") + " " + service.type + "@" + ip);
             service.addresses = ip;
-            var addrs = service.addresses;
+            var addrs = Array.isArray(service.addresses) ? service.addresses : [service.addresses];
             for (var i = 0; i < addrs.length; i++) {
                 var addr = addrs[i];
                 if (event == 1) { //up
@@ -79,7 +79,7 @@ class _mdns_Browser extends events.EventEmitter {
                     }
                     this.Alive[addr][typeString][s] = service;
 
-                    this.emit(this.EVENT_SERVICE_UP, service.addresses, service);
+                    this.emit(this.EVENT_SERVICE_UP, addr, service);
                     if (this.watch_addr[addr]) {
                         this.watch_addr[addr][0](service, this.Alive[addr]);
                     }
@@ -94,7 +94,7 @@ class _mdns_Browser extends events.EventEmitter {
                             }
                         }
                     }
-                    this.emit(this.EVENT_SERVICE_DOWN, service.addresses, service);
+                    this.emit(this.EVENT_SERVICE_DOWN, addr, service);
                     if (this.watch_addr[addr]) {
                         this.watch_addr[addr][1](service, this.Alive[addr]);
                     }

@@ -221,14 +221,19 @@ export function Initialize(cb) {
     });
 
     dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_ADD, (lease:Dnsmasq.IDHCPLease)=> { // DEVICE ADDED
-        warn('EVENT_ADD', lease);
         pub.leases.Set(lease.Mac, lease);
-        pub.mdns.Set(lease.Address, {});
+        var mdnsStatus = StatMgr.Get(SECTION.NETWORK).mdns.ValueOf();
+        console.log('Dnsmasq Add Lease'['greenBG'].bold, lease, mdnsStatus);
+        if(!mdnsStatus[lease.Address])
+            pub.mdns.Set(lease.Address, {});
     });
 
     dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_CHANGE, (lease:Dnsmasq.IDHCPLease)=> { // DEVICE CHANGED
-        warn('EVENT_CHANGE', lease);
         pub.leases.Set(lease.Mac, lease);
+        var mdnsStatus = StatMgr.Get(SECTION.NETWORK).mdns.ValueOf();
+        console.log('Dnsmasq Add Change'['greenBG'].bold, lease, mdnsStatus);
+        if(!mdnsStatus[lease.Address])
+            pub.mdns.Set(lease.Address, {});
     });
 
     dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_DEL, (lease:Dnsmasq.IDHCPLease)=> { // DEVICE DELETED
@@ -247,16 +252,19 @@ export function Initialize(cb) {
     });
 
     mdns.Browser.on(mdns.Browser.EVENT_SERVICE_UP, (IP, service)=> {
-        if (service.host === 'NPIFEF707.local.')
-            console.log('[[[mdns device up]]'['blueBG'].bold, IP, service);
-        if (pub.mdns[IP]) {
-            pub.mdns[IP].Set(service.type, {type: 'UP', service: service});
+        var mdnsStatus = StatMgr.Get(SECTION.NETWORK).mdns.ValueOf();
+        //if (service.host === 'NPIFEF707.local.' && service.type.name === 'ipp')
+        //    console.log('[[[mdns device up]]'['blueBG'].bold, IP, mdnsStatus);
+        if (mdnsStatus[IP]) {
+            pub.mdns[IP].Set(service.type.name, {type: 'UP', service: service});
         }
     });
     mdns.Browser.on(mdns.Browser.EVENT_SERVICE_DOWN, (IP, service)=> {
-        console.log('[[[mdns device down]]'['blueBG'].bold, IP, service);
-        if (pub.mdns[IP]) {
-            pub.mdns[IP].set(service.type, {type: 'DOWN', service: service});
+        var mdnsStatus = StatMgr.Get(SECTION.NETWORK).mdns.ValueOf();
+        //if (service.host === 'NPIFEF707.local.' && service.type.name === 'ipp')
+        //    console.log('[[[mdns device down]]'['blueBG'].bold, IP, mdnsStatus);
+        if (mdnsStatus[IP]) {
+            pub.mdns[IP].set(service.type.name, {type: 'DOWN', service: service});
         }
     });
 
