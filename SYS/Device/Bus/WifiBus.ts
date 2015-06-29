@@ -62,14 +62,18 @@ export function Subscribe(cb) {
     });
     subNetwork.ssdp.on('set', (IP, oldValue, headers)=> {
         var mac = StatBiz.GetMacByIP(IP);
-        info('ssdp set', IP, mac, headers);
-        _wifiBus.DeviceUp(mac, {
-            SSDP: headers
-        });
+        if(mac) {
+            info('ssdp set', IP, mac, headers);
+            _wifiBus.DeviceUp(mac, {
+                SSDP: headers
+            });
+        }
     });
     subNetwork.ssdp.on('del', (IP, oldHeaders)=> {
         var mac = StatBiz.GetMacByIP(IP);
-        info('ssdp del', IP, mac, oldHeaders);
+        if(mac) {
+            info('ssdp del', IP, mac, oldHeaders);
+        }
     });
     subNetwork.mdns.on('set', (levelKey, oldValue, serviceMeta)=> {
         if (levelKey.indexOf('.') > -1) {

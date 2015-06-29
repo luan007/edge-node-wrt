@@ -247,15 +247,14 @@ export function Initialize(cb) {
     });
 
     mdns.Browser.on(mdns.Browser.EVENT_SERVICE_UP, (IP, service)=> {
-        //console.log('mdns device up', IP, service);
+        if (service.host === 'NPIFEF707.local.')
+            console.log('[[[mdns device up]]'['blueBG'].bold, IP, service);
         if (pub.mdns[IP]) {
             pub.mdns[IP].Set(service.type, {type: 'UP', service: service});
         }
-        //pub.mdns.Set(IP, service);
     });
     mdns.Browser.on(mdns.Browser.EVENT_SERVICE_DOWN, (IP, service)=> {
-        //console.log('mdns device down', IP, service);
-        //pub.mdns.Del(IP);
+        console.log('[[[mdns device down]]'['blueBG'].bold, IP, service);
         if (pub.mdns[IP]) {
             pub.mdns[IP].set(service.type, {type: 'DOWN', service: service});
         }

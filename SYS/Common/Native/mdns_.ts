@@ -58,10 +58,10 @@ class _mdns_Browser extends events.EventEmitter {
         if (!service.host) {
             return warn("Record is broken, need hostname");
         } 
-        dns.lookup(service.host, function(err, ip, family) {
+        dns.lookup(service.host, (err, ip, family) => {
             if (err) return warn(err);
             else {
-                info(arguments);
+                info(err, ip, family);
             }
 
             //if (!ip) return;
@@ -79,7 +79,7 @@ class _mdns_Browser extends events.EventEmitter {
                     }
                     this.Alive[addr][typeString][s] = service;
 
-                    this.emit(this.EVENT_SERVICE_UP, addr, service);
+                    this.emit(this.EVENT_SERVICE_UP, service.addresses, service);
                     if (this.watch_addr[addr]) {
                         this.watch_addr[addr][0](service, this.Alive[addr]);
                     }
@@ -94,7 +94,7 @@ class _mdns_Browser extends events.EventEmitter {
                             }
                         }
                     }
-                    this.emit(this.EVENT_SERVICE_DOWN, addr, service);
+                    this.emit(this.EVENT_SERVICE_DOWN, service.addresses, service);
                     if (this.watch_addr[addr]) {
                         this.watch_addr[addr][1](service, this.Alive[addr]);
                     }

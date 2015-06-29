@@ -132,7 +132,7 @@ class _sys_global_conf {
 
     //connectivity
     CONNECTIVITY_CHECK_INTERVAL = 60 * 1000;     // ping check interval
-    CONNECTIVITY_CHECK_WAIT_SECONDS = 3;        // ping check timeout (in seconds)
+    CONNECTIVITY_CHECK_WAIT_SECONDS = 5;        // ping check timeout (in seconds)
     CONNECTIVITY_CHECK_DOMAINS =
         ["www.baidu.com", "www.qq.com", "www.weibo.com", "www.taobao.com", "www.jd.com"];
 
