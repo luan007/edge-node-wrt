@@ -4,23 +4,23 @@ process.env.NODE_PATH = __dirname;
 var OUI = require('./OUI/OUI');
 
 OUI.Initialize(()=> {
-    var net = require('net');
-    setInterval(()=>{
-        var client = net.connect({host:'172.0.0.1',port: 8888},
-            function() { //'connect' listener
-                console.log('connected to server!');
-            });
-        client.on('data', function(data) {
-            console.log(data.toString());
-            client.end();
-        });
-        client.on('error', function(err) {
-            console.log(err.toString());
-        });
-        client.on('end', function() {
-            console.log('disconnected from server');
-        });
-    }, 1000);
+    //var net = require('net');
+    //setInterval(()=>{
+    //    var client = net.connect({host:'172.0.0.1',port: 8888},
+    //        function() { //'connect' listener
+    //            console.log('connected to server!');
+    //        });
+    //    client.on('data', function(data) {
+    //        console.log(data.toString());
+    //        client.end();
+    //    });
+    //    client.on('error', function(err) {
+    //        console.log(err.toString());
+    //    });
+    //    client.on('end', function() {
+    //        console.log('disconnected from server');
+    //    });
+    //}, 1000);
 });
 
 

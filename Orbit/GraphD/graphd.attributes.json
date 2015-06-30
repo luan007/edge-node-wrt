@@ -94,5 +94,14 @@
     ],
     "desc": "",
     "owner": "printer"
+  },
+  "printer.uri-supported.ipp": {
+    "owner": "printer"
+  },
+  "printer.uri-supported.ipps": {
+    "owner": "printer"
+  },
+  "printer.info": {
+    "owner": "printer"
   }
 }

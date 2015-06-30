@@ -41,13 +41,13 @@
       "Interest": {
           "match": {
             "bus": {
-              "data.P0F": { "$exists": true }
+              "data.P0F.ip": { "$exists": true }
             }
           },
           "change": {
             "delta": {
               "bus": {
-                "data.P0F": { "$exists": true }
+                "data.P0F.ip": { "$exists": true }
               }
             }
           }
@@ -58,7 +58,10 @@
       "Interest": {
         "match": {
           "bus": {
-              "data.Lease": { "$exists": true }
+            "$and": [
+              {"data.Lease": { "$exists": true }},
+              {"dev.bus.data.MDNS.ipp" : {"$exists": true}}
+              ]
           }
         },
         "change": {

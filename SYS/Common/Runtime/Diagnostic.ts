@@ -30,18 +30,6 @@ export function ClearRuntimePID() {
     }
 }
 
-export function ReportRuntimePID(pid) {
-    if (runtime_pool_pids.indexOf(pid) === -1)
-        runtime_pool_pids.push(pid);
-
-    intoQueue('write_runtimepool_pids', (cb) => {
-        fs.writeFile(CONF.APP_PID_FILE, JSON.stringify(runtime_pool_pids), ()=> {
-        });
-        cb();
-    }, () => {
-    });
-}
-
 export function RegisterModule(moduleName) {
     if (diagnostic_modules.indexOf(moduleName) === -1)
         diagnostic_modules.push(moduleName);
@@ -102,6 +90,4 @@ global.ClearDiagnostic = ClearDiagnostic;
 global.RegisterModule = RegisterModule;
 global.ReportModuleSuccess = ReportModuleSuccess;
 global.ReportModuleFailed = ReportModuleFailed;
-global.ClearRuntimePID = ClearRuntimePID;
-global.ReportRuntimePID = ReportRuntimePID;
 

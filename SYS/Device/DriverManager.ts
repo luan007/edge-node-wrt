@@ -191,7 +191,7 @@ function _update_driver_data(drv:IDriver, dev:IDevice, assump:IDeviceAssumption,
             return fatal(err);
         } else {
             if (Object.keys(delta).length == 0) {
-                return; //skipped
+                return; //skippedd
             }
 
             Events.emit("change", dev, drv, delta);

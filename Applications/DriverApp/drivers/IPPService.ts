@@ -47,6 +47,7 @@ class IPPService implements IInAppDriver {
                 var printer = this.__printers[_deviceId];
                 this.__ippGetJobs(printer.ippUrl, (err, jobs) => {
                     var doneJobs = delta_add_return_changes(jobs, printer.jobs, false, true);
+                    console.log('----------- doneJobs', doneJobs);
                     (<any>this).Change({ // EMIT !!
                         attributes: {
                             "printer.doneJobs": doneJobs,
@@ -61,7 +62,7 @@ class IPPService implements IInAppDriver {
 
     match(dev:IDevice, delta:IDriverDetla, cb:Callback) {
         var ipp = dev.bus.data.MDNS['ipp'];
-        if(ipp) {
+        if (ipp) {
             console.log("--------------- IPP match Called");
             var matched = ipp.type === 'UP' && ipp.service.addresses && ipp.service.txtRecord;
             return cb(undefined, matched);
@@ -77,21 +78,38 @@ class IPPService implements IInAppDriver {
     change(dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) {
         console.log("--------------- IPP change Called");
         var printer = this.__ippPrinter(dev);
-        console.log('printer [1]', printer);
         if (printer) {
-            console.log('printer [2]', printer);
             printer.execute("Get-Printer-Attributes", null, (err, res) => {
-                console.log('printer [3]', err, res);
-                if (err) return cb(err);
+                if (err) {
+                    console.log('Get-Printer-Attributes', err);
+                    return cb(err);
+                }
 
-                console.log('ipp url.href', printer.url.href);
                 // job scanning
                 if (!this.__printers[dev.id])
                     this.__printers[dev.id] = {ippUrl: printer.url.href, jobs: {}};
 
                 //TODO: analyze ipp result
+                var classes:KVSet = {'printer': 1};
+                var assump:KVSet = {};
+                var printerAttributesTag = res['printer-attributes-tag'];
+                if (printerAttributesTag) {
+                    assump['name'] = printerAttributesTag['print-name'];
+                    if (printerAttributesTag['printer-uri-supported']) {
+                        assump['printer.uri-supported.ipp'] = printerAttributesTag['printer-uri-supported']['ipp'];
+                        assump['printer.uri-supported.ipp'] = printerAttributesTag['printer-uri-supported']['ipps'];
+                    }
+                    if (printerAttributesTag['printer-make-and-model']) {
+                        var parts = printerAttributesTag['printer-make-and-model'].split(' ');
+                        assump['vendor'] = parts[0];
+                    }
+                    if (printerAttributesTag['printer-info']) {
+                        assump['printer.info'] = printerAttributesTag['printer-info'];
+                    }
+                }
+                console.log('--------------- assump', assump);
                 return cb(null, {
-                    classes: {'printer': 1},
+                    classes: classes,
                     actions: {},
                     aux: {},
                     attributes: res,

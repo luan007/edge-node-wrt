@@ -5,8 +5,7 @@ class P0FService implements IInAppDriver {
 
     match(dev:IDevice, delta:IDriverDetla, cb:Callback) {
         //console.log("------------\n P0f match Called", dev.bus.data);
-        var matched = (dev.bus.data.P0F && Object.keys(dev.bus.data.P0F).length > 0) ? {} : undefined;
-        cb(undefined, matched);
+        cb(undefined, {});
     }
 
     attach(dev:IDevice, delta:IDriverDetla, matchResult:any, cb:PCallback<IDeviceAssumption>) {

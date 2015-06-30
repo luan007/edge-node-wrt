@@ -223,7 +223,7 @@ export function Initialize(cb) {
     dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_ADD, (lease:Dnsmasq.IDHCPLease)=> { // DEVICE ADDED
         pub.leases.Set(lease.Mac, lease);
         var mdnsStatus = StatMgr.Get(SECTION.NETWORK).mdns.ValueOf();
-        console.log('Dnsmasq Add Lease'['greenBG'].bold, lease, mdnsStatus);
+        console.log('Dnsmasq Add Lease'['greenBG'].bold, lease);
         if(!mdnsStatus[lease.Address])
             pub.mdns.Set(lease.Address, {});
     });
@@ -231,7 +231,7 @@ export function Initialize(cb) {
     dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_CHANGE, (lease:Dnsmasq.IDHCPLease)=> { // DEVICE CHANGED
         pub.leases.Set(lease.Mac, lease);
         var mdnsStatus = StatMgr.Get(SECTION.NETWORK).mdns.ValueOf();
-        console.log('Dnsmasq Add Change'['greenBG'].bold, lease, mdnsStatus);
+        console.log('Dnsmasq Add Change'['greenBG'].bold, lease);
         if(!mdnsStatus[lease.Address])
             pub.mdns.Set(lease.Address, {});
     });

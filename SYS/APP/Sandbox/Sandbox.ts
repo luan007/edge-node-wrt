@@ -60,8 +60,8 @@ var _p = process;
 process.on("uncaughtException",(err) => {
     console.log("ERROR:" + err.message);
     console.log(err.stack);
-    _p.send(err);
-    _p.exit();
+    //_p.send(err);
+    //_p.exit();
 });
 
 declare var sandbox: local.sandbox.SandboxEnvironment; //global sandbox
@@ -72,8 +72,9 @@ import context = require("./Context");
 import net = require("net");
 import fs = require("fs");
 import http = require("http");
+import path = require('path');
 
-var exec = require("child_process").exec;
+var exec = require("child_process").execFile;
 //var contextify = require("contextify");
 var chroot:any = require("./chroot");
 var ffi:any = require("ffi");
@@ -148,12 +149,30 @@ function _early_rpc(cb) {
 
 function _jail(cb) {
     require("../../../Modules/Shared/use");
+    var d = require('dns');
+    var _d = require('native-dns');
+    for(var k in d){
+        if(_d[k]) d[k] = _d[k];
+    }
     var mainServer = http.createServer();
     global.Server = global.SERVER = mainServer;
     mainServer.listen(_env.main_socket,() => {
         try {
-            Jail(); //NO MORE NETWORK
-            exec("./net.sh " + process.pid + _env.virtual_ip, () => {
+
+            if (syscall.unshare(
+                    CLONE_NEWNET |
+                        //CLONE_NEWPID | //TODO: Fix this by calling clone(_PID) instead of doing node-fork
+                        /*CLONE_NEWNS*/ /*| */ 0) < 0) //BYEBYE
+                process.exit();
+
+            exec(path.join(__dirname, 'net.sh'), [process.pid, _env.virtual_ip], (err, result) => {
+                if (syscall.unshare(
+                        CLONE_FILES |
+                        CLONE_FS|
+                            //CLONE_NEWPID | //TODO: Fix this by calling clone(_PID) instead of doing node-fork
+                            /*CLONE_NEWNS*/ /*| */ 0) < 0) //BYEBYE
+                    process.exit();
+
                 chroot(_env.target_dir, _env.runtime_id); // YOU ARE NOBODY FROM NOW - NO MORE NOTHING
                 //process.chdir("/");
                 global.API_JSON = _env.api_obj;
