@@ -62,7 +62,7 @@ class IPPService implements IInAppDriver {
 
     match(dev:IDevice, delta:IDriverDetla, cb:Callback) {
         var ipp = dev.bus.data.MDNS['ipp'];
-        if (ipp) {
+        if(ipp) {
             console.log("--------------- IPP match Called");
             var matched = ipp.type === 'UP' && ipp.service.addresses && ipp.service.txtRecord;
             return cb(undefined, matched);
@@ -127,7 +127,7 @@ class IPPService implements IInAppDriver {
                     classes: classes,
                     actions: {},
                     aux: {},
-                    attributes: res,
+                    attributes: assump,
                     valid: true
                 });
             });
