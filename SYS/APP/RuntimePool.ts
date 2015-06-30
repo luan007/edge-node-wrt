@@ -339,7 +339,7 @@ function StartRuntime(app_uid) {
             mount_auto.bind(null, _path, AppManager.GetAppDataLn(runtime.App.uid), ["--bind"]),
             mount_auto.bind(null, '/etc', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'etc'),
                 ["--bind", '-o noexec,nosuid,nodev']),
-            exec.bind(null, "mount", "--remount", '-o ro', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'etc')),
+            exec.bind(null, "mount", '-o remount,ro', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'etc')),
             exec.bind(null, "chown", "root", AppManager.GetAppRootPath(runtime.App.uid)),
             exec.bind(null, "chmod", "0755", AppManager.GetAppRootPath(runtime.App.uid)),
             exec.bind(null, "chown", runtime.RuntimeId, AppManager.GetAppDataLn(runtime.App.uid)),
@@ -511,16 +511,19 @@ function _SetupReverseAPI(api, callback) {
         //info("Permission set! " + GetCallingRuntime(this).App.uid.bold);
         //info(JSON.stringify(PermissionLib.Decode(perm)));
 
-        var perm = runtime.Manifest.permission;
-        PermissionLib.SetPermission(SenderId(this), <any>perm);
-        info("Permission set! " + runtime.App.name.bold);
-        info(JSON.stringify(
-                PermissionLib.DecodeToString(
-                    PermissionLib.GetPermission(SenderId(this))))
-        );
-        runtime.AfterLaunch(real);
-        return callback(undefined, true);
+        //Adding Interface to BridgeDevice
 
+        exec('brctl', 'addif', 'VETH', 'host_' + runtime.GetPID(), ()=>{
+            var perm = runtime.Manifest.permission;
+            PermissionLib.SetPermission(SenderId(this), <any>perm);
+            info("Permission set! " + runtime.App.name.bold);
+            info(JSON.stringify(
+                    PermissionLib.DecodeToString(
+                        PermissionLib.GetPermission(SenderId(this))))
+            );
+            runtime.AfterLaunch(real);
+            return callback(undefined, true);
+        });
     } catch (e) {
         error("Error elevating permission, might be dangerous, killing " + (runtime.GetPID() + "").bold);
         error(e);

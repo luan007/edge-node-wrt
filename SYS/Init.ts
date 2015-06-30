@@ -103,4 +103,21 @@ domain.run(function () {
         }
     });
 
+    function ClearRuntimePID() {
+        if (fs.existsSync(CONF.APP_PID_FILE)) {
+            var pids = fs.readFileSync(CONF.APP_PID_FILE);
+            try {
+                pids = JSON.parse(pids);
+                for (var i = 0, len = pids.length; i < len; i++) {
+                    console.log('killing -------------- >>', pids[i]);
+                    exec('kill', '-9', pids[i]);
+                }
+
+            } catch (err) {
+                console.log(err);
+            }
+
+            fs.unlinkSync(CONF.APP_PID_FILE);
+        }
+    }
 });

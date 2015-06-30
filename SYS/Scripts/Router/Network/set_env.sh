@@ -14,8 +14,15 @@ if [ ! -d /tmp/fdsock ]; then mkdir -p /tmp/fdsock; fi
 
 if [ ! -d /${PWD%/*}/_data ]; then mkdir -p /${PWD%/*}/_data; fi
 
+
+mkdir -p /var/run/netns
+rm -rf /var/run/netns/*
+
+ln -s /proc/1/ns/net /var/run/netns/root
+
+
 brctl delbr VETH
 brctl addbr VETH
 
 #virtual bridge
-ifconfig VETH 169.254.0.1/8
+ifconfig VETH 172.16.0.1/8

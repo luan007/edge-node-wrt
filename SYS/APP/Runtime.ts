@@ -38,7 +38,7 @@ import Server = require('../API/Server');
 var _FAIL_STACK_SIZE:number = 30;
 
 
-const COUNT = 65533;
+const COUNT = 65532;
 var VirtualIpLeases = new Array(COUNT);
 
 
@@ -51,7 +51,8 @@ function LeaseVirtualIp(){
         for(var i = 0; i < COUNT; i++) {
             if(!VirtualIpLeases[i]) {
                 VirtualIpLeases[i] = 1;
-                return "169.254." + ((i + 1) >> 8) + "." + ((i + 1) & 0xFF);
+                return "172.16." + ((i + 2) >> 8) + "." + ((i + 2) & 0xFF);
+
             }
         }
     }
@@ -63,7 +64,29 @@ function ReleaseVirtualIp(i){
         VirtualIpLeases[i] = 0;
 }
 
+var runtime_pool_pids = {};
 
+function ReportRuntimePID(pid) {
+    runtime_pool_pids[pid] = 1;
+    intoQueue('write_runtimepool_pids', (cb) => {
+        fs.writeFile(CONF.APP_PID_FILE, JSON.stringify(Object.keys(runtime_pool_pids)), ()=> {
+        });
+        cb();
+    }, () => {
+    });
+}
+
+function RemoveRuntimePID(pid) {
+    if(runtime_pool_pids[pid]) {
+        delete runtime_pool_pids[pid];
+        intoQueue('write_runtimepool_pids', (cb) => {
+            fs.writeFile(CONF.APP_PID_FILE, JSON.stringify(Object.keys(runtime_pool_pids)), ()=> {
+            });
+            cb();
+        }, () => {
+        });
+    }
+}
 
 export class RuntimeStatusEnum {
     static Ready:number = 0;
@@ -254,6 +277,7 @@ export class Runtime extends events.EventEmitter {
             detached: !CONF.DO_NOT_DETACH  //important
         });
         ReportRuntimePID(this._process.pid);
+
         console.log("Process Started With PID " + (this._process.pid + "").bold);
 
         this._process.on("error", (e) => {
@@ -304,7 +328,7 @@ export class Runtime extends events.EventEmitter {
     }
 
     Stop = () => {
-
+        RemoveRuntimePID(this.GetPID());
         ReleaseVirtualIp(this._virtualip);
         if (this.RPC) {
             fatal("Releasing RPC event listeners..");
@@ -317,6 +341,7 @@ export class Runtime extends events.EventEmitter {
             this._API_Endpoint = undefined;
             this.API = undefined;
         }
+
 
         if (this._process) {
             fatal("Process " + (this._process.pid + "").bold + " KILLED ");

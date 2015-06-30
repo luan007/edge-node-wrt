@@ -126,7 +126,7 @@ class P0F extends Process {
         if (header === P0F.magicNumberResp) {
             var res = data.readUInt32LE(4);
             if (res === P0F.resOK) {
-                var buf = new Buffer(32);
+                var buf:any = new Buffer(32);
                 var firstSeen = new Date(data.readUInt32LE(8) * 1000);
                 var lastSeen = new Date(data.readUInt32LE(12) * 1000);
                 var totalConn = data.readUInt32LE(16);
