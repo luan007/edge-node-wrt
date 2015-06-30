@@ -1,4 +1,4 @@
-﻿/*WARNING, NEW PROCESS STARTS HERE*/
+﻿﻿/*WARNING, NEW PROCESS STARTS HERE*/
 
 //Boot Sequence Illustration (v2): 
 //
