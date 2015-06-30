@@ -60,8 +60,8 @@ var _p = process;
 process.on("uncaughtException",(err) => {
     console.log("ERROR:" + err.message);
     console.log(err.stack);
-    //_p.send(err);
-    //_p.exit();
+    _p.send(err);
+    _p.exit();
 });
 
 declare var sandbox: local.sandbox.SandboxEnvironment; //global sandbox
