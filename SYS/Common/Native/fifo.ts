@@ -25,6 +25,14 @@ function _releaserawfifo(name){
             fs.unlinkSync(rawFIFO[name].path);
             rawFIFO[name].hoststream.removeAllListeners();
             rawFIFO[name] = undefined;
+
+            if(rawFIFO[name].link){
+                var link = rawFIFO[name].link;
+                console.log('Releasing the other end : ', name);
+                fs.unlinkSync(rawFIFO[link].path);
+                rawFIFO[link].hoststream.removeAllListeners();
+                rawFIFO[link] = undefined;
+            }
         } catch(e) {
 
         }
@@ -104,3 +112,5 @@ export function PartyOn(source_id, target_id, cb) {
 
     return cb(null);
 }
+
+export var FIFOs = rawFIFO;
