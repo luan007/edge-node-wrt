@@ -50,8 +50,8 @@ class IPPService implements IInAppDriver {
                     console.log('----------- doneJobs', doneJobs);
                     (<any>this).Change({ // EMIT !!
                         attributes: {
-                            "printer.doneJobs": doneJobs,
-                            "printer.queue": jobs
+                            "printer.status.doneJobs": doneJobs,
+                            "printer.status.queue": jobs
                         }
                     });
                     this.__printers[_deviceId] = jobs;
@@ -62,7 +62,7 @@ class IPPService implements IInAppDriver {
 
     match(dev:IDevice, delta:IDriverDetla, cb:Callback) {
         var ipp = dev.bus.data.MDNS['ipp'];
-        if (ipp) {
+        if(ipp) {
             console.log("--------------- IPP match Called");
             var matched = ipp.type === 'UP' && ipp.service.addresses && ipp.service.txtRecord;
             return cb(undefined, matched);
@@ -94,10 +94,14 @@ class IPPService implements IInAppDriver {
                 var assump:KVSet = {};
                 var printerAttributesTag = res['printer-attributes-tag'];
                 if (printerAttributesTag) {
-                    assump['name'] = printerAttributesTag['print-name'];
+                    assump['name'] = printerAttributesTag['printer-name'];
                     if (printerAttributesTag['printer-uri-supported']) {
-                        assump['printer.uri-supported.ipp'] = printerAttributesTag['printer-uri-supported']['ipp'];
-                        assump['printer.uri-supported.ipp'] = printerAttributesTag['printer-uri-supported']['ipps'];
+                        for(var k in printerAttributesTag['printer-uri-supported']) {
+                            if(/ipp:/gmi.test(printerAttributesTag['printer-uri-supported'][k]))
+                                assump['printer.uri-supported.ipp'] = printerAttributesTag['printer-uri-supported'][k];
+                            else if(/ipps:/gmi.test(printerAttributesTag['printer-uri-supported'][k]))
+                                assump['printer.uri-supported.ipps'] = printerAttributesTag['printer-uri-supported'][k];
+                        }
                     }
                     if (printerAttributesTag['printer-make-and-model']) {
                         var parts = printerAttributesTag['printer-make-and-model'].split(' ');
@@ -106,18 +110,29 @@ class IPPService implements IInAppDriver {
                     if (printerAttributesTag['printer-info']) {
                         assump['printer.info'] = printerAttributesTag['printer-info'];
                     }
+                    if(printerAttributesTag['printer-state']) {
+                        assump['printer.status.state'] = printerAttributesTag['printer-state'];
+                    }
+                    if(printerAttributesTag['printer-icons']) {
+                        for(var k in printerAttributesTag['printer-icons']) {
+                            if(/large:/gmi.test(printerAttributesTag['printer-icons'][k]))
+                                assump['printer.icons.large'] = printerAttributesTag['printer-icons'][k];
+                            else
+                                assump['printer.icons.normal'] = printerAttributesTag['printer-icons'][k];
+                        }
+                    }
                 }
                 console.log('--------------- assump', assump);
                 return cb(null, {
                     classes: classes,
                     actions: {},
                     aux: {},
-                    attributes: res,
+                    attributes: assump,
                     valid: true
                 });
             });
         } else { // should not happen :)
-            return cb(new Error('unkown device'));
+            return cb(new Error('unknown device'));
         }
     }
 

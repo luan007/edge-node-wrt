@@ -70,7 +70,6 @@ import rpc = require("../../../Modules/RPC/index");
 import reverseAPI = require("./ReverseAPI");
 import context = require("./Context");
 import net = require("net");
-import fs = require("fs");
 import http = require("http");
 import path = require('path');
 
@@ -168,13 +167,12 @@ function _jail(cb) {
             exec(path.join(__dirname, 'net.sh'), [process.pid, _env.virtual_ip], (err, result) => {
                 if (syscall.unshare(
                         CLONE_FILES |
-                        CLONE_FS|
                             //CLONE_NEWPID | //TODO: Fix this by calling clone(_PID) instead of doing node-fork
                             /*CLONE_NEWNS*/ /*| */ 0) < 0) //BYEBYE
                     process.exit();
 
                 chroot(_env.target_dir, _env.runtime_id); // YOU ARE NOBODY FROM NOW - NO MORE NOTHING
-                //process.chdir("/");
+                process.chdir("/");
                 global.API_JSON = _env.api_obj;
                 process.env = {};
                 process.argv = [];

@@ -81,14 +81,21 @@
     "desc": "no desc available",
     "owner": "dummy"
   },
-  "printer.doneJobs": {
+  "printer.status.doneJobs": {
     "tag": [
       "printer", "job", "queue"
     ],
     "desc": "",
     "owner": "printer"
   },
-  "printer.queue": {
+  "printer.status.queue": {
+    "tag": [
+      "printer", "job", "queue"
+    ],
+    "desc": "",
+    "owner": "printer"
+  },
+  "printer.status.state": {
     "tag": [
       "printer", "job", "queue"
     ],
@@ -103,5 +110,11 @@
   },
   "printer.info": {
     "owner": "printer"
-  }
+  },
+  "printer.icons.normal": {
+    "owner": "printer"
+  },
+  "printer.icons.large": {
+    "owner": "printer"
+  },
 }

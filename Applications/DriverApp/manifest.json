@@ -58,16 +58,13 @@
       "Interest": {
         "match": {
           "bus": {
-            "$and": [
-              {"data.Lease": { "$exists": true }},
-              {"dev.bus.data.MDNS.ipp" : {"$exists": true}}
-              ]
+              "data.Lease": { "$exists": true }
           }
         },
         "change": {
           "delta": {
             "bus": {
-              "data.Lease": {"$exists": true}
+                "data.Lease": { "$exists": true }
             }
           },
           "stateChange": true

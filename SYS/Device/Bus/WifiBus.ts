@@ -51,11 +51,17 @@ export function Subscribe(cb) {
         });
     });
     subNetwork.arp.on('set', (mac, oldValue, neigh)=> {
+        if(!StatBiz.GetIPByMac(mac)){
+            return warn('non local area MAC', mac);
+        }
         _wifiBus.DeviceUp(mac, {
             Addr: neigh
         });
     });
     subNetwork.arp.on('del', (mac, oldValue)=> {
+        if(!StatBiz.GetIPByMac(mac)){
+            return warn('non local area MAC', mac);
+        }
         _wifiBus.DeviceUp(mac, {
             Addr: {}
         });
@@ -83,7 +89,6 @@ export function Subscribe(cb) {
                 var execResult = /(\d+.\d+.\d+.\d+)/gmi.exec(levelKey);
                 if(execResult.length > 1) {
                     var IP = execResult[1];
-                    var type = parts[1];
 
                     var mac = StatBiz.GetMacByIP(IP);
                     if (mac) {
