@@ -109,7 +109,7 @@ export function RebuildDeltaV(cb) {
 }
 
 function InsertOrUpdate(numericDate:string, callback:Callback) {
-    Graphd.table().get('graphd', (err, result) => {
+    Graphd.table().one({name: 'graphd'}, (err, result) => {
         var upgrade = false;
         var data = <any>{};
         if (!err && result) {
@@ -259,7 +259,7 @@ function CheckGraphdUpdate() {
     GetGraphdVersion((err, numericDate)=> {
         if (err) return error(err);
 
-        Graphd.table().get('graphd', (err, graphd)=> {
+        Graphd.table().one({name: 'graphd'}, (err, graphd)=> {
             if (err) return error(err);
 
             var needDownload = false;

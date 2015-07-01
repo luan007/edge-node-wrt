@@ -79,10 +79,10 @@ function _assumption_check(delta:IDeviceAssumption, callback:Callback) {
         var jobs = [];
         jobs.push((cb)=> { // check for class
             DB.QueryType(0, (err, classes)=> {
-                if(err) return cb(err);
+                if (err) return cb(err);
                 else {
                     for (var klass in delta.classes) { // key only
-                        if(!classes.hasOwnProperty(klass)) {
+                        if (!classes.hasOwnProperty(klass)) {
                             return cb(new Error('Illegal class assumption: ' + klass));
                         }
                     }
@@ -92,10 +92,10 @@ function _assumption_check(delta:IDeviceAssumption, callback:Callback) {
         });
         jobs.push((cb)=> { // check for action
             DB.QueryType(2, (err, actions)=> {
-                if(err) return cb(err);
+                if (err) return cb(err);
                 else {
                     for (var action in delta.actions) { // key only
-                        if(!actions.hasOwnProperty(action))
+                        if (!actions.hasOwnProperty(action))
                             return cb(new Error('Illegal action assumption: ' + action));
                     }
                     return cb();
@@ -104,12 +104,12 @@ function _assumption_check(delta:IDeviceAssumption, callback:Callback) {
         });
         jobs.push((cb)=> { // check for attribute
             DB.QueryType(1, (err, attributes)=> {
-                if(err) return cb(err);
+                if (err) return cb(err);
                 else {
                     for (var attr in delta.attributes) { // verify k & v both
-                        if(!attributes.hasOwnProperty(attr))
+                        if (!attributes.hasOwnProperty(attr))
                             return cb(new Error('Illegal attribute assumption: ' + attr));
-                        else if(attributes[attr].datatype && attributes[attr].datatype != typeof delta.attributes[attr])
+                        else if (attributes[attr].datatype && attributes[attr].datatype != typeof delta.attributes[attr])
                             return cb(new Error('wrong attribute data type: ' + attr));
                     }
                     return cb();
@@ -124,72 +124,72 @@ function _assumption_check(delta:IDeviceAssumption, callback:Callback) {
 
 function _update_driver_data(drv:IDriver, dev:IDevice, assump:IDeviceAssumption, tracker:_tracker) {
     if (!drv || !drv.status() || !dev || !Drivers[drv.id()]) return;
-    var real:IDeviceAssumption = <any>{};
-    var changed = false;
-
-    for (var i in assump) {
-        switch (i) {
-            case "aux":
-                real.aux = assump.aux;
-                changed = true;
-                break;
-            case "attributes":
-                if (_.isObject(assump.attributes) && !_.isArray(assump.attributes)) {
-                    real.attributes = assump.attributes;
-                    changed = true;
-                }
-                break;
-            case "classes":
-                if (_.isObject(assump.classes) && !_.isArray(assump.classes)) {
-                    real.classes = assump.classes;
-                    changed = true;
-                }
-                break;
-            case "actions":
-                if (_.isObject(assump.actions) && !_.isArray(assump.actions)) {
-                    real.actions = assump.actions;
-                    changed = true;
-                }
-                break;
-            case "valid":
-                if (_.isBoolean(assump.valid)) {
-                    real.valid = assump.valid;
-                    changed = true;
-                }
-                break;
-        }
-    }
-    if (!changed) {
-        fatal("Empty / Malformed Assumption - Skipped");
-        return;
-    }
-    real.driverId = drv.id(); //make sure
-    var curAssump = dev.assumptions[real.driverId];
-    if (_.isEqual(curAssump, real)) {
-        fatal("Exact-Same Assumption - Skipped");
-        return;
-    }
-    //warn("has change!");
-    //dev.assumptions[assump.driverId] = assump;
-    var delta = Object.create(null);
-    if (curAssump) {
-        delta = delta_add_return_changes(curAssump, real, true);
-    }
-    else {
-        dev.assumptions[real.driverId] = real;
-        //default value
-        real.actions = real.actions ? real.actions : {};
-        real.classes = real.classes ? real.classes : {};
-        real.aux = real.aux ? real.aux : undefined;
-        real.valid = real.valid ? real.valid : false;
-        real.attributes = real.attributes ? real.attributes : {};
-        delta = real;
-    }
-
-    _assumption_check(delta, (err) => {
+    _assumption_check(assump, (err) => {
         if (err) {
-            return fatal(err);
+            return console.log(err.message['red']);
+
         } else {
+            var real:IDeviceAssumption = <any>{};
+            var changed = false;
+
+            for (var i in assump) {
+                switch (i) {
+                    case "aux":
+                        real.aux = assump.aux;
+                        changed = true;
+                        break;
+                    case "attributes":
+                        if (_.isObject(assump.attributes) && !_.isArray(assump.attributes)) {
+                            real.attributes = assump.attributes;
+                            changed = true;
+                        }
+                        break;
+                    case "classes":
+                        if (_.isObject(assump.classes) && !_.isArray(assump.classes)) {
+                            real.classes = assump.classes;
+                            changed = true;
+                        }
+                        break;
+                    case "actions":
+                        if (_.isObject(assump.actions) && !_.isArray(assump.actions)) {
+                            real.actions = assump.actions;
+                            changed = true;
+                        }
+                        break;
+                    case "valid":
+                        if (_.isBoolean(assump.valid)) {
+                            real.valid = assump.valid;
+                            changed = true;
+                        }
+                        break;
+                }
+            }
+            if (!changed) {
+                fatal("Empty / Malformed Assumption - Skipped");
+                return;
+            }
+            real.driverId = drv.id(); //make sure
+            var curAssump = dev.assumptions[real.driverId];
+            if (_.isEqual(curAssump, real)) {
+                fatal("Exact-Same Assumption - Skipped");
+                return;
+            }
+
+            var delta = Object.create(null);
+            if (curAssump) {
+                delta = delta_add_return_changes(curAssump, real, true);
+            }
+            else {
+                dev.assumptions[real.driverId] = real;
+                //default value
+                real.actions = real.actions ? real.actions : {};
+                real.classes = real.classes ? real.classes : {};
+                real.aux = real.aux ? real.aux : undefined;
+                real.valid = real.valid ? real.valid : false;
+                real.attributes = real.attributes ? real.attributes : {};
+                delta = real;
+            }
+
             if (Object.keys(delta).length == 0) {
                 return; //skippedd
             }
@@ -428,7 +428,14 @@ export function DeviceDrop(dev:IDevice, busDelta?) {
 export function DriverInvoke(drv:IDriver, dev:IDevice, actionId, params, cb) {
     //TODO: add invoking user info
     // plus:  params['user']
-    drv.invoke(dev, actionId, params, cb); //TODO: not finished
+    DB.QueryType(2, (err, actions)=> {
+        if (err) return cb(err);
+        else {
+            if (!actions.hasOwnProperty(actionId))
+                return cb(new Error('Illegal action assumption: ' + actionId));
+            return drv.invoke(dev, actionId, params, cb); //TODO: not finished
+        }
+    });
 }
 
 export function Initialize(cb) {
@@ -441,7 +448,7 @@ function __driverChangeDevice(inAppDrvId, deviceId, assump:IDeviceAssumption, cb
     var drvId = "App_" + appUid + ":" + inAppDrvId;
     var driver = Drivers[drvId];
     var device = DeviceManager.Get(deviceId);
-    if(driver && device) {
+    if (driver && device) {
         DriverActiveUpdate(driver, device, assump);
     }
     cb();

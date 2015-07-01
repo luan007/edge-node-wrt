@@ -30,10 +30,7 @@
     "OUI": {
       "Buses": ["WIFI"],
       "Interest": {
-        "stateChange": true,
-        "match": true,
-        "attach": true,
-        "change": true
+        "stateChange": true
       }
     },
     "P0F": {
@@ -47,7 +44,7 @@
           "change": {
             "delta": {
               "bus": {
-                "data.P0F.ip": { "$exists": true }
+                "data.P0F": { "$exists": true }
               }
             }
           }
@@ -58,7 +55,7 @@
       "Interest": {
         "match": {
           "bus": {
-              "data.Lease": { "$exists": true }
+              "data.MDNS.ipp": { "$exists": true }
           }
         },
         "change": {
