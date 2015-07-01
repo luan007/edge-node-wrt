@@ -95,6 +95,9 @@ function SaveToDB(callback:Callback) {
                     jobs.push((cb) => {
                         trace("CREATE DBENTRY " + id);
                         deviceTable().create(devtmp, (err, DBDEV) => {
+                            //if (devtmp.hwaddr === '1c:3e:84:8b:c5:71') {
+                            //    console.log('ipp printer into DB', devtmp.assumptions);
+                            //}
                             device_updates[id] = 0;
                             if (!err) {
                                 db_devices[id] = DBDEV;
@@ -128,11 +131,8 @@ function SaveToDB(callback:Callback) {
                                 dbDev.assumptions = JSON.stringify(devInMemory.assumptions);
                                 dbDev.config = JSON.stringify(devInMemory.config);
                                 dbDev.save({}, (err) => {
-                                    //if (dbDev.hwaddr === '60:d9:c7:41:d4:71') {
-                                    //    console.log('5.1 before saving  <<< ==========', dbDev.assumptions);
-                                    //    deviceTable().get(id, (err, devInDB) => {
-                                    //        console.log('5.2 saved  <<< ==========', JSON.parse(devInDB.assumptions));
-                                    //    });
+                                    //if (dbDev.hwaddr === '1c:3e:84:8b:c5:71') {
+                                    //    console.log('ipp printer into DB', dbDev.assumptions);
                                     //}
                                     if (!err) {
                                         device_updates[id] = 0;
@@ -280,8 +280,11 @@ function _ondriverchange(dev:IDevice, drv:IDriver, assump:IDeviceAssumption) {
         //if (assump.driverId === 'App_DriverApp:P0F') {
         //    console.log('4.5  _ondriverchange  <<< ==========', assump);
         //}
+
+
         if (!devices[dev.id].assumptions) devices[dev.id].assumptions = {};
         delta_add_return_changes(devices[dev.id].assumptions[drv.id()], assump, true);
+
         //devices[dev.id].assumptions[drv.id()] = assump;
     }
     not_saved = true;
@@ -293,7 +296,7 @@ function _OnDrop(bus:IBusData) {
     var devId = hwaddr_map[bus.name][bus.hwaddr];
     if (devId) {
         var dev:IDevice = devices[devId];
-        if(dev) {
+        if (dev) {
             dev.state = 0;
             dev.time = new Date();
 

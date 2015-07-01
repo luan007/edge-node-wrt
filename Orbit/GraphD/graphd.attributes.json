@@ -117,4 +117,17 @@
   "printer.icons.large": {
     "owner": "printer"
   },
+  "printer.resolution" : {
+    "owner": "printer"
+  },
+  "printer.uuid" : {
+    "owner": "printer"
+  },
+  "printer.airprint": {
+    "datatype": "boolean",
+    "owner": "printer"
+  },
+  "printer.airprint.version": {
+    "owner": "printer"
+  }
 }
