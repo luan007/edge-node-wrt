@@ -18,6 +18,7 @@ var rawFIFO: IDic<{
     owner: string
 }> = {};
 
+
 function _releaserawfifo(name){
     return ()=>{
         try{
@@ -81,16 +82,16 @@ function _mkrawfifo(owner, path, type, cb){
 
 //Direction is relative to OS
 
-export function WriteOnlyFIFO(owner, path, cb){
+function WriteOnlyFIFO(owner, path, cb){
     return _mkrawfifo(owner, path, TYPE_SOURCE, cb);
 }
 
-export function ReadOnlyFIFO(owner, path, cb){
+function ReadOnlyFIFO(owner, path, cb){
     return _mkrawfifo(owner, path, TYPE_TARGET, cb);
 }
 
 /*YO YO YO YO PIPES PIPES 出了事情赖大哥 */
-export function PartyOn(source_id, target_id, cb) {
+function PartyOn(source_id, target_id, cb) {
     if(!rawFIFO[source_id] || !rawFIFO[target_id]){
         return cb(new Error("Oops, Source or Target not found - (Closed by peer?)"));
     }
@@ -113,4 +114,29 @@ export function PartyOn(source_id, target_id, cb) {
     return cb(null);
 }
 
-export var FIFOs = rawFIFO;
+
+
+global.FIFO = {};
+
+global.FIFO.Link = PartyOn;
+
+global.FIFO.DeploySource = WriteOnlyFIFO;
+
+global.FIFO.DeployTarget = ReadOnlyFIFO;
+
+global.FIFO.QueryStream = function (owner, name, type){
+    return (rawFIFO[name] && rawFIFO[name].owner === owner && rawFIFO[name].type === type)
+        ? rawFIFO[name].hostedstream : undefined;
+}
+
+global.FIFO.ReadFrom = function (owner, name){
+    return (rawFIFO[name] && rawFIFO[name].owner === owner && rawFIFO[name].type === TYPE_SOURCE && !rawFIFO[name].link)
+        ? rawFIFO[name].hostedstream : undefined;
+}
+
+global.FIFO.WriteTo = function (owner, name){
+    return (rawFIFO[name] && rawFIFO[name].owner === owner && rawFIFO[name].type === TYPE_TARGET && !rawFIFO[name].link)
+        ? rawFIFO[name].hostedstream : undefined;
+}
+
+global.FIFO.all = rawFIFO;
