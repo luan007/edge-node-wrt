@@ -262,7 +262,7 @@ function CheckGraphdUpdate() {
     GetGraphdVersion((err, numericDate)=> {
         if (err) return error(err);
 
-        Graphd.table().get('graphd', (err, graphd)=> {
+        Graphd.table().one({name: 'graphd'}, (err, graphd)=> {
             if (err) return error(err);
 
             var needDownload = false;

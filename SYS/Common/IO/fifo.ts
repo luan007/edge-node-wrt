@@ -90,7 +90,7 @@ function ReadOnlyFIFO(owner, path, cb){
     return _mkrawfifo(owner, path, TYPE_TARGET, cb);
 }
 
-/*YO YO YO YO PIPES PIPES ³öÁËÊÂÇéÀµ´ó¸ç */
+/*YO YO YO YO PIPES PIPES ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 function PartyOn(source_id, target_id, cb) {
     if(!rawFIFO[source_id] || !rawFIFO[target_id]){
         return cb(new Error("Oops, Source or Target not found - (Closed by peer?)"));
@@ -104,7 +104,6 @@ function PartyOn(source_id, target_id, cb) {
     if(rawFIFO[source_id].link || rawFIFO[target_id].link){
         return cb(new Error("Link is being used, multicast is not supported (yet)"));
     }
-
     //BOUND!
     rawFIFO[source_id].link = target_id;
     rawFIFO[target_id].link = source_id;

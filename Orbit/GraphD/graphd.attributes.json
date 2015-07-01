@@ -142,6 +142,10 @@
     "datatype": "boolean",
     "owner": "printer"
   },
+  "printer.doc.postscript": {
+    "datatype": "boolean",
+    "owner": "printer"
+  },
   "printer.doc.octet-stream": {
     "datatype": "boolean",
     "owner": "printer"

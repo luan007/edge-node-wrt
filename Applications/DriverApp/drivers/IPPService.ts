@@ -52,6 +52,7 @@ class IPPService implements IInAppDriver {
                 //TODO: analyze ipp result
                 var classes:KVSet = {'printer': ''};
                 var assump:KVSet = {};
+                var actions:KVSet = {};
                 var printerAttributesTag = res['printer-attributes-tag'];
                 if (printerAttributesTag) {
                     assump['name'] = printerAttributesTag['printer-name'];
@@ -81,39 +82,47 @@ class IPPService implements IInAppDriver {
                                 assump['printer.icons.normal'] = printerAttributesTag['printer-icons'][k];
                         }
                     }
-                    if(printerAttributesTag['printer-resolution-default']){
+                    if (printerAttributesTag['printer-resolution-default']) {
                         assump['printer.resolution'] = printerAttributesTag['printer-resolution-default'].join(' ');
                     }
-                    if(printerAttributesTag['printer-uuid']){
+                    if (printerAttributesTag['printer-uuid']) {
                         assump['printer.uuid'] = printerAttributesTag['printer-uuid'];
                     }
-                    if(printerAttributesTag['ipp-features-supported']){
+                    if (printerAttributesTag['ipp-features-supported']) {
                         var executed = /airprint-(.*)/gmi.exec(printerAttributesTag['ipp-features-supported']);
-                        if(executed) {
+                        if (executed) {
                             assump['printer.airprint'] = true;
                             assump['printer.airprint.version'] = executed[1];
                         }
                     }
-                    if(printerAttributesTag['color-supported']){
+                    if (printerAttributesTag['color-supported']) {
                         assump['printer.color.supported'] = printerAttributesTag['color-supported'];
                     }
-                    if(printerAttributesTag['document-format-supported']){
-                        for(var k in printerAttributesTag['document-format-supported'])
-                            if(/image\/urf/gmi.test(printerAttributesTag['document-format-supported'][k]))
-                                assump['printer.doc.image.urf'] = printerAttributesTag['document-format-supported'][k];
-                            else if(/pdf/gmi.test(printerAttributesTag['document-format-supported'][k]))
-                                assump['printer.doc.pdf'] = printerAttributesTag['document-format-supported'][k];
-                            else if(/postscript/gmi.test(printerAttributesTag['document-format-supported'][k]))
-                                assump['printer.doc.postscript'] = printerAttributesTag['document-format-supported'][k];
-                            else if(/octet-stream/gmi.test(printerAttributesTag['document-format-supported'][k]))
-                                assump['printer.doc.octet-stream'] = printerAttributesTag['document-format-supported'][k];
+                    if (printerAttributesTag['document-format-supported']) {
+                        for (var k in printerAttributesTag['document-format-supported'])
+                            if (/image\/urf/gmi.test(printerAttributesTag['document-format-supported'][k]))
+                                assump['printer.doc.image.urf'] = true;
+                            else if (/pdf/gmi.test(printerAttributesTag['document-format-supported'][k]))
+                                assump['printer.doc.pdf'] = true;
+                            else if (/postscript/gmi.test(printerAttributesTag['document-format-supported'][k]))
+                                assump['printer.doc.postscript'] = true;
+                            else if (/octet-stream/gmi.test(printerAttributesTag['document-format-supported'][k]))
+                                assump['printer.doc.octet-stream'] = true;
+                    }
+                    if (printerAttributesTag['operations-supported']) {
+                        for (var k in printerAttributesTag['operations-supported']) {
+                            if (/Print-Job|Print-URI/gmi.test(printerAttributesTag['operations-supported'][k])) {
+                                actions['print'] = '';
+                                break;
+                            }
+                        }
                     }
                 }
-                console.log('--------------- assump', assump);
+                //console.log('--------------- assump', assump);
 
                 return cb(null, {
                     classes: classes,
-                    actions: {},
+                    actions: actions,
                     aux: {},
                     attributes: assump,
                     valid: true
@@ -182,38 +191,43 @@ class IPPService implements IInAppDriver {
     }
 
     invoke(dev:IDevice, actionId, params, cb) {
-        var printer = this.__ippPrinter(dev);
-        if (printer) {
-            if (params.fd) {
-                //TODO: implement FD API
-                API.FD.Read(params.fd, (err, filePath)=> {
-                    if (err) return cb(err);
-                    fs.readFile(filePath, (err, data)=> {
+        var assumption = dev.assumptions['App_DriverApp:IPP'];
+        if (assumption['actions'] && assumption['actions'].hasOwnProperty(actionId)) {
+            var printer = this.__ippPrinter(dev);
+            if (printer) {
+                if (params.fd) {
+                    //TODO: implement FD API
+                    API.FD.Read(params.fd, (err, filePath)=> {
                         if (err) return cb(err);
-                        var msg = {
-                            "operation-attributes-tag": {
-                                "requesting-user-name": params.user.name,
-                                "job-name": params.job_name,
-                                "document-format": params.mime_type
-                            }
-                            , data: data
-                        };
-                        printer.execute("Print-Job", msg, this.__printJobCB(cb));
+                        fs.readFile(filePath, (err, data)=> {
+                            if (err) return cb(err);
+                            var msg = {
+                                "operation-attributes-tag": {
+                                    "requesting-user-name": params.user.name,
+                                    "job-name": params.job_name,
+                                    "document-format": params.mime_type
+                                }
+                                , data: data
+                            };
+                            printer.execute("Print-Job", msg, this.__printJobCB(cb));
+                        });
                     });
-                });
-            } else if (params.uri) {
-                var msg = {
-                    "operation-attributes-tag": {
-                        "requesting-user-name": params.user.name,
-                        "job-name": params.job_name,
-                        "document-format": params.mime_type,
-                        "document-uri": params.uri
-                    }
-                };
-                printer.execute("Print-URI", msg, this.__printJobCB(cb));
+                } else if (params.uri) {
+                    var msg = {
+                        "operation-attributes-tag": {
+                            "requesting-user-name": params.user.name,
+                            "job-name": params.job_name,
+                            "document-format": params.mime_type,
+                            "document-uri": params.uri
+                        }
+                    };
+                    printer.execute("Print-URI", msg, this.__printJobCB(cb));
+                }
+            } else { // should not happen :)
+                return cb(new Error('unknown device'));
             }
-        } else { // should not happen :)
-            return cb(new Error('unknown device'));
+        } else {
+            return cb(new Error('current device does not support the action: ' + actionId));
         }
     }
 

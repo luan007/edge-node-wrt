@@ -428,7 +428,14 @@ export function DeviceDrop(dev:IDevice, busDelta?) {
 export function DriverInvoke(drv:IDriver, dev:IDevice, actionId, params, cb) {
     //TODO: add invoking user info
     // plus:  params['user']
-    drv.invoke(dev, actionId, params, cb); //TODO: not finished
+    DB.QueryType(2, (err, actions)=> {
+        if (err) return cb(err);
+        else {
+            if (!actions.hasOwnProperty(actionId))
+                return cb(new Error('Illegal action assumption: ' + actionId));
+            return drv.invoke(dev, actionId, params, cb); //TODO: not finished
+        }
+    });
 }
 
 export function Initialize(cb) {
