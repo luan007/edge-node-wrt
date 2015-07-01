@@ -94,6 +94,20 @@ class IPPService implements IInAppDriver {
                             assump['printer.airprint.version'] = executed[1];
                         }
                     }
+                    if(printerAttributesTag['color-supported']){
+                        assump['printer.color.supported'] = printerAttributesTag['color-supported'];
+                    }
+                    if(printerAttributesTag['document-format-supported']){
+                        for(var k in printerAttributesTag['document-format-supported'])
+                            if(/image\/urf/gmi.test(printerAttributesTag['document-format-supported'][k]))
+                                assump['printer.doc.image.urf'] = printerAttributesTag['document-format-supported'][k];
+                            else if(/pdf/gmi.test(printerAttributesTag['document-format-supported'][k]))
+                                assump['printer.doc.pdf'] = printerAttributesTag['document-format-supported'][k];
+                            else if(/postscript/gmi.test(printerAttributesTag['document-format-supported'][k]))
+                                assump['printer.doc.postscript'] = printerAttributesTag['document-format-supported'][k];
+                            else if(/octet-stream/gmi.test(printerAttributesTag['document-format-supported'][k]))
+                                assump['printer.doc.octet-stream'] = printerAttributesTag['document-format-supported'][k];
+                    }
                 }
                 console.log('--------------- assump', assump);
 
