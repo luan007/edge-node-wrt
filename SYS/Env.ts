@@ -11,6 +11,7 @@ require("../Modules/Shared/Log/Prelaunch");
 require('../Modules/Shared/use');
 require("./Common/Crypto/HashDir");
 require("./Common/Crypto/RSA");
+require("./Common/IO/FIFO.ts");
 require("./Common/Events/SystemEvent");
 require("./Common/Conf/Global");
 require("../Modules/Shared/Sockets/SockPath");
