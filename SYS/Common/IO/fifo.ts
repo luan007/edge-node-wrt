@@ -126,17 +126,17 @@ global.FIFO.DeployTarget = ReadOnlyFIFO;
 
 global.FIFO.QueryStream = function (owner, name, type){
     return (rawFIFO[name] && rawFIFO[name].owner === owner && rawFIFO[name].type === type)
-        ? rawFIFO[name].hostedstream : undefined;
+        ? rawFIFO[name].hoststream : undefined;
 }
 
 global.FIFO.ReadFrom = function (owner, name){
     return (rawFIFO[name] && rawFIFO[name].owner === owner && rawFIFO[name].type === TYPE_SOURCE && !rawFIFO[name].link)
-        ? rawFIFO[name].hostedstream : undefined;
+        ? rawFIFO[name].hoststream : undefined;
 }
 
 global.FIFO.WriteTo = function (owner, name){
     return (rawFIFO[name] && rawFIFO[name].owner === owner && rawFIFO[name].type === TYPE_TARGET && !rawFIFO[name].link)
-        ? rawFIFO[name].hostedstream : undefined;
+        ? rawFIFO[name].hoststream : undefined;
 }
 
 global.FIFO.all = rawFIFO;
