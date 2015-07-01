@@ -3,7 +3,7 @@
 import rpc = require("../../Modules/RPC/index");
 import pm = require("./Permission");
 //import UserManager = require('../User/UserManager');
-import TokenManager = require('../User/TokenManager');
+import TokenManager = require('./TokenManager');
 var _api = rpc.APIManager;
 
 interface _Function_With_Permission_Token extends Function {

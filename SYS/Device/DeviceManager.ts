@@ -3,7 +3,6 @@ import deviceData = _device.IDevice;
 import deviceObj = _device.Device;
 var deviceTable = deviceObj.table;
 import DriverManager = require("./DriverManager");
-import StatMgr = require('../Common/Stat/StatMgr');
 import events = require('events');
 
 var devices:IDic<IDevice> = {};

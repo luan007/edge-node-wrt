@@ -1,5 +1,4 @@
 require('../../System/Env');
-import StatMgr = require('../../SYS/Common/Stat/StatMgr');
 
 describe('Configuration Manager Testing', () => {
 

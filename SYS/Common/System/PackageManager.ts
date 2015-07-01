@@ -1,7 +1,5 @@
 import Storage = require('../../DB/Storage');
 import StatMgr = require('../../Common/Stat/StatMgr');
-import _StatNode = require('../../Common/Stat/StatNode');
-import StatNode = _StatNode.StatNode;
 import http = require('http');
 import fs = require('fs');
 import path = require('path');

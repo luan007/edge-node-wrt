@@ -1,10 +1,4 @@
-﻿import ConfMgr = require('../../Common/Conf/ConfMgr');
-import _Config = require('../../Common/Conf/Config');
-import Config = _Config.Config;
-import StatMgr = require('../../Common/Stat/StatMgr');
-import _Configurable = require('../../Common/Conf/Configurable');
-import Configurable = _Configurable.Configurable;
-import Bus = require('./Bus');
+﻿import Bus = require('./Bus');
 import StatBiz = require('../../Common/Stat/StatBiz');
 
 var _wifiBus = new Bus('WIFI');

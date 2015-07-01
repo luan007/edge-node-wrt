@@ -1,7 +1,6 @@
 import ConfMgr = require('../Common/Conf/ConfMgr');
 import _Config = require('../Common/Conf/Config');
 import Config = _Config.Config;
-import StatMgr = require('../Common/Stat/StatMgr');
 import DeviceManager = require('./DeviceManager');
 import Bus = require('./Bus/Bus');
 import CML = require('./CML');

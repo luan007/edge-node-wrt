@@ -2,9 +2,6 @@ import net = require('net');
 import dns = require('dns');
 import http = require('http');
 import Util = require('../Misc/Util');
-import StatMgr = require('../../Common/Stat/StatMgr');
-import _StatNode = require('../../Common/Stat/StatNode');
-import StatNode = _StatNode.StatNode;
 
 var pub = StatMgr.Pub(SECTION.CONNECTIVITY, {
     connectivity: {}

@@ -1,5 +1,4 @@
 import AppConfig = require('./AppConfig');
-import StatMgr = require('../../Common/Stat/StatMgr');
 
 var appUid = 'testAPP';
 

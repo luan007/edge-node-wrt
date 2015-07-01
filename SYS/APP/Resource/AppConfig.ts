@@ -1,11 +1,29 @@
 import ConfMgr = require('../../Common/Conf/ConfMgr');
 
-export function Set(moduleName:string, appUid:string, conf:any, cb){
-    ConfMgr.AppSet(moduleName, appUid, conf);
-    ConfMgr.CommitByAPP(moduleName, cb);
+export function Set(moduleName:string, runtimeId:string, conf:any, cb){
+    if(ConfMgr.AppSet(moduleName, runtimeId, conf))
+        ConfMgr.CommitByAPP(moduleName, cb);
+    else
+        cb(new Error('Invalid Section Name: ' + moduleName));
 }
 
-export function Revoke (moduleName:string, appUid:string, cb){
-    ConfMgr.AppRevoke(moduleName, appUid, cb);
+export function Revoke (moduleName:string, runtimeId:string, cb){
+    ConfMgr.AppRevoke(moduleName, runtimeId, cb);
     //ConfMgr.CommitByAPP(moduleName, cb);
+}
+
+function _cleanUp(runtimeId){
+    for(var i in SECTION) {
+        ConfMgr.AppRevoke(SECTION[i], runtimeId, ()=>{});
+    }
+}
+
+export function Subscribe(cb) {
+    var runtime = StatMgr.Sub(SECTION.RUNTIME);
+    runtime.app.on('set', (_key, _old, _new) => {
+        if (_new.State < 0) {
+            _cleanUp(_new.RuntimeId);
+        }
+    });
+    cb();
 }

@@ -68,7 +68,6 @@ declare var sandbox: local.sandbox.SandboxEnvironment; //global sandbox
 
 import rpc = require("../../../Modules/RPC/index");
 import reverseAPI = require("./ReverseAPI");
-import context = require("./Context");
 import net = require("net");
 import http = require("http");
 import path = require('path');

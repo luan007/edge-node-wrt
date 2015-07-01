@@ -6,8 +6,6 @@ import events = require('events');
 import InAppDriver = require("./Driver/InAppDriver");
 import RuntimePool = require('./RuntimePool');
 import AppManager = require('./AppManager');
-import Limit =  require('./FileSystem/Limit');
-import Tracker = require('./Ports/Tracker');
 import _RPCEndpoint = require("../../Modules/RPC/RPC/RPCEndpoint");
 import RPCEndpoint = _RPCEndpoint.RPCEndPoint;
 import APIManager = require("../../Modules/RPC/API/APIManager");
@@ -35,7 +33,7 @@ import Server = require('../API/Server');
  *  -4 >  Terminated
  *  */
 
-var _FAIL_STACK_SIZE:number = 30;
+var _FAIL_STACK_SIZE:number = 99;
 
 
 const COUNT = 65532;
@@ -196,7 +194,6 @@ export class Runtime extends events.EventEmitter {
             this._status.FailHistory.pop();
         }
         this._status.LaunchTime = -1;
-        this._status.State = RuntimeStatusEnum.Error;
 
         var avgLife = 0;
         for (var i = 0; i < this._status.FailHistory.length; i++) {
@@ -210,6 +207,8 @@ export class Runtime extends events.EventEmitter {
             * (this._status.FailHistory.length / _FAIL_STACK_SIZE) * (this._status.FailHistory.length / _FAIL_STACK_SIZE);
         fatal(this.App.name.bold + " * StabilityRating " + (this._status.StabilityRating * 100 + "%")["yellowBG"].black.bold);
         console.log('^------------------^ PlannedLaunchTime', this._status.PlannedLaunchTime);
+
+        this._stateMachine(RuntimeStatusEnum.Error);
     };
 
     private _on_heartbeat = (err, deltaT) => {
@@ -224,6 +223,7 @@ export class Runtime extends events.EventEmitter {
                 DeltaT: deltaT,
                 Sent: Date.now() - deltaT
             };
+            this.emit('heartbeat', this._status);
         }
     };
 
@@ -236,13 +236,9 @@ export class Runtime extends events.EventEmitter {
     };
 
     Start = () => {
+        clearTask('relaunch_' + this.App.uid);
         if (this._status.State == RuntimeStatusEnum.Broken) {
             error("[ SKIP ] App is marked Broken " + this.App.name.bold);
-            return this.Stop();
-        }
-        this._virtualip = LeaseVirtualIp();
-        if(!this._virtualip){
-            this._push_fail(new Error('Run out of virtual Ip!'));
             return this.Stop();
         }
         warn("WARNING, CHMOD 0711 IS NOT SECURE!!");
@@ -253,12 +249,17 @@ export class Runtime extends events.EventEmitter {
         }
         var path = AppManager.GetAppDataDir(this.App.uid);
 
+        this._virtualip = LeaseVirtualIp();
+        if(!this._virtualip){
+            this._push_fail(new Error('Run out of virtual Ip!'));
+            return this.Stop();
+        }
         trace("Launching " + this.App.name.bold);
         trace("--with Data Path " + path);
         trace("--with RuntimeId " + this.RuntimeId.bold);
-        this._status.State = RuntimeStatusEnum.Launching; //Launching
         this._status.LaunchTime = -1; //wait..
         this._status.PlannedLaunchTime = -1;
+        this._stateMachine(RuntimeStatusEnum.Launching); //Launching
         var env:any = <local.App.Init_Env>{
             target_dir: AppManager.GetAppRootPath(this.App.uid),
             api_socket_path: Server.GetAPIServer_SockPath(),
@@ -316,18 +317,21 @@ export class Runtime extends events.EventEmitter {
 
     MainSock = () => {
         return this._mainsock;
-    }
+    };
 
     WebExSock = () => {
         return this._webexsock;
-    }
+    };
 
     Terminate = () => { // terminate by external process.
-        this._status.State = RuntimeStatusEnum.Terminated;
+        this._stateMachine(RuntimeStatusEnum.Terminated);
         this.Stop();
-    }
+    };
 
     Stop = () => {
+
+        clearTask('relaunch_' + this.App.uid);
+
         RemoveRuntimePID(this.GetPID());
         ReleaseVirtualIp(this._virtualip);
         if (this.RPC) {
@@ -353,10 +357,6 @@ export class Runtime extends events.EventEmitter {
             this._process = undefined;
         }
 
-        if (this._status.State == RuntimeStatusEnum.Launching || this._status.State == RuntimeStatusEnum.Launched) {
-            this._status.State = RuntimeStatusEnum.Ready;
-        }
-
         if (fs.existsSync(this._mainsock)) {
             fs.unlinkSync(this._mainsock);
         }
@@ -366,6 +366,17 @@ export class Runtime extends events.EventEmitter {
 
         if (this._status.State == RuntimeStatusEnum.Error) {
             console.log('============((( emit relaunch',  this._status.PlannedLaunchTime);
+
+            if (this.System) {
+                process.nextTick(() => { // system app
+                    this.Start();
+                });
+            } else {
+                setTask('relaunch_' + this.App.uid, () => {
+                    this.Start();
+                }, this._status.PlannedLaunchTime);
+            }
+
             this.emit('relaunch', this._status.PlannedLaunchTime);
         } else if (this._status.State == RuntimeStatusEnum.Terminated) {
             console.log('============((( emit terminated');
@@ -375,7 +386,10 @@ export class Runtime extends events.EventEmitter {
             fatal("[ STOP ] App is marked Broken " + this.App.name.bold);
             this.emit('broken');
             this.removeAllListeners();
+        } else if (this._status.State == RuntimeStatusEnum.Launching || this._status.State == RuntimeStatusEnum.Launched) {
+            this._stateMachine(RuntimeStatusEnum.Ready);
         }
+
     };
 
     ForceError = (e) => {
@@ -388,7 +402,7 @@ export class Runtime extends events.EventEmitter {
 
     Broken = () => {
         error("Package is Broken / Tampered!! " + this.App.name.bold.red);
-        this._status.State = RuntimeStatusEnum.Broken;
+        this._stateMachine(RuntimeStatusEnum.Broken);
         if (this._process) {
             this._process.kill();
         }
@@ -396,8 +410,8 @@ export class Runtime extends events.EventEmitter {
 
     AfterLaunch = (API) => {
         if (this._status.State == RuntimeStatusEnum.Launching) {
-            this._status.State = RuntimeStatusEnum.Launched;
             this._status.LaunchTime = Date.now();
+            this._stateMachine(RuntimeStatusEnum.Launched);
             this._API_Endpoint = API;
             this.API = this._API_Endpoint.API;
             info("Package is Fully Up! : " + this.App.name.bold);
@@ -438,24 +452,9 @@ export class Runtime extends events.EventEmitter {
         return this._status.State === RuntimeStatusEnum.Launched;
     };
 
-    Quota = (cb, newval?) => {
-        if (newval == undefined) {
-            this.Registry.get("QUOTA",
-                ignore_err(withdefault(cb, CONF.ISO_DEFAULT_LIMIT)));
-        } else {
-            Limit.SetQuota({
-                user: this.RuntimeId,
-                inode_hard: 0,
-                inode_soft: 0,
-                size_hard: newval,
-                size_soft: newval
-            }, (err) => {
-                if (err) {
-                    return cb(err);
-                } else {
-                    this.Registry.put("QUOTA", newval, cb);
-                }
-            });
-        }
-    };
+    private _stateMachine(state){
+        this._status.State = state;
+        this.emit('state', this._status);
+    }
+
 }

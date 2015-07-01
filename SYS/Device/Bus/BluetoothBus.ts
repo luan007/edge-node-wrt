@@ -1,6 +1,5 @@
 ﻿import bluez = require('../../Common/Native/bluez');
 import Bus = require("./Bus");
-import StatMgr = require('../../Common/Stat/StatMgr');
 import StatBiz = require('../../Common/Stat/StatBiz');
 
 //early implementation.. without sdp and so on.. just signals / appear and go.

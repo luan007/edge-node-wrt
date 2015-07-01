@@ -7,9 +7,6 @@ var unzip = require("unzip");
 import _Graphd = require('../../DB/Models/Graphd');
 import Graphd = _Graphd.Graphd;
 import IGraphd = _Graphd.IGraphd;
-import StatMgr = require('../../Common/Stat/StatMgr');
-import _StatNode = require('../../Common/Stat/StatNode');
-import StatNode = _StatNode.StatNode;
 
 var lastError:any = null;
 var HOTSWAP_NAME = "deltaV";

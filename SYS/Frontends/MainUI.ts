@@ -10,10 +10,7 @@ import AppManager = require('../APP/AppManager');
 import RuntimePool = require('../APP/RuntimePool');
 import UserManager = require('../User/UserManager');
 import nginx = require('../Common/Native/nginx');
-import StatMgr = require('../Common/Stat/StatMgr');
-import _StatNode = require('../Common/Stat/StatNode');
-import StatNode = _StatNode.StatNode;
-import TokenManager = require('../User/TokenManager');
+import TokenManager = require('../API/TokenManager');
 
 var LauncherMainPort;
 var LauncherAuthPort;

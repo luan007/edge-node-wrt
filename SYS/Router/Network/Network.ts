@@ -5,9 +5,6 @@ import NeighRecord = iproute2.NeighRecord;
 import ConfMgr = require('../../Common/Conf/ConfMgr');
 import _Config = require('../../Common/Conf/Config');
 import Config = _Config.Config;
-import StatMgr = require('../../Common/Stat/StatMgr');
-import _StatNode = require('../../Common/Stat/StatNode');
-import StatNode = _StatNode.StatNode;
 import _Configurable = require('../../Common/Conf/Configurable');
 import Configurable = _Configurable.Configurable;
 import Dnsmasq = require('../../Common/Native/dnsmasq');
@@ -30,9 +27,9 @@ var pub = StatMgr.Pub(SECTION.NETWORK, {
 });
 
 class Configuration extends Configurable {
-    private pub:StatNode;
+    private pub;
 
-    constructor(moduleName:string, defaultConfig:any, pub:StatNode) {
+    constructor(moduleName:string, defaultConfig:any, pub) {
         super(moduleName, defaultConfig);
 
         this.pub = pub;

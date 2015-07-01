@@ -12,9 +12,6 @@ import Server = require('../API/Server');
 import User = require('../Common/Native/user');
 import http = require('http');
 var unzip = require("unzip");
-import StatMgr = require('../Common/Stat/StatMgr');
-import _StatNode = require('../Common/Stat/StatNode');
-import StatNode = _StatNode.StatNode;
 
 var pub = StatMgr.Pub(SECTION.APP, {
     apps: {}
@@ -317,7 +314,7 @@ export function GetAppManifest(app_uid):local.App.ApplicationManifest {
 
 export function GetAppRootPath(app_uid) {
     return path.join(/*SHADOW_BASE_PATH, */CONF.APP_BASE_PATH, app_uid);
-};
+}
 
 export function GetSDataPath(pth) {
     return path.join(CONF.SHADOW_DATA_PATH, pth);
@@ -364,4 +361,8 @@ export function GetAppDataDir(app_id) {
 
 export function GetRealAppDataDir(app_id) {
     return path.join(CONF.BASE_DATA_PATH, "App/" + app_id);
+}
+
+export function GetAppSharedIODir(app_id) {
+    return path.join(CONF.BASE_DATA_PATH, "App", app_id, "Share", "IO");
 }

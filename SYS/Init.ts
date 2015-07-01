@@ -33,10 +33,14 @@ domain.run(function () {
         , {path: './API/Server', name: 'APIServer'}
         , {path: './Frontends/MainUI', name: 'MainUI'}
         , {path: './Frontends/HttpProxy', name: 'HttpProxy'}
-        , {path: './APP/Remote/Client', name: 'OrbitClient'}
         , {path: './APP/Test/FakeData/Generator'}
         , {path: './APP/Test/Deployment/Server'}
         , {path: './APP/RuntimePool', name: 'RuntimePool'}
+        , {path: './APP/Resource/IO/FIFO'}
+        , {path: './APP/Resource/FileSystem/Limit'}
+        , {path: './APP/Resource/Ports/Redirector'}
+        , {path: './APP/Resource/Ports/Tracker'}
+        , {path: './APP/Resource/AppConfig'}
         , {path: './User/TokenManager'}
         , {path: './Device/UserAgentManager'}
         //, {path: './Router/Network/Firewall/__Test'}

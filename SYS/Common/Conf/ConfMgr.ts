@@ -36,14 +36,17 @@ class ConfMgr extends events.EventEmitter {
     }
 
     AppSet = (k:string, appUid:string, conf:KVSet) => { // [moduleName][appUid]
+        if(!this._handlers[k]) return false;
         if (!this._transients[k]) this._transients[k] = {};
         if (!this._transients[k][appUid]) this._transients[k][appUid] = {};
         for (var c in conf) {
             this._transients[k][appUid][c] = conf[c];
         }
+        return true;
     }
 
     AppRevoke = (k:string, appUid:string, cb) => { // [moduleName][appUid]
+        if(!this._handlers[k]) return cb();
         if (!this._transients[k]) this._transients[k] = {};
         this._transients[k][appUid] = undefined;
         if(this._handlers[k])

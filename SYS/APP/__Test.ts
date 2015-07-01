@@ -1,7 +1,4 @@
 import AppManager = require('./AppManager');
-import StatMgr = require('../Common/Stat/StatMgr');
-import _StatNode = require('../Common/Stat/StatNode');
-import StatNode = _StatNode.StatNode;
 
 export function Subscribe(cb) {
     var sub = StatMgr.Sub(SECTION.APP);

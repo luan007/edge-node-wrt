@@ -1,8 +1,4 @@
 import PackageManager = require('./PackageManager');
-import StatMgr = require('../Stat/StatMgr');
-import _StatNode = require('../Stat//StatNode');
-import StatNode = _StatNode.StatNode;
-
 export function Initialize(cb) {
     //PackageManager.AvaliablePkgs(1, (err, pkgs)=> {
     //    if (err) error(err);

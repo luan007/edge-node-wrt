@@ -19,24 +19,28 @@ var rawFIFO: IDic<{
 }> = {};
 
 
-function _releaserawfifo(name){
-    return ()=>{
-        try{
-            console.log('Releasing : ', name);
-            fs.unlinkSync(rawFIFO[name].path);
-            rawFIFO[name].hoststream.removeAllListeners();
-            rawFIFO[name] = undefined;
+function _release(name){
+    try{
+        console.log('Releasing : ', name);
+        fs.unlinkSync(rawFIFO[name].path);
+        rawFIFO[name].hoststream.removeAllListeners();
+        rawFIFO[name] = undefined;
 
-            if(rawFIFO[name].link){
-                var link = rawFIFO[name].link;
-                console.log('Releasing the other end : ', name);
-                fs.unlinkSync(rawFIFO[link].path);
-                rawFIFO[link].hoststream.removeAllListeners();
-                rawFIFO[link] = undefined;
-            }
-        } catch(e) {
-
+        if(rawFIFO[name].link){
+            var link = rawFIFO[name].link;
+            console.log('Releasing the other end : ', name);
+            fs.unlinkSync(rawFIFO[link].path);
+            rawFIFO[link].hoststream.removeAllListeners();
+            rawFIFO[link] = undefined;
         }
+    } catch(e) {
+
+    }
+}
+
+function _release_thunk(name){
+    return ()=>{
+        _release(name);
     };
 }
 
@@ -71,7 +75,7 @@ function _mkrawfifo(owner, path, type, cb){
                     type: type,
                     owner: owner
                 };
-                stream.once('end', _releaserawfifo(name));
+                stream.once('end', _release_thunk(name));
                 return cb(undefined, name);
             } catch(e){
                 return cb(e);
@@ -117,6 +121,18 @@ function PartyOn(source_id, target_id, cb) {
 
 
 global.FIFO = {};
+
+global.FIFO.Release = function(name) {
+    _release(name);
+};
+
+global.FIFO.ReleaseByOwner = function(owner){
+    for(var i in rawFIFO){
+        if(rawFIFO[i].owner === owner) {
+            _release(i);
+        }
+    }
+};
 
 global.FIFO.Link = PartyOn;
 
