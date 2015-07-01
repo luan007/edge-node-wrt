@@ -105,13 +105,13 @@ export class RPCEndPoint extends events.EventEmitter {
 
     private _time_out_closure = (track_id, gen) => {
         var timer = setTimeout(() => {
-            if (this._callbacks.age(track_id) == gen) {
-                var obj = this._callbacks.pop(track_id);
-                if (obj && obj.callback) {
-                    obj.callback(new Error("Operation Time-out"), undefined);
+                if (this._callbacks.age(track_id) == gen) {
+                    var obj = this._callbacks.pop(track_id);
+                    if (obj && obj.callback) {
+                        obj.callback(new Error("Operation Time-out"), undefined);
+                    }
                 }
-            }
-            clearTimeout(timer);
+                clearTimeout(timer);
         }, this.TimeOut);
         return timer;
     };
@@ -217,6 +217,7 @@ export class RPCEndPoint extends events.EventEmitter {
 
         callback_sig.timer = this._time_out_closure(track_id, gen);
         this.Send_Pack(RPC_Message_Type._REQUEST, remote_func_id, params, track_id, gen);
+        return [ track_id, gen ];
     };
 
     public Emit = (remote_event_id, params: any[]) => {
