@@ -97,7 +97,7 @@ function _cleanUp(runtimeId){
 export function Subscribe(cb){
 
     var runtime = StatMgr.Sub(SECTION.RUNTIME);
-    runtime.app.on('set', (_key, _old, _new) => {
+    runtime.apps.on('set', (_key, _old, _new) => {
         if(_new.State < 0) {
             _cleanUp(_new.RuntimeId);
         }

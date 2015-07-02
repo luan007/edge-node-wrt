@@ -197,8 +197,18 @@ class IPPService implements IInAppDriver {
             if (printer) {
                 if (params.fd) {
                     //TODO: implement FD API
-                    API.FD.Read(params.fd, (err, filePath)=> {
+                    API.IO.ReadFD(params.fd, (err, filePath)=> {
                         if (err) return cb(err);
+                        var stream = fs.createReadStream(filePath);
+                        stream.on('data', (data)=>{
+
+                        });
+                        stream.on('end', ()=>{
+
+                        });
+                        stream.on('error', (err)=>{
+
+                        });
                         fs.readFile(filePath, (err, data)=> {
                             if (err) return cb(err);
                             var msg = {

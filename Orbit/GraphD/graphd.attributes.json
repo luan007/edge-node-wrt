@@ -149,5 +149,17 @@
   "printer.doc.octet-stream": {
     "datatype": "boolean",
     "owner": "printer"
+  },
+  "printer.doc.vnd.hp-PCL": {
+    "datatype": "boolean",
+    "owner": "printer"
+  },
+  "printer.doc.vnd.hp-PCLXL": {
+    "datatype": "boolean",
+    "owner": "printer"
+  },
+  "printer.doc.PCLm": {
+    "datatype": "boolean",
+    "owner": "printer"
   }
 }

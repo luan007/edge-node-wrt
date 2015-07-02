@@ -3,11 +3,14 @@
 class OUI_Identifier implements IInAppDriver {
 
     __find = (dev, cb) => {
+        //var t1 = new Date().getTime();
         var _oui_Str = (dev.bus.hwaddr + "").substr(0, 8);
         OUI.OUI_Find(_oui_Str, (err, result) => {
+            //var t2 = new Date().getTime();
+            //return console.log('OUI total consumed seconds:', (t2 - t1)/1000);
             if (!result) {
                 console.log("OUI Not Found " + _oui_Str);
-                return cb(undefined, undefined);
+                return cb();
             }
             cb(undefined, {
                 actions: {},

@@ -1,6 +1,6 @@
 ﻿import _Application = require('../../../DB/Models/Application');
 import Application = _Application.Application;
-require('../.././Client');
+require('../../../Common/Remote/Client');
 
 var jobs = [];
 

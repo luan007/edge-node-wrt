@@ -95,7 +95,7 @@ function probe(pingCallback:Callback) {
     }
 
     async.series(jobs, (err, results) => { // summarizing
-        if (err) return error(err);
+        if (err) return console.log(err.message);
         else {
             var res = {};
             for (var i = 0, len = CONF.CONNECTIVITY_CHECK_DOMAINS.length; i < len; i++) {
