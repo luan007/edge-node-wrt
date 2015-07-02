@@ -77,24 +77,24 @@ export function Initialize(cb) {
     cb();
 }
 
-export function Subscribe(cb) {
-    DriverManager.Events.on('change', (dev, drv, assumption?)=> {
-        console.log('received change'['greenBG'].bold);
-        if (assumption && assumption.classes && assumption.classes.hasOwnProperty('printer')
-            && assumption.actions && assumption.actions.hasOwnProperty('print')) {
-            //console.log('received ipp printer change events'['greenBG'].bold, assumption);
-            var params = <any>{
-                uri: 'https://tools.ietf.org/pdf/rfc2911.pdf',
-                mime_type: 'application/pdf',
-                job_name: 'Job-1'
-            };
-            params.user = { name: 'Admin' };
-
-            //DriverManager.DriverInvoke(drv, dev, 'print', params, (err)=> {
-            //    if (err) return error('print occurs error:', err);
-            //    else return console.log('print success'['greenBG'].bold);
-            //});
-        }
-    });
-    cb();
-}
+//export function Subscribe(cb) {
+//    DriverManager.Events.on('change', (dev, drv, assumption?)=> {
+//        console.log('received change'['greenBG'].bold);
+//        if (assumption && assumption.classes && assumption.classes.hasOwnProperty('printer')
+//            && assumption.actions && assumption.actions.hasOwnProperty('print')) {
+//            //console.log('received ipp printer change events'['greenBG'].bold, assumption);
+//            var params = <any>{
+//                uri: 'https://tools.ietf.org/pdf/rfc2911.pdf',
+//                mime_type: 'application/pdf',
+//                job_name: 'Job-1'
+//            };
+//            params.user = { name: 'Admin' };
+//
+//            //DriverManager.DriverInvoke(dev, 'print', params, (err)=> {
+//            //    if (err) return error('print occurs error:', err);
+//            //    else return console.log('print success'['greenBG'].bold);
+//            //});
+//        }
+//    });
+//    cb();
+//}

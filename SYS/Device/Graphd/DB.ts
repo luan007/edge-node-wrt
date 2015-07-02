@@ -262,6 +262,7 @@ function CheckGraphdUpdate() {
         Graphd.table().one({name: 'graphd'}, (err, graphd)=> {
             if (err) return error(err);
 
+            console.log('check graphd update'['greenBG'].bold, err, graphd, numericDate);
             var needDownload = false;
             if (!graphd) {
                 needDownload = true;

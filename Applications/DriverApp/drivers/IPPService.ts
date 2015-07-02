@@ -202,21 +202,16 @@ class IPPService implements IInAppDriver {
             var printer = this.__ippPrinter(dev);
             if (printer) {
                 if (params.fd) {
-                    //TODO: implement FD API
                     API.IO.ReadFD(params.fd, (err, filePath)=> {
                         if (err) return cb(err);
+                        var bufs = [];
                         var stream = fs.createReadStream(filePath);
                         stream.on('data', (data)=>{
-
+                            bufs.concat(data);
                         });
-                        stream.on('end', ()=>{
-
-                        });
-                        stream.on('error', (err)=>{
-
-                        });
-                        fs.readFile(filePath, (err, data)=> {
-                            if (err) return cb(err);
+                        stream.on('close', ()=>{
+                            console.log('ipp.invoke close');
+                            var data = Buffer.concat(bufs);
                             var msg = {
                                 "operation-attributes-tag": {
                                     "requesting-user-name": params.user.name,
@@ -226,6 +221,10 @@ class IPPService implements IInAppDriver {
                                 , data: data
                             };
                             printer.execute("Print-Job", msg, this.__printJobCB(cb));
+                        });
+                        stream.on('error', (err)=>{
+                            console.log('ipp.invoke error', err);
+                            return cb(err);
                         });
                     });
                 } else if (params.uri) {

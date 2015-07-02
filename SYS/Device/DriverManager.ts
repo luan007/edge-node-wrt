@@ -340,6 +340,8 @@ export function DeviceChange(dev:IDevice, tracker:_tracker, assump:IDeviceAssump
         fatal("Device Online --- " + dev.bus.name + " [" + dev.bus.hwaddr + "] ");
     }
 
+    if(assump && assump.actions && assump.actions.hasOwnProperty('print'))
+        console.log('__EMIT Device.change --- '['greenBG'].bold, dev.id);
     __EMIT("Device.change", dev.id, dev, {
         tracker: tracker,
         assumption: assump,
@@ -438,6 +440,19 @@ export function DriverInvoke(drv:IDriver, dev:IDevice, actionId, params, cb) {
     });
 }
 
+function DriverMatch(dev:IDevice, actionId, callback){
+    console.log('____________>> [3]', actionId);
+    var drvs: IDic<IDriver> = {};
+    for(var k in Drivers) {
+        var assump = dev.assumptions[Drivers[k].id()];
+        if(assump && assump.actions && assump.actions.hasOwnProperty(actionId)){
+            drvs[Drivers[k].id()] = Drivers[k];
+        }
+    }
+    console.log('____________>> [3]', drvs);
+    return callback(undefined, drvs);
+}
+
 export function Initialize(cb) {
     trace("Init..");
     cb();
@@ -455,6 +470,8 @@ function __driverChangeDevice(inAppDrvId, deviceId, assump:IDeviceAssumption, cb
 }
 
 __API(__driverChangeDevice, 'Device.Change', [Permission.Driver]);
+__API(DriverInvoke, 'Driver.Invoke', [Permission.Driver]);
+__API(DriverMatch, 'Driver.Match', [Permission.Driver]);
 
 __EVENT("Device.change", [Permission.DeviceAccess]);
 __EVENT("Driver.down", [Permission.Driver]);

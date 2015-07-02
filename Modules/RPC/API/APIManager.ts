@@ -125,37 +125,40 @@ export function GetAPI(api_skeleton: { f: any; e: any }, rpc: RPCEndpoint): API_
     var API = new events.EventEmitter();
     var _event_tracker = [API];
 
+    //console.log('skeleton : ', api_skeleton);
     for (var i in api_skeleton.e) {
         //i = API.System.Device.on("DummyEvent"); 
         //i = API.System.Device.DummyEvent
         var d = (<string>i).split('.');
         //recur gen func tree
+        //console.log(d);
         var cur = API;
         if (d.length > 1) {
-            for (var t = 0; t < d.length - 2; t++) {
+            //Device.change
+            //[]
+            for (var t = 0; t < d.length - 1; t++) {
                 if (!cur[d[t]]) {
-                    cur[d[t]] = {};
+                    cur[d[t]] = new events.EventEmitter();
+                    _event_tracker.push(cur[d[t]]);
                 }
                 cur = cur[d[t]];
             }
-            var ev = new events.EventEmitter();
-            _event_tracker.push(ev);
-            cur[d[d.length - 2]] = ev;
-            cur = cur[d[d.length - 2]];
         }
         var event_name = d[d.length - 1] + "";
         _API_Endpoint.event_lookup[api_skeleton.e[i]] = { emitter: cur, name: event_name };
     }
-    
+
+    //console.log( _API_Endpoint.event_lookup);
     for (var i in api_skeleton.f) {
         //i = API.System.Device.DummyFunc
         var d = (<string>i).split('.');
         //recur gen func tree
+        //console.log(d);
         var cur = API;
         for (var t = 0; t < d.length - 1; t++) {
             if (!cur[d[t]]) {
                 cur[d[t]] = {} //Considerable?
-                //_event_tracker.push(cur[d[t]]); 
+                //_event_tracker.push(cur[d[t]]);
             }
             cur = cur[d[t]];
         }
@@ -165,6 +168,7 @@ export function GetAPI(api_skeleton: { f: any; e: any }, rpc: RPCEndpoint): API_
             }
         })(i);
     }
+    //console.log( _API_Endpoint.event_lookup);
 
     rpc.SetEventHandler((event_id, paramArray: any[]) => {
         if (_API_Endpoint.event_lookup && _API_Endpoint.event_lookup[event_id] &&
