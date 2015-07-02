@@ -84,6 +84,6 @@ export class Configurable {
     };
 
     protected _recycle=(appUid, cb:Callback) => {
-        throw new Error("Virtual Method");
+        return; // Virtual Method
     }
 }

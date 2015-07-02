@@ -108,6 +108,12 @@ class IPPService implements IInAppDriver {
                                 assump['printer.doc.postscript'] = true;
                             else if (/octet-stream/gmi.test(printerAttributesTag['document-format-supported'][k]))
                                 assump['printer.doc.octet-stream'] = true;
+                            else if (/vnd.hp-PCL/gmi.test(printerAttributesTag['document-format-supported'][k]))
+                                assump['printer.doc.vnd.hp-PCL'] = true;
+                            else if (/vnd.hp-PCLXL/gmi.test(printerAttributesTag['document-format-supported'][k]))
+                                assump['printer.doc.vnd.hp-PCLXL'] = true;
+                            else if (/PCLm/gmi.test(printerAttributesTag['document-format-supported'][k]))
+                                assump['printer.doc.PCLm'] = true;
                     }
                     if (printerAttributesTag['operations-supported']) {
                         for (var k in printerAttributesTag['operations-supported']) {
