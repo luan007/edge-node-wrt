@@ -82,45 +82,11 @@
     "owner": "dummy"
   },
   "printer.status.doneJobs": {
-    "tag": [
-      "printer", "job", "queue"
-    ],
-    "desc": "",
+    "datatype": "object",
     "owner": "printer"
   },
   "printer.status.queue": {
-    "tag": [
-      "printer", "job", "queue"
-    ],
-    "desc": "",
-    "owner": "printer"
-  },
-  "printer.status.state": {
-    "tag": [
-      "printer", "job", "queue"
-    ],
-    "desc": "",
-    "owner": "printer"
-  },
-  "printer.uri-supported.ipp": {
-    "owner": "printer"
-  },
-  "printer.uri-supported.ipps": {
-    "owner": "printer"
-  },
-  "printer.info": {
-    "owner": "printer"
-  },
-  "printer.icons.normal": {
-    "owner": "printer"
-  },
-  "printer.icons.large": {
-    "owner": "printer"
-  },
-  "printer.resolution" : {
-    "owner": "printer"
-  },
-  "printer.uuid" : {
+    "datatype": "object",
     "owner": "printer"
   },
   "printer.airprint": {
@@ -130,40 +96,353 @@
   "printer.airprint.version": {
     "owner": "printer"
   },
-  "printer.color.supported": {
-    "datatype": "boolean",
+  "printer.printer-uri-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.uri-security-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.uri-authentication-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.printer-name": {
     "owner": "printer"
   },
-  "printer.doc.image.urf": {
-    "datatype": "boolean",
+  "printer.printer-location": {
     "owner": "printer"
   },
-  "printer.doc.pdf": {
-    "datatype": "boolean",
+  "printer.printer-more-info": {
     "owner": "printer"
   },
-  "printer.doc.postscript": {
-    "datatype": "boolean",
+  "printer.printer-info": {
     "owner": "printer"
   },
-  "printer.doc.octet-stream": {
-    "datatype": "boolean",
+  "printer.printer-make-and-model": {
     "owner": "printer"
   },
-  "printer.doc.vnd.hp-PCL": {
-    "datatype": "boolean",
+  "printer.printer-state": {
     "owner": "printer"
   },
-  "printer.doc.vnd.hp-PCLXL": {
-    "datatype": "boolean",
+  "printer.printer-state-reasons": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.ipp-versions-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.ipp-features-supported": {
     "owner": "printer"
   },
-  "printer.doc.PCLm": {
-    "datatype": "boolean",
+  "printer.operations-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.multiple-document-jobs-supported": {
+    "owner": "printer",
+    "datatype": "boolean"
+  },
+  "printer.multiple-operation-time-out": {
+    "owner": "printer",
+    "datatype": "number"
+  },
+  "printer.charset-configured": {
     "owner": "printer"
   },
-  "printer.doc_format": {
-     "datatype": "Array",
-     "owner": "printer"
+  "printer.charset-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.natural-language-configured": {
+    "owner": "printer"
+  },
+  "printer.generated-natural-language-supported": {
+    "owner": "printer"
+  },
+  "printer.document-format-default": {
+    "owner": "printer"
+  },
+  "printer.document-format-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.reference-uri-schemes-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.printer-is-accepting-jobs": {
+    "owner": "printer",
+    "datatype": "boolean"
+  },
+  "printer.queued-job-count": {
+    "owner": "printer",
+    "datatype": "number"
+  },
+  "printer.pdl-override-supported": {
+    "owner": "printer"
+  },
+  "printer.printer-up-time": {
+    "owner": "printer",
+    "datatype": "number"
+  },
+  "printer.compression-supported": {
+    "owner": "printer"
+  },
+  "printer.color-supported": {
+    "owner": "printer",
+    "datatype": "boolean"
+  },
+  "printer.page-ranges-supported": {
+    "owner": "printer",
+    "datatype": "boolean"
+  },
+  "printer.job-creation-attributes-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.media-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.media-size-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.media-default": {
+    "owner": "printer"
+  },
+  "printer.media-col-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.media-col-default": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.media-left-margin-supported": {
+    "owner": "printer",
+    "datatype": "number"
+  },
+  "printer.media-right-margin-supported": {
+    "owner": "printer",
+    "datatype": "number"
+  },
+  "printer.media-top-margin-supported": {
+    "owner": "printer",
+    "datatype": "number"
+  },
+  "printer.media-bottom-margin-supported": {
+    "owner": "printer",
+    "datatype": "number"
+  },
+  "printer.media-source-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.media-type-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.pages-per-minute": {
+    "owner": "printer",
+    "datatype": "number"
+  },
+  "printer.pages-per-minute-color": {
+    "owner": "printer",
+    "datatype": "number"
+  },
+  "printer.pdf-k-octets-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.pdf-versions-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.urf-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.printer-uuid": {
+    "owner": "printer"
+  },
+  "printer.marker-names": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.marker-colors": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.marker-types": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.marker-low-levels": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.marker-high-levels": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.marker-levels": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.copies-default": {
+    "owner": "printer",
+    "datatype": "number"
+  },
+  "printer.multiple-document-handling-default": {
+    "owner": "printer"
+  },
+  "printer.finishings-default": {
+    "owner": "printer"
+  },
+  "printer.orientation-requested-default": {
+    "owner": "printer"
+  },
+  "printer.print-quality-default": {
+    "owner": "printer"
+  },
+  "printer.printer-resolution-default": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.sides-default": {
+    "owner": "printer"
+  },
+  "printer.output-bin-default": {
+    "owner": "printer"
+  },
+  "printer.output-mode-default": {
+    "owner": "printer"
+  },
+  "printer.copies-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.multiple-document-handling-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.finishings-supported": {
+    "owner": "printer"
+  },
+  "printer.orientation-requested-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.print-quality-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.printer-resolution-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.sides-supported": {
+    "owner": "printer"
+  },
+  "printer.job-impressions-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.job-media-sheets-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.output-bin-supported": {
+    "owner": "printer"
+  },
+  "printer.output-mode-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.printer-icons": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.printer-supply-info-uri": {
+    "owner": "printer"
+  },
+  "printer.printer-device-id": {
+    "owner": "printer"
+  },
+  "printer.printer-dns-sd-name": {
+    "owner": "printer"
+  },
+  "printer.printer-kind": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.landscape-orientation-requested-preferred": {
+    "owner": "printer",
+    "datatype": "number"
+  },
+  "printer.identify-actions-default": {
+    "owner": "printer"
+  },
+  "printer.identify-actions-supported": {
+    "owner": "printer"
+  },
+  "printer.epcl-version-supported": {
+    "owner": "printer"
+  },
+  "printer.image-enhancement-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.manual-duplex-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.pclm-raster-back-side": {
+    "owner": "printer"
+  },
+  "printer.pclm-compression-method-preferred": {
+    "owner": "printer"
+  },
+  "printer.pclm-source-resolution-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.pclm-strip-height-preferred": {
+    "owner": "printer",
+    "datatype": "number"
+  },
+  "printer.pclm-strip-height-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.pdf-fit-to-page-default": {
+    "owner": "printer",
+    "datatype": "boolean"
+  },
+  "printer.pdf-fit-to-page-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.pdf-size-constraints": {
+    "owner": "printer",
+    "datatype": "number"
+  },
+  "printer.print-color-mode-default": {
+    "owner": "printer"
+  },
+  "printer.print-color-mode-supported": {
+    "owner": "printer",
+    "datatype": "object"
+  },
+  "printer.print-content-optimize-default": {
+    "owner": "printer"
+  },
+  "printer.print-content-optimize-supported": {
+    "owner": "printer",
+    "datatype": "object"
   }
 }

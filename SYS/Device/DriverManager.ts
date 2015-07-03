@@ -435,6 +435,15 @@ export function DriverInvoke(driverId, deviceId, actionId, params, cb) {
         else {
             if (!actions.hasOwnProperty(actionId))
                 return cb(new Error('Illegal action assumption: ' + actionId));
+            var args = actions[actionId]['arguments']; //check arguments
+            if(args.required && Object.keys(args.required).length > 0){
+                //Object.keys(args.required).filter((k)=>{ return args.required[k].hasOwnProperty('default'); });
+                //for(var par in params){
+                //
+                //}
+            }
+
+
             var dev = DeviceManager.Devices()[deviceId];
             return Drivers[driverId].invoke(dev, actionId, params, cb); //TODO: not finished
         }
@@ -478,9 +487,6 @@ function __driverChangeDevice(inAppDrvId, deviceId, assump:IDeviceAssumption, cb
 __API(__driverChangeDevice, 'Device.Change', [Permission.Driver]);
 __API(DriverInvoke, 'Driver.Invoke', [Permission.Driver]);
 __API(DriverMatch, 'Driver.Match', [Permission.Driver]);
-//__API((cb)=> {
-//    return cb(undefined, DeviceManager.Devices());
-//}, 'Driver.Dummy', [Permission.Driver]);
 
 __EVENT("Device.change", [Permission.DeviceAccess]);
 __EVENT("Driver.down", [Permission.Driver]);

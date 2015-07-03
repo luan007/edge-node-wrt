@@ -36,7 +36,7 @@ class IPPService implements IInAppDriver {
         };
     }
 
-    private __printerJoin(dev, printer){
+    private __printerJoin(dev, printer) {
         // job scanning
         if (!this.__printers[dev.id])
             this.__printers[dev.id] = {ippUrl: printer.url.href, jobs: {}};
@@ -50,47 +50,18 @@ class IPPService implements IInAppDriver {
                     console.log('Get-Printer-Attributes', err);
                     return cb(err);
                 }
-
+                //console.log('current device', dev);
                 this.__printerJoin(dev, printer);
 
-                //TODO: analyze ipp result
                 var classes:KVSet = {'printer': ''};
                 var assump:KVSet = {};
                 var actions:KVSet = {};
                 var printerAttributesTag = res['printer-attributes-tag'];
                 if (printerAttributesTag) {
-                    assump['name'] = printerAttributesTag['printer-name'];
-                    if (printerAttributesTag['printer-uri-supported']) {
-                        for (var k in printerAttributesTag['printer-uri-supported']) {
-                            if (/ipp:/gmi.test(printerAttributesTag['printer-uri-supported'][k]))
-                                assump['printer.uri-supported.ipp'] = printerAttributesTag['printer-uri-supported'][k];
-                            else if (/ipps:/gmi.test(printerAttributesTag['printer-uri-supported'][k]))
-                                assump['printer.uri-supported.ipps'] = printerAttributesTag['printer-uri-supported'][k];
-                        }
-                    }
                     if (printerAttributesTag['printer-make-and-model']) {
                         var parts = printerAttributesTag['printer-make-and-model'].split(' ');
                         assump['vendor'] = parts[0];
-                    }
-                    if (printerAttributesTag['printer-info']) {
-                        assump['printer.info'] = printerAttributesTag['printer-info'];
-                    }
-                    if (printerAttributesTag['printer-state']) {
-                        assump['printer.status.state'] = printerAttributesTag['printer-state'];
-                    }
-                    if (printerAttributesTag['printer-icons']) {
-                        for (var k in printerAttributesTag['printer-icons']) {
-                            if (/large/gmi.test(printerAttributesTag['printer-icons'][k]))
-                                assump['printer.icons.large'] = printerAttributesTag['printer-icons'][k];
-                            else
-                                assump['printer.icons.normal'] = printerAttributesTag['printer-icons'][k];
-                        }
-                    }
-                    if (printerAttributesTag['printer-resolution-default']) {
-                        assump['printer.resolution'] = printerAttributesTag['printer-resolution-default'].join(' ');
-                    }
-                    if (printerAttributesTag['printer-uuid']) {
-                        assump['printer.uuid'] = printerAttributesTag['printer-uuid'];
+                        assump['model'] = printerAttributesTag['printer-make-and-model'].replace(assump['vendor'] + ' ', '');
                     }
                     if (printerAttributesTag['ipp-features-supported']) {
                         var executed = /airprint-(.*)/gmi.exec(printerAttributesTag['ipp-features-supported']);
@@ -98,26 +69,6 @@ class IPPService implements IInAppDriver {
                             assump['printer.airprint'] = true;
                             assump['printer.airprint.version'] = executed[1];
                         }
-                    }
-                    if (printerAttributesTag['color-supported']) {
-                        assump['printer.color.supported'] = printerAttributesTag['color-supported'];
-                    }
-                    if (printerAttributesTag['document-format-supported']) {
-                        for (var k in printerAttributesTag['document-format-supported'])
-                            if (/image\/urf/gmi.test(printerAttributesTag['document-format-supported'][k]))
-                                assump['printer.doc.image.urf'] = true;
-                            else if (/pdf/gmi.test(printerAttributesTag['document-format-supported'][k]))
-                                assump['printer.doc.pdf'] = true;
-                            else if (/postscript/gmi.test(printerAttributesTag['document-format-supported'][k]))
-                                assump['printer.doc.postscript'] = true;
-                            else if (/octet-stream/gmi.test(printerAttributesTag['document-format-supported'][k]))
-                                assump['printer.doc.octet-stream'] = true;
-                            else if (/vnd.hp-PCL/gmi.test(printerAttributesTag['document-format-supported'][k]))
-                                assump['printer.doc.vnd.hp-PCL'] = true;
-                            else if (/vnd.hp-PCLXL/gmi.test(printerAttributesTag['document-format-supported'][k]))
-                                assump['printer.doc.vnd.hp-PCLXL'] = true;
-                            else if (/PCLm/gmi.test(printerAttributesTag['document-format-supported'][k]))
-                                assump['printer.doc.PCLm'] = true;
                     }
                     if (printerAttributesTag['operations-supported']) {
                         for (var k in printerAttributesTag['operations-supported']) {
@@ -127,8 +78,19 @@ class IPPService implements IInAppDriver {
                             }
                         }
                     }
+
+                    //var buf = {};
+                    for(var key in printerAttributesTag) { // copying
+                        var k:any = 'printer.' + key.toString();
+                        assump[k] = printerAttributesTag[key];
+                        //buf[k] = {'owner': 'printer' };
+                        //if(typeof printerAttributesTag[key] !== 'string')
+                        //    buf[k]['datatype'] = typeof printerAttributesTag[key];
+                    }
+                    //fs.writeFile('./Data/printer.schema.json', JSON.stringify(buf), (err)=> {
+                    //    if (err) console.log('write printer schema json err', err);
+                    //});
                 }
-                //console.log('--------------- assump', assump);
 
                 return cb(null, {
                     classes: classes,
@@ -215,11 +177,11 @@ class IPPService implements IInAppDriver {
                         if (err) return cb(err);
                         var bufs = [];
                         var stream = fs.createReadStream('/Share/IO/' + fd);
-                        stream.on('data', (data)=>{
+                        stream.on('data', (data)=> {
                             //console.log('print job data length', data.length);
                             bufs.push(data);
                         });
-                        stream.on('end', ()=>{
+                        stream.on('end', ()=> {
                             console.log('ipp.invoke close');
                             var data = Buffer.concat(bufs);
 
@@ -229,14 +191,17 @@ class IPPService implements IInAppDriver {
                                     "job-name": params.job_name,
                                     "document-format": params.mime_type
                                 }
+                                , "job-attributes-tag":{
+                                    "copies": Number(params.copies),
+                                }
                                 , data: data
                             };
                             cb();
-                            printer.execute("Print-Job", msg, this.__printJobThunk((err, res)=>{
+                            printer.execute("Print-Job", msg, this.__printJobThunk((err, res)=> {
                                 console.log('Print-Job result', res);
                             }));
                         });
-                        stream.on('error', (err)=>{
+                        stream.on('error', (err)=> {
                             console.log('ipp.invoke error', err);
                             return cb(err);
                         });

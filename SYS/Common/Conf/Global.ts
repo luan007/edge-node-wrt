@@ -35,7 +35,7 @@ class _sys_global_conf {
     GRAPHD_ATTRIBUTES_LOCATION = path.join(this.GRAPHD_UPGRADE_LOCATION, "graphd.attributes.json");
     GRAPHD_ACTIONS_LOCATION = path.join(this.GRAPHD_UPGRADE_LOCATION, "graphd.actions.json");
     GRAPHD_PASSWORD_FILE = path.join(this.GRAPHD_UPGRADE_LOCATION, "graphd.password");
-    GRAPHD_CHECK_INTERVAL = 10  * 1000;
+    GRAPHD_CHECK_INTERVAL = 20 * 60 * 1000;
     MAIN_REGISTRY_PATH = path.join(this.DATA_DIR, "reg");
     APP_TRUST_LIFE = 5;
     APP_SPAN_SCALER = 2.6; // Max = 10 ^ 1.5 = 316sec

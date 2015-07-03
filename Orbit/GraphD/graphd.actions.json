@@ -10,10 +10,19 @@
     "desc": "print action",
     "owner": "printer",
     "arguments": {
-       "fd" : "fd",
-       "uri" : "string",
-       "mime_type": "string",
-       "job_name": "string"
+       "required": {
+         "mime_type": {},
+         "job_name": {},
+         "copies": { "default": 1 }
+       },
+       "optional": {
+       },
+       "mutualexclusion":[
+         {
+            "fd" : { "datatype": "uuid" },
+            "uri" : { "datatype": "uri" }
+         }
+       ]
     }
   },
   "play": {
