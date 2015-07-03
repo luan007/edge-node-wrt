@@ -144,11 +144,12 @@ class IPPService implements IInAppDriver {
     }
 
     constructor() {
-        setInterval(this.__jobPatrol, 1 * 1000);
+        setInterval(this.__jobPatrol, 5 * 1000);
     }
 
     private __printers:IDic<any> = {};  // deviceId1: {ippUrl, jobs} / deviceId2 : {ippUrl, jobs}
     private __jobPatrol() {
+        //console.log('----------- printers ', this.__printers);
         for (var deviceId in this.__printers) {
             ((_deviceId) => {
                 var printer = this.__printers[_deviceId];
@@ -215,7 +216,7 @@ class IPPService implements IInAppDriver {
                         var bufs = [];
                         var stream = fs.createReadStream('/Share/IO/' + fd);
                         stream.on('data', (data)=>{
-                            console.log('print job data length', data.length);
+                            //console.log('print job data length', data.length);
                             bufs.push(data);
                         });
                         stream.on('end', ()=>{

@@ -161,5 +161,9 @@
   "printer.doc.PCLm": {
     "datatype": "boolean",
     "owner": "printer"
+  },
+  "printer.doc_format": {
+     "datatype": "Array",
+     "owner": "printer"
   }
 }

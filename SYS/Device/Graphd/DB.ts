@@ -94,19 +94,19 @@ function db_hot_swap(cb) {
     hotswap(HOTSWAP_NAME, (done) => {
         async.series([check, disconnect, destroy, swap, link], (err) => {
             done();
-            cb();
+            cb(err);
         });
     });
 }
 
 
-export function RebuildDeltaV(cb) {
-    warn("DeltaV Database - Rebuilding");
-    db_builder.Rebuild((err, result) => {
-        if (err) return cb(err);
-        db_hot_swap(cb);
-    });
-}
+//export function RebuildDeltaV(cb) {
+//    warn("DeltaV Database - Rebuilding");
+//    db_builder.Rebuild((err, result) => {
+//        if (err) return cb(err);
+//        db_hot_swap(cb);
+//    });
+//}
 
 function InsertOrUpdate(numericDate:string, callback:Callback) {
     Graphd.table().one({name: 'graphd'}, (err, result) => {
@@ -195,7 +195,7 @@ function DownloadGraphd(cb:Callback) {
                                         State: 'error',
                                         Error: err2
                                     });
-                                    return callback(err);
+                                    return callback(err2);
                                 }
 
                                 exec('openssl enc -d -aes-256-cbc -pass pass:' + password + ' -in ' + graphdPackageTmpPath + ' -out ' + graphdPackagePath, (err3)=> {
@@ -204,7 +204,7 @@ function DownloadGraphd(cb:Callback) {
                                             State: 'error',
                                             Error: err3
                                         });
-                                        return callback(err);
+                                        return callback(err3);
                                     }
 
                                     pub.Set('graphd', {
@@ -212,7 +212,7 @@ function DownloadGraphd(cb:Callback) {
                                     });
 
                                     fs.createReadStream(graphdPackagePath)
-                                        .pipe(unzip.Extract({path: CONF.GRAPHD_LOCATION}))
+                                        .pipe(unzip.Extract({path: CONF.GRAPHD_LOCATION + "_swap"}))
                                         .on('error', (err4)=> {
                                             pub.Set('graphd', {
                                                 State: 'error',
@@ -221,20 +221,35 @@ function DownloadGraphd(cb:Callback) {
                                             return callback(err4);
                                         })
                                         .on("close", () => {
-                                            InsertOrUpdate(orbitResult.numericDate, (err4)=> {
-                                                if (err4) {
+                                            pub.Set('graphd', {
+                                                State: 'hotswapping'
+                                            });
+                                            db_hot_swap((err5)=> {
+                                                if (err5) {
                                                     pub.Set('graphd', {
                                                         State: 'error',
-                                                        Error: err4
+                                                        Error: err5
                                                     });
-                                                    return callback(err4);
+                                                    return callback(err5);
                                                 }
-
                                                 pub.Set('graphd', {
-                                                    State: 'versioning'
+                                                    State: 'recording'
                                                 });
+                                                InsertOrUpdate(orbitResult.numericDate, (err6)=> {
+                                                    if (err6) {
+                                                        pub.Set('graphd', {
+                                                            State: 'error',
+                                                            Error: err6
+                                                        });
+                                                        return callback(err6);
+                                                    }
 
-                                                return callback();
+                                                    pub.Set('graphd', {
+                                                        State: 'versioning'
+                                                    });
+
+                                                    return callback();
+                                                });
                                             });
                                         });
                                 });
@@ -262,11 +277,12 @@ function CheckGraphdUpdate() {
         Graphd.table().one({name: 'graphd'}, (err, graphd)=> {
             if (err) return error(err);
 
-            console.log('check graphd update'['greenBG'].bold, err, graphd, numericDate);
             var needDownload = false;
             if (!graphd) {
+                console.log('no graphd exists'['greenBG'].bold, 'Orbit ver:', numericDate);
                 needDownload = true;
             } else if (Number(graphd.numericDate) < Number(numericDate)) {
+                console.log('current graphd was stale'['greenBG'].bold, graphd.numericDate, 'Orbit ver:', numericDate);
                 needDownload = true;
             }
 
