@@ -7,117 +7,134 @@ import stream = require('stream');
 
 import pth = require('path');
 
-var TYPE_SOURCE = 0;
-var TYPE_TARGET = 1;
+var fifos = {};
 
-var rawFIFO: IDic<{
-    hoststream: any,
-    path: string,
-    link: string,
-    type: number,
-    owner: string
-}> = {};
+var ready = {};
 
-
-function _release(name){
-    try{
-        console.log('Releasing : ', name);
-        fs.unlinkSync(rawFIFO[name].path);
-        rawFIFO[name].hoststream.removeAllListeners();
-        rawFIFO[name] = undefined;
-
-        if(rawFIFO[name].link){
-            var link = rawFIFO[name].link;
-            console.log('Releasing the other end : ', name);
-            fs.unlinkSync(rawFIFO[link].path);
-            rawFIFO[link].hoststream.removeAllListeners();
-            rawFIFO[link] = undefined;
+function _release(name, called_by?){
+    if(fifos[name]){
+        try{ <any>(fifos[name].stream).close(); } catch(e) { }
+        try{ <any>(fifos[name].stream).destroy(); } catch(e) { }
+        try{ <any>(fifos[name].stream).removeAllListeners(); } catch(e) { }
+        try{ fs.unlinkSync(fifos[name].fullpath); } catch(e) { }
+        if(fifos[name].otherend && fifos[name].otherend !== called_by){
+            _release(fifos[name].otherend, name);
         }
-    } catch(e) {
-
+        delete fifos[name];
     }
 }
 
-function _release_thunk(name){
-    return ()=>{
-        _release(name);
-    };
-}
-
-function _mkrawfifo(owner, path, type, cb){
+function _create_fifo(path, write_to, cb) {
     var name = UUIDstr();
     var p = pth.join(path, name);
     if(!fs.existsSync(path) || !fs.statSync(path).isDirectory()) {
         return cb(new Error("FIFO Target Dir is not valid"));
-    } else if(fs.existsSync(p)){
+    } else if(fs.existsSync(p)) {
         return cb(new Error("FIFO File overlap"));
-    } else {
-        exec('mkfifo', p, (err, result)=> {
-            if (err) {
-                return cb(err, undefined);
-            }
-            //ANYWAY LET'S OPEN THIS CRAP
-            try {
-                var stream:stream.Stream;
-                if (type === TYPE_SOURCE) {
-                    //GRANT WRITE ONLY ACCESS!
-                    fs.chmodSync(p, '0002');
-                    stream = <any>fs.createReadStream(p);
-                } else {
-                    //GRANT READ ONLY ACCESS!
-                    fs.chmodSync(p, '0004');
-                    stream = <any>fs.createWriteStream(p);
-                }
-                rawFIFO[name] = {
-                    hoststream: stream,
-                    path: p,
-                    link: undefined,
-                    type: type,
-                    owner: owner
-                };
-                stream.once('end', _release_thunk(name));
-                return cb(undefined, name);
-            } catch(e){
-                return cb(e);
-            }
-        });
     }
+    exec('mkfifo', p, (err, result)=> {
+        if (err) {
+            return cb(err, undefined);
+        }
+        var stream;
+        if (write_to) {
+            //GRANT WRITE ONLY ACCESS!
+            fs.chmodSync(p, '0002');
+            stream = fs.createReadStream(p);
+            stream.on('error', (err)=>{
+                error(err);
+                _release(name);
+            }).on('end', ()=>{
+                _release(name);
+            });
+        } else {
+            //GRANT READ ONLY ACCESS!
+            fs.chmodSync(p, '0004');
+            stream = fs.createWriteStream(p);
+            stream.on('error', (err)=>{
+                error(err);
+                _release(name);
+            }).on('finish', ()=>{
+                _release(name);
+            });
+        }
+        return cb(undefined, p, name, stream);
+    });
 }
 
-//Direction is relative to OS
+function _notify_when_ok(source, cb){
+    if(!(fifos[source] && fifos[source].isSource && !fifos[source].otherend)) {
+        return cb(new Error(source + " is not a valid source"));
+    }
+    if(fifos[source].ready){
+        return cb(); //immediate
+    } else {
+        var newcb = function(){
+            cb.apply(null, arguments);
+        };
+        newcb = must(newcb, 20000);
+        ready[source] = newcb;
+    }
+
+}
+
+function _fifo_ok(name){
+    if(fifos[name] && fifos[name].stream && fifos[name].isSource){
+        fifos[name].ready = true;
+        //emit event if needed
+
+        if(ready[name]){
+            ready[name]();
+            delete ready[name];
+        }
+    }
+}
 
 function WriteOnlyFIFO(owner, path, cb){
-    return _mkrawfifo(owner, path, TYPE_SOURCE, cb);
+    _create_fifo(path, true, (err, path, name, stream) => {
+        if(err) return cb(err);
+        fifos[name] = {
+            owner: owner,
+            stream: stream,
+            fullpath: path,
+            ready: false,
+            otherend: undefined,
+            isSource: true
+        };
+        stream.once("readable", _fifo_ok(name));
+        cb(undefined, name);
+    });
 }
 
-function ReadOnlyFIFO(owner, path, cb){
-    return _mkrawfifo(owner, path, TYPE_TARGET, cb);
+function ReadOnlyFIFO(owner, path, source, cb) {
+    if(!(fifos[source] && fifos[source].isSource && !fifos[source].otherend)) {
+        return cb(new Error("Source is not valid"));
+    }
+    _create_fifo(path, false, (err, path, name, stream) => {
+        if(err) return cb(err);
+        fifos[name] = {
+            owner: owner,
+            stream: stream,
+            fullpath: path,
+            ready: false,
+            otherend: undefined,
+            isSource: false
+        };
+        _notify_when_ok(source, (err)=>{
+            if(err){
+                _release(name);
+                return cb(err);
+            } else {
+                fifos[name].ready = true;
+                fifos[name].otherend = source;
+                fifos[source].otherend = name;
+                (<any>fifos[source].stream).pipe(fifos[name].stream);
+                console.log("Piping Begins...", source, " >>> ", name);
+                cb(undefined, name);
+            }
+        });
+    });
 }
-
-/*YO YO YO YO PIPES PIPES ������������� */
-function PartyOn(source_id, target_id, cb) {
-    if(!rawFIFO[source_id] || !rawFIFO[target_id]){
-        return cb(new Error("Oops, Source or Target not found - (Closed by peer?)"));
-    }
-    if(rawFIFO[source_id].type !== TYPE_SOURCE){
-        return cb(new Error("Supplied Source is typed other than TYPE_SOURCE"));
-    }
-    if(rawFIFO[target_id].type !== TYPE_TARGET){
-        return cb(new Error("Supplied Target is typed other than TYPE_TARGET"));
-    }
-    if(rawFIFO[source_id].link || rawFIFO[target_id].link){
-        return cb(new Error("Link is being used, multicast is not supported (yet)"));
-    }
-    //BOUND!
-    rawFIFO[source_id].link = target_id;
-    rawFIFO[target_id].link = source_id;
-
-    rawFIFO[source_id].hoststream.pipe(rawFIFO[target_id].hoststream);
-
-    return cb(null);
-}
-
-
 
 global.FIFO = {};
 
@@ -125,33 +142,19 @@ global.FIFO.Release = function(name) {
     _release(name);
 };
 
+global.FIFO.CreateSource = WriteOnlyFIFO;
+global.FIFO.CreatePipedTarget = ReadOnlyFIFO;
+
 global.FIFO.ReleaseByOwner = function(owner){
-    for(var i in rawFIFO){
-        if(rawFIFO[i].owner === owner) {
+    for(var i in fifos){
+        if(fifos[i].owner === owner) {
             _release(i);
         }
     }
 };
 
-global.FIFO.Link = PartyOn;
-
 global.FIFO.DeploySource = WriteOnlyFIFO;
 
 global.FIFO.DeployTarget = ReadOnlyFIFO;
 
-global.FIFO.QueryStream = function (owner, name, type){
-    return (rawFIFO[name] && rawFIFO[name].owner === owner && rawFIFO[name].type === type)
-        ? rawFIFO[name].hoststream : undefined;
-}
-
-global.FIFO.ReadFrom = function (owner, name){
-    return (rawFIFO[name] && rawFIFO[name].owner === owner && rawFIFO[name].type === TYPE_SOURCE && !rawFIFO[name].link)
-        ? rawFIFO[name].hoststream : undefined;
-}
-
-global.FIFO.WriteTo = function (owner, name){
-    return (rawFIFO[name] && rawFIFO[name].owner === owner && rawFIFO[name].type === TYPE_TARGET && !rawFIFO[name].link)
-        ? rawFIFO[name].hoststream : undefined;
-}
-
-global.FIFO.all = rawFIFO;
+global.FIFO.all = fifos;
