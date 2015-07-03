@@ -1,5 +1,6 @@
 var ipp = require('ipp');
 var util = require('util');
+var fs = require('fs');
 
 class IPPService implements IInAppDriver {
     private __ippUrl(dev:IDevice) {
@@ -26,14 +27,19 @@ class IPPService implements IInAppDriver {
         });
     }
 
-    private __printJobCB(cb) {
+    private __printJobThunk(cb) {
         return (err, res) => {
             if (err) return cb(err);
             else {
-                console.log('Print-Job result', res);
                 return cb(undefined, res);
             }
         };
+    }
+
+    private __printerJoin(dev, printer){
+        // job scanning
+        if (!this.__printers[dev.id])
+            this.__printers[dev.id] = {ippUrl: printer.url.href, jobs: {}};
     }
 
     private __analyzePrinter(dev, cb) {
@@ -45,9 +51,7 @@ class IPPService implements IInAppDriver {
                     return cb(err);
                 }
 
-                // job scanning
-                if (!this.__printers[dev.id])
-                    this.__printers[dev.id] = {ippUrl: printer.url.href, jobs: {}};
+                this.__printerJoin(dev, printer);
 
                 //TODO: analyze ipp result
                 var classes:KVSet = {'printer': ''};
@@ -201,6 +205,9 @@ class IPPService implements IInAppDriver {
         if (assumption['actions'] && assumption['actions'].hasOwnProperty(actionId)) {
             var printer = this.__ippPrinter(dev);
             if (printer) {
+
+                this.__printerJoin(dev, printer);
+
                 if (params.fd) {
                     API.IO.ReadFD(params.fd, (err, fd)=> {
                         console.log('ReadFD', err, fd);
@@ -208,12 +215,13 @@ class IPPService implements IInAppDriver {
                         var bufs = [];
                         var stream = fs.createReadStream('/Share/IO/' + fd);
                         stream.on('data', (data)=>{
-                            console.log(data.length);
-                            bufs.concat(data);
+                            console.log('print job data length', data.length);
+                            bufs.push(data);
                         });
                         stream.on('end', ()=>{
                             console.log('ipp.invoke close');
                             var data = Buffer.concat(bufs);
+
                             var msg = {
                                 "operation-attributes-tag": {
                                     "requesting-user-name": params.user.name,
@@ -223,7 +231,9 @@ class IPPService implements IInAppDriver {
                                 , data: data
                             };
                             cb();
-                            printer.execute("Print-Job", msg, this.__printJobCB(()=>{}));
+                            printer.execute("Print-Job", msg, this.__printJobThunk((err, res)=>{
+                                console.log('Print-Job result', res);
+                            }));
                         });
                         stream.on('error', (err)=>{
                             console.log('ipp.invoke error', err);
@@ -239,7 +249,7 @@ class IPPService implements IInAppDriver {
                             "document-uri": params.uri
                         }
                     };
-                    printer.execute("Print-URI", msg, this.__printJobCB(cb));
+                    printer.execute("Print-URI", msg, this.__printJobThunk(cb));
                 }
             } else { // should not happen :)
                 return cb(new Error('unknown device'));

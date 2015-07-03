@@ -1,6 +1,7 @@
 import RuntimePool = require('../../RuntimePool');
 import AppManager = require('../../AppManager');
 
+
 function Writeable(cb) {
     var cur = RuntimePool.GetCallingRuntime(this);
     if(!cur) return cb(new Error('Who are you?'));
@@ -23,7 +24,7 @@ function Readable(remotefd, cb) {
     }
     FIFO.CreatePipedTarget(cur.RuntimeId, AppManager.GetAppSharedIODir(cur.App.uid), remotefd, (err, name)=>{
         if(err) return cb(err);
-        cb(undefined, "/Share/IO" + name);
+        cb(undefined, name);
     });
 }
 
@@ -44,5 +45,5 @@ export function Subscribe(cb){
 }
 
 
-__API(Writeable, "API.IO.CreateFD", [Permission.IO]);
-__API(Readable, "API.IO.ReadFD", [Permission.IO]);
+__API(Writeable, "IO.CreateFD", [Permission.IO]);
+__API(Readable, "IO.ReadFD", [Permission.IO]);

@@ -12,6 +12,7 @@ var fifos = {};
 var ready = {};
 
 function _release(name, called_by?){
+    console.log('DESTROYING ', name);
     if(fifos[name]){
         try{ <any>(fifos[name].stream).close(); } catch(e) { }
         try{ <any>(fifos[name].stream).destroy(); } catch(e) { }
@@ -58,6 +59,7 @@ function _create_fifo(path, write_to, cb) {
                 _release(name);
             });
         }
+        console.log('MKPIPE ', name);
         return cb(undefined, p, name, stream);
     });
 }
@@ -79,15 +81,18 @@ function _notify_when_ok(source, cb){
 }
 
 function _fifo_ok(name){
-    if(fifos[name] && fifos[name].stream && fifos[name].isSource){
-        fifos[name].ready = true;
-        //emit event if needed
 
-        if(ready[name]){
-            ready[name]();
-            delete ready[name];
+    return function(){
+        if(fifos[name] && fifos[name].stream && fifos[name].isSource){
+            console.log("upstream is OK");
+            fifos[name].ready = true;
+            //emit event if needed
+            if(ready[name]){
+                ready[name]();
+                delete ready[name];
+            }
         }
-    }
+    };
 }
 
 function WriteOnlyFIFO(owner, path, cb){

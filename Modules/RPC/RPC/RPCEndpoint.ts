@@ -167,8 +167,6 @@ export class RPCEndPoint extends events.EventEmitter {
     };
 
     private _on_remote_call = (funcId, params, trackid, age) => {
-        if(funcId === 12)
-            console.log('_____________>> [RPC] _on_remote_call', funcId, trackid, age);
         var timeout;
         var cb = (err: Error, result) => {
             if (timeout !== undefined) {
@@ -188,8 +186,6 @@ export class RPCEndPoint extends events.EventEmitter {
     };
 
     private _on_remote_reply = (funcId, params, trackid, age) => {
-        if(funcId === 12)
-            console.log('_____________>> [RPC] _on_remote_reply', funcId, trackid, age);
         if (this._callbacks.age(trackid) == age) {
             var _cb = this._callbacks.pop(trackid);
             if (_cb && _cb.callback) {
