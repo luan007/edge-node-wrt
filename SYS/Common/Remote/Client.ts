@@ -158,7 +158,25 @@ class _orbit {
         }
         req.end();
     };
+
+    UploadDevice = (devid, busname, hwaddr, dev, cb) => {
+        this.Post("Device", Orbit.PKG(undefined, devid, {
+            busname: busname,
+            hwaddr: hwaddr,
+            data: dev
+        }), cb); //this is a one way trip though
+    };
+
+    Login = (id, pass, deviceid, cb) => {
+        this.Post("Ticket", Orbit.PKG(undefined, deviceid, {
+            id: id,
+            pass: pass
+        }), cb);
+    };
 }
+
+
 
 var Orbit = new _orbit;
 global.Orbit = Orbit;
+

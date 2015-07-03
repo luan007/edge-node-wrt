@@ -4,7 +4,6 @@
  *mostly* copied from last rev (rev_1)
  */
 
-
 import DeviceManager = require('../Device/DeviceManager');
 import Device = DeviceManager;
 import Storage = require('../DB/Storage');
@@ -19,72 +18,11 @@ export var DB_UserList:IDic<IUser> = {};
 export var DB_Ticket:IDic<ITicket> = {};
 
 export var DeviceAlive:IDic<IDic<IDevice>> = {};
-export var UserStatus:IDic<number> = {};
 
+var pub = StatMgr.Pub(SECTION.USER, {
+    online: {}
+});
 
-/* abstracted for future replacement */
-function getTicket(authId) {
-    return DB_Ticket[authId];
-}
-
-/* abstracted for future replacement */
-function getUser(userId) {
-    return DB_UserList[userId];
-}
-
-export function UserAppear(userid:string,
-                           ticket:string,
-                           device:string,
-                           expire:number,
-                           callback:PCallback<IUser>) {
-
-    var usr = getUser(userid);
-    var ath = getTicket(ticket);
-    if (!usr) { // local user does not exist
-        //Query for username and all sort
-        Orbit.Get("User/", Orbit.PKG(ticket, device), (err, u:{
-            name;
-            uid;
-            data;
-        }) => {
-            if (err) {
-                return callback(err, null);
-            }
-
-            var _u = new User();
-            _u.name = u.name;
-            _u.uid = u.uid;
-            _u.data = JSON.stringify(u.data);
-            User.table().create(_u, (err, usr) => {
-                if (err) {
-                    return callback(err, null);
-                }
-                DB_UserList[_u.uid] = usr;
-                info("USER " + _u.name.bold + " CREATED");
-                callback(null, usr);
-            });
-        });
-    }
-    if (!ath) {
-        var _a = new Ticket();
-        _a.device_uid = device;
-        _a.expire = expire / 1.5 + new Date().getTime();
-        _a.owner_uid = usr.uid;
-        _a.owner = usr;
-        _a.uid = ticket;
-        Ticket.table().create(_a, (err, ath) => {
-            if (err) {
-                return callback(err, null);
-            }
-            DB_Ticket[ticket] = ath;
-            info("TICKET " + _a.uid.bold + " CREATED");
-            callback(null, usr);
-        });
-    }
-
-    DeviceManager.SetOwnership(device, userid);
-
-}
 
 export function Login(identity:string,
                       password:string,
@@ -174,6 +112,71 @@ export function Renew(atoken:string,
     });
 }
 
+/* abstracted for future replacement */
+function getTicket(authId) {
+    return DB_Ticket[authId];
+}
+
+/* abstracted for future replacement */
+function getUser(userId) {
+    return DB_UserList[userId];
+}
+
+export function UserAppear(userid:string,
+                           ticket:string,
+                           device:string,
+                           expire:number,
+                           callback:PCallback<IUser>) {
+
+    callback = <any>once(<any>callback);
+    var usr = getUser(userid);
+    var ath = getTicket(ticket);
+    if (!usr) { // local user does not exist
+        //Query for username and all sort
+        Orbit.Get("User/", Orbit.PKG(ticket, device), (err, u:{
+            name;
+            uid;
+            data;
+        }) => {
+            if (err) {
+                return callback(err, null);
+            }
+
+            var _u = new User();
+            _u.name = u.name;
+            _u.uid = u.uid;
+            _u.data = JSON.stringify(u.data);
+            User.table().create(_u, (err, usr) => {
+                if (err) {
+                    return callback(err, null);
+                }
+                DB_UserList[_u.uid] = usr;
+                info("USER " + _u.name.bold + " CREATED");
+                callback(null, usr);
+            });
+        });
+    }
+    if (!ath) {
+        var _a = new Ticket();
+        _a.device_uid = device;
+        _a.expire = expire / 1.5 + new Date().getTime();
+        _a.owner_uid = usr.uid;
+        _a.owner = usr;
+        _a.uid = ticket;
+        Ticket.table().create(_a, (err, ath) => {
+            if (err) {
+                return callback(err, null);
+            }
+            DB_Ticket[ticket] = ath;
+            info("TICKET " + _a.uid.bold + " CREATED");
+            callback(null, usr);
+        });
+    }
+
+    DeviceManager.SetOwnership(device, userid); //yep
+
+}
+
 //Called in AuthServer
 export function GetCurrentUserId(auth:string) {
     if (!has(DB_Ticket, auth)) {
@@ -227,7 +230,7 @@ export function AuthPatrolThread() {
 }
 
 export function GetState(userid) {
-    return UserStatus[userid] ? UserStatus[userid] : 0;
+    return pub.online.Get(userid) ? pub.online.Get(userid).ValueOf() : 0;
 }
 
 export function GetUser(userid) {
@@ -236,7 +239,8 @@ export function GetUser(userid) {
 
 export function List(opts:{
     state?: number
-}) {
+})
+{
     opts = opts || {};
     var results = {};
     for (var i in DB_UserList) {
@@ -271,13 +275,13 @@ export function GetOwnedDevices(user, ops:{
 
 function _UpdateOnlineState(userid) {
     if (userid && userid !== "") {
-        var curState = UserStatus[userid] || 0;
+        var curState = pub.online.Get(userid) || 0;
         var newState = DeviceAlive[userid] ? Object.keys(DeviceAlive[userid]).length : 0;
         if (newState > 0 && curState === 0) {
-            UserStatus[userid] = 1;
+            pub.online.Set(userid, 1);
             __EMIT("User.up", userid, DB_UserList[userid]);
         } else if (curState === 1 && newState === 0) {
-            UserStatus[userid] = 0;
+            pub.online.Del(userid);
             DB_UserList[userid].lastSeen = new Date();
             DB_UserList[userid].save();
             __EMIT("User.down", userid, DB_UserList[userid]);
@@ -337,13 +341,15 @@ export function Initialize(callback:Callback) {
     trace("Starting AuthTicket Patrol " + (CONF.USERAUTH_PATROL_INTERVAL + "")["cyanBG"].bold);
     setInterval(AuthPatrolThread, CONF.USERAUTH_PATROL_INTERVAL);
     trace("UP");
-
     Device.Events.on("up", _DeviceOnline);
     Device.Events.on("down", _DeviceOffline);
     Device.Events.on("transfer", _DeviceOnwershipTransfer);
-
     return callback();
 }
+
+
+
+
 
 __API(Login, "Launcher.Login", [Permission.Launcher]);
 __API(Register, "Launcher.Register", [Permission.Launcher]);

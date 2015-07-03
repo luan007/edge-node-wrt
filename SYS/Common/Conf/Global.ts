@@ -154,6 +154,8 @@ class _global_section {
     TRAFFIC = "TRAFFIC";
     MAINUI = 'MAINUI';
     STREAMING = 'STREAMING';
+    DEVICE = 'DEVICE';
+    USER = 'USER';
     SAMBA = 'SAMBA';
     OBEX = 'OBEX';
     RUNTIME = 'RUNTIME';

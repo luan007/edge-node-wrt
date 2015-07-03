@@ -5,6 +5,11 @@ var deviceTable = deviceObj.table;
 import DriverManager = require("./DriverManager");
 import events = require('events');
 
+var pub = StatMgr.Pub(SECTION.DEVICE, {
+    buses: { },
+    devices: { }
+});
+
 var devices:IDic<IDevice> = {};
 var db_devices:IDic<deviceData> = {};
 var hwaddr_map:IDic<KVSet> = {}; // <Bus<HWAddr>>
@@ -275,17 +280,18 @@ export function Config(dev:IDevice, conf:any) {
 
 function _ondriverchange(dev:IDevice, drv:IDriver, assump:IDeviceAssumption) {
     device_updates[dev.id] = 1;
-    if (assump) {
-        //if (assump.driverId === 'App_DriverApp:P0F') {
-        //    console.log('4.5  _ondriverchange  <<< ==========', assump);
-        //}
-
-
-        if (!devices[dev.id].assumptions) devices[dev.id].assumptions = {};
-        delta_add_return_changes(devices[dev.id].assumptions[drv.id()], assump, true);
-
-        //devices[dev.id].assumptions[drv.id()] = assump;
-    }
+    //TODO: Check if we really need this ***NEED TEST***
+    //if (assump) {
+    //    //if (assump.driverId === 'App_DriverApp:P0F') {
+    //    //    console.log('4.5  _ondriverchange  <<< ==========', assump);
+    //    //}
+    //
+    //
+    //    if (!devices[dev.id].assumptions) devices[dev.id].assumptions = {};
+    //    delta_add_return_changes(devices[dev.id].assumptions[drv.id()], assump, true);
+    //
+    //    //devices[dev.id].assumptions[drv.id()] = assump;
+    //}
     not_saved = true;
 }
 
@@ -335,6 +341,8 @@ export function Diagnose(callback:Callback) {
 export function RegisterBus(bus) {
     bus.on('device', _OnDevice);
     bus.on('drop', _OnDrop);
+
+    pub.buses.Set(bus.name(), {});
 }
 
 export function Devices() {
@@ -362,15 +370,13 @@ export function GetDevIdByHWAddr(mac):string {
     return undefined;
 }
 
+//this method is about to be removed
 export function OrbitSync(devId, cb) {
     if (!has(db_devices, devId)) {
         fatal('==========<< devId', devId);
         process.nextTick(cb.bind(null, new Error("Device not found")));
     }
-    Orbit.Post("Device", Orbit.PKG(undefined, devId, {
-        busname: db_devices[devId].busname,
-        hwaddr: db_devices[devId].hwaddr
-    }), cb);
+    Orbit.UploadDevice(devId, db_devices[devId].busname, db_devices[devId].hwaddr, db_devices[devId], cb);
 }
 
 export function List(ops:{
