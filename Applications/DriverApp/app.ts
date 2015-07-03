@@ -46,21 +46,29 @@ API.RegisterEvent('Device.change', (err, res) => {
         return console.log('_____________>> register remote event error: ', err);
     }
     else {
-        API.Device.on('change', (dev_id, dev, data)=> {
-            console.log('_____________>> [2]', dev_id);
+        //API.Device.on('change', (dev_id, dev, data)=> {
+        //    console.log('_____________>> [2]', dev_id);
+        //    var assumptions = dev.assumptions;
+            var assumptions = JSON.parse('{"App_DriverApp:IPP":{"classes":{"printer":""},"actions":{"print":""},"aux":{},"attributes":{"name":"NPIFEF707","printer.uri-supported.ipp":"ipp://192.168.66.11:631/ipp/print","printer.uri-supported.ipps":"ipps://192.168.66.11:443/ipp/print","vendor":"HP","printer.info":"HP LaserJet 200 colorMFP M276nw","printer.status.state":"idle","printer.icons.normal":"http://192.168.66.11/ipp/images/printer.png","printer.icons.large":"http://192.168.66.11/ipp/images/printer-large.png","printer.resolution":"600 600 dpi","printer.uuid":"urn:uuid:434e4438-4635-4e43-4a4b-d4c9effef707","printer.airprint":true,"printer.airprint.version":"1.3","printer.color.supported":true,"printer.doc.image.urf":true,"printer.doc.pdf":true,"printer.doc.postscript":true,"printer.doc.vnd.hp-PCL":true,"printer.doc.PCLm":true,"printer.doc.octet-stream":true},"valid":true,"driverId":"App_DriverApp:IPP"}}');
 
-            API.Driver.Match(dev, 'print', function (err, drivers){
+            //API.Driver.Dummy((err, res)=>{
+            //   console.log('___________>> [X]', err, res);
+            //});
+
+            API.Driver.Match('print', (err, drivers)=>{
                 console.log('_____________>> [4]', err, drivers);
                 if (err) return console.log(err);
-                if (!drivers) return console.log('no driver matched.');
-                if(Object.keys(drivers).length === 0) return console.log('no driver matched.');
+                if (!drivers) return console.log('_____________>> [4] no driver matched.');
+                if(Object.keys(drivers).length === 0) return console.log('_____________>> [4] no driver matched.');
 
-                var drv = drivers[0];
-                console.log('driver matched', drv.id());
-                var filePath = '/linux-manual.pdf';
-                var readStream = fs.createReadStream(filePath);
+                console.log('_____________>> [4]', Object.keys(drivers));
+
+
+                var pair = drivers[0];
 
                 API.IO.CreateFD((err, fd)=> {
+                    console.log('_____________>> [5] API.IO.CreateFD', err, fd);
+
                     var params = <any>{
                         fd: fd,
                         mime_type: 'application/pdf',
@@ -68,18 +76,19 @@ API.RegisterEvent('Device.change', (err, res) => {
                     };
                     params.user = {name: 'Admin'};
 
-                    API.IO.OnFDConnect(fd, ()=> {
-                        readStream.pipe(fd);
-                    });
+                    console.log('START TRANSFER');
+                    var filePath = '/linux-manual.pdf';
+                    var r = fs.createReadStream(filePath);
+                    var w = fs.createWriteStream("/Share/IO/" + fd);
+                    r.pipe(w);
 
-                    API.Driver.Invoke(drv, dev, 'print', params, (err)=> {
+                    API.Driver.Invoke(pair.driverId, pair.deviceId, 'print', params, (err)=> {
                         if (err) console.log('received invoke callback err', err);
                         return console.log('print success.');
                     });
                 });
             });
-        });
+        //});
 
-        //console.log('_____________>> register remote event', res, API, API.Device);
     }
 });

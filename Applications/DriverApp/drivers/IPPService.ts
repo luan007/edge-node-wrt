@@ -202,14 +202,16 @@ class IPPService implements IInAppDriver {
             var printer = this.__ippPrinter(dev);
             if (printer) {
                 if (params.fd) {
-                    API.IO.ReadFD(params.fd, (err, filePath)=> {
+                    API.IO.ReadFD(params.fd, (err, fd)=> {
+                        console.log('ReadFD', err, fd);
                         if (err) return cb(err);
                         var bufs = [];
-                        var stream = fs.createReadStream(filePath);
+                        var stream = fs.createReadStream('/Share/IO/' + fd);
                         stream.on('data', (data)=>{
+                            console.log(data.length);
                             bufs.concat(data);
                         });
-                        stream.on('close', ()=>{
+                        stream.on('end', ()=>{
                             console.log('ipp.invoke close');
                             var data = Buffer.concat(bufs);
                             var msg = {
@@ -220,7 +222,8 @@ class IPPService implements IInAppDriver {
                                 }
                                 , data: data
                             };
-                            printer.execute("Print-Job", msg, this.__printJobCB(cb));
+                            cb();
+                            printer.execute("Print-Job", msg, this.__printJobCB(()=>{}));
                         });
                         stream.on('error', (err)=>{
                             console.log('ipp.invoke error', err);

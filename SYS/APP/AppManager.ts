@@ -364,5 +364,5 @@ export function GetRealAppDataDir(app_id) {
 }
 
 export function GetAppSharedIODir(app_id) {
-    return path.join(CONF.BASE_DATA_PATH, "App", app_id, "Share", "IO");
+    return path.join(CONF.APP_BASE_PATH, app_id, "Share", "IO");
 }

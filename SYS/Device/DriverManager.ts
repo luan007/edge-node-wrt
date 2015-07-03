@@ -340,7 +340,7 @@ export function DeviceChange(dev:IDevice, tracker:_tracker, assump:IDeviceAssump
         fatal("Device Online --- " + dev.bus.name + " [" + dev.bus.hwaddr + "] ");
     }
 
-    if(assump && assump.actions && assump.actions.hasOwnProperty('print'))
+    if (assump && assump.actions && assump.actions.hasOwnProperty('print'))
         console.log('__EMIT Device.change --- '['greenBG'].bold, dev.id);
     __EMIT("Device.change", dev.id, dev, {
         tracker: tracker,
@@ -427,7 +427,7 @@ export function DeviceDrop(dev:IDevice, busDelta?) {
     }
 }
 
-export function DriverInvoke(drv:IDriver, dev:IDevice, actionId, params, cb) {
+export function DriverInvoke(driverId, deviceId, actionId, params, cb) {
     //TODO: add invoking user info
     // plus:  params['user']
     DB.QueryType(2, (err, actions)=> {
@@ -435,18 +435,24 @@ export function DriverInvoke(drv:IDriver, dev:IDevice, actionId, params, cb) {
         else {
             if (!actions.hasOwnProperty(actionId))
                 return cb(new Error('Illegal action assumption: ' + actionId));
-            return drv.invoke(dev, actionId, params, cb); //TODO: not finished
+            var dev = DeviceManager.Devices()[deviceId];
+            return Drivers[driverId].invoke(dev, actionId, params, cb); //TODO: not finished
         }
     });
 }
 
-function DriverMatch(dev:IDevice, actionId, callback){
-    console.log('____________>> [3]', actionId);
-    var drvs: IDic<IDriver> = {};
-    for(var k in Drivers) {
-        var assump = dev.assumptions[Drivers[k].id()];
-        if(assump && assump.actions && assump.actions.hasOwnProperty(actionId)){
-            drvs[Drivers[k].id()] = Drivers[k];
+function DriverMatch(actionId, callback) {
+    console.log('____________>> [3]', actionId, arguments);
+    var drvs = [];
+    var devices = DeviceManager.Devices();
+    for (var d in devices) {
+        if (devices[d].assumptions) {
+            for (var k in Drivers) {
+                var assump = devices[d].assumptions[Drivers[k].id()];
+                if (assump && assump.actions && assump.actions.hasOwnProperty(actionId)) {
+                    drvs.push({driverId: k, deviceId: d});
+                }
+            }
         }
     }
     console.log('____________>> [3]', drvs);
@@ -472,6 +478,9 @@ function __driverChangeDevice(inAppDrvId, deviceId, assump:IDeviceAssumption, cb
 __API(__driverChangeDevice, 'Device.Change', [Permission.Driver]);
 __API(DriverInvoke, 'Driver.Invoke', [Permission.Driver]);
 __API(DriverMatch, 'Driver.Match', [Permission.Driver]);
+//__API((cb)=> {
+//    return cb(undefined, DeviceManager.Devices());
+//}, 'Driver.Dummy', [Permission.Driver]);
 
 __EVENT("Device.change", [Permission.DeviceAccess]);
 __EVENT("Driver.down", [Permission.Driver]);

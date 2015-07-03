@@ -300,7 +300,7 @@ function StartRuntime(app_uid) {
             mount_auto.bind(null, _path, AppManager.GetAppDataLn(runtime.App.uid), ["--bind"]),
             mount_auto.bind(null, '/etc', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'etc'),
                 ["--bind", '-o noexec,nosuid,nodev']),
-            exec.bind(null, "chown", "-R", "root", AppManager.GetAppRootPath(runtime.App.uid)),
+            exec.bind(null, "chown", "root", AppManager.GetAppRootPath(runtime.App.uid)), //TODO: not secure
             exec.bind(null, "mount", '-o remount,ro', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'etc')),
             exec.bind(null, "chmod", "0755", AppManager.GetAppRootPath(runtime.App.uid)),
             exec.bind(null, "chown", "-R", runtime.RuntimeId, AppManager.GetAppDataLn(runtime.App.uid)),
