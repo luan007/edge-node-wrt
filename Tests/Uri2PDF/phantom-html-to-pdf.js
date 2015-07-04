@@ -1,24 +1,19 @@
 var conversion = require("phantom-html-to-pdf")();
-var http = require('http');
 var fs = require('fs');
+var request = require('request');
 
 function crawl(url, cb){
-    http.get(url, function(res) {
-        console.log("Got response: " + res.statusCode);
-        var bufs = [];
-        res.on('data', function(data){
-            bufs.push(data);
-        });
-        res.on('end', function(){
-            var buf = Buffer.concat(bufs);
-            var html = buf.toString();
-            return cb(null, html);
-        });
-        res.on('error', function(err){
-            return cb('res err:' + err);
-        });
-    }).on('error', function(err) {
-        return cb('get err:' + err);
+    var opts = {};
+    opts.url = url;
+    opts.method = 'GET';
+    opts.gzip = opts.gzip || true;
+    opts.headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36'
+    };
+    request(opts, function (err, response, html) {
+        return cb(err, html);
+    }).on('data', function (data) {
+        console.log('received data', data.length);
     });
 }
 
@@ -43,7 +38,7 @@ if(process.argv.length < 3)
     return console.log('please supply the uri');
 
 var uri	 = process.argv[2];
-crawl(uri, function(err, html){
+return crawl(uri, function(err, html){
     if(err) return console.log(err);
-    toPDF(html, 'out.pdf');
+    return toPDF(html, 'out.pdf');
 });
