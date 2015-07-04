@@ -1,7 +1,5 @@
 ﻿//this is going to be hot-swapped during runtime-updates
 
-//TODO: need TESTS!
-import db_builder = require("./Builder");
 import fs = require('fs');
 var unzip = require("unzip");
 import _Graphd = require('../../DB/Models/Graphd');
@@ -99,15 +97,6 @@ function db_hot_swap(cb) {
     });
 }
 
-
-//export function RebuildDeltaV(cb) {
-//    warn("DeltaV Database - Rebuilding");
-//    db_builder.Rebuild((err, result) => {
-//        if (err) return cb(err);
-//        db_hot_swap(cb);
-//    });
-//}
-
 function InsertOrUpdate(numericDate:string, callback:Callback) {
     Graphd.table().one({name: 'graphd'}, (err, result) => {
         var upgrade = false;
@@ -143,7 +132,6 @@ function DownloadGraphd(cb:Callback) {
                     return callback(err);
                 }
 
-                //console.log('orbitResult'['cyanBG'].bold, orbitResult.numericDate, orbitResult.pkg_sig.toString('hex'));
                 fs.writeFile(CONF.GRAPHD_PASSWORD_FILE, orbitResult.pkg_sig, {encoding: 'binary'}, (err)=> { //save password
                     if (err) {
                         pub.Set('graphd', {
