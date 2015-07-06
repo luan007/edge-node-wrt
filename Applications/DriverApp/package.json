@@ -18,7 +18,7 @@
     "ua-parser-js" : "*",
     "ipp": "*",
     "mmmagic": "*",
-    "phantom-html-to-pdf": "*", 
+    "phantom-html-to-pdf": "*",
     "request": "*"
   }
 }
