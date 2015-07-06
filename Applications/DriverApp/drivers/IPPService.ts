@@ -1,6 +1,10 @@
 var ipp = require('ipp');
 var util = require('util');
 var fs = require('fs');
+var request:any = require('request');
+var conversion = require("phantom-html-to-pdf")();
+var PDF_MIME = 'application/pdf';
+var USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36';
 
 class IPPService implements IInAppDriver {
     private __ippUrl(dev:IDevice) {
@@ -48,18 +52,32 @@ class IPPService implements IInAppDriver {
         var magic = new Magic(mmm.MAGIC_MIME_TYPE);
         magic.detect(buf, cb);
     }
+
     private __detectUrlMime(uri:string, cb) {
-        var request:any = require('request');
         var opts:any = {};
         opts.url = uri;
         opts.method = 'HEAD';
         opts.gzip = opts.gzip || true;
         opts.headers = {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36'
+            'User-Agent': USER_AGENT
         };
         request(opts, function (err, response) {
             var mime = (response.headers && response.headers['content-type']) ? response.headers['content-type'] : 'text/plain';
             return cb(err, mime);
+        });
+    }
+
+    private __uri2PDF(uri:string, cb) {
+        var opts:any = {};
+        opts.url = uri;
+        opts.method = 'GET';
+        opts.gzip = opts.gzip || true;
+        opts.headers = {
+            'User-Agent': USER_AGENT
+        };
+        request(opts, function (err, response, html) {
+            if (err) return cb(err);
+            conversion({html: html}, cb);
         });
     }
 
@@ -101,7 +119,7 @@ class IPPService implements IInAppDriver {
                     }
 
                     //var buf = {};
-                    for(var key in printerAttributesTag) { // copying
+                    for (var key in printerAttributesTag) { // copying
                         var k:any = 'printer.' + key.toString();
                         assump[k] = printerAttributesTag[key];
                         //buf[k] = {'owner': 'printer' };
@@ -208,8 +226,8 @@ class IPPService implements IInAppDriver {
                             console.log('ipp.invoke close');
                             var data = Buffer.concat(bufs);
 
-                            this.__detectBufferMime(data, (err, mime)=>{
-                                if(err) {
+                            this.__detectBufferMime(data, (err, mime)=> {
+                                if (err) {
                                     console.log('ipp.invoke mime error', err);
                                     return cb(err);
                                 }
@@ -219,7 +237,7 @@ class IPPService implements IInAppDriver {
                                         "job-name": params.job_name,
                                         "document-format": mime
                                     }
-                                    , "job-attributes-tag":{
+                                    , "job-attributes-tag": {
                                         "copies": Number(params.copies),
                                     }
                                     , data: data
@@ -236,17 +254,39 @@ class IPPService implements IInAppDriver {
                         });
                     });
                 } else if (params.uri) {
-                    this.__detectUrlMime(params.uri, (err, mime)=>{
+                    var msg = {
+                        "operation-attributes-tag": {
+                            "requesting-user-name": params.user.name,
+                            "job-name": params.job_name,
+                            "document-format": PDF_MIME
+                        }
+                        , "job-attributes-tag": {
+                            "copies": Number(params.copies),
+                        }
+                    };
+                    this.__detectUrlMime(params.uri, (err, mime)=> {
                         if (err) return cb(err);
-                        var msg = {
-                            "operation-attributes-tag": {
-                                "requesting-user-name": params.user.name,
-                                "job-name": params.job_name,
-                                "document-format": mime,
-                                "document-uri": params.uri
-                            }
-                        };
-                        printer.execute("Print-URI", msg, this.__printJobThunk(cb));
+                        if (mime !== '') {
+                            this.__uri2PDF(params.uri, (err, pdf)=> {
+                                console.log('PDF total pages ', pdf.numberOfPages);
+                                var bufs = [];
+                                var stream:any = pdf.stream;
+                                stream.on('data', (data)=> {
+                                    bufs.push(data);
+                                });
+                                stream.on('end', function () {
+                                    msg['data'] = Buffer.concat(bufs);
+                                    printer.execute("Print-URI", msg, this.__printJobThunk(cb));
+                                });
+                                stream.on('error', function (err) {
+                                    console.log('received PDF error', err);
+                                });
+                            });
+                        } else {
+                            msg['operation-attributes-tag']['document-uri'] = params.uri;
+                            printer.execute("Print-URI", msg, this.__printJobThunk(cb));
+                        }
+                        return cb();
                     });
                 }
             } else { // should not happen :)
