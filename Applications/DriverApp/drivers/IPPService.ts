@@ -266,7 +266,7 @@ class IPPService implements IInAppDriver {
                     };
                     this.__detectUrlMime(params.uri, (err, mime)=> {
                         if (err) return cb(err);
-                        if (mime !== '') {
+                        if (mime !== PDF_MIME) {
                             this.__uri2PDF(params.uri, (err, pdf)=> {
                                 console.log('PDF total pages ', pdf.numberOfPages);
                                 var bufs = [];
