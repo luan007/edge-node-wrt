@@ -15,9 +15,7 @@
          "job_name": {},
          "copies": { "default": 1 }
        },
-       "optional": {
-       },
-       "mutualexclusion":[
+       "mutex":[
          {
             "fd" : { "datatype": "uuid" },
             "uri" : { "datatype": "uri" }

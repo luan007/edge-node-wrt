@@ -427,7 +427,7 @@ export function DeviceDrop(dev:IDevice, busDelta?) {
     }
 }
 
-export function DriverInvoke(driverId, deviceId, actionId, params, cb) {
+export function DriverInvoke(driverId, deviceId, actionId, params:KVSet, cb) {
     //TODO: add invoking user info
     // plus:  params['user']
     DB.QueryType(2, (err, actions)=> {
@@ -435,14 +435,35 @@ export function DriverInvoke(driverId, deviceId, actionId, params, cb) {
         else {
             if (!actions.hasOwnProperty(actionId))
                 return cb(new Error('Illegal action assumption: ' + actionId));
-            var args = actions[actionId]['arguments']; //check arguments
-            if(args.required && Object.keys(args.required).length > 0){
-                //Object.keys(args.required).filter((k)=>{ return args.required[k].hasOwnProperty('default'); });
-                //for(var par in params){
-                //
-                //}
-            }
 
+            //check arguments
+            var args = actions[actionId]['arguments'];
+            if (args.required && Object.keys(args.required).length > 0) {//required {}
+                for (var k in args.required) {
+                    if (!params.hasOwnProperty(k)) {
+                        if (args.required[k]['default'])
+                            params[k] = args.required[k]['default'];
+                        else
+                            return cb(new Error('Missing argument: ' + k));
+                    } else if (args.required[k].datatype && args.required[k].datatype !== typeof params[k]) {
+                        return cb(new Error('Illegal argument type: ' + k));
+                    }
+                }
+            }
+            if (args.mutex && args.mutex.length > 0) { //mutex []
+                for(var i = 0, len = args.mutex.length; i < len ; i++) {
+                    var exists = [];
+                    for(var k in args.mutex[i]){ // {}
+                        if(params.hasOwnProperty(k)) {
+                            if(args.mutex[k].datatype && args.mutex[k].datatype !== typeof params[k])
+                                return cb(new Error('Illegal argument type: ' + k));
+                            exists.push(k);
+                        }
+                    }
+                    if(exists.length !== 1)
+                        return cb(new Error('Mutex quantity expect be 1, but actual got:' + exists.join(',')));
+                }
+            }
 
             var dev = DeviceManager.Devices()[deviceId];
             return Drivers[driverId].invoke(dev, actionId, params, cb); //TODO: not finished
