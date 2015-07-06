@@ -173,6 +173,7 @@ function _jail(cb) {
                 chroot(_env.target_dir, _env.runtime_id); // YOU ARE NOBODY FROM NOW - NO MORE NOTHING
                 process.chdir("/");
                 global.API_JSON = _env.api_obj;
+                global.runtime_id = _env.runtime_id;
                 process.env = {};
                 process.argv = [];
                 process.title = "";

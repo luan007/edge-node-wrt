@@ -23,7 +23,8 @@ class InAppDriver implements IDriver {
     };
 
     id = () => {
-        return "App_" + this.App.App.uid + ":" + this.InApp_DriverId;
+        return "App_" + this.App.RuntimeId + ":" + this.InApp_DriverId;
+        //return "App_" + this.App.App.uid + ":" + this.InApp_DriverId;
     };
 
     name = () => {

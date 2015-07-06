@@ -296,19 +296,6 @@ export class Runtime extends events.EventEmitter {
             this._push_fail("exit");
             this.Stop();
         });
-
-        //if (CONF.IS_DEBUG) {
-        //    if(this._process.stdout) {
-        //        this._process.stdout.on('data', (data) => {
-        //            console.log('process stdout data:', data.toString());
-        //        });
-        //    }
-        //    if(this._process.stderr) {
-        //        this._process.stderr.on("data", (data) => {
-        //            error(data.toString());
-        //        });
-        //    }
-        //}
     };
 
     Status = () => {

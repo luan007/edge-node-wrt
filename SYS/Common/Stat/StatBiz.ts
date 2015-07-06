@@ -34,3 +34,32 @@ export function GetBluetoothPropertiesByMac(mac:string) {
     }
     return null;
 }
+
+export function GetMDNSByIP(IP:string) {
+    var networkStatues = <any>StatMgr.Get(SECTION.NETWORK).ValueOf();
+    if (networkStatues && networkStatues.mdns) {
+        if (networkStatues.mdns.hasOwnProperty(IP))
+            return networkStatues.mdns[IP];
+    }
+    return null;
+}
+
+export function GetAppUidByRuntimeId(runtimeId:string){
+    var runtimeStatues = <any>StatMgr.Get(SECTION.RUNTIME).ValueOf();
+    if (runtimeStatues && runtimeStatues.apps) {
+        for(var appUid in runtimeStatues.apps) {
+            if(runtimeStatues.apps[appUid].RuntimeId === runtimeId)
+                return appUid;
+        }
+    }
+    return null;
+}
+
+export function GetRuntimeIdByAppUid(appUid:string){
+    var runtimeStatues = <any>StatMgr.Get(SECTION.RUNTIME).ValueOf();
+    if (runtimeStatues && runtimeStatues.apps) {
+        if(runtimeStatues.apps.hasOwnProperty(appUid))
+            return runtimeStatues.apps[appUid].RuntimeId;
+    }
+    return null;
+}

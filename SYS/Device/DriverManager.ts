@@ -367,9 +367,6 @@ export function DeviceChange(dev:IDevice, tracker:_tracker, assump:IDeviceAssump
         warn("Max DriverChain Exceeded (" + tracker.depth + ") ! ROOT_CAUSE:" + tracker.root);
     }
 
-    //if (isP0F(busDelta)) {
-    //    console.log('3. DeviceChange <<< ==========', stateChange, busDelta.data.P0F);
-    //}
 
     //trace(Drivers);
     /* UNLEASHHH DA POWER OF..  */
@@ -379,13 +376,6 @@ export function DeviceChange(dev:IDevice, tracker:_tracker, assump:IDeviceAssump
             (!Drivers_BusMapping[dev.bus.name] && !Drivers_BusMapping[dev.bus.name][driver_id])) continue;
         //TODO: Add Driver Preference Here!!!! HIGH PRIORITY
         //TODO: Finish Driver-Interest - this is not completed
-
-        //if (dev.bus.hwaddr === '60:d9:c7:41:d4:71' && driver_id === 'App_DriverApp:OUI') {
-        //    console.log('1 ====----====', 'driver_id == tracker.parent', driver_id, tracker.parent);
-        //    console.log('2 ====----====', 'Drivers_BusMapping[dev.bus.name]', !!Drivers_BusMapping[dev.bus.name], dev.bus.name);
-        //    console.log('3 ====----====', 'Drivers[driver_id].status()', Drivers[driver_id].status());
-        //    console.log('4 ====----====', 'assump', assump);
-        //}
 
         //Preference? Sure
         //Almost done.

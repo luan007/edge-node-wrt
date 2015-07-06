@@ -4,10 +4,11 @@ import deviceObj = _device.Device;
 var deviceTable = deviceObj.table;
 import DriverManager = require("./DriverManager");
 import events = require('events');
+import StatBiz = require('../Common/Stat/StatBiz');
 
 var pub = StatMgr.Pub(SECTION.DEVICE, {
-    buses: { },
-    devices: { }
+    buses: {},
+    devices: {}
 });
 
 var devices:IDic<IDevice> = {};
@@ -20,6 +21,31 @@ export var Events = new events.EventEmitter();
 var not_saved = false;
 var loaded = false;
 
+function assumptions2Memory(assumptions) {
+    var res = {};
+    for (var appDrvName in assumptions) {
+        var app = 'App_';
+        var parts = appDrvName.replace(app, '').split(':');
+        var appUid = parts[0];
+        var runtimeId = StatBiz.GetRuntimeIdByAppUid(appUid);
+        var newKey = app + runtimeId + ':' + parts[1];
+        res[newKey] = assumptions[appDrvName];
+    }
+    return res;
+}
+function assumptions2DB(assumptions) {
+    var res = {};
+    for (var runtimeDrvName in assumptions) {
+        var app = 'App_';
+        var parts = runtimeDrvName.replace(app, '').split(':');
+        var runtimeId = parts[0];
+        var appUid = StatBiz.GetAppUidByRuntimeId(runtimeId);
+        var newKey = app + appUid + ':' + parts[1];
+        res[newKey] = assumptions[runtimeDrvName];
+    }
+    return res;
+}
+
 function LoadFromDB(callback:Callback) {
     trace("Resuming from DB");
     deviceTable().all({}, (err, devs:deviceData[]) => {
@@ -31,7 +57,7 @@ function LoadFromDB(callback:Callback) {
                 if (!devices[dev.uid] && dev.hwaddr) {
                     info(" + " + dev.uid.bold + " - " + dev.busname.cyan);
                     var d = <IDevice>{
-                        assumptions: JSON.parse(dev.assumptions),
+                        assumptions: <any>assumptions2Memory(JSON.parse(dev.assumptions)),
                         bus: {
                             data: JSON.parse(dev.busdata),
                             hwaddr: dev.hwaddr,
@@ -92,7 +118,7 @@ function SaveToDB(callback:Callback) {
                 devtmp.ownership = dev.owner;
                 devtmp.busname = dev.bus.name;
                 devtmp.state = dev.state;
-                devtmp.assumptions = JSON.stringify(dev.assumptions);
+                devtmp.assumptions = JSON.stringify(assumptions2DB(dev.assumptions));
                 devtmp.uid = dev.id;
                 devtmp.config = JSON.stringify(dev.config);
                 (function (id, devtmp) { // closure
@@ -132,7 +158,7 @@ function SaveToDB(callback:Callback) {
                                 dbDev.busdata = JSON.stringify(devInMemory.bus.data);
                                 dbDev.busname = devInMemory.bus.name;
                                 dbDev.state = devInMemory.state;
-                                dbDev.assumptions = JSON.stringify(devInMemory.assumptions);
+                                dbDev.assumptions = JSON.stringify(assumptions2DB(devInMemory.assumptions));
                                 dbDev.config = JSON.stringify(devInMemory.config);
                                 dbDev.save({}, (err) => {
                                     //if (dbDev.hwaddr === '1c:3e:84:8b:c5:71') {
@@ -175,18 +201,13 @@ function _patrolThread() {
     }
 }
 
-//function isP0F(bus) {
-//    return bus && bus.hwaddr && bus.hwaddr === '60:d9:c7:41:d4:71' && bus.data.P0F && Object.keys(bus.data.P0F).length > 0;
-//}
-
 function _OnDevice(bus:IBusData, state) {
     //check device status
 
     var stateChange = false;
     if (!hwaddr_map[bus.name]) hwaddr_map[bus.name] = {};
     var devId = hwaddr_map[bus.name][bus.hwaddr];
-    //if (isP0F(bus))
-    //    console.log('1. _onDevice <<< ==========', devId, bus.data.P0F);
+
     //TODO: Re-evaluate [prev]
     //var prev = undefined;
     var busDelta = {};
@@ -204,8 +225,7 @@ function _OnDevice(bus:IBusData, state) {
             warn(dev.bus + " - " + dev.bus.hwaddr + " OnDevice found no change, Skipped");
             return;
         }
-        //if (isP0F(bus))
-        //    console.log('2. _onDevice <<< ==========', dev.state, state, '\n dev.bus.data:', dev.bus.data, '\n change:', change);
+
         busDelta = {
             data: change,
             hwaddr: bus.hwaddr,

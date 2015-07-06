@@ -187,7 +187,8 @@ class IPPService implements IInAppDriver {
     invoke(dev:IDevice, actionId, params, cb) {
         console.log('IPP action invoke', 'params:', JSON.stringify(params));
 
-        var assumption = dev.assumptions['App_DriverApp:IPP'];
+        var runtimekey = 'App_' + global.runtime_id + ':IPP';
+        var assumption = dev.assumptions[runtimekey];
         if (assumption['actions'] && assumption['actions'].hasOwnProperty(actionId)) {
             var printer = this.__ippPrinter(dev);
             if (printer) {

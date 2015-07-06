@@ -37,7 +37,7 @@ export function Subscribe(cb) {
     var sub = StatMgr.Sub(SECTION.RUNTIME);
     sub.apps.on('set', (appUid, oldStatus, newStatus) => {
         if (newStatus.AppUrl.trim() !== '') {
-            console.log(')))) ======= (((( runtime pool apps set', appUid, newStatus);
+            console.log('▂▃▅▆█ runtime pool apps set'['cyanBG'].bold, appUid, newStatus);
             var pair = [newStatus.AppUrl, newStatus.MainSock];
             pushStack(PrefixTable, newStatus.RuntimeId, pair);
             pushStack(HostnameTable, newStatus.RuntimeId, pair);
@@ -45,7 +45,7 @@ export function Subscribe(cb) {
     });
     sub.apps.on('del', (appUid, oldStatus) => {
         if (oldStatus.AppUrl.trim() !== '') {
-            console.log(')))) ======= (((( runtime pool apps set', appUid, oldStatus);
+            console.log('▂▃▅▆█ runtime pool apps set'['cyanBG'].bold, appUid, oldStatus);
             popStack(PrefixTable, oldStatus.RuntimeId);
             popStack(HostnameTable, oldStatus.RuntimeId);
         }

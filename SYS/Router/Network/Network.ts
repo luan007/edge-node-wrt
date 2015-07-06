@@ -111,10 +111,7 @@ class Configuration extends Configurable {
                 var appConfig = delta.APP[appUid];
                 if (has(appConfig, 'Hosts')) {
                     dnsmasq.Hosts[appUid] = appConfig.Hosts || [];
-                    //for (var t in appConfig.Hosts) {
-                    //    dnsmasq.Hosts[appUid][t] = appConfig.Hosts[t];
-                    //    console.log('^______________^ APP Set Hosts', t, appConfig.Hosts[t]);
-                    //}
+
                     dhcp_hotplug = true;
                 }
             }
@@ -219,17 +216,17 @@ export function Initialize(cb) {
 
     dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_ADD, (lease:Dnsmasq.IDHCPLease)=> { // DEVICE ADDED
         pub.leases.Set(lease.Mac, lease);
-        var mdnsStatus = StatMgr.Get(SECTION.NETWORK).mdns.ValueOf();
         console.log('Dnsmasq Add Lease'['greenBG'].bold, lease);
-        if(!mdnsStatus[lease.Address])
+        var mdnsStatus = StatBiz.GetMDNSByIP(lease.Address);
+        if(!mdnsStatus)
             pub.mdns.Set(lease.Address, {});
     });
 
     dnsmasq.Leases.on(Dnsmasq.DHCPLeaseManager.EVENT_CHANGE, (lease:Dnsmasq.IDHCPLease)=> { // DEVICE CHANGED
         pub.leases.Set(lease.Mac, lease);
-        var mdnsStatus = StatMgr.Get(SECTION.NETWORK).mdns.ValueOf();
         console.log('Dnsmasq Add Change'['greenBG'].bold, lease);
-        if(!mdnsStatus[lease.Address])
+        var mdnsStatus = StatBiz.GetMDNSByIP(lease.Address);
+        if(!mdnsStatus)
             pub.mdns.Set(lease.Address, {});
     });
 
@@ -249,18 +246,14 @@ export function Initialize(cb) {
     });
 
     mdns.Browser.on(mdns.Browser.EVENT_SERVICE_UP, (IP, service)=> {
-        var mdnsStatus = StatMgr.Get(SECTION.NETWORK).mdns.ValueOf();
-        //if (service.host === 'NPIFEF707.local.' && service.type.name === 'ipp')
-        //    console.log('[[[mdns device up]]'['blueBG'].bold, IP, mdnsStatus);
-        if (mdnsStatus[IP]) {
+        var mdnsStatus = StatBiz.GetMDNSByIP(IP)
+        if (mdnsStatus) {
             pub.mdns[IP].Set(service.type.name, {type: 'UP', service: service});
         }
     });
     mdns.Browser.on(mdns.Browser.EVENT_SERVICE_DOWN, (IP, service)=> {
-        var mdnsStatus = StatMgr.Get(SECTION.NETWORK).mdns.ValueOf();
-        //if (service.host === 'NPIFEF707.local.' && service.type.name === 'ipp')
-        //    console.log('[[[mdns device down]]'['blueBG'].bold, IP, mdnsStatus);
-        if (mdnsStatus[IP]) {
+        var mdnsStatus = StatBiz.GetMDNSByIP(IP)
+        if (mdnsStatus) {
             pub.mdns[IP].set(service.type.name, {type: 'DOWN', service: service});
         }
     });
