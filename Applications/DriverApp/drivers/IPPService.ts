@@ -42,6 +42,27 @@ class IPPService implements IInAppDriver {
             this.__printers[dev.id] = {ippUrl: printer.url.href, jobs: {}};
     }
 
+    private __detectBufferMime(buf:Buffer, cb) {
+        var mmm = require('mmmagic'),
+            Magic = mmm.Magic;
+        var magic = new Magic(mmm.MAGIC_MIME_TYPE);
+        magic.detect(buf, cb);
+    }
+    private __detectUrlMime(uri:string, cb) {
+        var request:any = require('request');
+        var opts:any = {};
+        opts.url = uri;
+        opts.method = 'HEAD';
+        opts.gzip = opts.gzip || true;
+        opts.headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36'
+        };
+        request(opts, function (err, response) {
+            var mime = (response.headers && response.headers['content-type']) ? response.headers['content-type'] : 'text/plain';
+            return cb(err, mime);
+        });
+    }
+
     private __analyzePrinter(dev, cb) {
         var printer = this.__ippPrinter(dev);
         if (printer) {
@@ -164,6 +185,8 @@ class IPPService implements IInAppDriver {
     }
 
     invoke(dev:IDevice, actionId, params, cb) {
+        console.log('IPP action invoke', 'params:', JSON.stringify(params));
+
         var assumption = dev.assumptions['App_DriverApp:IPP'];
         if (assumption['actions'] && assumption['actions'].hasOwnProperty(actionId)) {
             var printer = this.__ippPrinter(dev);
@@ -178,28 +201,33 @@ class IPPService implements IInAppDriver {
                         var bufs = [];
                         var stream = fs.createReadStream('/Share/IO/' + fd);
                         stream.on('data', (data)=> {
-                            //console.log('print job data length', data.length);
                             bufs.push(data);
                         });
                         stream.on('end', ()=> {
                             console.log('ipp.invoke close');
                             var data = Buffer.concat(bufs);
 
-                            var msg = {
-                                "operation-attributes-tag": {
-                                    "requesting-user-name": params.user.name,
-                                    "job-name": params.job_name,
-                                    "document-format": params.mime_type
+                            this.__detectBufferMime(data, (err, mime)=>{
+                                if(err) {
+                                    console.log('ipp.invoke mime error', err);
+                                    return cb(err);
                                 }
-                                , "job-attributes-tag":{
-                                    "copies": Number(params.copies),
-                                }
-                                , data: data
-                            };
-                            cb();
-                            printer.execute("Print-Job", msg, this.__printJobThunk((err, res)=> {
-                                console.log('Print-Job result', res);
-                            }));
+                                var msg = {
+                                    "operation-attributes-tag": {
+                                        "requesting-user-name": params.user.name,
+                                        "job-name": params.job_name,
+                                        "document-format": mime
+                                    }
+                                    , "job-attributes-tag":{
+                                        "copies": Number(params.copies),
+                                    }
+                                    , data: data
+                                };
+                                printer.execute("Print-Job", msg, this.__printJobThunk((err, res)=> {
+                                    console.log('Print-Job result', res);
+                                }));
+                            });
+                            return cb();
                         });
                         stream.on('error', (err)=> {
                             console.log('ipp.invoke error', err);
@@ -207,15 +235,18 @@ class IPPService implements IInAppDriver {
                         });
                     });
                 } else if (params.uri) {
-                    var msg = {
-                        "operation-attributes-tag": {
-                            "requesting-user-name": params.user.name,
-                            "job-name": params.job_name,
-                            "document-format": params.mime_type,
-                            "document-uri": params.uri
-                        }
-                    };
-                    printer.execute("Print-URI", msg, this.__printJobThunk(cb));
+                    this.__detectUrlMime(params.uri, (err, mime)=>{
+                        if (err) return cb(err);
+                        var msg = {
+                            "operation-attributes-tag": {
+                                "requesting-user-name": params.user.name,
+                                "job-name": params.job_name,
+                                "document-format": mime,
+                                "document-uri": params.uri
+                            }
+                        };
+                        printer.execute("Print-URI", msg, this.__printJobThunk(cb));
+                    });
                 }
             } else { // should not happen :)
                 return cb(new Error('unknown device'));

@@ -16,6 +16,9 @@
     "level-queryengine": "*",
     "linebyline": "*",
     "ua-parser-js" : "*",
-    "ipp": "*"
+    "ipp": "*",
+    "mmmagic": "*",
+    "phantom-html-to-pdf": "*", 
+    "request": "*"
   }
 }

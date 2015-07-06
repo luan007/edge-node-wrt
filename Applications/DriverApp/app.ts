@@ -42,7 +42,6 @@ API.RegisterEvent('Device.change', (err, res) => {
             //
             //    var params = <any>{
             //        fd: fd,
-            //        mime_type: 'application/pdf',
             //        job_name: 'Job-' + fd
             //    };
             //    params.user = {name: 'Admin'};

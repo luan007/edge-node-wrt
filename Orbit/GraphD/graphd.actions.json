@@ -11,7 +11,6 @@
     "owner": "printer",
     "arguments": {
        "required": {
-         "mime_type": {},
          "job_name": {},
          "copies": { "default": 1 }
        },
@@ -28,7 +27,6 @@
     "desc": "play action",
     "owner": "speaker",
     "arguments" : {}
-
   },
   "shoot": {
     "tag": ["shoot"],

@@ -461,12 +461,12 @@ export function DriverInvoke(driverId, deviceId, actionId, params:KVSet, cb) {
                         }
                     }
                     if(exists.length !== 1)
-                        return cb(new Error('Mutex quantity expect be 1, but actual got:' + exists.join(',')));
+                        return cb(new Error('Mutex argument expected: 1, but actual: ' + exists.join(',')));
                 }
             }
 
             var dev = DeviceManager.Devices()[deviceId];
-            return Drivers[driverId].invoke(dev, actionId, params, cb); //TODO: not finished
+            return Drivers[driverId].invoke(dev, actionId, params, cb);
         }
     });
 }
