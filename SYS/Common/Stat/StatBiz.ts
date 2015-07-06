@@ -1,12 +1,19 @@
 import StatMgr = require('./StatMgr');
-import Dnsmasq = require('../../Common/Native/dnsmasq');
+
+//export interface IDHCPLease {
+//    Mac: string;
+//    Address: string;
+//    Hostname: string;
+//    VendorClass: string;
+//    Interface: string;
+//}
 
 export function GetMacByIP(IP:string) {
     var networkStatues = <any>StatMgr.Get(SECTION.NETWORK).ValueOf();
     //console.log('GetMacByIP networkStatues', require('util').inspect(networkStatues));
     if (networkStatues && networkStatues.leases) {
         for (var mac in networkStatues.leases) {
-            var lease = <Dnsmasq.IDHCPLease>networkStatues.leases[mac];
+            var lease = networkStatues.leases[mac];
             if (lease.Address === IP)
                 return lease.Mac;
         }
@@ -62,4 +69,13 @@ export function GetRuntimeIdByAppUid(appUid:string){
             return runtimeStatues.apps[appUid].RuntimeId;
     }
     return null;
+}
+
+export function GetUserState(userId:string) {
+    var userStatues = <any>StatMgr.Get(SECTION.USER).ValueOf();
+    if (userStatues && userStatues.online) {
+        if(userStatues.online.hasOwnProperty(userId))
+            return userStatues.online[userId];
+    }
+    return 0;
 }

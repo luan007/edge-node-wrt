@@ -109,8 +109,12 @@ function _assumption_check(delta:IDeviceAssumption, callback:Callback) {
                     for (var attr in delta.attributes) { // verify k & v both
                         if (!attributes.hasOwnProperty(attr))
                             return cb(new Error('Illegal attribute assumption: ' + attr));
-                        else if (attributes[attr].datatype && attributes[attr].datatype != typeof delta.attributes[attr])
-                            return cb(new Error('wrong attribute data type: ' + attr));
+                        else if (attributes[attr].datatype
+                            && attributes[attr].datatype !== typeof delta.attributes[attr]
+                            && 'string' !== typeof delta.attributes[attr]) // string ~= Array['', '']
+                            return cb(new Error('wrong attribute data type: ' + attr
+                                + ', actual is :' + typeof delta.attributes[attr]
+                                + ' , value:' + delta.attributes[attr]));
                     }
                     return cb();
                 }
@@ -441,16 +445,16 @@ export function DriverInvoke(driverId, deviceId, actionId, params:KVSet, cb) {
                 }
             }
             if (args.mutex && args.mutex.length > 0) { //mutex []
-                for(var i = 0, len = args.mutex.length; i < len ; i++) {
+                for (var i = 0, len = args.mutex.length; i < len; i++) {
                     var exists = [];
-                    for(var k in args.mutex[i]){ // {}
-                        if(params.hasOwnProperty(k)) {
-                            if(args.mutex[k].datatype && args.mutex[k].datatype !== typeof params[k])
+                    for (var k in args.mutex[i]) { // {}
+                        if (params.hasOwnProperty(k)) {
+                            if (args.mutex[k].datatype && args.mutex[k].datatype !== typeof params[k])
                                 return cb(new Error('Illegal argument type: ' + k));
                             exists.push(k);
                         }
                     }
-                    if(exists.length !== 1)
+                    if (exists.length !== 1)
                         return cb(new Error('Mutex argument expected: 1, but actual: ' + exists.join(',')));
                 }
             }
@@ -465,6 +469,7 @@ function DriverMatch(actionId, callback) {
     console.log('____________>> [3]', actionId, arguments);
     var drvs = [];
     var devices = DeviceManager.Devices();
+    console.log('____________>> [3] devices', JSON.stringify(devices));
     for (var d in devices) {
         if (devices[d].assumptions) {
             for (var k in Drivers) {
@@ -485,8 +490,8 @@ export function Initialize(cb) {
 }
 
 function __driverChangeDevice(inAppDrvId, deviceId, assump:IDeviceAssumption, cb) {
-    var appUid = RuntimePool.GetCallingRuntime(this).App.uid;
-    var drvId = "App_" + appUid + ":" + inAppDrvId;
+    var runtimeId = RuntimePool.GetCallingRuntime(this).RuntimeId;
+    var drvId = "App_" + runtimeId + ":" + inAppDrvId;
     var driver = Drivers[drvId];
     var device = DeviceManager.Get(deviceId);
     if (driver && device) {

@@ -57,7 +57,7 @@ function LoadFromDB(callback:Callback) {
                 if (!devices[dev.uid] && dev.hwaddr) {
                     info(" + " + dev.uid.bold + " - " + dev.busname.cyan);
                     var d = <IDevice>{
-                        assumptions: <any>assumptions2Memory(JSON.parse(dev.assumptions)),
+                        assumptions: <any>JSON.parse(dev.assumptions),
                         bus: {
                             data: JSON.parse(dev.busdata),
                             hwaddr: dev.hwaddr,

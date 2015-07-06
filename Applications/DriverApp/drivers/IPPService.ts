@@ -4,6 +4,7 @@ var fs = require('fs');
 var request:any = require('request');
 var conversion = require("phantom-html-to-pdf")();
 var PDF_MIME = 'application/pdf';
+var OCTET_STREAM = 'application/octet-stream';
 var USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36';
 
 class IPPService implements IInAppDriver {
@@ -231,11 +232,12 @@ class IPPService implements IInAppDriver {
                                     console.log('ipp.invoke mime error', err);
                                     return cb(err);
                                 }
+                                console.log('detected buffer mime', mime);
                                 var msg = {
                                     "operation-attributes-tag": {
                                         "requesting-user-name": params.user.name,
                                         "job-name": params.job_name,
-                                        "document-format": mime
+                                        "document-format": mime !== PDF_MIME ? OCTET_STREAM : PDF_MIME
                                     }
                                     , "job-attributes-tag": {
                                         "copies": Number(params.copies),

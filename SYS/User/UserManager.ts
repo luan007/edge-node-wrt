@@ -13,6 +13,7 @@ import IUser = _User.IUser;
 import _ITicket = require('../DB/Models/Ticket');
 import ITicket = _ITicket.ITicket;
 import Ticket = _ITicket.Ticket;
+import StatBiz = require('../Common/Stat/StatBiz');
 
 export var DB_UserList:IDic<IUser> = {};
 export var DB_Ticket:IDic<ITicket> = {};
@@ -27,8 +28,8 @@ var pub = StatMgr.Pub(SECTION.USER, {
 export function Login(identity:string,
                       password:string,
                       deviceid:string,
-                      callback:(err, result?) => any) {
-
+                      callback:(err, result?) => any)
+{
     Orbit.Post("Ticket", Orbit.PKG(undefined, deviceid, {
         id: identity,
         pass: password
@@ -69,7 +70,8 @@ export function Login(identity:string,
 }
 
 export function Logout(atoken:string,
-                       callback:(err) => any) {
+                       callback:(err) => any)
+{
 
     //clean local entries
     if (DB_Ticket[atoken]) {
@@ -87,8 +89,8 @@ export function Register(name, email, password, cb) {
 export function Renew(atoken:string,
                       rtoken:string,
                       deviceid:string,
-                      callback:(err, result?) => any) {
-
+                      callback:(err, result?) => any)
+{
     Orbit.Put("Ticket", Orbit.PKG(atoken, deviceid, {
         rtoken: rtoken
     }), (err, result) => {
@@ -126,8 +128,8 @@ export function UserAppear(userid:string,
                            ticket:string,
                            device:string,
                            expire:number,
-                           callback:PCallback<IUser>) {
-
+                           callback:PCallback<IUser>)
+{
     callback = <any>once(<any>callback);
     var usr = getUser(userid);
     var ath = getTicket(ticket);
@@ -178,7 +180,8 @@ export function UserAppear(userid:string,
 }
 
 //Called in AuthServer
-export function GetCurrentUserId(auth:string) {
+export function GetCurrentUserId(auth:string)
+{
     if (!has(DB_Ticket, auth)) {
         return undefined;
     }
@@ -192,7 +195,8 @@ export function GetCurrentUserId(auth:string) {
     return a.owner_uid;
 }
 
-export function LoadFromDB() {
+export function LoadFromDB()
+{
     trace("Load Users");
     DB_UserList = {};
     DB_Ticket = {};
@@ -213,7 +217,8 @@ export function LoadFromDB() {
     });
 }
 
-export function AuthPatrolThread() {
+export function AuthPatrolThread()
+{
     var time = new Date().getTime();
     for (var i in DB_Ticket) {
         if (!has(DB_Ticket, i)) continue;
@@ -230,7 +235,7 @@ export function AuthPatrolThread() {
 }
 
 export function GetState(userid) {
-    return pub.online.Get(userid) ? pub.online.Get(userid).ValueOf() : 0;
+    return StatBiz.GetUserState(userid);
 }
 
 export function GetUser(userid) {
@@ -259,7 +264,8 @@ export function All() {
 export function GetOwnedDevices(user, ops:{
     state?: number;
     bus?: string | string[];
-}) {
+})
+{
     ops = ops || {};
     var usr = GetUser(user);
     if (!usr) {
@@ -273,9 +279,10 @@ export function GetOwnedDevices(user, ops:{
     }
 }
 
-function _UpdateOnlineState(userid) {
+function _UpdateOnlineState(userid)
+{
     if (userid && userid !== "") {
-        var curState = pub.online.Get(userid) || 0;
+        var curState = StatBiz.GetUserState(userid) || 0;
         var newState = DeviceAlive[userid] ? Object.keys(DeviceAlive[userid]).length : 0;
         if (newState > 0 && curState === 0) {
             pub.online.Set(userid, 1);
@@ -291,7 +298,8 @@ function _UpdateOnlineState(userid) {
     }
 }
 
-function _DeviceOnwershipTransfer(devid, dev:IDevice, newOwner, oldOwner) {
+function _DeviceOnwershipTransfer(devid, dev:IDevice, newOwner, oldOwner)
+{
     if (dev && oldOwner && oldOwner !== "" && DB_UserList[oldOwner]) {
         if (!DeviceAlive[oldOwner]) {
             DeviceAlive[oldOwner] = {};
@@ -311,7 +319,8 @@ function _DeviceOnwershipTransfer(devid, dev:IDevice, newOwner, oldOwner) {
     if (oldOwner !== newOwner) _UpdateOnlineState(oldOwner);
 }
 
-function _DeviceOnline(devId, dev:IDevice) {
+function _DeviceOnline(devId, dev:IDevice)
+{
     if (dev && dev.owner && DB_UserList[dev.owner]) {
         if (!DeviceAlive[dev.owner]) {
             DeviceAlive[dev.owner] = {};
@@ -323,7 +332,8 @@ function _DeviceOnline(devId, dev:IDevice) {
     }
 }
 
-function _DeviceOffline(devId, dev:IDevice) {
+function _DeviceOffline(devId, dev:IDevice)
+{
     if (dev && dev.owner && DB_UserList[dev.owner]) {
         if (!DeviceAlive[dev.owner]) {
             DeviceAlive[dev.owner] = {};
@@ -335,7 +345,8 @@ function _DeviceOffline(devId, dev:IDevice) {
     }
 }
 
-export function Initialize(callback:Callback) {
+export function Initialize(callback:Callback)
+{
     trace("Init..");
     LoadFromDB();
     trace("Starting AuthTicket Patrol " + (CONF.USERAUTH_PATROL_INTERVAL + "")["cyanBG"].bold);
@@ -346,8 +357,6 @@ export function Initialize(callback:Callback) {
     Device.Events.on("transfer", _DeviceOnwershipTransfer);
     return callback();
 }
-
-
 
 
 

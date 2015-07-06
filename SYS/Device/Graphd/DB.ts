@@ -41,9 +41,6 @@ function init(cb:PCallback<any>) {
             error(err);
             return cb(err);
         }
-        pub.Set('graphd', {
-            State: 'running'
-        });
         cb(undefined, db);
     });
 }
@@ -232,10 +229,6 @@ function DownloadGraphd(cb:Callback) {
                                                         return callback(err6);
                                                     }
 
-                                                    pub.Set('graphd', {
-                                                        State: 'versioning'
-                                                    });
-
                                                     return callback();
                                                 });
                                             });
@@ -294,6 +287,9 @@ export function Initialize(cb) {
             if (!err) {
                 DB = result;
             }
+            pub.Set('graphd', {
+                State: 'running'
+            });
             cb(err, result);
         });
     } else {
@@ -303,12 +299,8 @@ export function Initialize(cb) {
             DownloadGraphd((err2)=> {
                 if (err2) return error(err2);
 
-                init((err, result) => {
-                    lastError = err;
-                    if (!err) {
-                        DB = result;
-                    }
-                    cb(err, result);
+                pub.Set('graphd', {
+                    State: 'running'
                 });
             });
         });
