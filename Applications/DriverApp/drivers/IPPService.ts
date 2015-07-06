@@ -276,7 +276,9 @@ class IPPService implements IInAppDriver {
                                 });
                                 stream.on('end', function () {
                                     msg['data'] = Buffer.concat(bufs);
-                                    printer.execute("Print-URI", msg, this.__printJobThunk(cb));
+                                    printer.execute("Print-Job", msg, this.__printJobThunk((err, res)=> {
+                                        console.log('Print-Job result', res);
+                                    }));
                                 });
                                 stream.on('error', function (err) {
                                     console.log('received PDF error', err);
@@ -284,7 +286,9 @@ class IPPService implements IInAppDriver {
                             });
                         } else {
                             msg['operation-attributes-tag']['document-uri'] = params.uri;
-                            printer.execute("Print-URI", msg, this.__printJobThunk(cb));
+                            printer.execute("Print-URI", msg, this.__printJobThunk((err, res)=> {
+                                console.log('Print-Job result', res);
+                            }));
                         }
                         return cb();
                     });
