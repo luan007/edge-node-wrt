@@ -47,7 +47,7 @@ setTimeout(()=> {
                     };
                     params.user = {name: 'Admin'};
 
-                    var filePath = '/Data/three.docx';
+                    var filePath = '/three.docx';
                     var r = fs.createReadStream(filePath);
                     var w = fs.createWriteStream("/Share/IO/" + fd);
                     r.pipe(w);

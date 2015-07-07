@@ -46,7 +46,7 @@ function _create_fifo(path, write_to, cb) {
                 error(err);
                 _release(name);
             }).on('end', ()=>{
-                _release(name);
+                //_release(name);
             });
         } else {
             //GRANT READ ONLY ACCESS!

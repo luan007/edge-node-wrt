@@ -2,6 +2,7 @@
 import DeviceManager = require('./DeviceManager');
 import DB = require('./Graphd/DB');
 import events = require('events');
+import StatBiz = require('../Common/Stat/StatBiz');
 
 import RuntimePool = require('../APP/RuntimePool');
 
@@ -218,6 +219,7 @@ export function DriverActiveUpdate(drv:IDriver, dev:IDevice, assump:IDeviceAssum
     });
 }
 
+
 function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDeviceAssumption, deltaBus:IBusData, deltaConf:KVSet, deltaOwn, stateChange?) {
     process.nextTick(() => {
 
@@ -344,8 +346,6 @@ export function DeviceChange(dev:IDevice, tracker:_tracker, assump:IDeviceAssump
         fatal("Device Online --- " + dev.bus.name + " [" + dev.bus.hwaddr + "] ");
     }
 
-    if (assump && assump.actions && assump.actions.hasOwnProperty('print'))
-        console.log('__EMIT Device.change --- '['greenBG'].bold, dev.id);
     __EMIT("Device.change", dev.id, dev, {
         tracker: tracker,
         assumption: assump,
@@ -400,6 +400,7 @@ export function DeviceDrop(dev:IDevice, busDelta?) {
             process.nextTick(() => {
                 try {
                     trace("Detach -> " + drv.name());
+
                     drv.detach(dev, {
                         assumption: undefined,
                         bus: busDelta,
@@ -449,7 +450,7 @@ export function DriverInvoke(driverId, deviceId, actionId, params:KVSet, cb) {
                     var exists = [];
                     for (var k in args.mutex[i]) { // {}
                         if (params.hasOwnProperty(k)) {
-                            if (args.mutex[k].datatype && args.mutex[k].datatype !== typeof params[k])
+                            if (args.mutex[k] && args.mutex[k].datatype && args.mutex[k].datatype !== typeof params[k])
                                 return cb(new Error('Illegal argument type: ' + k));
                             exists.push(k);
                         }
@@ -469,7 +470,7 @@ function DriverMatch(actionId, callback) {
     console.log('____________>> [3]', actionId, arguments);
     var drvs = [];
     var devices = DeviceManager.Devices();
-    console.log('____________>> [3] devices', JSON.stringify(devices));
+    console.log('____________>> [3] devices', devices);
     for (var d in devices) {
         if (devices[d].assumptions) {
             for (var k in Drivers) {

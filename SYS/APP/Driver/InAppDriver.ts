@@ -1,5 +1,6 @@
 ﻿import _Runtime = require("../Runtime");
 import Runtime = _Runtime.Runtime;
+import StatBiz = require('../../Common/Stat/StatBiz');
 /*
  * Abstraction of an In-App-Driver
 */
@@ -17,14 +18,54 @@ class InAppDriver implements IDriver {
         ) {
     }
 
+
+    __assumptions2APP(dev) {
+        if(!dev) return undefined;
+        try {
+            var res = JSON.parse(JSON.stringify(dev));
+            for (var appDrvName in res.assumptions) {
+                var app = 'App_';
+                var parts = appDrvName.replace(app, '').split(':');
+                var appUid = parts[0];
+                var runtimeId = StatBiz.GetRuntimeIdByAppUid(appUid);
+                var newKey = app + runtimeId + ':' + parts[1];
+                res['assumptions'][newKey] = res.assumptions[appDrvName];
+                res['assumptions'][newKey]['driverId'] = newKey;
+                delete res.assumptions[appDrvName];
+            }
+            return res;
+        } catch (e) {
+            console.log(e);
+            return undefined;
+        }
+    }
+    _assumption2APP(assump) {
+        if(!assump) return undefined;
+        try {
+            var res = JSON.parse(JSON.stringify(assump));
+            if(res['driverId']) {
+                var app = 'App_';
+                var parts = res['driverId'].replace(app, '').split(':');
+                var appUid = parts[0];
+                var runtimeId = StatBiz.GetRuntimeIdByAppUid(appUid);
+                var newKey = app + runtimeId + ':' + parts[1];
+                res['driverId'] = newKey;
+            }
+            return res;
+        } catch(e) {
+            console.log(e);
+            return undefined;
+        }
+    }
+
     interest = () => {
         //fatal(this.Interest);
         return this.Interest;
     };
 
     id = () => {
-        return "App_" + this.App.RuntimeId + ":" + this.InApp_DriverId;
-        //return "App_" + this.App.App.uid + ":" + this.InApp_DriverId;
+        //return "App_" + this.App.RuntimeId + ":" + this.InApp_DriverId;
+        return "App_" + this.App.App.uid + ":" + this.InApp_DriverId;
     };
 
     name = () => {
@@ -43,25 +84,33 @@ class InAppDriver implements IDriver {
     match = (dev: IDevice, delta, cb: Callback) => {
         fatal('Match ' + this.name());
         if (!this.status()) return cb(new Error("Driver is Offline"));
-        this.App.API.Driver.Match(this.InApp_DriverId, dev, delta, cb);
+        var devCopy = this.__assumptions2APP(dev);
+        var deltaCopy = this._assumption2APP(delta);
+        this.App.API.Driver.Match(this.InApp_DriverId, devCopy, deltaCopy, cb);
     };
 
     attach = (dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) => {
         fatal('Attach ' + this.name());
         if (!this.status()) return cb(new Error("Driver is Offline"));
-        this.App.API.Driver.Attach(this.InApp_DriverId, dev, delta, matchResult, cb);
+        var devCopy = this.__assumptions2APP(dev);
+        var deltaCopy = this._assumption2APP(delta);
+        this.App.API.Driver.Attach(this.InApp_DriverId, devCopy, deltaCopy, matchResult, cb);
     };
 
     change = (dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) => {
         fatal('Change ' + this.name());
         if (!this.status()) return cb(new Error("Driver is Offline"));
-        this.App.API.Driver.Change(this.InApp_DriverId, dev, delta, cb);
+        var devCopy = this.__assumptions2APP(dev);
+        var deltaCopy = this._assumption2APP(delta);
+        this.App.API.Driver.Change(this.InApp_DriverId, devCopy, deltaCopy, cb);
     };
 
     detach = (dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) => {
         fatal('Detach ' + this.name());
         if (!this.status()) return cb(new Error("Driver is Offline"));
-        this.App.API.Driver.Detach(this.InApp_DriverId, dev, delta, cb);
+        var devCopy = this.__assumptions2APP(dev);
+        var deltaCopy = this._assumption2APP(delta);
+        this.App.API.Driver.Detach(this.InApp_DriverId, devCopy, deltaCopy, cb);
     };
 
     load = (cb: Callback) => {
@@ -90,7 +139,8 @@ class InAppDriver implements IDriver {
 
     invoke = (device:IDevice, actionId, params, cb) => {
         if (!this.status()) return cb(new Error("Driver is Offline"));
-        this.App.API.Driver.Invoke(this.InApp_DriverId, device, actionId, params, cb);
+        var devCopy = this.__assumptions2APP(device);
+        this.App.API.Driver.Invoke(this.InApp_DriverId, devCopy, actionId, params, cb);
     };
 
 }

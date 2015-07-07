@@ -204,10 +204,12 @@ class IPPService implements IInAppDriver {
     }
 
     invoke(dev:IDevice, actionId, params, cb) {
-        console.log('IPP action invoke', 'params:', JSON.stringify(params));
 
         var runtimekey = 'App_' + global.runtime_id + ':IPP';
         var assumption = dev.assumptions[runtimekey];
+
+        console.log('IPP action invoke', 'params:', JSON.stringify(params));
+
         if (assumption['actions'] && assumption['actions'].hasOwnProperty(actionId)) {
             var printer = this.__ippPrinter(dev);
             if (printer) {
@@ -221,6 +223,7 @@ class IPPService implements IInAppDriver {
                         var bufs = [];
                         var stream = fs.createReadStream('/Share/IO/' + fd);
                         stream.on('data', (data)=> {
+                            console.log('___________>> read fd data', data.length);
                             bufs.push(data);
                         });
                         stream.on('end', ()=> {
@@ -233,11 +236,16 @@ class IPPService implements IInAppDriver {
                                     return cb(err);
                                 }
                                 console.log('detected buffer mime', mime);
+                                var supported = assumption['attributes']['printer.document-format-supported'];
+                                if ((Array.isArray(supported) && supported.indexOf(mime) === -1)
+                                    || (typeof supported === 'string' && supported !== mime)) {
+                                    return console.log('unsupported mime type:', mime);
+                                }
                                 var msg = {
                                     "operation-attributes-tag": {
                                         "requesting-user-name": params.user.name,
                                         "job-name": params.job_name,
-                                        "document-format": mime !== PDF_MIME ? OCTET_STREAM : PDF_MIME
+                                        "document-format": mime
                                     }
                                     , "job-attributes-tag": {
                                         "copies": Number(params.copies),
@@ -248,12 +256,12 @@ class IPPService implements IInAppDriver {
                                     console.log('Print-Job result', res);
                                 }));
                             });
-                            return cb();
                         });
                         stream.on('error', (err)=> {
                             console.log('ipp.invoke error', err);
                             return cb(err);
                         });
+                        return cb();
                     });
                 } else if (params.uri) {
                     var msg = {
@@ -292,8 +300,8 @@ class IPPService implements IInAppDriver {
                                 console.log('Print-Job result', res);
                             }));
                         }
-                        return cb();
                     });
+                    return cb();
                 }
             } else { // should not happen :)
                 return cb(new Error('unknown device'));

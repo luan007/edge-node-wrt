@@ -4,7 +4,6 @@ import deviceObj = _device.Device;
 var deviceTable = deviceObj.table;
 import DriverManager = require("./DriverManager");
 import events = require('events');
-import StatBiz = require('../Common/Stat/StatBiz');
 
 var pub = StatMgr.Pub(SECTION.DEVICE, {
     buses: {},
@@ -20,31 +19,6 @@ export var Events = new events.EventEmitter();
 
 var not_saved = false;
 var loaded = false;
-
-function assumptions2Memory(assumptions) {
-    var res = {};
-    for (var appDrvName in assumptions) {
-        var app = 'App_';
-        var parts = appDrvName.replace(app, '').split(':');
-        var appUid = parts[0];
-        var runtimeId = StatBiz.GetRuntimeIdByAppUid(appUid);
-        var newKey = app + runtimeId + ':' + parts[1];
-        res[newKey] = assumptions[appDrvName];
-    }
-    return res;
-}
-function assumptions2DB(assumptions) {
-    var res = {};
-    for (var runtimeDrvName in assumptions) {
-        var app = 'App_';
-        var parts = runtimeDrvName.replace(app, '').split(':');
-        var runtimeId = parts[0];
-        var appUid = StatBiz.GetAppUidByRuntimeId(runtimeId);
-        var newKey = app + appUid + ':' + parts[1];
-        res[newKey] = assumptions[runtimeDrvName];
-    }
-    return res;
-}
 
 function LoadFromDB(callback:Callback) {
     trace("Resuming from DB");
@@ -118,16 +92,14 @@ function SaveToDB(callback:Callback) {
                 devtmp.ownership = dev.owner;
                 devtmp.busname = dev.bus.name;
                 devtmp.state = dev.state;
-                devtmp.assumptions = JSON.stringify(assumptions2DB(dev.assumptions));
+                devtmp.assumptions = JSON.stringify(dev.assumptions);
                 devtmp.uid = dev.id;
                 devtmp.config = JSON.stringify(dev.config);
                 (function (id, devtmp) { // closure
                     jobs.push((cb) => {
                         trace("CREATE DBENTRY " + id);
                         deviceTable().create(devtmp, (err, DBDEV) => {
-                            //if (devtmp.hwaddr === '1c:3e:84:8b:c5:71') {
-                            //    console.log('ipp printer into DB', devtmp.assumptions);
-                            //}
+
                             device_updates[id] = 0;
                             if (!err) {
                                 db_devices[id] = DBDEV;
@@ -158,12 +130,10 @@ function SaveToDB(callback:Callback) {
                                 dbDev.busdata = JSON.stringify(devInMemory.bus.data);
                                 dbDev.busname = devInMemory.bus.name;
                                 dbDev.state = devInMemory.state;
-                                dbDev.assumptions = JSON.stringify(assumptions2DB(devInMemory.assumptions));
+                                dbDev.assumptions = JSON.stringify(devInMemory.assumptions);
                                 dbDev.config = JSON.stringify(devInMemory.config);
                                 dbDev.save({}, (err) => {
-                                    //if (dbDev.hwaddr === '1c:3e:84:8b:c5:71') {
-                                    //    console.log('ipp printer into DB', dbDev.assumptions);
-                                    //}
+
                                     if (!err) {
                                         device_updates[id] = 0;
                                         pass++;
