@@ -134,14 +134,14 @@ class IPPService implements IInAppDriver {
         // job scanning
         //console.log('_________<< __printerJoin', dev.id);
         if (!__printers.hasOwnProperty(dev.id)) {
-            __printers[dev.id] = {ippUrl: printer.url.href, jobs: {}};
+            __printers[dev.id] = {ippUrl: printer.url.href, queue: {}, doneJobs: {}};
             //console.log('_________<< __printerJoin', __printers);
         }
     }
 
-    private __ippGetJobs(ippUrl, cb) {
+    private __ippGetJobs(ippUrl, whichJobs, cb) {
         var printer = ipp.Printer(ippUrl);
-        var msg = {"operation-attributes-tag": {"limit": 10, "which-jobs": "completed"}};
+        var msg = {"operation-attributes-tag": {"limit": 10, 'which-jobs':whichJobs}};
         printer.execute("Get-Jobs", msg, function (err, jobs) {
             //console.log('_____<< Get-Jobs', JSON.stringify(jobs));
             if (err) return cb(err);
@@ -166,8 +166,7 @@ class IPPService implements IInAppDriver {
                 for (var deviceId in __printers) {
                     ((_deviceId) => {
                         var printer = __printers[_deviceId];
-                        self.__ippGetJobs(printer.ippUrl, (err, jobs) => {
-                            //console.log('----------- doneJobs', doneJobs);
+                        self.__ippGetJobs(printer.ippUrl, 'completed', (err, jobs) => {
                             if (jobs['job-attributes-tag']) {
                                 for (var i = 0, len = jobs['job-attributes-tag'].length; i < len; i++) {
                                     var job = jobs['job-attributes-tag'][i];
@@ -176,10 +175,31 @@ class IPPService implements IInAppDriver {
                                     ((_jobId, _jobUri)=> {
                                         self.__ippGetJobAttributes(printer.ippUrl, _jobUri, (err, res)=> {
                                             if (!err) {
-                                                __printers[_deviceId]['jobs'][_jobId] = res;
+                                                __printers[_deviceId]['doneJobs'][_jobId] = res;
                                                 (<any>self).Change(_deviceId, { // EMIT !!
                                                     attributes: {
-                                                        "printer.status.queue": __printers[_deviceId]['jobs']
+                                                        "printer.status.doneJobs": __printers[_deviceId]['doneJobs']
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    })(jobId, jobUri);
+                                }
+                            }
+                        });
+                        self.__ippGetJobs(printer.ippUrl, 'not-completed', (err, jobs) => {
+                            if (jobs['job-attributes-tag']) {
+                                for (var i = 0, len = jobs['job-attributes-tag'].length; i < len; i++) {
+                                    var job = jobs['job-attributes-tag'][i];
+                                    var jobUri = job['job-uri'];
+                                    var jobId = job['job-id'];
+                                    ((_jobId, _jobUri)=> {
+                                        self.__ippGetJobAttributes(printer.ippUrl, _jobUri, (err, res)=> {
+                                            if (!err) {
+                                                __printers[_deviceId]['queue'][_jobId] = res;
+                                                (<any>self).Change(_deviceId, { // EMIT !!
+                                                    attributes: {
+                                                        "printer.status.queue": __printers[_deviceId]['queue']
                                                     }
                                                 });
                                             }
