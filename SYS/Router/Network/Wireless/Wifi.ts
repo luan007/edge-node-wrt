@@ -154,7 +154,7 @@ var defconfig5G7 = {
 };
 
 function extractIWStationDump(stationsContainer, iwStationsDump, ap, deltaArray, cb) {
-    intoQueue(jobName, ()=> {
+    intoQueue(jobName, (queue_cb)=> {
         for (var mac in iwStationsDump) {
             stationsContainer[mac] = stationsContainer[mac] || {};
             if (stationsContainer[mac].rx_bytes) {
@@ -194,6 +194,7 @@ function extractIWStationDump(stationsContainer, iwStationsDump, ap, deltaArray,
                     stationsContainer[mac][k] = iwStationsDump[mac][k];
                 }
             }
+            queue_cb();
         }
     }, cb);
 }
