@@ -431,6 +431,15 @@ export function SetOwnership(devId, ownership) {
     }
 }
 
+function GetCurrentDevice(cb){
+    if(this.user && this.user.device_uid) {
+        var device = Get(this.user.device_uid);
+        if (device)
+            return cb(undefined, device);
+    }
+
+    return cb(new Error('no such device'));
+}
 
 __EVENT("Device.down", [Permission.DeviceAccess]);
 __EVENT("Device.up", [Permission.DeviceAccess]);
@@ -441,4 +450,7 @@ __API(withCb(Devices), "Device.All", [Permission.DeviceAccess]);
 __API(withCb(List), "Device.List", [Permission.DeviceAccess]);
 __API(withCb(FromBus), "Device.FromBus", [Permission.DeviceAccess]);
 __API(withCb(Config), "Device.Config", [Permission.DeviceAccess, Permission.System]);
+
+__API(GetCurrentDevice, "Device.GetCurrent", [Permission.DeviceAccess], true);
+
 __API(withCb(SetOwnership), "Device.SetOnwership", [Permission.DeviceAccess, Permission.System]);

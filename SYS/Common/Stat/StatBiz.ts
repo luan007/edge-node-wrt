@@ -51,17 +51,6 @@ export function GetMDNSByIP(IP:string) {
     return null;
 }
 
-export function GetAppUidByRuntimeId(runtimeId:string){
-    var runtimeStatues = <any>StatMgr.Get(SECTION.RUNTIME).ValueOf();
-    if (runtimeStatues && runtimeStatues.apps) {
-        for(var appUid in runtimeStatues.apps) {
-            if(runtimeStatues.apps[appUid].RuntimeId === runtimeId)
-                return appUid;
-        }
-    }
-    return null;
-}
-
 export function GetRuntimeIdByAppUid(appUid:string){
     var runtimeStatues = <any>StatMgr.Get(SECTION.RUNTIME).ValueOf();
     if (runtimeStatues && runtimeStatues.apps) {

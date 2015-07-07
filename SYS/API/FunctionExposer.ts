@@ -39,6 +39,7 @@ function __API(func:_Function_With_Permission_Token,
         }
 
         var token_uid = '';
+        var cur_dev = '';
         if (/token_uid:/.test(args[0])) {
             token_uid = args.shift().split('token_uid:')[1];
             console.log('detected token uid'['blueBG'].bold, token_uid);
@@ -59,8 +60,10 @@ function __API(func:_Function_With_Permission_Token,
             if(!user) {
                 return args[args.length - 1](new EvalError("Invalid Access Token."));
             }
-            this.user = { // pass user as first argument
-                name: user.name
+            this.user = { // pass user as env var
+                token_uid: token_uid,
+                uid: user.uid,
+                device_uid: TokenManager.GetCurrentDeviceId(token_uid)
             };
             console.log('user credential'['blueBG'].bold, token_uid, ticket.uid, user.name);
         }

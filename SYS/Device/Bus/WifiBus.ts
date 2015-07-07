@@ -117,7 +117,7 @@ export function Subscribe(cb) {
         online ? on_connect(mac, SECTION.WLAN2G) : _wifiBus.DeviceDrop(mac);
     });
     subWlan2G4.stations.on('set', (mac, oldValue, station)=> {
-        console.log('2G station up'['cyanBG'].bold, mac);
+        //console.log('2G station up'['cyanBG'].bold, mac);
         _wifiBus.DeviceUp(mac, {
             Wireless: station
         });
@@ -129,7 +129,7 @@ export function Subscribe(cb) {
         online ? on_connect(mac, SECTION.WLAN5G) : _wifiBus.DeviceDrop(mac);
     });
     subWlan5G7.stations.on('set', (mac, oldValue, station)=> {
-        console.log('5G station up'['cyanBG'].bold, mac);
+        //console.log('5G station up'['cyanBG'].bold, mac);
         _wifiBus.DeviceUp(mac, {
             Wireless: station
         });

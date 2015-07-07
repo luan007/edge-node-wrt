@@ -37,7 +37,7 @@ function MainAuth()
 	end
 
 	socket, err = GetRPCSocket()
-	local result, err = RPCCall(socket, "Proxy.AuthUser", field)
+	local result, err = RPCCall(socket, "Proxy.AuthUser", field, dev)
 	if not err and result then
 		ngx.var._auth = "1"
 		ngx.var._user = result
