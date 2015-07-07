@@ -470,7 +470,6 @@ function DriverMatch(actionId, callback) {
     console.log('____________>> [3]', actionId, arguments);
     var drvs = [];
     var devices = DeviceManager.Devices();
-    console.log('____________>> [3] devices', devices);
     for (var d in devices) {
         if (devices[d].assumptions) {
             for (var k in Drivers) {
@@ -491,8 +490,8 @@ export function Initialize(cb) {
 }
 
 function __driverChangeDevice(inAppDrvId, deviceId, assump:IDeviceAssumption, cb) {
-    var runtimeId = RuntimePool.GetCallingRuntime(this).RuntimeId;
-    var drvId = "App_" + runtimeId + ":" + inAppDrvId;
+    var appUid = RuntimePool.GetCallingRuntime(this).App.uid;
+    var drvId = "App_" + appUid + ":" + inAppDrvId;
     var driver = Drivers[drvId];
     var device = DeviceManager.Get(deviceId);
     if (driver && device) {

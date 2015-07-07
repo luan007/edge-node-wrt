@@ -6,6 +6,7 @@ var conversion = require("phantom-html-to-pdf")();
 var PDF_MIME = 'application/pdf';
 var OCTET_STREAM = 'application/octet-stream';
 var USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36';
+var __printers:IDic<any> = {};  // deviceId1: {ippUrl, jobs} / deviceId2 : {ippUrl, jobs}
 
 class IPPService implements IInAppDriver {
     private __ippUrl(dev:IDevice) {
@@ -23,15 +24,6 @@ class IPPService implements IInAppDriver {
         return null;
     }
 
-    private __ippGetJobs(ippUrl, cb) {
-        var printer = ipp.Printer(ippUrl);
-        var msg = {"operation-attributes-tag": {}};
-        printer.execute("Get-Jobs", msg, function (err, jobs) {
-            if (err) return cb(err);
-            return cb(null, jobs);
-        });
-    }
-
     private __printJobThunk(cb) {
         return (err, res) => {
             if (err) return cb(err);
@@ -39,12 +31,6 @@ class IPPService implements IInAppDriver {
                 return cb(undefined, res);
             }
         };
-    }
-
-    private __printerJoin(dev, printer) {
-        // job scanning
-        if (!this.__printers[dev.id])
-            this.__printers[dev.id] = {ippUrl: printer.url.href, jobs: {}};
     }
 
     private __detectBufferMime(buf:Buffer, cb) {
@@ -90,7 +76,6 @@ class IPPService implements IInAppDriver {
                     console.log('Get-Printer-Attributes', err);
                     return cb(err);
                 }
-                //console.log('current device', dev);
                 this.__printerJoin(dev, printer);
 
                 var classes:KVSet = {'printer': ''};
@@ -145,29 +130,68 @@ class IPPService implements IInAppDriver {
         }
     }
 
-    constructor() {
-        setInterval(this.__jobPatrol, 5 * 1000);
+    private __printerJoin(dev, printer) {
+        // job scanning
+        //console.log('_________<< __printerJoin', dev.id);
+        if (!__printers.hasOwnProperty(dev.id)) {
+            __printers[dev.id] = {ippUrl: printer.url.href, jobs: {}};
+            //console.log('_________<< __printerJoin', __printers);
+        }
     }
 
-    private __printers:IDic<any> = {};  // deviceId1: {ippUrl, jobs} / deviceId2 : {ippUrl, jobs}
-    private __jobPatrol() {
-        //console.log('----------- printers ', this.__printers);
-        for (var deviceId in this.__printers) {
-            ((_deviceId) => {
-                var printer = this.__printers[_deviceId];
-                this.__ippGetJobs(printer.ippUrl, (err, jobs) => {
-                    var doneJobs = delta_add_return_changes(jobs, printer.jobs, false, true);
-                    console.log('----------- doneJobs', doneJobs);
-                    (<any>this).Change({ // EMIT !!
-                        attributes: {
-                            "printer.status.doneJobs": doneJobs,
-                            "printer.status.queue": jobs
-                        }
-                    });
-                    this.__printers[_deviceId] = jobs;
-                });
-            })(deviceId);
-        }
+    private __ippGetJobs(ippUrl, cb) {
+        var printer = ipp.Printer(ippUrl);
+        var msg = {"operation-attributes-tag": {"limit": 10, "which-jobs": "completed"}};
+        printer.execute("Get-Jobs", msg, function (err, jobs) {
+            //console.log('_____<< Get-Jobs', JSON.stringify(jobs));
+            if (err) return cb(err);
+            return cb(null, jobs);
+        });
+    }
+
+    private __ippGetJobAttributes(ippUrl, jobUri, cb) {
+        var printer = ipp.Printer(ippUrl);
+        var msg = {"operation-attributes-tag": {'job-uri': jobUri}};
+        printer.execute("Get-Job-Attributes", msg, function (err, res) {
+            //console.log('_____<< Get-Jobs-Attributes', jobUri, JSON.stringify(res));
+            if (err) return cb(err);
+            return cb(null, res);
+        });
+    }
+
+    constructor() {
+        ((self)=> {
+            setInterval(()=> {
+                //if (__printers) console.log('----------- printers ', __printers);
+                for (var deviceId in __printers) {
+                    ((_deviceId) => {
+                        var printer = __printers[_deviceId];
+                        self.__ippGetJobs(printer.ippUrl, (err, jobs) => {
+                            //console.log('----------- doneJobs', doneJobs);
+                            if (jobs['job-attributes-tag']) {
+                                for (var i = 0, len = jobs['job-attributes-tag'].length; i < len; i++) {
+                                    var job = jobs['job-attributes-tag'][i];
+                                    var jobUri = job['job-uri'];
+                                    var jobId = job['job-id'];
+                                    ((_jobId, _jobUri)=> {
+                                        self.__ippGetJobAttributes(printer.ippUrl, _jobUri, (err, res)=> {
+                                            if (!err) {
+                                                __printers[_deviceId]['jobs'][_jobId] = res;
+                                                (<any>self).Change(_deviceId, { // EMIT !!
+                                                    attributes: {
+                                                        "printer.status.queue": __printers[_deviceId]['jobs']
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    })(jobId, jobUri);
+                                }
+                            }
+                        });
+                    })(deviceId);
+                }
+            }, 5 * 1000);
+        })(this);
     }
 
     match(dev:IDevice, delta:IDriverDetla, cb:Callback) {
@@ -191,7 +215,7 @@ class IPPService implements IInAppDriver {
     }
 
     detach(dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) {
-        delete this.__printers[dev.id];
+        delete __printers[dev.id];
         return cb(undefined, true);
     }
 
