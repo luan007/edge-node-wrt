@@ -39,7 +39,6 @@ function __API(func:_Function_With_Permission_Token,
         }
 
         var token_uid = '';
-        var cur_dev = '';
         if (/token_uid:/.test(args[0])) {
             token_uid = args.shift().split('token_uid:')[1];
             console.log('detected token uid'['blueBG'].bold, token_uid);

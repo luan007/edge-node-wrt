@@ -14,6 +14,7 @@ import _ITicket = require('../DB/Models/Ticket');
 import ITicket = _ITicket.ITicket;
 import Ticket = _ITicket.Ticket;
 import StatBiz = require('../Common/Stat/StatBiz');
+import TokenManager = require('../API/TokenManager');
 
 export var DB_UserList:IDic<IUser> = {};
 export var DB_Ticket:IDic<ITicket> = {};
@@ -344,9 +345,11 @@ export function Initialize(callback:Callback) {
     return callback();
 }
 
-function GetCurrentUser(cb) {
-    var user = getUser(this.user.uid);
-    if (user) {
+function GetCurrentUser(token_uid, cb) {
+    var atoken = TokenManager.GetUserToken(token_uid);
+    var ticket = DB_Ticket[atoken];
+    if (ticket && ticket.uid) {
+        var user = DB_UserList[ticket.uid];
         return cb(undefined, {
             name: user.name,
             data: user.data,

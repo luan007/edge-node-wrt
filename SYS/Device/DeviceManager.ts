@@ -431,12 +431,10 @@ export function SetOwnership(devId, ownership) {
     }
 }
 
-function GetCurrentDevice(cb){
-    if(this.user && this.user.device_uid) {
-        var device = Get(this.user.device_uid);
-        if (device)
-            return cb(undefined, device);
-    }
+function GetCurrentDevice(deviceId, cb){
+    var device = Get(deviceId);
+    if (device)
+        return cb(undefined, device);
 
     return cb(new Error('no such device'));
 }
