@@ -65,3 +65,7 @@ cp -rf ./Common/Crypto/Keys/*.pr /storage/Keys
 echo init passwords
 if [ ! -e /ramdisk/passwords ]; then mkdir /ramdisk/passwords ; fi
 cp -rf ./Common/Crypto/Keys/init_password /ramdisk/passwords/init_password
+
+
+####airplay
+mkdir /tmp/AirService
