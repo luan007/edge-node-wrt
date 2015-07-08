@@ -33,17 +33,12 @@ function __API(func:_Function_With_Permission_Token,
         var args = [].slice.call(arguments);
         var rpc = (<rpc.RPCEndpoint>this.rpc);
         var sender = this.sender = rpc["remote"]; //from RPC call
-        //fatal('===========<< get permission', path, pm.GetPermission(sender), permission, func._p);
         if (!pm.Check(pm.GetPermission(sender), shell['_p'])) {
             return args[args.length - 1](new EvalError("Permission Denied"));
         }
 
-        var token_uid = '';
-        if (/token_uid:/.test(args[0])) {
-            token_uid = args.shift().split('token_uid:')[1];
-            console.log('detected token uid'['blueBG'].bold, token_uid);
-        }
         if (needUsersAuthorization) { // need user's authorization
+            var token_uid = args[0];
             if (token_uid.trim() === '') {
                 return args[args.length - 1](new EvalError("Permission Denied"));
             }
@@ -52,11 +47,11 @@ function __API(func:_Function_With_Permission_Token,
             }
             var atoken = TokenManager.GetUserToken(token_uid);
             var ticket = require('../User/UserManager').DB_Ticket[atoken];
-            if(!ticket && ticket.uid) {
+            if (!ticket && ticket.uid) {
                 return args[args.length - 1](new EvalError("Invalid Access Token."));
             }
             var user = require('../User/UserManager').DB_UserList[ticket.uid];
-            if(!user) {
+            if (!user) {
                 return args[args.length - 1](new EvalError("Invalid Access Token."));
             }
             this.user = { // pass user as env var

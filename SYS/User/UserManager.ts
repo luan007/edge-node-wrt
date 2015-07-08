@@ -368,9 +368,9 @@ __API(withCb(GetOwnedDevices), "User.GetOwnedDevices", [Permission.UserAccess, P
 __API(withCb(List), "User.List", [Permission.UserAccess]);
 __API(withCb(All), "User.All", [Permission.UserAccess]);
 __API(withCb(GetUser), "User.Get", [Permission.UserAccess]);
-__API(withCb(GetState), "User.GetState", [Permission.UserAccess]);
+__API(withCb(GetState), "User.GetState", [Permission.UserAccess], true);
 
-__API(GetCurrentUser, "User.GetCurrent", [Permission.UserAccess], true);
+__API(GetCurrentUser, "User.GetCurrent", [Permission.UserAccess]);
 
 __EVENT("User.up", [Permission.UserAccess]);
 __EVENT("User.down", [Permission.UserAccess]);
