@@ -99,9 +99,11 @@ do
     process=`ps aux | grep "node $system_dir/init.js" | grep -v grep`
     if [ "$process" == "" ]; then
         echo init...
-        bash ./preinit.sh
+        . ./preinit.sh
         #echo killall node...
         #killall node
+        echo wan dev is $DEV_WAN
+
         echo starting up main SYSTEM...
         node "$system_dir"/init.js
         upgrade

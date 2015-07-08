@@ -116,6 +116,17 @@ function SetVlanIsolation(conf, routerIP, localNetmask) {
     }
 }
 
+function setTraffic(routerIP, localNetmask){
+    if(routerIP && localNetmask) {
+        var iptables:string = "iptables",
+            newworkAddress = routerIP + '/' + localNetmask;
+        exec(iptables, '-w', '-t', 'filter', '-R', 'FORWARD', '1', '-s', newworkAddress, '-o', CONF.DEV.ETH.DEV_WAN, '-j', 'RETURN');
+        exec(iptables, '-w', '-t', 'filter', '-R', 'FORWARD', '2', '-d', newworkAddress, '-i', CONF.DEV.ETH.DEV_WAN, '-j', 'RETURN');
+        exec(iptables, '-w', '-t', 'filter', '-R', 'FORWARD', '3', '-s', newworkAddress, '-d', newworkAddress, '-j', 'RETURN');
+        exec(iptables, '-w', '-t', 'filter', '-R', 'FORWARD', '4', '-s', newworkAddress, '-d', newworkAddress, '-j', 'RETURN');
+    }
+}
+
 export function Initialize(cb) {
     var configFirewall = new Configuration(SECTION.FIREWALL, defaultConfig);
     configFirewall.Initialize(cb);
@@ -126,6 +137,7 @@ export function Initialize(cb) {
 export function Subscribe(cb) {
     var sub = StatMgr.Sub(SECTION.NETWORK);
     sub.network.on('set', (key, oldValue, network:any) => {
+
         var iptables:string = "iptables",
             routing_masquerade:string = "routing_masquerade",
             nginx_proxy:string = "nginx_proxy",
@@ -148,6 +160,8 @@ export function Subscribe(cb) {
 
         var conf:any = ConfMgr.Get(SECTION.FIREWALL);
         SetVlanIsolation(conf, routerIP, localNetmask);
+
+        setTraffic(routerIP, localNetmask);
     });
     cb();
 }

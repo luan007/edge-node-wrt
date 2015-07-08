@@ -27,12 +27,9 @@ var pub = StatMgr.Pub(SECTION.NETWORK, {
 });
 
 class Configuration extends Configurable {
-    private pub;
 
-    constructor(moduleName:string, defaultConfig:any, pub) {
+    constructor(moduleName:string, defaultConfig:any) {
         super(moduleName, defaultConfig);
-
-        this.pub = pub;
     }
 
     _apply = (delta, original, cb) => {
@@ -131,7 +128,7 @@ class Configuration extends Configurable {
         }
 
         if (Object.keys(network).length) {
-            this.pub.Set('network', network);
+            pub.network.Set('config', network);
         }
 
         //console.log('^______________^ jobs', jobs.length);
@@ -179,7 +176,7 @@ var defaultConfig = {
 };
 
 export function Initialize(cb) {
-    var confNetwork = new Configuration(SECTION.NETWORK, defaultConfig, pub);
+    var confNetwork = new Configuration(SECTION.NETWORK, defaultConfig);
 
     async.series([
         (cb)=> {

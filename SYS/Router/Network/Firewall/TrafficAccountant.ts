@@ -94,7 +94,8 @@ function parseTraffic() {
                 }
                 for (var i = 0, len = deltaDevices.length; i < len; i++) {
                     var mac = deltaDevices[i];
-                    pub.traffics.Set(mac, Devices[mac]);
+                    var traffic = JSON.parse(JSON.stringify(Devices[mac]));
+                    pub.traffics.Set(mac, traffic);
                 }
                 deltaDevices.length = 0; // clear
             } catch (err) {
