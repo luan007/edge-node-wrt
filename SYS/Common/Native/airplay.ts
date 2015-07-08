@@ -82,6 +82,10 @@ export class AirPlay_BaseServer extends events.EventEmitter {
         return this._mac;
     }
 
+    public GetPort(){
+        return this._port;
+    }
+
     public State() {
         return this.Queue[0] ? this.Queue[0].State : STATE_STOPPED;
     }
@@ -113,6 +117,7 @@ export class AirPlay_BaseServer extends events.EventEmitter {
     }
 
     private reghooks(){
+        var self = this;
 
         this._app.get('/server-info', (req, res)=>{
             res.contentType("text/x-apple-plist+xml");
@@ -126,7 +131,7 @@ export class AirPlay_BaseServer extends events.EventEmitter {
             var session = req.header('X-Apple-Session-ID');
             var ip = req.connection.remoteAddress;
             if(action === 'displayCached'){
-                this.stateMachine(STATE_IMG, key, session, ip);
+                self.stateMachine(STATE_IMG, key, session, ip);
             } else {
                 var stream = fs.createWriteStream(CONF.AIRSERVICES_DIR, key + ".jpg");
                 req.pipe(stream);
@@ -135,7 +140,7 @@ export class AirPlay_BaseServer extends events.EventEmitter {
                 if(action === 'cacheOnly'){
                     return;
                 } else {
-                    this.stateMachine(STATE_IMG, key, session, ip);
+                    self.stateMachine(STATE_IMG, key, session, ip);
                 }
             });
             res.send(200);
@@ -144,7 +149,7 @@ export class AirPlay_BaseServer extends events.EventEmitter {
         this._app.post('/stop', (req, res)=>{
             var addr = req.connection.remoteAddress;
             var session = req.header('X-Apple-Session-ID');
-            this.stateMachine(STATE_STOPPED, undefined, session, addr);
+            self.stateMachine(STATE_STOPPED, undefined, session, addr);
             res.send(200);
         });
 
@@ -163,10 +168,10 @@ export class AirPlay_BaseServer extends events.EventEmitter {
                     var i = dt.indexOf("http");
                     var j = dt.lastIndexOf("MOV");
                     var str = dt.substring(i, j) + "MOV"; //<--don't screw up with mov, it IS CAPITALIZED
-                    this.stateMachine(STATE_VID_LOAD, dt, session, addr);
+                    self.stateMachine(STATE_VID_LOAD, dt, session, addr);
                 });
             } else {
-                this.stateMachine(STATE_VID_LOAD, contentlocation, session, addr);
+                self.stateMachine(STATE_VID_LOAD, contentlocation, session, addr);
             }
             res.send(200);
         });
@@ -272,6 +277,7 @@ export function Add(name, type) : number | AirPlay_BaseServer {
 
     Events.emit("add", name);
     server.start(); //kick it!
+    return server;
 }
 
 export function Remove(name) {

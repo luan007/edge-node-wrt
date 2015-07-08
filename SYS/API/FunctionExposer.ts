@@ -39,6 +39,9 @@ function __API(func:_Function_With_Permission_Token,
 
         if (needUsersAuthorization) { // need user's authorization
             var token_uid = args[0];
+            if (typeof token_uid !== 'string'){
+                return args[args.length - 1](new EvalError("Invalid Access Token."));
+            }
             if (token_uid.trim() === '') {
                 return args[args.length - 1](new EvalError("Permission Denied"));
             }

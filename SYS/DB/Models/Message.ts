@@ -9,14 +9,14 @@ export var Table:orm.Typed.TypedModel<IMessage> = undefined;
 export class Message {
 
     uid:string = "";
-    senderType:string = "";         // enum: User|App|System ...
-    sender:string = "";             // uid
-    receiverType:string = "";       // enum: User|App ...
+    source:string = "";             // AppUid | System
+    senderType:string = "";         // enum: User|Device ...
+    sender:string = "";             // uid | ALL
+    receiverType:string = "";       // enum: User|App|System ...
     receiver:string = "";           // [uid, uid, uid]
     action:string = "";             // e.g.  poke|send|share|ban
     content:string = "";            // JSON
 
-    flash:boolean = false;
     timeline:boolean = false;
     notice:boolean = false;
 

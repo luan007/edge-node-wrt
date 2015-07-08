@@ -49,6 +49,7 @@ domain.run(function () {
         //, {path: './APP/Resource/__Test'}
         //, {path: './APP/__Test'}
         , {path: './Common/System/__Test'}
+        , {path: './Common/Native/__Test'}
     ];
     var initializes = [];
     var subscribes = [];
