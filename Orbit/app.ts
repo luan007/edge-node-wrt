@@ -1,8 +1,6 @@
 ﻿process.env.ROOT_PATH = __dirname;
 process.env.NODE_PATH = __dirname;
 require("./Env");
-global.wait = require("wait.for");
-global.async = require("async");
 import middlewares = require("./Middlewares");
 var connect = require("connect");
 var logger = require("morgan");

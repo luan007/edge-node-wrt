@@ -1,6 +1,8 @@
 ﻿
 import store = require("../Storage");
 import validator = require("validator");
+import fs = require('fs');
+import path = require('path');
 
 //POST = CREATE NEW USER
 post("/User",(req, res) => {
@@ -55,8 +57,6 @@ put("/User",(req, res) => {
     });
 });
 
-
-
 var _get_user = (req, res) => {
     requireAuth(req);
     var ticket: store.Models.Ticket.ITicket = req.ticket;
@@ -72,13 +72,35 @@ var _get_user = (req, res) => {
     res.json({
         name: _user.name,
         uid: _user.uid,
-        data: _user.data
+        data: _user.data,
+        version: _user.version,
+        avatar: _user.avatar
     });
 };
 
 ////GET = GET <ANY> USER NAME(?) (FOR NOW)
 get("/User/:uid", _get_user);
 get("/User", _get_user);
+
+// download avatar
+post("/User/avatar/:avatarid", (req, res) => {
+    requireAuth(req);
+    var ticket: store.Models.Ticket.ITicket = req.ticket;
+    var user = ticket.owner;
+    if (!user.avatar || user.avatar !== req.params.avatarid)  {
+        throw new Error('avatar version error');
+    }
+    var avatarFilePath = path.join(ORBIT_CONF.AVATAR_DIR, user.avatar);
+    if(!fs.existsSync(avatarFilePath)){
+        throw new Error('avatar read error');
+    }
+    fs.createReadStream(avatarFilePath).pipe(<any>res);
+});
+
+post("/User/sync", (req, res)=>{
+    //TODO: SYNC in Orbit-end
+});
+
 
 //get("/Test",(req, res, next) => {
 //    wait.for(store.User.Table.get, 1);

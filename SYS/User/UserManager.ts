@@ -29,7 +29,8 @@ var pub = StatMgr.Pub(SECTION.USER, {
 export function Login(identity:string,
                       password:string,
                       deviceid:string,
-                      callback:(err, result?) => any) {
+                      callback:(err, result?) => any)
+{
     Orbit.Post("Ticket", Orbit.PKG(undefined, deviceid, {
         id: identity,
         pass: password
@@ -70,7 +71,8 @@ export function Login(identity:string,
 }
 
 export function Logout(atoken:string,
-                       callback:(err) => any) {
+                       callback:(err) => any)
+{
 
     //clean local entries
     if (DB_Ticket[atoken]) {
@@ -88,7 +90,8 @@ export function Register(name, email, password, cb) {
 export function Renew(atoken:string,
                       rtoken:string,
                       deviceid:string,
-                      callback:(err, result?) => any) {
+                      callback:(err, result?) => any)
+{
     Orbit.Put("Ticket", Orbit.PKG(atoken, deviceid, {
         rtoken: rtoken
     }), (err, result) => {
@@ -126,7 +129,8 @@ export function UserAppear(userid:string,
                            ticket:string,
                            device:string,
                            expire:number,
-                           callback:PCallback<IUser>) {
+                           callback:PCallback<IUser>)
+{
     callback = <any>once(<any>callback);
     var usr = getUser(userid);
     var ath = getTicket(ticket);
@@ -136,6 +140,8 @@ export function UserAppear(userid:string,
             name;
             uid;
             data;
+            version;
+            avatar;
         }) => {
             if (err) {
                 return callback(err, null);
@@ -145,6 +151,8 @@ export function UserAppear(userid:string,
             _u.name = u.name;
             _u.uid = u.uid;
             _u.data = JSON.stringify(u.data);
+            _u.version = u.version;
+            _u.avatar = u.avatar;
             User.table().create(_u, (err, usr) => {
                 if (err) {
                     return callback(err, null);
@@ -152,6 +160,9 @@ export function UserAppear(userid:string,
                 DB_UserList[_u.uid] = usr;
                 info("USER " + _u.name.bold + " CREATED");
                 callback(null, usr);
+            });
+            Orbit.Download('User/avatar/' + _u.avatar, {}, (err, data)=>{
+                // TODO: store avatar data from orbit
             });
         });
     }
@@ -176,19 +187,9 @@ export function UserAppear(userid:string,
 
 }
 
-//Called in AuthServer
-export function GetCurrentUserId(auth:string) {
-    if (!has(DB_Ticket, auth)) {
-        return undefined;
-    }
-    var a = DB_Ticket[auth];
-    if (a.expire < new Date().getTime()) {
-        a.remove((err) => {
-        });
-        delete DB_Ticket[auth];
-        return undefined;
-    }
-    return a.owner_uid;
+export function SyncUser(userid:string, cb){
+    var user = DB_UserList[userid];
+    //TODO: SYNC in Client-end
 }
 
 export function LoadFromDB() {
@@ -238,7 +239,8 @@ export function GetUser(userid) {
 
 export function List(opts:{
     state?: number
-}) {
+})
+{
     opts = opts || {};
     var results = {};
     for (var i in DB_UserList) {
@@ -257,7 +259,8 @@ export function All() {
 export function GetOwnedDevices(user, ops:{
     state?: number;
     bus?: string | string[];
-}) {
+})
+{
     ops = ops || {};
     var usr = GetUser(user);
     if (!usr) {
@@ -368,9 +371,9 @@ __API(withCb(GetOwnedDevices), "User.GetOwnedDevices", [Permission.UserAccess, P
 __API(withCb(List), "User.List", [Permission.UserAccess]);
 __API(withCb(All), "User.All", [Permission.UserAccess]);
 __API(withCb(GetUser), "User.Get", [Permission.UserAccess]);
-__API(withCb(GetState), "User.GetState", [Permission.UserAccess], true);
+__API(withCb(GetState), "User.GetState", [Permission.UserAccess]);
 
-__API(GetCurrentUser, "User.GetCurrent", [Permission.UserAccess]);
+__API(GetCurrentUser, "User.GetCurrent", [Permission.UserAccess], true);
 
 __EVENT("User.up", [Permission.UserAccess]);
 __EVENT("User.down", [Permission.UserAccess]);
