@@ -290,7 +290,7 @@ export function Subscribe(cb) {
         if (!device) { //doesn't exist
             var jobs = [];
             jobs.push((cb) => {
-                Device.Table.one({uid: mac}, (err, result)=> {
+                Device.Table.one({hwaddr: mac}, (err, result)=> {
                     if (result && result.busdata && result.busdata['Traffic'])
                         return cb(undefined, result.busdata['Traffic']);
                     return cb(undefined, {
