@@ -22,6 +22,10 @@
 
 	echo $(iptables -w -vnxL intranet_up_traffic -t filter | awk '$1 ~ /^[0-9]+$/ { printf "\"%s\":[%d, %d],", $7, $1, $2 }')
 
+	echo '}, "total_traffic" : {'
+
+	echo $(iptables -w -vnxL FORWARD -t filter | awk 'NR>2 && NR <7 { printf "\"%s\":[%d, %d],", $3, $1, $2 }')
+
 	echo '}}'
 
 
