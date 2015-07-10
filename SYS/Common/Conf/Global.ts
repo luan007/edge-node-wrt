@@ -114,6 +114,8 @@ class _sys_global_conf {
 
     APP_BASE_PATH = path.join(this.STORAGE_DISK_DIR, "Apps");
 
+    AVATAR_PATH = path.join(this.STORAGE_DISK_DIR, "Avatar");
+
     //ramdisk
     RAM_DISK_DIR = process.env.ramdisk || '/ramdisk/';
     DIAGNOSTIC_FILE = path.join(this.RAM_DISK_DIR, 'diagnostic');

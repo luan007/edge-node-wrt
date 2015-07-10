@@ -29,8 +29,7 @@ var pub = StatMgr.Pub(SECTION.USER, {
 export function Login(identity:string,
                       password:string,
                       deviceid:string,
-                      callback:(err, result?) => any)
-{
+                      callback:(err, result?) => any) {
     Orbit.Post("Ticket", Orbit.PKG(undefined, deviceid, {
         id: identity,
         pass: password
@@ -71,8 +70,7 @@ export function Login(identity:string,
 }
 
 export function Logout(atoken:string,
-                       callback:(err) => any)
-{
+                       callback:(err) => any) {
 
     //clean local entries
     if (DB_Ticket[atoken]) {
@@ -90,8 +88,7 @@ export function Register(name, email, password, cb) {
 export function Renew(atoken:string,
                       rtoken:string,
                       deviceid:string,
-                      callback:(err, result?) => any)
-{
+                      callback:(err, result?) => any) {
     Orbit.Put("Ticket", Orbit.PKG(atoken, deviceid, {
         rtoken: rtoken
     }), (err, result) => {
@@ -129,8 +126,7 @@ export function UserAppear(userid:string,
                            ticket:string,
                            device:string,
                            expire:number,
-                           callback:PCallback<IUser>)
-{
+                           callback:PCallback<IUser>) {
     callback = <any>once(<any>callback);
     var usr = getUser(userid);
     var ath = getTicket(ticket);
@@ -161,7 +157,7 @@ export function UserAppear(userid:string,
                 info("USER " + _u.name.bold + " CREATED");
                 callback(null, usr);
             });
-            Orbit.Download('User/avatar/' + _u.avatar, {}, (err, data)=>{
+            Orbit.Download('User/avatar/' + _u.avatar, {}, (err, data)=> {
                 // TODO: store avatar data from orbit
             });
         });
@@ -187,9 +183,41 @@ export function UserAppear(userid:string,
 
 }
 
-export function SyncUser(userid:string, cb){
+export function SyncUser(userid:string, devid:string, cb) {//TODO: need testsing
     var user = DB_UserList[userid];
-    //TODO: SYNC in Client-end
+    Orbit.Post('User/sync', JSON.parse(JSON.stringify(user)), (err, orbitResult)=> {
+        if (err) return cb(err);
+        if (orbitResult.state === 'OK') return cb();
+        if (orbitResult.state === 'DOWN') {
+            if (orbitResult.avatar_diff) {
+                Orbit.Download('User/avatar/download/' + orbitResult.entity.avatar, {}, (err, stream)=> {
+                    var avatarPath = path.join(CONF.AVATAR_PATH, orbitResult.entity.avatar);
+                    var wstream = fs.createWriteStream(avatarPath);
+                    stream.pipe(wstream);
+                    stream.on('end', ()=>{
+                        user.avatar = orbitResult.entity.avatar;
+                        user.version = orbitResult.entity.version;
+                        user.save();
+                        var oldAvatarPath = path.join(CONF.AVATAR_PATH, user.avatar);
+                        fs.unlink(oldAvatarPath);
+                    });
+                    stream.on('error', console.log);
+                });
+            }
+            return cb();
+        } else if (orbitResult.state === 'UP') {
+            if (orbitResult.avatar_diff) {
+                if (!fs.existsSync(CONF.AVATAR_PATH)) fs.mkdirSync(CONF.AVATAR_PATH);
+                var avatarPath = path.join(CONF.AVATAR_PATH, user.avatar);
+                fs.readFile(avatarPath, (err, avatar_data)=> {
+                    if(err) return cb(err);
+                    Orbit.Post('User/avatar/upload/' + orbitResult.entity.avatar
+                        , {user_id:user.uid, version: user.version, avatar_data: avatar_data}, cb);
+                });
+            }
+            return cb();
+        }
+    });
 }
 
 export function LoadFromDB() {
@@ -239,8 +267,7 @@ export function GetUser(userid) {
 
 export function List(opts:{
     state?: number
-})
-{
+}) {
     opts = opts || {};
     var results = {};
     for (var i in DB_UserList) {
@@ -259,8 +286,7 @@ export function All() {
 export function GetOwnedDevices(user, ops:{
     state?: number;
     bus?: string | string[];
-})
-{
+}) {
     ops = ops || {};
     var usr = GetUser(user);
     if (!usr) {

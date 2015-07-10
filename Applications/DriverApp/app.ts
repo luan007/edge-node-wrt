@@ -37,6 +37,7 @@ setTimeout(()=> {
                 if (Object.keys(drivers).length === 0) return console.log('_____________>> [4] no driver matched.');
 
                 //var pair = drivers[0];
+
                 //API.IO.CreateFD((err, fd)=> {
                 //    console.log('_____________>> [5] API.IO.CreateFD', err, fd);
                 //
@@ -59,4 +60,4 @@ setTimeout(()=> {
             });
         }
     });
-}, 1 * 1000);
+}, 10 * 1000);
