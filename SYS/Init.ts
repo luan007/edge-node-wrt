@@ -50,6 +50,7 @@ domain.run(function () {
         //, {path: './APP/__Test'}
         , {path: './Common/System/__Test'}
         , {path: './Common/Native/__Test'}
+        //, {path: './Frontends/__Test'}
     ];
     var initializes = [];
     var subscribes = [];

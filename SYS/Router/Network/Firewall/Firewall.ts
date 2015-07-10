@@ -85,7 +85,7 @@ var defaultConfig = {
     //ClientRouterRestrictions: [],
     //ClientNeighborRestrictions: [],
     //ClientPortMap: [], ---> need PortMapper.ts with its own config & logic
-    EnableNginxProxy: false
+    EnableNginxProxy: true
 };
 
 function SetVlanIsolation(conf, routerIP, localNetmask) {
