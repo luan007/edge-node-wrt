@@ -58,6 +58,7 @@ class ManagedProcess extends events.EventEmitter {
             this.chocking = false;
         }
         if (this.chokeCounter > this.ChokeTolerance_MAX) {
+            error(this.Name, 'CHOKE..');
             if (this.OnChoke()) {
                 return;
             }

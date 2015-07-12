@@ -248,12 +248,13 @@ export class Runtime extends events.EventEmitter {
             this.Stop();
         }
         var path = AppManager.GetAppDataDir(this.App.uid);
-
+        trace(path);
         this._virtualip = LeaseVirtualIp();
         if(!this._virtualip){
             this._push_fail(new Error('Run out of virtual Ip!'));
             return this.Stop();
         }
+
         trace("Launching " + this.App.name.bold);
         trace("--with Data Path " + path);
         trace("--with RuntimeId " + this.RuntimeId.bold);

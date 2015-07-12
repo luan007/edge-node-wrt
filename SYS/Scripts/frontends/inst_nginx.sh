@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/ash
 
 export LUAJIT_LIB=/opt/luajit
 export LUAJIT_INC=/staging/lua-ngx/LuaJIT-2.0.3/src

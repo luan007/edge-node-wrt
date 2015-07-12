@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/ash
 
 bashpid=`ps aux | grep "bash patrol.sh" | grep -v grep | awk '{ printf $2 }'`
 echo kill bash "$bashpid"

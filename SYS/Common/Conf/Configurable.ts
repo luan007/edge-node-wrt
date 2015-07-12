@@ -68,6 +68,7 @@ export class Configurable {
     };
 
     Initialize = (cb) => { //TODO: supply default config
+        this.ConfigHandler.LoadFromCfgFile();
         var _default = this.Get();
         this.Reload(_default, cb);
     };

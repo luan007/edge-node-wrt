@@ -3,7 +3,7 @@ import _Config = require('../../Common/Conf/Config');
 import Config = _Config.Config;
 import _Configurable = require('../../Common/Conf/Configurable');
 import Configurable = _Configurable.Configurable;
-import Registry =  require('../../DB/Registry');
+//import Registry =  require('../../DB/Registry');
 import obex = require('../../Common/Native/obex');
 
 export var Obexd = new obex.Obexpushd();

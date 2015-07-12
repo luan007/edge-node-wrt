@@ -133,11 +133,17 @@ class ConfMgr extends events.EventEmitter {
         });
     }
 
+    public Load = (key)=>{
+        this._load(key);
+    }
+
     private _load = (key) => { // TODO: need bash to create CONFIG
         var filePath = this._filePath(key);
-        if (!fs.existsSync(filePath)) fs.writeFileSync(filePath, '{}');
-        var data = fs.readFileSync(filePath);
-        this._configs[key] = JSON.parse(data.toString('utf8'));
+        //if (!fs.existsSync(filePath)) fs.writeFileSync(filePath, '{}');
+        if (fs.existsSync(filePath)) {
+            var data = fs.readFileSync(filePath);
+            this._configs[key] = JSON.parse(data.toString('utf8'));
+        }
     }
 }
 

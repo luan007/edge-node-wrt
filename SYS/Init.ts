@@ -31,6 +31,7 @@ domain.run(function () {
         , {path: './Device/DeviceManager', name: 'DeviceManager'}
         , {path: './Device/DriverManager', name: 'DriverManager'}
         , {path: './API/Server', name: 'APIServer'}
+        , {path: './API/TokenManager'}
         , {path: './Frontends/MainUI', name: 'MainUI'}
         , {path: './Frontends/HttpProxy', name: 'HttpProxy'}
         , {path: './APP/Test/FakeData/Generator'}
@@ -41,15 +42,13 @@ domain.run(function () {
         , {path: './APP/Resource/Ports/Redirector'}
         , {path: './APP/Resource/Ports/Tracker'}
         , {path: './APP/Resource/AppConfig'}
-        , {path: './User/TokenManager'}
-        , {path: './Device/UserAgentManager'}
         //, {path: './Router/Network/Firewall/__Test'}
-        , {path: './Device/Graphd/__Test'}
-        , {path: './Device/__Test'}
+        //, {path: './Device/Graphd/__Test'}
+        //, {path: './Device/__Test'}
         //, {path: './APP/Resource/__Test'}
         //, {path: './APP/__Test'}
-        , {path: './Common/System/__Test'}
-        , {path: './Common/Native/__Test'}
+        //, {path: './Common/System/__Test'}
+        //, {path: './Common/Native/__Test'}
         //, {path: './Frontends/__Test'}
     ];
     var initializes = [];

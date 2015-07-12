@@ -1,7 +1,5 @@
-﻿import nginx_conf = require("nginx-conf");
-import Process = require("./Process");
+﻿import Process = require("./Process");
 import RPC = require("../../../Modules/RPC/index");
-var nginxconf = nginx_conf.NginxConfFile;
 import path = require("path");
 import child_process = require("child_process");
 import fs = require("fs");
@@ -31,7 +29,7 @@ export class nginx extends Process {
 
     Start(forever:boolean = true) {
         if (this.firstTime) {
-            //fatal('---------------------------NGINX first starting');
+            fatal('---------------------------NGINX first starting');
 
             return killall("nginx", (err, result) => {
                 this.firstTime = false;
@@ -39,6 +37,7 @@ export class nginx extends Process {
             });
         }
         if (!this.IsChoking()) {
+            fatal('---------------------------NGINX second starting');
             //this.Ctrl.Init((err) => {
             //    if (err) {
             //        error("Error Generating Nginx Conf");
@@ -48,11 +47,16 @@ export class nginx extends Process {
                 trace("Reload!");
                 this.Process.kill("SIGHUP");
             } else {
-                this.Process = child_process.spawn("nginx", [], {
-                    env: {
-                        LD_LIBRARY_PATH: "/opt/luajit/lib"
-                    }
-                });
+                this.Process = child_process.spawn("nginx");
+                /*
+                * , [], {
+                 env: {
+                 LD_LIBRARY_PATH: "/usr/bin/luajit"
+                 }
+                 }
+                * */
+                this.Process.stderr.pipe(process.stderr);
+                this.Process.stdout.pipe(process.stdout);
                 super.Start(forever);
             }
             //}

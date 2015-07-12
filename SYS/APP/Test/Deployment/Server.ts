@@ -47,7 +47,7 @@ app.get('/unload/:id', function (req, res) {
 });
 
 app.post('/', <any>[multer({
-    dest: '/tmp/fdscok'
+    dest: '/tmp/fdsock'
 }), (req, res) => {
     console.log(req.body); // form fields
     if (req.files.package) {

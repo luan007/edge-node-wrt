@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/ash
 
 ## storage
 storage=/storage
 password_dir="$storage"/passwords
-password_init_file="$password_dir"/init_password
+password_init_file="$password_dir"/init.password
 password_latest_file="$password_dir"/pkg_latest_password
 pkg_latest_file="$storage"/latest.zip
 pkg_init_file="$storage"/init.zip
@@ -27,7 +27,7 @@ pkg_tmp_file="$ramdisk"/pkg_tmp/tmp.zip
 password_upgrade_file="$ramdisk"/pkg_upgrade_password
 
 ### recover from latest or init
-function recover()
+recover()
 {
     if [ -f "$pkg_latest_file" ] && [ -f "$password_latest_file" ]; then ## latest?
         echo recovering from latest zip...
@@ -47,7 +47,7 @@ function recover()
     fi
 }
 
-function extract()
+extract()
 {
     echo extracting PKG...
     unzip -o -d "$pkg_extracted_dir" "$pkg_tmp_file" ## unzip...
@@ -60,7 +60,7 @@ function extract()
     rm -rf "$pkg_extracted_dir"
 }
 
-function upgrade()
+upgrade()
 {
     echo entering upgrade flow.
     #### need upgrade
@@ -96,7 +96,7 @@ fi
 while true
 do
     ### monitoring
-    process=`ps aux | grep "node $system_dir/init.js" | grep -v grep`
+    process=`ps aux | grep "node $system_dir/Init.js" | grep -v grep`
     if [ "$process" == "" ]; then
         echo init...
         . ./preinit.sh
@@ -105,9 +105,9 @@ do
         echo wan dev is $DEV_WAN
 
         echo starting up main SYSTEM...
-        node "$system_dir"/init.js
+        node "$system_dir"/Init.js
         upgrade
     fi
 
-    sleep 2s;
+    sleep 2;
 done

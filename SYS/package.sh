@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/ash
 
 if [ -z $1 ]; then
         echo please enter a version e.g. 1.0.0

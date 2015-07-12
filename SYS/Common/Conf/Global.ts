@@ -88,17 +88,17 @@ class _sys_global_conf {
         hci1: "BLUETOOTH",
     };
     ORBIT = {
-        HOST: "192.168.31.154", //for test onboard
+        HOST: "192.168.99.130", //for test onboard
         PORT: 8080,
         DEFAULT_TIMEOUT: 20000
     };
     USER_IMMEDIATE_EXPIRE = false;
     IPTABLES_6 = false;
-    IPTABLES_TRAFFIC_INTERVAL = 1 * 1000;   // iptables traffic patrol sleep interval
+    IPTABLES_TRAFFIC_INTERVAL = 5 * 1000;   // iptables traffic patrol sleep interval
     IPTABLES_TRAFFIC_SAVE_INTERVAL = 30 * 1000;
-    IW_STATION_DUMP_INTERVAL = 5 * 1000;
-    LOG_LEVELS = ['error', 'fatal']; // 'error', 'fatal'
-    ON_BOARD = false; //on-board
+    IW_STATION_DUMP_INTERVAL = 10 * 1000;
+    LOG_LEVELS = []; // 'error', 'fatal'
+    ON_BOARD = true; //on-board
     LUA_NGINX_SOCKET = '/var/lua_nginx_socket';
 
     //Storage

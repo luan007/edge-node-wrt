@@ -111,7 +111,7 @@ class Configuration extends Configurable {
 
 var defconfig2G4 = {
     Power: true,
-    SSID: "EdgeTractor",
+    SSID: "edge_zhuihaode",
     AutoSSID: false,
     Visible: true,
     Channel: 2,
@@ -132,11 +132,11 @@ var defconfig2G4 = {
 };
 
 var defconfig5G7 = {
-    Power: true,
-    SSID: "EdgeTractor_5G",
+    Power: false,
+    SSID: "edge_zhuihaode_5",
     AutoSSID: false,
     Visible: true,
-    Channel: 4,
+    Channel: 36,
     Password: "testtest",
     Bridge: CONF.DEV.WLAN.WLAN_BR,
     //NAT: 1,
@@ -205,7 +205,9 @@ function parseIWStationDump() {
         else {
             var json = res.replace(/^\}\,/gmi, '').replace(/\,\}/gmi, '}')
                 .replace(/yes/gmi, 'true').replace(/no/gmi, 'false')
-                .replace(/"preamble":([^,]+)/gmi, '"preamble":"$1"').replace(/"tx_bitrate":([^,]+)/gmi, '"tx_bitrate":"$1"');
+                .replace(/"preamble":([^,]+)/gmi, '"preamble":"$1"')
+                .replace(/"tx_bitrate":([^,]+)/gmi, '"tx_bitrate":"$1"')
+                .replace(/"rx_bitrate":([^,]+)/gmi, '"rx_bitrate":"$1"');
             //info('parse IW', json, res);
             try {
                 var iwStations = JSON.parse(json);
@@ -232,7 +234,7 @@ function parseIWStationDump() {
                     });
                 }
             } catch (err) {
-                error(err);
+                console.log('IW JSON error', json);
             }
         }
     });
@@ -260,9 +262,11 @@ export function Initialize(cb) {
 
     async.series([
         (cb) => {
+            if(!defconfig2G4.Power) return cb();
             config2G4.Initialize(cb);
         },
         (cb) => {
+            if(!defconfig5G7.Power) return cb();
             config5G7.Initialize(cb);
         },
         (cb)=> {
@@ -279,9 +283,11 @@ export function Diagnose(callback:Callback) {
     setTask('stability_check_wifi', ()=> {
         var jobs = [];
         jobs.push((cb) => {
+            if(!defconfig2G4.Power) return cb();
             Hostapd2G4.StabilityCheck(cb)
         });
         jobs.push((cb) => {
+            if(!defconfig5G7.Power) return cb();
             Hostapd5G7.StabilityCheck(cb)
         });
         async.series(jobs, (err, results)=> {
@@ -315,10 +321,14 @@ function SetSSID(hostapdInstance:hostapd.hostapd, sectionName, ssid, cb:Callback
 export function Subscribe(cb) {
     var sub = StatMgr.Sub(SECTION.NETWORK);
     sub.network.on('NetworkName', (oldValue, newValue) => {
-        SetSSID(Hostapd2G4, SECTION.WLAN2G, newValue, ()=> {
-        });
-        SetSSID(Hostapd5G7, SECTION.WLAN5G, newValue, ()=> {
-        });
+        if(defconfig2G4.Power) {
+            SetSSID(Hostapd2G4, SECTION.WLAN2G, newValue, ()=> {
+            });
+        }
+        if(defconfig5G7.Power) {
+            SetSSID(Hostapd5G7, SECTION.WLAN5G, newValue, ()=> {
+            });
+        }
     });
     cb();
 }

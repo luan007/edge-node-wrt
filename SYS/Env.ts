@@ -7,6 +7,7 @@ global.async = require("async");
 global._ = require("underscore");
 require("colors");
 require('../Modules/Shared/use');
+require("./Common/Native/commands");
 require("./Common/Conf/Global");
 require("../Modules/Shared/Log/Prelaunch");
 require("./Common/Stat/StatMgr");

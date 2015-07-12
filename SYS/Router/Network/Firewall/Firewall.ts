@@ -41,10 +41,14 @@ class Configuration extends Configurable {
         SetVlanIsolation(delta, networkConf.RouterIP, networkConf.LocalNetmask);
 
         if (has(delta, "EnableNginxProxy")) {
-            if (delta.EnableNginxProxy)
+            if (delta.EnableNginxProxy) {
                 exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '1', '-p', 'tcp', '--dport', '80', '-j', 'REDIRECT', '--to-ports', '3378');
-            else
+                exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '2', '-p', 'tcp', '--dport', '443', '-j', 'REDIRECT', '--to-ports', '3128');
+            }
+            else {
                 exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '1', '-p', 'tcp', '--dport', '80', '-j', 'RETURN');
+                exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '2', '-p', 'tcp', '--dport', '443', '-j', 'RETURN');
+            }
         }
 
         if (has(delta, "BlockedRemoteAddresses") && Array.isArray(delta.BlockedRemoteAddresses)) {
@@ -85,7 +89,7 @@ var defaultConfig = {
     //ClientRouterRestrictions: [],
     //ClientNeighborRestrictions: [],
     //ClientPortMap: [], ---> need PortMapper.ts with its own config & logic
-    EnableNginxProxy: true
+    EnableNginxProxy: false
 };
 
 function SetVlanIsolation(conf, routerIP, localNetmask) {

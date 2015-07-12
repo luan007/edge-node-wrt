@@ -8,11 +8,13 @@ import Config = _Config.Config;
 import _Configurable = require('../../Common/Conf/Configurable');
 import Configurable = _Configurable.Configurable;
 import Dnsmasq = require('../../Common/Native/dnsmasq');
+import uDhcpC = require('../../Common/Native/udhcpc');
 import AppConfig = require('../../APP/Resource/AppConfig');
 import P0F = require('../../Common/Native/p0f');
 import StatBiz = require('../../Common/Stat/StatBiz');
 
 var dnsmasq = new Dnsmasq.dnsmasq();
+var udhcpc = new uDhcpC.UDhcpC();
 
 var ssdpDirectories:ssdp.SimpleUPNPRecord[] = [{}];
 var ssdpServices = [];
@@ -201,9 +203,9 @@ export function Initialize(cb) {
         (cb)=> {
             mdns.Initialize(cb);
         },
-        (cb)=> {
-            P0F.Initialize(cb);
-        },
+        //(cb)=> {
+        //    P0F.Initialize(cb);
+        //},
         (cb)=> {
             confNetwork.Initialize(cb);
         }

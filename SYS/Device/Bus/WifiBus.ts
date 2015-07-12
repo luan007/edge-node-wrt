@@ -96,13 +96,11 @@ export function Subscribe(cb) {
         }
     });
 
-    subNetwork.p0f.on('set', (IP, oldValue, description) => {
-        //fatal('P0F device emerge', IP, description);
-        _wifiBus.DeviceUp(description.hwaddr, {
-            P0F: description
-        });
-        //__EMIT('P0F.device', description);
-    });
+    //subNetwork.p0f.on('set', (IP, oldValue, description) => {
+    //    _wifiBus.DeviceUp(description.hwaddr, {
+    //        P0F: description
+    //    });
+    //});
 
     var subTraffic = StatMgr.Sub(SECTION.TRAFFIC);
     subTraffic.traffics.on('set', (mac, oldValue, traffic) => {

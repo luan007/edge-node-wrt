@@ -20,6 +20,10 @@ export class Config extends events.EventEmitter {
         return conf;
     }
 
+    LoadFromCfgFile = () => {
+        require('./ConfMgr').Load(this.key);
+    }
+
     Error = (err) => {
         if (error) error(err);
         else console.log(err);

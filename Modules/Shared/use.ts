@@ -3,7 +3,6 @@ require("./Basic/delta");
 require("./Basic/struct");
 require("./Basic/flowcontrol");
 require("./Basic/dbus-magic");
-require("./Basic/commands");
 require("./Basic/fs");
 require("./Crypto/hash");
 require("./Crypto/UUID");

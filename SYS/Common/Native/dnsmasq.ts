@@ -262,7 +262,7 @@ export class DHCPLeaseManager extends events.EventEmitter {
 
         if (fs.existsSync(this.relay_path) && fs.unlinkSync(this.relay_path));
         if (fs.existsSync(sock) && fs.unlinkSync(sock));
-        var d = "#!/bin/bash\necho \"{ \\\"Action\\\":\\\"$1\\\", \\\"Lease\\\": { \\\"Mac\\\":\\\"$2\\\", \\\"Address\\\":\\\"$3\\\", \\\"Hostname\\\":\\\"$4\\\", \\\"VendorClass\\\":\\\"$DNSMASQ_VENDOR_CLASS\\\", \\\"Interface\\\":\\\"$DNSMASQ_INTERFACE\\\" }}\" | socat - UNIX-SENDTO:" + sock;
+        var d = "#!/bin/ash\necho \"{ \\\"Action\\\":\\\"$1\\\", \\\"Lease\\\": { \\\"Mac\\\":\\\"$2\\\", \\\"Address\\\":\\\"$3\\\", \\\"Hostname\\\":\\\"$4\\\", \\\"VendorClass\\\":\\\"$DNSMASQ_VENDOR_CLASS\\\", \\\"Interface\\\":\\\"$DNSMASQ_INTERFACE\\\" }}\" | socat - UNIX-SENDTO:" + sock;
         fs.writeFileSync(this.relay_path, d);
         info("Relay Generated at " + this.relay_path);
         fs.chmodSync(this.relay_path, 777); //woo
@@ -636,9 +636,6 @@ export class dnsmasq extends Process {
         }
         async.series(
             [
-                exec.bind(null, "rm -rf " + this.hosts_path),
-                exec.bind(null, "rm -rf " + this.dns_path),
-                exec.bind(null, "rm -rf " + this.dhcp_host_path),
                 fs.writeFile.bind(null, this.hosts_path, _hosts),
                 fs.writeFile.bind(null, this.dns_path, _dns),
                 fs.writeFile.bind(null, this.dhcp_host_path, _dhcp_hosts)

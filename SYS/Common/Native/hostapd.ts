@@ -98,8 +98,8 @@ function CfgString(conf:ConfigBase, dev, ctrl_sock, mac_accp, mac_deny) {
     switch (conf.Base) {
         case _80211_BASE.A:
             newconf += "wmm_enabled=1" + line;
-            newconf += "ieee80211ac=1" + line;
             newconf += "hw_mode=a" + line;
+            newconf += "ieee80211ac=1" + line;
             break;
         case _80211_BASE.B:
             newconf += "hw_mode=b" + line;
@@ -109,8 +109,8 @@ function CfgString(conf:ConfigBase, dev, ctrl_sock, mac_accp, mac_deny) {
             break;
         case _80211_BASE.N:
             newconf += "wmm_enabled=1" + line;
-            newconf += "ieee80211n=1" + line;
             newconf += "hw_mode=g" + line;
+            newconf += "ieee80211n=1" + line;
             break;
     }
 
@@ -129,7 +129,7 @@ function CfgString(conf:ConfigBase, dev, ctrl_sock, mac_accp, mac_deny) {
 
 
     if (conf.Password) {
-        newconf += "wpa=2" + line;
+        newconf += "wpa=1" + line;
         newconf += "wpa_key_mgmt=WPA-PSK" + line;
         //newconf += "wpa_pairwise=TKIP CCMP" + line;
         newconf += "rsn_pairwise=TKIP CCMP" + line; //wpa2
@@ -142,7 +142,7 @@ function CfgString(conf:ConfigBase, dev, ctrl_sock, mac_accp, mac_deny) {
         newconf += "ssid=" + conf.BSS[_dev].SSID + line;
 
         if (conf.BSS[_dev].Password) {
-            newconf += "wpa=2" + line;
+            newconf += "wpa=1" + line;
             newconf += "wpa_key_mgmt=WPA-PSK" + line;
             //newconf += "wpa_pairwise=TKIP CCMP" + line;
             newconf += "rsn_pairwise=TKIP CCMP" + line; //wpa2
@@ -153,6 +153,7 @@ function CfgString(conf:ConfigBase, dev, ctrl_sock, mac_accp, mac_deny) {
 
     newconf += "accept_mac_file=" + mac_accp + line;
     newconf += "deny_mac_file=" + mac_deny + line;
+    newconf += "obss_interval=1" + line;
 
     /* This may cause problem in windows ... network-discovery got crazy */
     //newconf += "wps_state=1" + line;
@@ -170,7 +171,11 @@ function CfgString(conf:ConfigBase, dev, ctrl_sock, mac_accp, mac_deny) {
     //newconf += "uuid=87654321-9abc-def0-1234-56789abc0000" + line;
 
 
-    warn("WARNING - HTCAP NOT IMPLEMENTED");
+    //warn("WARNING - HTCAP NOT IMPLEMENTED");
+    //[SMPS-STATIC]
+
+    newconf += 'ht_capab=[HT40' + ((conf.Channel < 8) ? '+' : '-') + '][LPDC][DSSS_CCK-40][TX-STBC][RX-STBC1][MAX-AMSDU-7935][SHORT-GI-20][SHORT-GI-40]'
+            + line;
 
     //TODO: Fill HT_CAPAB
     //console.log(newconf);
@@ -324,8 +329,11 @@ export class CtrlInterface extends events.EventEmitter {
             if (this._prevevent !== data) {
                 //EVENT
                 var d = data.substr(3).split(' ');
-                this._prevevent = data;
-                this.emit(CtrlInterface.EVENT, d[0], d[1].toLowerCase());
+                if(d.length > 2){
+                    this._prevevent = data;
+                    console.log('_________________ hostapd data', data);
+                    this.emit(CtrlInterface.EVENT, d[0], d[1].toLowerCase());
+                }
             }
         }
         else {

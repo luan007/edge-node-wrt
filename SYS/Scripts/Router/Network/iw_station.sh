@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/ash
 
 echo '{ "ap1": {'
 

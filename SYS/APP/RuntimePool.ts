@@ -263,6 +263,7 @@ function StartRuntime(app_uid) {
     var runtime = _pool[app_uid];
     if (runtime) {
         var _path = AppManager.GetAppDataDir(runtime.App.uid);
+        error(_path);
         async.series([
             _clean_up.bind(null, runtime.RuntimeId),
             (cb) => {
@@ -292,17 +293,17 @@ function StartRuntime(app_uid) {
                         return cb(undefined);
                     });
             },
-            _setup_quota.bind(null, runtime.RuntimeId),
+            //_setup_quota.bind(null, runtime.RuntimeId),
             exec.bind(null, "rm", '-rf', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'Share/IO/*')),
+            exec.bind(null, "chmod", '-R', "0755", AppManager.GetAppRootPath(runtime.App.uid)),
             exec.bind(null, "mkdir", '-p', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'Data')),
             exec.bind(null, "mkdir", '-p', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'Share/IO')),
             exec.bind(null, "mkdir", '-p', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'etc')),
             mount_auto.bind(null, _path, AppManager.GetAppDataLn(runtime.App.uid), ["--bind"]),
             mount_auto.bind(null, '/etc', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'etc'),
-                ["--bind", '-o noexec,nosuid,nodev']),
+                ["--bind", '-o', 'noexec,nosuid,nodev']),
             exec.bind(null, "chown", "root", AppManager.GetAppRootPath(runtime.App.uid)), //TODO: not secure
-            exec.bind(null, "mount", '-o remount,ro', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'etc')),
-            exec.bind(null, "chmod", "0755", AppManager.GetAppRootPath(runtime.App.uid)),
+            //exec.bind(null, "mount", '-o', 'remount,ro', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'etc')),
             exec.bind(null, "chown", "-R", runtime.RuntimeId, AppManager.GetAppDataLn(runtime.App.uid)),
             exec.bind(null, "chmod", "-R", "0755", AppManager.GetAppDataLn(runtime.App.uid)) //TODO: FIX THIS CHMOD 711 -> 701
         ], (e, r) => {
