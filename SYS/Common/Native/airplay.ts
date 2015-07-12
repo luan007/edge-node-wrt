@@ -66,6 +66,8 @@ var STATE_SERVER_DOWN = -1;
 var STATE_IMG = 1;
 var STATE_VID_LOAD = 2;
 var STATE_STOPPED = 0;
+var STATE_CLIENT = 3;
+var STATE_SONG = 4;
 
 export class AirPlay_BaseServer extends events.EventEmitter {
 
@@ -96,7 +98,6 @@ export class AirPlay_BaseServer extends events.EventEmitter {
 
     constructor(private _mac, private _port, name?){
         super();
-
         if(name) this._name = name;
         this._app = express();
         this.reghooks();
@@ -125,7 +126,7 @@ export class AirPlay_BaseServer extends events.EventEmitter {
         });
 
         //TODO: need to identify photo & video cover
-        this._app.put('/photo', (req, res)=>{
+        this._app.put('/photo', (req, res) => {
             var action = req.header('X-Apple-AssetAction');
             var key = req.header('X-Apple-AssetKey');
             var session = req.header('X-Apple-Session-ID');
@@ -250,9 +251,7 @@ export class AirPlay_BaseServer extends events.EventEmitter {
 
 }
 //name:server
-
 var airservers : IDic<AirPlay_BaseServer> = {};
-
 
 export var Events = new events.EventEmitter();
 
@@ -315,3 +314,79 @@ export function Get(name): AirPlay_BaseServer{
 
 
 
+var airtunes = require('nodetunes'); //please, make sure you use https://github.com/Emerge/nodetunes.git
+//which is patched with ip & port support :p
+
+
+export class AirPlay_AudioServer extends events.EventEmitter {
+
+    private _history_len = 50;
+    private _mdns = [];
+    public Queue = [];
+
+    private _server;
+    private _clientip;
+    private _name = "Edge";
+
+    public CurrentSong;
+
+    private running = false;
+
+    public GetMAC(){
+        return this._mac;
+    }
+
+    public GetPort(){
+        return this._port;
+    }
+
+    public State() {
+        return this.Queue[0] ? this.Queue[0].State : STATE_STOPPED;
+    }
+
+    constructor(private _mac, private _port, private _ip, name?){
+        super();
+        if(name) this._name = name;
+    }
+
+    private stateMachine(kind, path?){
+        this.Queue.unshift({
+            State: kind,
+            Path: path,
+            Ip: this._clientip,
+            Time: Date.now()
+        });
+        if(this.Queue.length > this._history_len) {
+            this.Queue.pop();
+        }
+        this.emit("state", this.Queue[0]);
+    }
+
+    public GetName(){
+        return this._name;
+    }
+
+    public start(name?) {
+        if(this.running) return;
+        this.running = true;
+        this._server = new airtunes({
+            serverName: name ? name : this._name,
+            macAddress: this._mac,
+            ipAddress: this._ip,
+            port: this._port,
+
+        });
+
+        this._server.start();
+        this.stateMachine(STATE_STOPPED);
+    }
+
+    public stop(){
+        if(this.running) return;
+        this._server.stop();
+        this._server.removeAllListeners();
+        this.running = false;
+        this.stateMachine(STATE_SERVER_DOWN);
+    }
+
+}
