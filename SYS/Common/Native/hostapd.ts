@@ -1,5 +1,8 @@
 ﻿//http://ftp.netbsd.org/pub/NetBSD/NetBSD-current/src/external/bsd/wpa/dist/hostapd/README-WPS
 
+//TODO: FIX WIRELSS THROUGHTPUT UNDER WPA CONDITIONS
+
+
 import Process = require("./Process");
 import child_process = require("child_process");
 import events = require("events");
