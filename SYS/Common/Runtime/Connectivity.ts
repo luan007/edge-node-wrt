@@ -7,6 +7,8 @@ var pub = StatMgr.Pub(SECTION.CONNECTIVITY, {
     connectivity: {}
 });
 
+var USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36';
+
 function _dnsLookup(domain:string, cb:Callback) {
     dns.lookup(domain, <any>must((err) => {
         if (err) {
@@ -52,7 +54,10 @@ function _fetchHEAD(domain:string, cb:Callback) {
         hostname: domain,
         port: 80,
         path: '/',
-        method: 'HEAD'
+        method: 'HEAD',
+        headers: {
+            'User-Agent': USER_AGENT
+        }
     };
     var req = http.request(options, (res)=> {
         return cb(undefined, {time: Util.GetNowDateTimeString(), statusCode: res.statusCode});

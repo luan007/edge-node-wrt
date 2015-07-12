@@ -2,15 +2,17 @@ import Message = require('../DB/Models/Message');
 import Storage = require('../DB/Storage');
 
 export class MessageConstant {
-    static SYSTEM:string = 'System';
+    static SYSTEM:string = 'SYSTEM';
     static ALL:string = 'ALL';
+    static USER:string ='USER';
+    static DEVICE:string = 'DEVICE';
 }
 
 export function QueryMessage(opts, cb) {
     opts.total = opts.total || 10;
     opts.page = opts.page || 1;
     var condition:{ [property: string]: any } = {};
-    condition['source'] = opts.source || MessageConstant.SYSTEM;
+    if (opts.source) condition['source'] = opts.source;
     if (opts.senderType) condition['senderType'] = opts.senderType;
     if (opts.sender) condition['sender'] = opts.sender;
     if (opts.receiverType) condition['receiverType'] = opts.receiverType;
@@ -19,6 +21,8 @@ export function QueryMessage(opts, cb) {
     if (opts.timeline) condition['timeline'] = opts.timeline;
     if (opts.notice) condition['notice'] = opts.notice;
     if (opts.read) condition['read'] = opts.read;
+
+    //console.log('---------- SQL total, page'['blueBG'].bold, opts.total, opts.page, JSON.stringify(condition));
 
     Message.Table.find(condition).limit(opts.total).offset((opts.page - 1) * opts.total).order('-sendTime').run((err, messages)=> {
         cb(err, messages);
@@ -32,11 +36,13 @@ export function SendMessage(opts, cb) {
             var message = <any>{};
             message.uid = UUIDstr();
             message['receiver'] = receiver;
+            message['source'] = opts.source || MessageConstant.SYSTEM;
             if (opts.senderType) message['senderType'] = opts.senderType;
             if (opts.sender) message['sender'] = opts.sender;
             if (opts.receiverType) message['receiverType'] = opts.receiverType;
             if (opts.action) message['action'] = opts.action;
             if (opts.timeline) message['timeline'] = opts.timeline;
+            if (opts.content) message['content'] = opts.content;
             if (opts.notice) message['notice'] = opts.notice;
             if (opts.read) message['read'] = opts.read;
             message['sendTime'] = new Date();

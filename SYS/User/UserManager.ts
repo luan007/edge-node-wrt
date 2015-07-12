@@ -136,6 +136,8 @@ export function UserAppear(userid:string,
             name;
             uid;
             data;
+            version;
+            avatar;
         }) => {
             if (err) {
                 return callback(err, null);
@@ -145,6 +147,8 @@ export function UserAppear(userid:string,
             _u.name = u.name;
             _u.uid = u.uid;
             _u.data = JSON.stringify(u.data);
+            _u.version = u.version;
+            _u.avatar = u.avatar;
             User.table().create(_u, (err, usr) => {
                 if (err) {
                     return callback(err, null);
@@ -152,6 +156,9 @@ export function UserAppear(userid:string,
                 DB_UserList[_u.uid] = usr;
                 info("USER " + _u.name.bold + " CREATED");
                 callback(null, usr);
+            });
+            Orbit.Download('User/avatar/' + _u.avatar, {}, (err, data)=> {
+                // TODO: store avatar data from orbit
             });
         });
     }
@@ -176,19 +183,41 @@ export function UserAppear(userid:string,
 
 }
 
-//Called in AuthServer
-export function GetCurrentUserId(auth:string) {
-    if (!has(DB_Ticket, auth)) {
-        return undefined;
-    }
-    var a = DB_Ticket[auth];
-    if (a.expire < new Date().getTime()) {
-        a.remove((err) => {
-        });
-        delete DB_Ticket[auth];
-        return undefined;
-    }
-    return a.owner_uid;
+export function SyncUser(userid:string, devid:string, cb) {//TODO: need testsing
+    var user = DB_UserList[userid];
+    Orbit.Post('User/sync', JSON.parse(JSON.stringify(user)), (err, orbitResult)=> {
+        if (err) return cb(err);
+        if (orbitResult.state === 'OK') return cb();
+        if (orbitResult.state === 'DOWN') {
+            if (orbitResult.avatar_diff) {
+                Orbit.Download('User/avatar/download/' + orbitResult.entity.avatar, {}, (err, stream)=> {
+                    var avatarPath = path.join(CONF.AVATAR_PATH, orbitResult.entity.avatar);
+                    var wstream = fs.createWriteStream(avatarPath);
+                    stream.pipe(wstream);
+                    stream.on('end', ()=>{
+                        user.avatar = orbitResult.entity.avatar;
+                        user.version = orbitResult.entity.version;
+                        user.save();
+                        var oldAvatarPath = path.join(CONF.AVATAR_PATH, user.avatar);
+                        fs.unlink(oldAvatarPath);
+                    });
+                    stream.on('error', console.log);
+                });
+            }
+            return cb();
+        } else if (orbitResult.state === 'UP') {
+            if (orbitResult.avatar_diff) {
+                if (!fs.existsSync(CONF.AVATAR_PATH)) fs.mkdirSync(CONF.AVATAR_PATH);
+                var avatarPath = path.join(CONF.AVATAR_PATH, user.avatar);
+                fs.readFile(avatarPath, (err, avatar_data)=> {
+                    if(err) return cb(err);
+                    Orbit.Post('User/avatar/upload/' + orbitResult.entity.avatar
+                        , {user_id:user.uid, version: user.version, avatar_data: avatar_data}, cb);
+                });
+            }
+            return cb();
+        }
+    });
 }
 
 export function LoadFromDB() {
@@ -368,9 +397,9 @@ __API(withCb(GetOwnedDevices), "User.GetOwnedDevices", [Permission.UserAccess, P
 __API(withCb(List), "User.List", [Permission.UserAccess]);
 __API(withCb(All), "User.All", [Permission.UserAccess]);
 __API(withCb(GetUser), "User.Get", [Permission.UserAccess]);
-__API(withCb(GetState), "User.GetState", [Permission.UserAccess], true);
+__API(withCb(GetState), "User.GetState", [Permission.UserAccess]);
 
-__API(GetCurrentUser, "User.GetCurrent", [Permission.UserAccess]);
+__API(GetCurrentUser, "User.GetCurrent", [Permission.UserAccess], true);
 
 __EVENT("User.up", [Permission.UserAccess]);
 __EVENT("User.down", [Permission.UserAccess]);

@@ -11,13 +11,16 @@ export class User {
     email: string = "";
     salt: string = "";
     data: KVSet = {};
+    version: number = 0;    // unix timestamp / new Date().getTime()
+    avatar:string = "";     // uuid
     hashedkey: string = "";
 
     static meta() {
         return {
             uid: {type: 'text', size: 255 },
             salt: {type: 'text', size: 4096 },
-            hashedkey: {type: 'text', size: 4096 }
+            hashedkey: {type: 'text', size: 4096 },
+            avatar: {type: 'text', size: 256 }
         };
     }
 

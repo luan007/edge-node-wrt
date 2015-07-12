@@ -13,6 +13,7 @@ class _orbit_sys_global_conf {
     GRAPHD_ATTRIBUTES_LOCATION = path.join(this.GRAPHD_UPGRADE_DIR, "graphd.attributes.json");
     GRAPHD_ACTIONS_LOCATION = path.join(this.GRAPHD_UPGRADE_DIR, "graphd.actions.json");
     PKG_TMP_DIR = path.join(this.PKG_BASE_DIR, 'tmp');
+    AVATAR_DIR = path.join(this.BASE_PATH, "./avatars")
 }
 
 var ORBIT_CONF = new _orbit_sys_global_conf();

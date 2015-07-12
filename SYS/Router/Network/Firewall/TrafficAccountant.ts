@@ -8,7 +8,8 @@ import Traffic = require('../../../DB/Models/Traffic');
 import Device = require('../../../DB/Models/Device');
 
 var pub = StatMgr.Pub(SECTION.TRAFFIC, {
-    traffics: {}
+    traffics: {},
+    system:{}
 });
 
 interface Traffic {
@@ -171,6 +172,7 @@ function parseTraffic() {
                     var traffic = JSON.parse(JSON.stringify(Devices[mac]));
                     pub.traffics.Set(mac, traffic);
                 }
+                pub.system.Set('traffic', JSON.parse(JSON.stringify(systemTraffic)));
                 deltaDevices.length = 0; // clear
             } catch (err) {
                 lastError = err;

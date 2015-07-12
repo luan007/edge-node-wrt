@@ -363,9 +363,9 @@ export function GetDevIdByHWAddr(mac):string {
 //this method is about to be removed
 export function OrbitSync(devId, cb) {
     if (!has(db_devices, devId)) {
-        fatal('==========<< devId', devId);
         process.nextTick(cb.bind(null, new Error("Device not found")));
     }
+    fatal('==========<<< SYNC to orbit, dev', devId);
     Orbit.UploadDevice(devId, db_devices[devId].busname, db_devices[devId].hwaddr, db_devices[devId], cb);
 }
 
@@ -431,10 +431,12 @@ export function SetOwnership(devId, ownership) {
     }
 }
 
-function GetCurrentDevice(deviceId, cb){
-    var device = Get(deviceId);
-    if (device)
-        return cb(undefined, device);
+function GetCurrentDevice(token_uid, cb){
+    if(this.user.device_uid) {
+        var device = Get(this.user.device_uid);
+        if (device)
+            return cb(undefined, device);
+    }
 
     return cb(new Error('no such device'));
 }
