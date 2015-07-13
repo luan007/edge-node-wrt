@@ -232,9 +232,9 @@ export function Initialize(cb) {
         (cb)=> {
             mdns.Initialize(cb);
         },
-        //(cb)=> {
-        //    P0F.Initialize(cb);
-        //},
+        (cb)=> {
+            P0F.Initialize(cb);
+        },
         (cb)=> {
             confNetwork.Initialize(cb);
         }

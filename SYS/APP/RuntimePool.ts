@@ -263,7 +263,7 @@ function StartRuntime(app_uid) {
     var runtime = _pool[app_uid];
     if (runtime) {
         var _path = AppManager.GetAppDataDir(runtime.App.uid);
-        error(_path);
+        info('APP path', _path);
         async.series([
             _clean_up.bind(null, runtime.RuntimeId),
             (cb) => {

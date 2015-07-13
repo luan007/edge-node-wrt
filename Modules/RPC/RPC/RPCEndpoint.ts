@@ -108,7 +108,7 @@ export class RPCEndPoint extends events.EventEmitter {
                 if (this._callbacks.age(track_id) == gen) {
                     var obj = this._callbacks.pop(track_id);
                     if (obj && obj.callback) {
-                        obj.callback(new Error("Operation Time-out"), undefined);
+                        obj.callback(new Error("RPC Operation Time-out"), undefined);
                     }
                 }
                 clearTimeout(timer);
