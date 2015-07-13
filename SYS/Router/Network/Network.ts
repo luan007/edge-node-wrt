@@ -207,10 +207,7 @@ export function Initialize(cb) {
             } else if (conf.WAN.Scheme === WANScheme.UDHCPC) {
                 var udhcpc = new UDhcpC();
                 udhcpc.Start(true);
-                udhcpc.StabilityCheck((err)=> {
-                    if (err) error(err);
-                    cb();
-                });
+                cb();
             }
         },
         (cb)=> {

@@ -107,7 +107,7 @@ module.exports = function (grunt) {
             }
             , sshexec: {
                 chown: {
-                    command: 'touch /ramdisk/first_start && chown -R nobody ' + sftpDest + ' && chgrp -R nogroup ' + sftpDest,
+                    command: 'touch /ramdisk/first_start && chmod 755 /ramdisk/SYS/patrol.sh && chown -R nobody ' + sftpDest + ' && chgrp -R nogroup ' + sftpDest,
                     options: {
                         host: '<%= secret.host %>',
                         username: '<%= secret.username %>',

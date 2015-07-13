@@ -8,9 +8,9 @@ sleep 1
 iw ap1 del
 sleep 1
 
-iw phy phy2 interface add ap0 type __ap
+iw phy phy0 interface add ap0 type __ap
 sleep 1
-iw phy phy3 interface add ap1 type __ap
+iw phy phy1 interface add ap1 type __ap
 sleep 1
 
 iw guset0 del
@@ -18,9 +18,9 @@ sleep 1
 iw guset1 del
 sleep 1
 
-iw phy phy2 interface add guset0 type __ap
+iw phy phy0 interface add guset0 type __ap
 sleep 1
-iw phy phy3 interface add guset1 type __ap
+iw phy phy1 interface add guset1 type __ap
 sleep 1
 
 #bridge

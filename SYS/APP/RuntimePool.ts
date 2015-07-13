@@ -293,7 +293,7 @@ function StartRuntime(app_uid) {
                         return cb(undefined);
                     });
             },
-            //_setup_quota.bind(null, runtime.RuntimeId),
+            _setup_quota.bind(null, runtime.RuntimeId),
             exec.bind(null, "rm", '-rf', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'Share/IO/*')),
             exec.bind(null, "chmod", '-R', "0755", AppManager.GetAppRootPath(runtime.App.uid)),
             exec.bind(null, "mkdir", '-p', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'Data')),

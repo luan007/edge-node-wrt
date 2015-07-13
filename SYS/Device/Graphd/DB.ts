@@ -28,7 +28,7 @@ var DB;
 function init(cb:PCallback<any>) {
     console.log('===> CONF.GRAPHD_DIR'['greenBG'].bold, CONF.GRAPHD_LOCATION);
     var lock = path.join(CONF.GRAPHD_LOCATION, 'LOCK');
-    if(fs.existsSync(lock)) fs.unlinkSync(lock);
+    if (fs.existsSync(lock)) fs.unlinkSync(lock);
 
 
     var rawDb = levelup(CONF.GRAPHD_LOCATION, {valueEncoding: "json"});
@@ -256,28 +256,32 @@ function GetGraphdVersion(callback:Callback) {
 }
 
 function CheckGraphdUpdate() {
-    GetGraphdVersion((err, numericDate)=> {
-        if (err) return error(err);
+    UntilPingSuccess((err) => {
+        if (!err) {
+            GetGraphdVersion((err, numericDate)=> {
+                if (err) return error(err);
 
-        Graphd.table().one({name: 'graphd'}, (err, graphd)=> {
-            if (err) return error(err);
-
-            var needDownload = false;
-            if (!graphd) {
-                console.log('no graphd exists'['greenBG'].bold, 'Orbit ver:', numericDate);
-                needDownload = true;
-            } else if (Number(graphd.numericDate) < Number(numericDate)) {
-                console.log('current graphd was stale'['greenBG'].bold, graphd.numericDate, 'Orbit ver:', numericDate);
-                needDownload = true;
-            }
-
-            if (needDownload) {
-                return DownloadGraphd((err)=> {
+                Graphd.table().one({name: 'graphd'}, (err, graphd)=> {
                     if (err) return error(err);
-                    else return console.log('upgrade graphd successfully.'['greenBG'].bold);
+
+                    var needDownload = false;
+                    if (!graphd) {
+                        console.log('no graphd exists'['greenBG'].bold, 'Orbit ver:', numericDate);
+                        needDownload = true;
+                    } else if (Number(graphd.numericDate) < Number(numericDate)) {
+                        console.log('current graphd was stale'['greenBG'].bold, graphd.numericDate, 'Orbit ver:', numericDate);
+                        needDownload = true;
+                    }
+
+                    if (needDownload) {
+                        return DownloadGraphd((err)=> {
+                            if (err) return error(err);
+                            else return console.log('upgrade graphd successfully.'['greenBG'].bold);
+                        });
+                    }
                 });
-            }
-        });
+            });
+        }
     });
 }
 
@@ -301,7 +305,9 @@ export function Initialize(cb) {
         UntilPingSuccess((err, res) => {
             console.log('ping Orbit success: ', res);
             DownloadGraphd((err2)=> {
-                if (err2) return error(err2);
+                if (err2) {
+                    return CheckGraphdUpdate();
+                }
 
                 pub.Set('graphd', {
                     State: 'running'

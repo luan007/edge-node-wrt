@@ -7,7 +7,7 @@ import StatBiz = require('../Stat/StatBiz');
 
 class P0F extends Process {
     static P0F_NAME = "p0f";
-    static P0F_FP = "/usr/local/p0f/p0f.fp";
+    static P0F_FP = "/usr/sbin/p0f.fp";
     static magicNumberReq = 0x50304601;
     static magicNumberResp = 0x50304602;
     static resOK = 0x10;

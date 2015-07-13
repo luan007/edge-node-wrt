@@ -24,7 +24,7 @@ if [ -e /SagittariusA/aquota.group ]; then rm -rf  /SagittariusA/aquota.group ; 
 if [ -e /SagittariusA/aquota.user ]; then rm -rf /SagittariusA/aquota.user ; fi
 
 echo QUOTACHECK.. This may take a while..
-#quotacheck -ugcfm /SagittariusA/
+quotacheck -ugcfm /SagittariusA/
 if [ -e /SagittariusA/aquota.group ]; then echo Quota Generated! ; fi
 if [ -e /SagittariusA/aquota.group ]; then echo Quota Generated! ; fi
 
@@ -33,6 +33,7 @@ if [ -e /SagittariusA/aquota.group ]; then echo Quota Generated! ; fi
 echo nginx operation
 killall nginx
 cp -rf Scripts/frontends/nginx.conf /etc/nginx/nginx.conf
+if [ ! -e /var/log/nginx ]; then mkdir -p /var/log/nginx ; fi
 
 ####users
 echo mkdir User
@@ -65,6 +66,6 @@ echo init passwords
 if [ ! -e /ramdisk/passwords ]; then mkdir /ramdisk/passwords ; fi
 cp -rf ./Common/Crypto/Keys/init_password /ramdisk/passwords/init_password
 
-
 ####airplay
+rm -rf /tmp/AirService
 mkdir /tmp/AirService
