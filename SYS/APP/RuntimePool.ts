@@ -1,5 +1,6 @@
 ﻿import _Runtime = require("./Runtime");
 import Runtime = _Runtime.Runtime;
+import RuntimeStatusEnum = _Runtime.RuntimeStatusEnum;
 import fs = require("fs");
 import net = require('net');
 import path = require('path');

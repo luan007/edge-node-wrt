@@ -27,6 +27,10 @@ var DB;
 
 function init(cb:PCallback<any>) {
     console.log('===> CONF.GRAPHD_DIR'['greenBG'].bold, CONF.GRAPHD_LOCATION);
+    var lock = path.join(CONF.GRAPHD_LOCATION, 'LOCK');
+    if(fs.existsSync(lock)) fs.unlinkSync(lock);
+
+
     var rawDb = levelup(CONF.GRAPHD_LOCATION, {valueEncoding: "json"});
     var db = levelQuery(rawDb);
     db.query.use(jsonqueryEngine());

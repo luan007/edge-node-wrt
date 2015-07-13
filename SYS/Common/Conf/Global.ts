@@ -196,19 +196,6 @@ class _global_mac_conf {
 var MACHINE = new _global_mac_conf();
 global.MACHINE = MACHINE;
 
-class _runtime_status_enum {
-    Ready:number = 0;
-    Launching:number = 1;
-    Launched:number = 2;
-    Error:number = -1;
-    Banned:number = -2;
-    Broken:number = -3;
-    Terminated:number = -4;
-}
-
-var RuntimeStatusEnum = new _runtime_status_enum();
-global.RuntimeStatusEnum = _runtime_status_enum;
-
 class _wan_scheme{
     PPPD = 1;
     UDHCPC = 2;

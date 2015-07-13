@@ -21,6 +21,10 @@ export var RootKeys = {
 
 export function Initialize(cb) {
     trace("Init Registry");
+    var lock = path.join(CONF.MAIN_REGISTRY_PATH,'LOCK');
+    if(fs.existsSync(lock))
+        fs.unlinkSync(lock);
+
     db = sub(level(CONF.MAIN_REGISTRY_PATH, { valueEncoding: "json" }));
     root = db.subkey(_ROOT);
     cb();
