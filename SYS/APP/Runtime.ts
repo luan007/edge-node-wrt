@@ -86,16 +86,6 @@ function RemoveRuntimePID(pid) {
     }
 }
 
-export class RuntimeStatusEnum {
-    static Ready:number = 0;
-    static Launching:number = 1;
-    static Launched:number = 2;
-    static Error:number = -1;
-    static Banned:number = -2;
-    static Broken:number = -3;
-    static Terminated:number = -4;
-}
-
 export class Runtime extends events.EventEmitter {
 
     private _process:child_process.ChildProcess = undefined;

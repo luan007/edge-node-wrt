@@ -9,6 +9,7 @@ export class Configurable {
         this.ConfigHandler = ConfMgr.Register(key, conf);
         this.ConfigHandler.on('commit', this.Apply);
         this.ConfigHandler.on('recycle', this.Recycle);
+        this.ConfigHandler.LoadFromCfgFile();
     }
 
     /**
@@ -68,7 +69,6 @@ export class Configurable {
     };
 
     Initialize = (cb) => { //TODO: supply default config
-        this.ConfigHandler.LoadFromCfgFile();
         var _default = this.Get();
         this.Reload(_default, cb);
     };

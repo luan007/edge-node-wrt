@@ -34,4 +34,19 @@ export class UDhcpC extends Process {
             }
         }
     }
+
+    OnChoke() {
+        super.OnChoke();
+        info("Killing all UDhcpC processes");
+        this.Process.removeAllListeners();
+        this.Process = undefined;
+        killall(UDhcpC.COMMAND_NAME, () => {
+            info("Done, waiting for recall");
+            setTimeout(() => {
+                this.ClearChoke();
+                this.Start();
+            }, 2000);
+        });
+        return true;
+    }
 }

@@ -8,13 +8,15 @@ import Config = _Config.Config;
 import _Configurable = require('../../Common/Conf/Configurable');
 import Configurable = _Configurable.Configurable;
 import Dnsmasq = require('../../Common/Native/dnsmasq');
-import uDhcpC = require('../../Common/Native/udhcpc');
+import _uDhcpC = require('../../Common/Native/udhcpc');
+import UDhcpC = _uDhcpC.UDhcpC;
 import AppConfig = require('../../APP/Resource/AppConfig');
 import P0F = require('../../Common/Native/p0f');
+import _PPPD = require('../../Common/Native/pppd');
+import PPPoEDaemon = _PPPD.PPPoEDaemon;
 import StatBiz = require('../../Common/Stat/StatBiz');
 
 var dnsmasq = new Dnsmasq.dnsmasq();
-var udhcpc = new uDhcpC.UDhcpC();
 
 var ssdpDirectories:ssdp.SimpleUPNPRecord[] = [{}];
 var ssdpServices = [];
@@ -174,13 +176,43 @@ var defaultConfig = {
             UpStreamDNS: "8.8.8.8" //UpStreamPort: string; //Domains?: string[];
         }
     ],
-    DHCPHosts: {}
+    DHCPHosts: {},
+    WAN: {
+        Scheme: WANScheme.UDHCPC,
+        PPPDOptions: { //supply for PPPD
+            PPPD_ACCOUNT: "",
+            PPPD_PASSWD: "",
+            PPPD_NUMBER: 0
+        }
+    }
 };
 
 export function Initialize(cb) {
     var confNetwork = new Configuration(SECTION.NETWORK, defaultConfig);
 
     async.series([
+        (cb)=> {
+            var conf = confNetwork.Get();
+            if (!conf.WAN) {
+                warn('Missing WAN Scheme configruation.', conf);
+            }
+            if (conf.WAN && conf.WAN.Scheme === WANScheme.PPPD && conf.WAN.PPPDOptions) {
+                var options = conf.WAN.PPPDOptions;
+                var pppd = new PPPoEDaemon(options.PPPD_ACCOUNT, options.PPPD_PASSWD, options.PPPD_NUMBER);
+                pppd.Start(true);
+                pppd.StabilityCheck((err)=> {
+                    if (err) error(err);
+                    cb();
+                });
+            } else if (conf.WAN.Scheme === WANScheme.UDHCPC) {
+                var udhcpc = new UDhcpC();
+                udhcpc.Start(true);
+                udhcpc.StabilityCheck((err)=> {
+                    if (err) error(err);
+                    cb();
+                });
+            }
+        },
         (cb)=> {
             iproute2.Initialize(()=> {
                 iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_NEW, (neighRecord:NeighRecord) => {
@@ -217,7 +249,7 @@ export function Initialize(cb) {
         pub.leases.Set(lease.Mac, lease);
         console.log('Dnsmasq Add Lease'['greenBG'].bold, lease);
         var mdnsStatus = StatBiz.GetMDNSByIP(lease.Address);
-        if(!mdnsStatus)
+        if (!mdnsStatus)
             pub.mdns.Set(lease.Address, {});
     });
 
@@ -225,7 +257,7 @@ export function Initialize(cb) {
         pub.leases.Set(lease.Mac, lease);
         console.log('Dnsmasq Add Change'['greenBG'].bold, lease);
         var mdnsStatus = StatBiz.GetMDNSByIP(lease.Address);
-        if(!mdnsStatus)
+        if (!mdnsStatus)
             pub.mdns.Set(lease.Address, {});
     });
 

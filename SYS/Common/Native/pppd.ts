@@ -17,9 +17,9 @@ export class PPPStatus {
  # command line:
  # pppd plugin /usr/lib/ppd/rp-pppoe.so eth0 usepeerdns nodefaultroute nodetach user <user> password <pwd> mtu 1492 mru 1492
  */
-class PPPoEDaemon extends Process {
+export class PPPoEDaemon extends Process {
     static PPPD_NAME = "pppd";
-    static RP_PPPOE_SO = "/usr/lib/pppd/rp-pppoe.so";
+    static RP_PPPOE_SO = "/usr/lib/pppd/2.4.7/rp-pppoe.so";
 
     public Options:IDic<string>
     public Account:string;
