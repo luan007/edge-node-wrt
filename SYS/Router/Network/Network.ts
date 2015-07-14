@@ -113,7 +113,7 @@ class Configuration extends Configurable {
             for (var appUid in delta.APP) {
                 var appConfig = delta.APP[appUid];
                 if (has(appConfig, 'Hosts')) {
-                    dnsmasq.Hosts[appUid] = appConfig.Hosts || [];
+                    dnsmasq.Hosts[1][appUid] = appConfig.Hosts || [];
 
                     dhcp_hotplug = true;
                 }
@@ -151,10 +151,11 @@ class Configuration extends Configurable {
     }
 
     _recycle = (appUid, cb) => {
-        if (dnsmasq.Hosts[appUid]) {
-            //console.log('^______________^ APP _revoke Shut', appUid);
-            dnsmasq.Hosts[appUid] = undefined;
-            delete dnsmasq.Hosts[appUid];
+        //console.log('-----------Network _recycle received.');
+        if (dnsmasq.Hosts[1][appUid]) {
+            console.log('^______________^ APP _revoke Shut', appUid, dnsmasq.Hosts);
+            dnsmasq.Hosts[1][appUid] = undefined;
+            delete dnsmasq.Hosts[1][appUid];
             var jobs = [];
             jobs.push(dnsmasq.ApplyChange);
             jobs.push(dnsmasq.StabilityCheck);

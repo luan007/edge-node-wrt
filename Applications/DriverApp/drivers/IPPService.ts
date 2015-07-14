@@ -227,7 +227,7 @@ class IPPService implements IInAppDriver {
         return cb(undefined, true);
     }
 
-    invoke(dev:IDevice, actionId, params, cb) {//TODO: actionId plus a queryJob mode
+    invoke(dev:IDevice, actionId, params, cb) {
 
         var runtimekey = 'App_' + global.runtime_id + ':IPP';
         var assumption = dev.assumptions[runtimekey];

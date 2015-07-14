@@ -59,13 +59,13 @@ if [ ! -e /ramdisk/pkg_tmp ]; then mkdir /ramdisk/pkg_tmp ; fi
 ####keys
 echo copying keys
 if [ ! -e /storage/Keys ]; then mkdir /storage/Keys ; fi
-cp -rf ./Common/Crypto/Keys/*.pb /storage/Keys
-cp -rf ./Common/Crypto/Keys/*.pr /storage/Keys
+cp -rf /ramdisk/SYS/Common/Crypto/Keys/*.pb /storage/Keys
+cp -rf /ramdisk/SYS/Common/Crypto/Keys/*.pr /storage/Keys
 
 ####passwords
 echo init passwords
 if [ ! -e /ramdisk/passwords ]; then mkdir /ramdisk/passwords ; fi
-cp -rf ./Common/Crypto/Keys/init_password /ramdisk/passwords/init_password
+cp -rf /ramdisk/SYS/Common/Crypto/Keys/init.password /ramdisk/passwords/init.password
 
 ####airplay
 rm -rf /tmp/AirService

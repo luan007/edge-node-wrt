@@ -95,6 +95,11 @@ fi
 ### main loop
 while true
 do
+    while killall node
+    do
+        echo killing node
+    done
+
     ### monitoring
     process=`ps aux | grep "node $system_dir/Init.js" | grep -v grep`
     if [ "$process" == "" ]; then

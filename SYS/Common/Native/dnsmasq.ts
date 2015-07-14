@@ -521,7 +521,7 @@ export class dnsmasq extends Process {
 
     public Config: ConfigInterface = new ConfigInterface();
 
-    public Hosts /* hosts[hostname] = IP_addr */ = [{}, {}];
+    public Hosts /* hosts[hostname] = IP_addr */ = [{}, []];
 
     //[Static, Dynamic]
     public DNSRules: ServerRule[][] = [[],[]];
@@ -532,7 +532,7 @@ export class dnsmasq extends Process {
      * Mac - Ip ( static ip )
      */
     //[Static, Dynamic]
-    public DHCP_Hosts = [{}, {}];
+    public DHCP_Hosts = [{}, []];
 
     public CheckNameAvailability = (name, cb, caseSensitive = false) => {
         name = (name + "").trim();

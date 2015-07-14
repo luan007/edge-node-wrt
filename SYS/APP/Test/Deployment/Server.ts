@@ -75,6 +75,7 @@ app.post('/', <any>[multer({
                 });
                 entry.on("end",() => {
                     try {
+                        json = json.replace(/\s/gmi, '');
                         info(JSON.parse(json));
                         target = JSON.parse(json);
                     } catch (e) {
@@ -89,7 +90,7 @@ app.post('/', <any>[multer({
                 var name = target.name;
                 info("Extracting..");
                 fs.createReadStream(file)
-                    .pipe(unzip.Extract({ path: '../Applications/' + name }))
+                    .pipe(unzip.Extract({ path: '/storage/Apps/' + name }))
                     .on("close",() => {
                     AppManager.InsertOrUpdate(name, target, "",(err) => {
                         if (err) error(err);
