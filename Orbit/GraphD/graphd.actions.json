@@ -22,6 +22,16 @@
        ]
     }
   },
+  "query": {
+    "tag": ["query"],
+    "desc": "query action",
+    "owner": "printer",
+    "arguments": {
+      "required": {
+        "job_uri": {}
+      }
+    }
+  },
   "play": {
     "tag": ["play"],
     "desc": "play action",

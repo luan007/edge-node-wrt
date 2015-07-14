@@ -11,8 +11,12 @@ function Type(obj) {
     return text.match(/function (.*)\(/)[1];
 }
 
+var NOTHING = Object.create({});
+
+//fixing multi-layer delta behavior..
+
 function deep_delta(o, delta, override = true, pretend = false) {
-    var change_level = {};
+    var change_level = Object.create({});
     for (var i in delta) {
         if (!has(delta, i)) continue;
         //if (delta[i] === global.UNCHANGED) continue;
@@ -44,7 +48,12 @@ function deep_delta(o, delta, override = true, pretend = false) {
             //same type, Object/Array type
             change_level[i] = deep_delta(o[i], delta[i], override);
         }
+        if(change_level[i] === NOTHING){
+            delete change_level[i];
+        }
     }
+    if(Object.keys(change_level).length === 0)
+        return NOTHING;
     return change_level;
 }
 
@@ -74,7 +83,9 @@ global.delta_add_return_changes = function (o, plus, override = true, pretend = 
     //}
     //return change;
 
-    return deep_delta(o, plus, override, pretend);
+    var change = deep_delta(o, plus, override, pretend);
+    if(change === NOTHING) return {};
+    return change;
 }
 
 global.delta_mod = function (o, mod) {

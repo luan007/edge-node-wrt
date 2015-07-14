@@ -99,7 +99,9 @@ class IPPService implements IInAppDriver {
                         for (var k in printerAttributesTag['operations-supported']) {
                             if (/Print-Job|Print-URI/gmi.test(printerAttributesTag['operations-supported'][k])) {
                                 actions['print'] = '';
-                                break;
+                            }
+                            if (/Get-Jobs|Get-Printer-Attributes/gmi.test(printerAttributesTag['operations-supported'][k])) {
+                                actions['query'] = '';
                             }
                         }
                     }
@@ -141,7 +143,7 @@ class IPPService implements IInAppDriver {
 
     private __ippGetJobs(ippUrl, whichJobs, cb) {
         var printer = ipp.Printer(ippUrl);
-        var msg = {"operation-attributes-tag": {"limit": 10, 'which-jobs':whichJobs}};
+        var msg = {"operation-attributes-tag": {"limit": 10, 'which-jobs': whichJobs}};
         printer.execute("Get-Jobs", msg, function (err, jobs) {
             //console.log('_____<< Get-Jobs', JSON.stringify(jobs));
             if (err) return cb(err);
@@ -151,7 +153,7 @@ class IPPService implements IInAppDriver {
 
     private __ippGetJobAttributes(ippUrl, jobUri, cb) {
         var printer = ipp.Printer(ippUrl);
-        var msg = {"operation-attributes-tag": {'job-uri': jobUri}};
+            var msg = {"operation-attributes-tag": {'job-uri': jobUri}};
         printer.execute("Get-Job-Attributes", msg, function (err, res) {
             //console.log('_____<< Get-Jobs-Attributes', jobUri, JSON.stringify(res));
             if (err) return cb(err);
@@ -168,49 +170,27 @@ class IPPService implements IInAppDriver {
                         var printer = __printers[_deviceId];
                         self.__ippGetJobs(printer.ippUrl, 'completed', (err, jobs) => {
                             if (jobs['job-attributes-tag']) {
-                                for (var i = 0, len = jobs['job-attributes-tag'].length; i < len; i++) {
-                                    var job = jobs['job-attributes-tag'][i];
-                                    var jobUri = job['job-uri'];
-                                    var jobId = job['job-id'];
-                                    ((_jobId, _jobUri)=> {
-                                        self.__ippGetJobAttributes(printer.ippUrl, _jobUri, (err, res)=> {
-                                            if (!err) {
-                                                __printers[_deviceId]['doneJobs'][_jobId] = res;
-                                                (<any>self).Change(_deviceId, { // EMIT !!
-                                                    attributes: {
-                                                        "printer.status.doneJobs": __printers[_deviceId]['doneJobs']
-                                                    }
-                                                });
-                                            }
-                                        });
-                                    })(jobId, jobUri);
-                                }
+                                __printers[_deviceId]['doneJobs'] = jobs['job-attributes-tag'];
+                                (<any>self).Change(_deviceId, { // EMIT !!
+                                    attributes: {
+                                        "printer.status.doneJobs": __printers[_deviceId]['doneJobs']
+                                    }
+                                });
                             }
                         });
                         self.__ippGetJobs(printer.ippUrl, 'not-completed', (err, jobs) => {
                             if (jobs['job-attributes-tag']) {
-                                for (var i = 0, len = jobs['job-attributes-tag'].length; i < len; i++) {
-                                    var job = jobs['job-attributes-tag'][i];
-                                    var jobUri = job['job-uri'];
-                                    var jobId = job['job-id'];
-                                    ((_jobId, _jobUri)=> {
-                                        self.__ippGetJobAttributes(printer.ippUrl, _jobUri, (err, res)=> {
-                                            if (!err) {
-                                                __printers[_deviceId]['queue'][_jobId] = res;
-                                                (<any>self).Change(_deviceId, { // EMIT !!
-                                                    attributes: {
-                                                        "printer.status.queue": __printers[_deviceId]['queue']
-                                                    }
-                                                });
-                                            }
-                                        });
-                                    })(jobId, jobUri);
-                                }
+                                __printers[_deviceId]['queue'] = jobs['job-attributes-tag'];
+                                (<any>self).Change(_deviceId, { // EMIT !!
+                                    attributes: {
+                                        "printer.status.queue": __printers[_deviceId]['queue']
+                                    }
+                                });
                             }
                         });
                     })(deviceId);
                 }
-            }, 5 * 1000);
+            }, 5 * 35000);
         })(this);
     }
 
@@ -247,7 +227,7 @@ class IPPService implements IInAppDriver {
         return cb(undefined, true);
     }
 
-    invoke(dev:IDevice, actionId, params, cb) {
+    invoke(dev:IDevice, actionId, params, cb) {//TODO: actionId plus a queryJob mode
 
         var runtimekey = 'App_' + global.runtime_id + ':IPP';
         var assumption = dev.assumptions[runtimekey];
@@ -257,96 +237,111 @@ class IPPService implements IInAppDriver {
         if (assumption['actions'] && assumption['actions'].hasOwnProperty(actionId)) {
             var printer = this.__ippPrinter(dev);
             if (printer) {
-
                 this.__printerJoin(dev, printer);
 
-                if (params.fd) {
-                    API.IO.ReadFD(params.fd, (err, fd)=> {
-                        console.log('ReadFD', err, fd);
-                        if (err) return cb(err);
-                        var bufs = [];
-                        var stream = fs.createReadStream('/Share/IO/' + fd);
-                        stream.on('data', (data)=> {
-                            console.log('___________>> read fd data', data.length);
-                            bufs.push(data);
-                        });
-                        stream.on('end', ()=> {
-                            console.log('ipp.invoke close');
-                            var data = Buffer.concat(bufs);
-
-                            this.__detectBufferMime(data, (err, mime)=> {
-                                if (err) {
-                                    console.log('ipp.invoke mime error', err);
-                                    return cb(err);
-                                }
-                                console.log('detected buffer mime', mime);
-                                var supported = assumption['attributes']['printer.document-format-supported'];
-                                if ((Array.isArray(supported) && supported.indexOf(mime) === -1)
-                                    || (typeof supported === 'string' && supported !== mime)) {
-                                    return console.log('unsupported mime type:', mime);
-                                }
-                                var msg = {
-                                    "operation-attributes-tag": {
-                                        "requesting-user-name": params.user.name,
-                                        "job-name": params.job_name,
-                                        "document-format": mime
-                                    }
-                                    , "job-attributes-tag": {
-                                        "copies": Number(params.copies),
-                                    }
-                                    , data: data
-                                };
-                                printer.execute("Print-Job", msg, this.__printJobThunk((err, res)=> {
-                                    console.log('Print-Job result', res);
-                                }));
+                if (actionId === 'print') {
+                    if (params.fd) {
+                        API.IO.ReadFD(params.fd, (err, fd)=> {
+                            console.log('ReadFD', err, fd);
+                            if (err) return cb(err);
+                            var bufs = [];
+                            var stream = fs.createReadStream('/Share/IO/' + fd);
+                            stream.on('data', (data)=> {
+                                console.log('___________>> read fd data', data.length);
+                                bufs.push(data);
                             });
-                        });
-                        stream.on('error', (err)=> {
-                            console.log('ipp.invoke error', err);
-                            return cb(err);
-                        });
-                        return cb();
-                    });
-                } else if (params.uri) {
-                    var msg = {
-                        "operation-attributes-tag": {
-                            "requesting-user-name": params.user.name,
-                            "job-name": params.job_name,
-                            "document-format": PDF_MIME
-                        }
-                        , "job-attributes-tag": {
-                            "copies": Number(params.copies),
-                        }
-                    };
-                    this.__detectUrlMime(params.uri, (err, mime)=> {
-                        if (err) return cb(err);
-                        if (mime !== PDF_MIME) {
-                            this.__uri2PDF(params.uri, (err, pdf)=> {
-                                console.log('PDF total pages ', pdf.numberOfPages);
-                                var bufs = [];
-                                var stream:any = pdf.stream;
-                                stream.on('data', (data)=> {
-                                    bufs.push(data);
-                                });
-                                stream.on('end', function () {
-                                    msg['data'] = Buffer.concat(bufs);
+                            stream.on('end', ()=> {
+                                console.log('ipp.invoke close');
+                                var data = Buffer.concat(bufs);
+
+                                this.__detectBufferMime(data, (err, mime)=> {
+                                    if (err) {
+                                        console.log('ipp.invoke mime error', err);
+                                        return cb(err);
+                                    }
+                                    console.log('detected buffer mime', mime);
+                                    var supported = assumption['attributes']['printer.document-format-supported'];
+                                    if ((Array.isArray(supported) && supported.indexOf(mime) === -1)
+                                        || (typeof supported === 'string' && supported !== mime)) {
+                                        return console.log('unsupported mime type:', mime);
+                                    }
+                                    var msg = {
+                                        "operation-attributes-tag": {
+                                            "requesting-user-name": params.user.name,
+                                            "job-name": params.job_name,
+                                            "document-format": mime
+                                        }
+                                        , "job-attributes-tag": {
+                                            "copies": Number(params.copies),
+                                        }
+                                        , data: data
+                                    };
                                     printer.execute("Print-Job", msg, this.__printJobThunk((err, res)=> {
                                         console.log('Print-Job result', res);
                                     }));
                                 });
-                                stream.on('error', function (err) {
-                                    console.log('received PDF error', err);
-                                });
                             });
-                        } else {
-                            msg['operation-attributes-tag']['document-uri'] = params.uri;
-                            printer.execute("Print-URI", msg, this.__printJobThunk((err, res)=> {
-                                console.log('Print-Job result', res);
-                            }));
-                        }
-                    });
-                    return cb();
+                            stream.on('error', (err)=> {
+                                console.log('ipp.invoke error', err);
+                                return cb(err);
+                            });
+                            return cb();
+                        });
+                    } else if (params.uri) {
+                        var msg = {
+                            "operation-attributes-tag": {
+                                "requesting-user-name": params.user.name,
+                                "job-name": params.job_name,
+                                "document-format": PDF_MIME
+                            }
+                            , "job-attributes-tag": {
+                                "copies": Number(params.copies),
+                            }
+                        };
+                        this.__detectUrlMime(params.uri, (err, mime)=> {
+                            if (err) return cb(err);
+                            if (mime !== PDF_MIME) {
+                                this.__uri2PDF(params.uri, (err, pdf)=> {
+                                    console.log('PDF total pages ', pdf.numberOfPages);
+                                    var bufs = [];
+                                    var stream:any = pdf.stream;
+                                    stream.on('data', (data)=> {
+                                        bufs.push(data);
+                                    });
+                                    stream.on('end', function () {
+                                        msg['data'] = Buffer.concat(bufs);
+                                        printer.execute("Print-Job", msg, this.__printJobThunk((err, res)=> {
+                                            console.log('Print-Job result', res);
+                                        }));
+                                    });
+                                    stream.on('error', function (err) {
+                                        console.log('received PDF error', err);
+                                    });
+                                });
+                            } else {
+                                msg['operation-attributes-tag']['document-uri'] = params.uri;
+                                printer.execute("Print-URI", msg, this.__printJobThunk((err, res)=> {
+                                    console.log('Print-Job result', res);
+                                }));
+                            }
+                        });
+                        return cb();
+                    }
+
+                } else if (actionId === 'query') {
+                    var ippUrl = printer.url.href;
+                    if(params.job_uri) {
+                        this.__ippGetJobAttributes(ippUrl, params.job_uri, (err, jobs)=>{
+                            if(err) return cb(err);
+                            var pure = jobs.map((job)=>{
+                                delete job.id;
+                                return job;
+                            });
+                            return cb(null, pure);
+                        });
+                    }
                 }
+
             } else { // should not happen :)
                 return cb(new Error('unknown device'));
             }

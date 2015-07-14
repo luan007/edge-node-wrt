@@ -40,7 +40,7 @@ class OUI_Identifier implements IInAppDriver {
     };
 
     detach = (dev:IDevice, delta, cb:PCallback<IDeviceAssumption>) => {
-        cb(undefined, {valid: false});
+        cb(undefined, {valid: true});
     };
 
     load = (cb:Callback) => {

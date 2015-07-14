@@ -52,12 +52,12 @@ export function LoadDriver(drv:IDriver, cb) {
             }
             var devs = DeviceManager.Devices();
             for (var q in devs) {
-                if (buses.indexOf(devs[q].bus.name) > -1) {
+                if (buses.indexOf(devs[q].bus.name) > -1 && devs[q].state > 0) {
                     _notify_driver(drv, devs[q], {
                         depth: 1,
                         root: drv.id(),
                         parent: undefined
-                    }, undefined, undefined, undefined, undefined);
+                    }, undefined, undefined, undefined, undefined, true); //fixing 'slow resp driver' prob
                 }
             }
             cb(err);
@@ -355,7 +355,6 @@ export function DeviceChange(dev:IDevice, tracker:_tracker, assump:IDeviceAssump
         ownership: ownership
     });
 
-
     var tracker = tracker ? tracker : <_tracker>{
         depth: 0
     };
@@ -407,12 +406,10 @@ export function DeviceDrop(dev:IDevice, busDelta?) {
                         config: undefined,
                         ownership: undefined
                     }, <any>once((err, fin_assumption) => {
-                        if (!_sanity_check(version, dev, drv, err) || !fin_assumption ||
-                            _.isEqual(prevAssump, fin_assumption)) return;
-                        fin_assumption.driverId = drv.id();
-                        var prevAssump = dev.assumptions[i];
-                        dev.assumptions[fin_assumption.driverId] = fin_assumption;
-                        Events.emit("change", dev, drv);
+                        if (!_sanity_check(version, dev, drv, err) || !fin_assumption) return;
+                        _update_driver_data(drv, dev, fin_assumption, {
+                            depth: 1, root: drv.id()
+                        });
                     }));
                 } catch (e) {
                     error(e);

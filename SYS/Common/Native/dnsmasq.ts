@@ -290,7 +290,7 @@ export class DHCPLeaseManager extends events.EventEmitter {
 
     _onrawdata = (buf, rinfo) => {
         var data: ILeaseEventPacket = JSON.parse(buf.toString());
-        //add old del
+        //add old del;
         var lease = data.Lease;
         lease.Mac = lease.Mac.toLowerCase();
         switch (data.Action) {

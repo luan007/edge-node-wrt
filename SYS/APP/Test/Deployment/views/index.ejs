@@ -40,5 +40,17 @@
             <% } %>
         </ul>
     </div>
+
+
+    <div style="margin-left:30px; margin-top:40px;">
+        <b>Devices</b>
+        <ul>
+            <% for(var i in Devices) { %>
+            <li>
+                <pre><%-JSON.stringify(Devices[i], undefined, 4)%></pre>
+            </li>
+            <% } %>
+        </ul>
+    </div>
 </body>
 </html>

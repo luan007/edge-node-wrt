@@ -44,6 +44,12 @@ module.exports = function (grunt) {
                         {src: ['Tests/**/*.*', '!Tests/**/*.ts'], dest: destination},
                     ],
                     verbose: true // Display log messages when copying files
+                },
+                sysonly: {
+                    files: [
+                        {src: ['SYS/**/*.*', '!SYS/**/*.ts'], dest: destination}
+                    ],
+                    verbose: true // Display log messages when copying files
                 }
             }
             , ts: {
@@ -135,6 +141,7 @@ module.exports = function (grunt) {
         grunt.task.run('debug');
     });
     grunt.registerTask("ftp", ['clean', 'copy', 'sync', 'ts', 'sftp:entire', 'sshexec', 'watch']);
+    grunt.registerTask("ftps", ['clean', 'copy', 'sync:sysonly', 'ts', 'sftp:partial', 'sshexec']);
     grunt.registerTask("t", ['sftp:partial', 'sftp:tests', 'sshexec']);
 
     //grunt.loadNpmTasks("grunt-ts");

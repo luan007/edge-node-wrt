@@ -189,7 +189,7 @@ function _OnDevice(bus:IBusData, state) {
             dev.bus.data = {}; //corrupt data :[!!!!
         }
         //bug fixed
-        //warn('bus data', bus.name, bus.data);
+        warn('bus data', bus.name, bus.data);
         var change = delta_add_return_changes(dev.bus.data, JSON.parse(JSON.stringify(bus.data)), true);
         if (dev.state == 1 && Object.keys(change).length == 0) {
             warn(dev.bus + " - " + dev.bus.hwaddr + " OnDevice found no change, Skipped");
@@ -231,6 +231,7 @@ function _OnDevice(bus:IBusData, state) {
     __EMIT("Device.up", dev.id, dev);
     Events.emit("up", dev.id, dev);
     device_updates[devId] = 1;
+    trace(busDelta);
     DriverManager.DeviceChange(dev, undefined, undefined, busDelta, undefined, undefined, stateChange);
     not_saved = true;
 }

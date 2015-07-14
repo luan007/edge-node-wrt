@@ -19,6 +19,10 @@ domain.run(function () {
         {path: './DB/Storage', name: 'Storage'}
         , {path: './DB/Registry', name: 'Registry'}
         , {path: './Device/Graphd/DB', name: 'Graphd'}
+        , {path: './Device/Bus/WifiBus', name: 'WifiBus'}
+        , {path: './Device/Bus/BluetoothBus', name: 'BluetoothBus'}
+        , {path: './Device/DeviceManager', name: 'DeviceManager'}
+        , {path: './Device/DriverManager', name: 'DriverManager'}
         , {path: './Router/Storage/Samba', name: 'Samba'}
         //, {path: './Router/Storage/Obex', name: 'Obex'}
         , {path: './Router/Network/Network', name: 'Dnsmasq'}
@@ -26,10 +30,6 @@ domain.run(function () {
         , {path: './Router/Network/Firewall/TrafficAccountant', name: 'TrafficAccountant'}
         , {path: './Router/Network/Wireless/Wifi', name: 'Hostapd'}
         , {path: './Router/Network/Wireless/Bluetooth', name: 'Bluetooth'}
-        , {path: './Device/Bus/WifiBus', name: 'WifiBus'}
-        , {path: './Device/Bus/BluetoothBus', name: 'BluetoothBus'}
-        , {path: './Device/DeviceManager', name: 'DeviceManager'}
-        , {path: './Device/DriverManager', name: 'DriverManager'}
         , {path: './API/Server', name: 'APIServer'}
         , {path: './API/TokenManager'}
         , {path: './Frontends/MainUI', name: 'MainUI'}

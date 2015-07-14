@@ -332,7 +332,7 @@ export class CtrlInterface extends events.EventEmitter {
             if (this._prevevent !== data) {
                 //EVENT
                 var d = data.substr(3).split(' ');
-                if(d.length > 2){
+                if(d.length > 1){
                     this._prevevent = data;
                     console.log('_________________ hostapd data', data);
                     this.emit(CtrlInterface.EVENT, d[0], d[1].toLowerCase());

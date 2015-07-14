@@ -13,7 +13,8 @@ quotaoff -a
 #chmod 005 /bin
 #chmod 005 /usr
 chown root -R /SagittariusA/Data/
-chmod 711 -R /SagittariusA/Data/
+#TODO:WARNING UNSECURE
+chmod 755 -R /SagittariusA/Data/
 echo chmod 500 -R ${PWD%/*}
 #chmod 500 -R ${PWD%/*}
 umount -l -f /SagittariusA/

@@ -273,12 +273,23 @@ function CheckGraphdUpdate() {
                         needDownload = true;
                     }
 
+                    var jobs = [];
                     if (needDownload) {
-                        return DownloadGraphd((err)=> {
-                            if (err) return error(err);
-                            else return console.log('upgrade graphd successfully.'['greenBG'].bold);
+                        jobs.push((jobCB)=>{
+                            DownloadGraphd((err)=> {
+                                if (err)
+                                    error(err);
+                                else
+                                    console.log('upgrade graphd successfully.'['greenBG'].bold);
+                                jobCB();
+                            });
                         });
                     }
+                    jobs.push((jobCB)=>{
+                        setTask('GraphdChecking', CheckGraphdUpdate, CONF.GRAPHD_CHECK_INTERVAL);
+                        jobCB();
+                    })
+                    async.series(jobs, ()=>{});
                 });
             });
         }
@@ -286,36 +297,46 @@ function CheckGraphdUpdate() {
 }
 
 export function Initialize(cb) {
-    setJob('GraphdChecking', CheckGraphdUpdate, CONF.GRAPHD_CHECK_INTERVAL);
-
+    var jobs = [];
     if (fs.existsSync(CONF.GRAPHD_LOCATION) && fs.readdirSync(CONF.GRAPHD_LOCATION).length > 0) {
-        console.log("Initializing DeltaV"['greenBG'].bold);
-        init((err, result) => {
-            lastError = err;
-            if (!err) {
-                DB = result;
-            }
-            pub.Set('graphd', {
-                State: 'running'
-            });
-            cb(err, result);
-        });
-    } else {
-        console.log("Graphd folder is empty, then wait for downloading."['greenBG'].bold);
-        UntilPingSuccess((err, res) => {
-            console.log('ping Orbit success: ', res);
-            DownloadGraphd((err2)=> {
-                if (err2) {
-                    return CheckGraphdUpdate();
+        jobs.push((jobCB)=>{
+            console.log("Initializing DeltaV"['greenBG'].bold);
+            init((err, result) => {
+                lastError = err;
+                if (!err) {
+                    DB = result;
                 }
-
                 pub.Set('graphd', {
                     State: 'running'
                 });
+
+                jobCB(err, result);
             });
         });
-        cb();
+    } else {
+        jobs.push((jobCB)=>{
+            console.log("Graphd folder is empty, then wait for downloading."['greenBG'].bold);
+            UntilPingSuccess((err, res) => {
+                console.log('ping Orbit success: ', res);
+                DownloadGraphd((err2)=> {
+                    if (err2) {
+                        return CheckGraphdUpdate();
+                    }
+
+                    pub.Set('graphd', {
+                        State: 'running'
+                    });
+
+                    jobCB();
+                });
+            });
+        });
     }
+    jobs.push((jobCB)=>{
+        setTask('GraphdChecking', CheckGraphdUpdate, CONF.GRAPHD_CHECK_INTERVAL);
+        jobCB();
+    });
+    async.series(jobs, cb);
 }
 
 export function Diagnose(callback:Callback) {

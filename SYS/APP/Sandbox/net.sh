@@ -1,10 +1,11 @@
-#!/bin/bash
+#!/bin/ash
 #PARAM 2: ip
 
 rm -rf /var/run/netns/$1
 ln -s /proc/$1/ns/net /var/run/netns/$1
-ip netns exec root ip link add host_$1 type veth peer name app_$1
-ip netns exec root ip link set app_$1 netns $1
+ip netns exec root /sbin/ip link add host_$1 type veth peer name app_$1
+ip netns exec root /sbin/ip link set app_$1 netns $1
+ip netns exec root /sbin/ip link set host_$1 up
 
 
 ###low priviledge

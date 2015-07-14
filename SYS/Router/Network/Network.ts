@@ -2,6 +2,7 @@ import iproute2 = require('../../Common/Native/iproute2');
 import ssdp = require('../../Common/Native/ssdp');
 import mdns = require('../../Common/Native/mdns_');
 import NeighRecord = iproute2.NeighRecord;
+import LinkInterface = iproute2.LinkInterface;
 import ConfMgr = require('../../Common/Conf/ConfMgr');
 import _Config = require('../../Common/Conf/Config');
 import Config = _Config.Config;
@@ -27,7 +28,8 @@ var pub = StatMgr.Pub(SECTION.NETWORK, {
     network: {},
     mdns: {},
     ssdp: {},
-    p0f: {}
+    p0f: {},
+    link: {}
 });
 
 class Configuration extends Configurable {
@@ -164,7 +166,7 @@ class Configuration extends Configurable {
 }
 
 var defaultConfig = {
-    NetworkName: "edge-dev",
+    NetworkName: "edge-1",
     RouterIP: "192.168.66.1",
     LocalNetmask: 24,
     Uplink: CONF.DEV.ETH.DEV_WAN, //ethernet
@@ -223,6 +225,19 @@ export function Initialize(cb) {
                 iproute2.Neigh.on(iproute2.Neigh.EVENT_RECORD_DEL, (neighRecord:NeighRecord) => {
                     pub.arp.Del(neighRecord.Mac);
                 });
+
+                iproute2.Link.on(iproute2.Link.EVENT_RECORD_NEW, (link:LinkInterface)=>{
+                    pub.link.Set(link.Dev, link);
+                });
+
+                iproute2.Link.on(iproute2.Link.EVENT_RECORD_CHANGE, (link:LinkInterface)=>{
+                    pub.link.Set(link.Dev, link);
+                });
+
+                iproute2.Link.on(iproute2.Link.EVENT_RECORD_DEL, (link:LinkInterface)=>{
+                    pub.link.Del(link.Dev);
+                });
+
                 cb();
             });
         },
