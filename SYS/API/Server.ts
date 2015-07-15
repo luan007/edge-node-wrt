@@ -16,13 +16,13 @@ export interface TypedRPCEndpoint extends rpc.RPCEndpoint {
 }
 
 var _port;
-var _proc:API_Socket_Processor[] = [];
+var _proc: API_Socket_Processor[] = [];
 
-var _api_server:net.Server = net.createServer({allowHalfOpen: true}, (sock) => {
+var _api_server: net.Server = net.createServer({ allowHalfOpen: true }, (sock) => {
     _api_server_on_new_socket(sock);
 });
 
-function _api_server_on_new_socket(socket:net.Socket) {
+function _api_server_on_new_socket(socket: net.Socket) {
     //Get Unix Socket UID/PID
 
     socket.pause();
@@ -35,7 +35,7 @@ function _api_server_on_new_socket(socket:net.Socket) {
         fatal("New Socket Inbound, Entering loop - PID " + (res.pid + "").bold);
         if (err) {
             //error(err); //FAILED
-             return socket.destroy();
+            return socket.destroy();
         }
         var temp_closure = [];
         for (var i = 0; i < _proc.length; i++) {
@@ -45,7 +45,7 @@ function _api_server_on_new_socket(socket:net.Socket) {
                 });
             })(socket, res, i);
         }
-        async.series(temp_closure, (err_or_quit:any, result) => {
+        async.series(temp_closure, (err_or_quit: any, result) => {
             if (err_or_quit !== true) {
                 //KILL THIS SOCKET
                 warn("Socket is not Handled, Destroy - Sock_PID = " + (res.pid + "").bold);
@@ -57,12 +57,12 @@ function _api_server_on_new_socket(socket:net.Socket) {
     });
 }
 
-export function AddHandler(connection_Processor:API_Socket_Processor) {
+export function AddHandler(connection_Processor: API_Socket_Processor) {
     trace(("#" + _proc.length).bold + " Pushing Handler into API Server Stack");
     _proc.push(connection_Processor);
 }
 
-export function Serve(socket:net.Socket, remoteType, remoteId, clientId_for_event, cb?:PCallback<TypedRPCEndpoint>) {
+export function Serve(socket: net.Socket, remoteType, remoteId, clientId_for_event, cb?: PCallback<TypedRPCEndpoint>) {
     socket.removeAllListeners("error");
     var r = <TypedRPCEndpoint> new rpc.RPCEndpoint(socket);
 
@@ -105,11 +105,11 @@ export function GetAPIJSON() {
     return rpc.APIManager.ToJSON();
 }
 
-function SenderType(context):string {
+function SenderType(context): string {
     return context.rpc.type;
 }
 
-function SenderId(context):string {
+function SenderId(context): string {
     return context.rpc.remote;
 }
 
@@ -132,7 +132,7 @@ function GenerateStartupScript(port) {
     //    'API["Proxy.GetTarget"]=23\n' +
     //    'API["Proxy.AuthUser"]=25\n' +
     //    'require("Init")\n';
-    return fs.writeFileSync(CONF.LUA_NGINX_SOCKET, _script, {flag: 'w'});
+    return fs.writeFileSync(CONF.LUA_NGINX_SOCKET, _script, { flag: 'w' });
 };
 
 trace("Setting up TypedRPCEndpoint Functions");
@@ -163,7 +163,7 @@ export function Initialize(cb) {
 
 }
 
-export function Diagnose(callback:Callback) {
+export function Diagnose(callback: Callback) {
     var exist = fs.existsSync(CONF.LUA_NGINX_SOCKET) && fs.existsSync(_port);
     if (!exist) return callback(new Error('Server listening failed.'));
     return callback(null, true);
