@@ -55,6 +55,8 @@ class StatNode extends events.EventEmitter {
         this.__value[key] = val;
         this._wrap(this, key);
 
+        //__EMIT("Stat.set", key, oldValue, newValue);
+
         if(this.__value[key] && this.__value[key].emit) //emit if child is a emitter
             this.__value[key].emit('set', key, oldValue, newValue);
     }
@@ -62,6 +64,9 @@ class StatNode extends events.EventEmitter {
     Del = (key:string) => {
         if (this.__value.hasOwnProperty(key)) {
             var oldValue = this.__value[key].ValueOf ? this.__value[key].ValueOf() : this.__value[key];
+
+            //__EMIT("Stat.del", key, oldValue);
+
             this._notifyParent(this, 'del', key, oldValue, undefined);
             this.emit(key, oldValue, undefined);
             this.emit('del', key, oldValue, undefined);
@@ -123,3 +128,7 @@ var statMgr = new StatMgr();
 export = statMgr;
 
 global.StatMgr = statMgr;
+
+
+//__EVENT("Stat.set", [Permission.AnyApp]);
+//__EVENT("Stat.del", [Permission.AnyApp]);

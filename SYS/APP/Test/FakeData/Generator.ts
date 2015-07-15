@@ -33,12 +33,12 @@ SYS_ON(SYS_EVENT_TYPE.LOADED, () => {
             (cb)=> {
                 GenerateAppRecord('Launcher', cb);
             },
-            (cb)=> {
-                GenerateAppRecord('TestApp', cb);
-            },
-            (cb) => {
-                GenerateAppRecord('DriverApp', cb);
-            },
+            //(cb)=> {
+            //    GenerateAppRecord('TestApp', cb);
+            //},
+            //(cb) => {
+            //    GenerateAppRecord('DriverApp', cb);
+            //},
             (cb) => {
                 Orbit.Post("User", {name: "mikeluan", email: "1@emerge.cc", password: "1234567890"}, (err, result) => {
                     cb();

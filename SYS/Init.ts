@@ -34,6 +34,7 @@ domain.run(function () {
         , {path: './API/TokenManager'}
         , {path: './Frontends/MainUI', name: 'MainUI'}
         , {path: './Frontends/HttpProxy', name: 'HttpProxy'}
+        //, {path: './Frontends/HttpProxy', name: 'HttpProxy'}
         , {path: './APP/Test/FakeData/Generator'}
         , {path: './APP/Test/Deployment/Server'}
         , {path: './APP/RuntimePool', name: 'RuntimePool'}

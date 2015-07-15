@@ -32,6 +32,8 @@ if [ -e /SagittariusA/aquota.group ]; then echo Quota Generated! ; fi
 
 ####nginx
 echo nginx operation
+mkdir -p /var/tmp/nginx
+chmod 755 /var/tmp/nginx
 killall nginx
 cp -rf Scripts/frontends/nginx.conf /etc/nginx/nginx.conf
 if [ ! -e /var/log/nginx ]; then mkdir -p /var/log/nginx ; fi

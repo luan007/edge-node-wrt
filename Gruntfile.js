@@ -7,7 +7,7 @@ module.exports = function (grunt) {
     // for grunt-ssh
     var sftpDest = '/ramdisk/';
     //ftp server
-    var remoteServer = "http://192.168.99.149:10086/"
+    var remoteServer = "http://192.168.99.249:10086/"
 
     function initGrunt(destination) {
         grunt.initConfig({
