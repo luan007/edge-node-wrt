@@ -1,9 +1,9 @@
 module.exports = function (grunt) {
 
     //target folder
-    var destination = '/ramdisk/';
+    var destination = './_Releases/';
     //var sambaFolder = '//192.168.99.154/Release'; //smb://serbver/folder/
-    var sambaFolder = '/Volumes/ROOT/ramdisk/'; //smb://serbver/folder/
+    var sambaFolder = '/Users/emerge/projects/webstormProjects/Board/ramdisk/'; //smb://serbver/folder/
     // for grunt-ssh
     var sftpDest = '/ramdisk/';
     //ftp server
@@ -20,7 +20,7 @@ module.exports = function (grunt) {
                     }
                 }
                 , staticFiles: {
-                    files: ['**/*.ejs', '**/*.lua', '**/*.css', '**/*.less', '**/*.sh', 'Applications/**/*.*', '!Applications/**/*.ts'],
+                    files: ['**/*.ejs', '**/*.lua', '**/*.css', '**/*.less', '**/*.sh'],
                     tasks: ['copy', 'sync'],
                     options: {
                         spawn: false
@@ -28,20 +28,10 @@ module.exports = function (grunt) {
                 }
             }
             , clean: [destination]
-            , copy: {
-                main: {
-                    files: [
-                        {expand: true, src: ['Misc/rootDir/*.*'], flatten: true, dest: destination, filter: 'isFile'}
-                    ]
-                }
-            }
             , sync: {
                 main: {
                     files: [
-                        {src: ['Applications/**/*.*', '!Applications/**/*.ts'], dest: destination},
                         {src: ['Modules/**/*.*', '!Modules/**/*.ts'], dest: destination},
-                        {src: ['Orbit/**/*.*', '!Orbit/**/*.ts'], dest: destination},
-                        {src: ['System/**/*.*', '!System/**/*.ts'], dest: destination},
                         {src: ['SYS/**/*.*', '!SYS/**/*.ts'], dest: destination},
                         {src: ['Tests/**/*.*', '!Tests/**/*.ts'], dest: destination},
                     ],
