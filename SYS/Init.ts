@@ -24,13 +24,14 @@ domain.run(function () {
         , {path: './Device/Bus/BluetoothBus', name: 'BluetoothBus'}
         , {path: './Device/DeviceManager', name: 'DeviceManager'}
         , {path: './Device/DriverManager', name: 'DriverManager'}
-        , {path: './Router/Storage/Samba', name: 'Samba'}
-        //, {path: './Router/Storage/Obex', name: 'Obex'}
-        , {path: './Router/Network/Network', name: 'Dnsmasq'}
+        , {path: './Router/Network/Network', name: 'Network'}
         , {path: './Router/Network/Firewall/Firewall', name: 'IPtables'}
         , {path: './Router/Network/Firewall/TrafficAccountant', name: 'TrafficAccountant'}
         , {path: './Router/Network/Wireless/Wifi', name: 'Hostapd'}
         , {path: './Router/Network/Wireless/Bluetooth', name: 'Bluetooth'}
+        , {path: './Router/Storage/Samba', name: 'Samba'}
+        //, {path: './Router/Storage/Obex', name: 'Obex'}
+        , {path: './Router/Presentation/Streaming', name: 'Streaming'}
         , {path: './API/Server', name: 'APIServer'}
         , {path: './API/TokenManager'}
         , {path: './Frontends/MainUI', name: 'MainUI'}
