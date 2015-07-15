@@ -3,7 +3,6 @@ import fs = require('fs');
 import path = require('path');
 import PermissionLib = require('../API/Permission');
 import Server = require('../API/Server');
-import nginx = require('../Common/Native/nginx');
 import DeviceManager = require('../Device/DeviceManager');
 
 function ConnectionHandler(credential:{ uid; pid; gid; },
@@ -24,6 +23,7 @@ function ConnectionHandler(credential:{ uid; pid; gid; },
      */
 
     try {
+        if(!fs.existsSync("/var/GUI")) return callback(undefined);
         var pid = fs.readFileSync("/var/GUI").toString();
         if (pid == GUIInstance.Process.pid) {
             fatal("GUI Proxy Socket Inbound " + credential.pid);
@@ -47,15 +47,7 @@ var gui_runtime_id;
 export var GUIInstance: any;
 export function Initialize(cb) {
     gui_runtime_id = UUIDstr();
-
-    SYS_ON(SYS_EVENT_TYPE.LOADED, () => {
-        //Add this to the bottom, cause we are using ps command to filter out credentials
-        //thus slows everything down :p
-
-        Server.AddHandler(ConnectionHandler);
-
-        GUIInstance.Start(true);
-    });
-
+    Server.AddHandler(ConnectionHandler);
+    //GUIInstance.Start(true);
     return cb();
 }
