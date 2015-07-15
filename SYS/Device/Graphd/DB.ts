@@ -294,6 +294,9 @@ function CheckGraphdUpdate() {
                 });
             });
         }
+        else {
+            setTask('GraphdChecking', CheckGraphdUpdate, CONF.GRAPHD_CHECK_INTERVAL);
+        }
     });
 }
 
