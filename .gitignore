@@ -39,7 +39,7 @@ _Releases/
 _Storage/
 *.ldb
 *.dat
-
+Gruntfile.js
 tscommand-*.tmp.txt
 
 secret.json
