@@ -1,7 +1,7 @@
 module.exports = function (grunt) {
 
     //target folder
-    var destination = './_Releases/';
+    var destination = '/ramdisk/';
     //var sambaFolder = '//192.168.99.154/Release'; //smb://serbver/folder/
     var sambaFolder = '/Volumes/ROOT/ramdisk/'; //smb://serbver/folder/
     // for grunt-ssh
