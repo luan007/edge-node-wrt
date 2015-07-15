@@ -21,7 +21,7 @@ module.exports = function (grunt) {
                 }
                 , staticFiles: {
                     files: ['**/*.ejs', '**/*.lua', '**/*.css', '**/*.less', '**/*.sh'],
-                    tasks: ['copy', 'sync'],
+                    tasks: ['sync'],
                     options: {
                         spawn: false
                     }
@@ -136,7 +136,7 @@ module.exports = function (grunt) {
         initGrunt(sambaFolder);
         grunt.task.run('debug');
     });
-    grunt.registerTask("ftp", ['clean', 'copy', 'sync', 'ts', 'sftp:entire', 'sshexec:chown', 'watch']);
-    grunt.registerTask("ftps", ['clean', 'copy', 'sync:sysonly', 'ts', 'sftp:partial', 'sshexec:chown']);
+    grunt.registerTask("ftp", ['clean', 'sync', 'ts', 'sftp:entire', 'sshexec:chown', 'watch']);
+    grunt.registerTask("ftps", ['clean', 'sync:sysonly', 'ts', 'sftp:partial', 'sshexec:chown']);
     grunt.registerTask("t", ['sftp:partial', 'sftp:tests', 'sshexec:chown']);
 };
