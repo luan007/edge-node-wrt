@@ -4,9 +4,10 @@
 
 
 
-
 /** Airplay with Image / Video Support **/
 //RANDOM CRAP, need test
+
+//TODO: Refactor Airbase Servers!
 
 import events = require("events");
 import express = require("express");
@@ -21,12 +22,12 @@ var allocatedmacs = {};
 //internal method
 function allocatePort(mac) {
     var maxCount = CONF.PORTS.AIRPLAY_RANGE_MAX - CONF.PORTS.AIRPLAY_RANGE_MIN;
-    if(Object.keys(allocatedports).length >= maxCount){
+    if (Object.keys(allocatedports).length >= maxCount) {
         return -1;
     } else {
         var randomPort = CONF.PORTS.AIRPLAY_RANGE_MIN +
             Math.floor(Math.random() * maxCount);
-        if(allocatedports[randomPort]){
+        if (allocatedports[randomPort]) {
             return allocatePort(mac);
         } else {
             allocatedports[randomPort] = mac;
@@ -38,12 +39,11 @@ function allocatePort(mac) {
 //returns -1 if failed
 function allocate() {
     var mac = random_mac();
-    if(allocatedmacs[mac]){
+    if (allocatedmacs[mac]) {
         return allocate();
     } else {
         allocatedmacs[mac] = allocatePort(mac);
-        if(allocatedmacs[mac] === -1)
-        {
+        if (allocatedmacs[mac] === -1) {
             release(mac);
             return -1;
         }
@@ -51,7 +51,7 @@ function allocate() {
     }
 }
 
-function release(mac){
+function release(mac) {
     delete allocatedports[allocatedmacs[mac]];
     delete allocatedmacs[mac];
 }
@@ -67,7 +67,8 @@ var STATE_IMG = 1;
 var STATE_VID_LOAD = 2;
 var STATE_STOPPED = 0;
 var STATE_CLIENT = 3;
-var STATE_SONG = 4;
+var STATE_CLIENT_UPDATE = 4;
+var STATE_UPDATE = 5;
 
 export class AirPlay_BaseServer extends events.EventEmitter {
 
@@ -80,11 +81,11 @@ export class AirPlay_BaseServer extends events.EventEmitter {
 
     private running = false;
 
-    public GetMAC(){
+    public GetMAC() {
         return this._mac;
     }
 
-    public GetPort(){
+    public GetPort() {
         return this._port;
     }
 
@@ -96,14 +97,12 @@ export class AirPlay_BaseServer extends events.EventEmitter {
         return this.Queue[0] ? this.Queue[0].Session : STATE_STOPPED;
     }
 
-    constructor(private _mac, private _port, name?){
+    constructor(private _mac, private _port, public _ip, name?) {
         super();
-        if(name) this._name = name;
-        this._app = express();
-        this.reghooks();
+        if (name) this._name = name;
     }
 
-    private stateMachine(kind, path, sessionkey, ip){
+    private stateMachine(kind, path, sessionkey, ip) {
         this.Queue.unshift({
             State: kind,
             Path: path,
@@ -111,16 +110,16 @@ export class AirPlay_BaseServer extends events.EventEmitter {
             Session: sessionkey,
             Time: Date.now()
         });
-        if(this.Queue.length > this._history_len) {
+        if (this.Queue.length > this._history_len) {
             this.Queue.pop();
         }
         this.emit("state", this.Queue[0]);
     }
 
-    private reghooks(){
+    private reghooks() {
         var self = this;
 
-        this._app.get('/server-info', (req, res)=>{
+        this._app.get('/server-info', (req, res) => {
             res.contentType("text/x-apple-plist+xml");
             res.send(200, SERVERINFO_PART1 + this._mac + SERVERINFO_PART2);
         });
@@ -131,14 +130,14 @@ export class AirPlay_BaseServer extends events.EventEmitter {
             var key = req.header('X-Apple-AssetKey');
             var session = req.header('X-Apple-Session-ID');
             var ip = req.connection.remoteAddress;
-            if(action === 'displayCached'){
+            if (action === 'displayCached') {
                 self.stateMachine(STATE_IMG, key, session, ip);
             } else {
                 var stream = fs.createWriteStream(path.join(CONF.AIRSERVICES_DIR, key + ".jpg"));
                 req.pipe(stream);
             }
-            req.on('end', function(){
-                if(action === 'cacheOnly'){
+            req.on('end', function() {
+                if (action === 'cacheOnly') {
                     return;
                 } else {
                     self.stateMachine(STATE_IMG, key, session, ip);
@@ -147,23 +146,23 @@ export class AirPlay_BaseServer extends events.EventEmitter {
             res.send(200);
         });
 
-        this._app.post('/stop', (req, res)=>{
+        this._app.post('/stop', (req, res) => {
             var addr = req.connection.remoteAddress;
             var session = req.header('X-Apple-Session-ID');
             self.stateMachine(STATE_STOPPED, undefined, session, addr);
             res.send(200);
         });
 
-        this._app.post('/play', (req, res)=>{
+        this._app.post('/play', (req, res) => {
             var addr = req.connection.remoteAddress;
             var session = req.header('X-Apple-Session-ID');
             var contentlocation = req.header('Content-Location');
-            if(!contentlocation){
+            if (!contentlocation) {
                 //emm you are not iTunes but iPhone :p
                 var dt = "";
-                req.on('data', function(d){
+                req.on('data', function(d) {
                     dt += d.toString();
-                }).on('end', function(){
+                }).on('end', function() {
                     //todo: fix f@cked up binary plist parser
                     //todo: [npm install bplist] please
                     var i = dt.indexOf("http");
@@ -179,10 +178,10 @@ export class AirPlay_BaseServer extends events.EventEmitter {
 
     }
 
-    public SetName(name?){
+    public SetName(name?) {
 
-        if(!name) name = this._name;
-        while(this._mdns.length){
+        if (!name) name = this._name;
+        while (this._mdns.length) {
             var old = this._mdns.pop();
             old.stop();
         }
@@ -221,26 +220,28 @@ export class AirPlay_BaseServer extends events.EventEmitter {
                 txtRecord: txtRecord
             }));
 
-        for(var i = 0; i < this._mdns.length; i++){
+        for (var i = 0; i < this._mdns.length; i++) {
             this._mdns[i].start();
         }
     }
 
-    public GetName(){
+    public GetName() {
         return this._name;
     }
 
     public start(name?) {
-        if(this.running) return;
+        if (this.running) return;
         this.running = true;
+        this._app = express();
+        this.reghooks();
         this.SetName(name);
         this._app.listen(this._port);
         this.stateMachine(STATE_STOPPED, undefined, undefined, undefined);
     }
 
-    public stop(){
-        if(this.running) return;
-        while(this._mdns.length){
+    public stop() {
+        if (this.running) return;
+        while (this._mdns.length) {
             var old = this._mdns.pop();
             old.stop();
         }
@@ -251,26 +252,31 @@ export class AirPlay_BaseServer extends events.EventEmitter {
 
 }
 //name:server
-var airservers : IDic<AirPlay_BaseServer> = {};
+var airservers = {};
 
 export var Events = new events.EventEmitter();
 
 // 0  name error
 //-1  mac error
-export function Add(name, type) : number | AirPlay_BaseServer {
-    if(airservers[name]) {
+export function Add(name, ip, type) {
+    if (airservers[name]) {
         Events.emit("err_name", name);
         return 0;
     }
     var mac = allocate();
-    if(mac === -1){
+    if (mac === -1) {
         Events.emit("err_resource", name);
         return -1;
     }
-    var server = new AirPlay_BaseServer(mac, allocatedmacs[mac], name);
-    airservers[name] = server;
-
-    server.on("state", (state)=>{
+    var server;
+    if(type === 'IMG'){
+        server = new AirPlay_BaseServer(mac, allocatedmacs[mac], ip, name);
+        airservers[name] = server;
+    } else if (type === 'AUD'){
+        server = new AirPlay_AudioServer(mac, allocatedmacs[mac], ip, name);
+        airservers[name] = server;
+    }
+    server.on("state", (state) => {
         Events.emit("state", name, state);
     });
 
@@ -281,7 +287,7 @@ export function Add(name, type) : number | AirPlay_BaseServer {
 
 export function Remove(name) {
     //you sure?
-    if(airservers[name]){
+    if (airservers[name]) {
         Stop(name);
         release(airservers[name].GetMAC());
         airservers[name].removeAllListeners();
@@ -290,28 +296,35 @@ export function Remove(name) {
     }
 }
 
-export function Start(name){
-    if(airservers[name]){
+export function Start(name) {
+    if (airservers[name]) {
         airservers[name].start();
         Events.emit("start", name);
     }
 }
 
-export function Stop(name){
-    if(airservers[name]){
+export function Stop(name) {
+    if (airservers[name]) {
         airservers[name].stop();
         Events.emit("stop", name);
     }
 }
 
-export function List() : IDic<AirPlay_BaseServer> {
+export function List() {
     return airservers;
 }
 
-export function Get(name): AirPlay_BaseServer{
+export function Get(name) {
     return airservers[name];
 }
 
+export function SetIP(newip){
+    for(var i in airservers){
+        airservers[i]._ip = newip;
+        airservers[i].stop();
+        airservers[i].start();
+    }
+}
 
 
 var airtunes = require('nodetunes'); //please, make sure you use https://github.com/Emerge/nodetunes.git
@@ -326,17 +339,24 @@ export class AirPlay_AudioServer extends events.EventEmitter {
 
     private _server;
     private _clientip;
+    private _stream;
+
+    private _meta;
+    private _volume;
+    private _progress;
+    private _artwork;
+    private _clientName;
     private _name = "Edge";
 
     public CurrentSong;
 
     private running = false;
 
-    public GetMAC(){
+    public GetMAC() {
         return this._mac;
     }
 
-    public GetPort(){
+    public GetPort() {
         return this._port;
     }
 
@@ -344,48 +364,94 @@ export class AirPlay_AudioServer extends events.EventEmitter {
         return this.Queue[0] ? this.Queue[0].State : STATE_STOPPED;
     }
 
-    constructor(private _mac, private _port, private _ip, name?){
+    constructor(private _mac, private _port, public _ip, name?) {
         super();
-        if(name) this._name = name;
+        if (name) this._name = name;
     }
 
-    private stateMachine(kind, path?){
+    private stateMachine(kind) {
         this.Queue.unshift({
             State: kind,
-            Path: path,
             Ip: this._clientip,
+            ClientName: this._clientName,
+            MetaData: this._meta,
+            Volume: this._volume,
+            Progress: this._progress,
+            Artwork: this._artwork,
             Time: Date.now()
         });
-        if(this.Queue.length > this._history_len) {
+        if (this.Queue.length > this._history_len) {
             this.Queue.pop();
         }
         this.emit("state", this.Queue[0]);
     }
 
-    public GetName(){
+    public GetName() {
         return this._name;
     }
 
     public start(name?) {
-        if(this.running) return;
+        if (this.running) return;
         this.running = true;
         this._server = new airtunes({
             serverName: name ? name : this._name,
             macAddress: this._mac,
             ipAddress: this._ip,
             port: this._port,
-
+        });
+        this._server.on('clientSocket', (ip) => {
+            this._clientip = ip;
+            this.stateMachine(STATE_CLIENT);
+        });
+        this._server.on('clientConnected', (stream) => {
+            this._stream = stream;
+            this.stateMachine(STATE_CLIENT_UPDATE);
+        });
+        this._server.on('clientNameChange', (name) => {
+            this._clientName = name;
+            this.stateMachine(STATE_CLIENT_UPDATE);
+        });
+        this._server.on('metadataChange', (meta) => {
+            this._meta = meta;
+            this.stateMachine(STATE_UPDATE);
+        });
+        this._server.on('volumeChange', (v) => {
+            this._volume = v;
+            this.stateMachine(STATE_UPDATE);
+        });
+        this._server.on('progressChange', (p) => {
+            this._progress = p;
+            this.stateMachine(STATE_UPDATE);
+        });
+        this._server.on('artworkChange', (content) => {
+            this._artwork = content;
+            this.stateMachine(STATE_UPDATE);
         });
 
+        this._server.on('clientDisconnected', () => {
+            this._clientip = undefined;
+            this._clientName = undefined;
+            this._stream = undefined;
+            this._meta = undefined;
+            this._progress = undefined;
+            this._volume = undefined;
+            this.stateMachine(STATE_STOPPED);
+        });
         this._server.start();
         this.stateMachine(STATE_STOPPED);
     }
 
-    public stop(){
-        if(this.running) return;
+    public stop() {
+        if (this.running) return;
         this._server.stop();
         this._server.removeAllListeners();
         this.running = false;
+        this._clientip = undefined;
+        this._clientName = undefined;
+        this._stream = undefined;
+        this._meta = undefined;
+        this._progress = undefined;
+        this._volume = undefined;
         this.stateMachine(STATE_SERVER_DOWN);
     }
 

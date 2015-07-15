@@ -24,9 +24,9 @@ class Configuration extends Configurable {
                     Airplay.Remove(k);
                     continue;
                 }
-                var server : number | Airplay.AirPlay_BaseServer = Airplay.Get(k);
+                var server = Airplay.Get(k);
                 if(!server) {
-                    server = <any>Airplay.Add(k, 0);
+                    server = <any>Airplay.Add(k, ConfMgr.Get(SECTION.NETWORK).RouterIP, 'IMG');
                 }
                 if(<any>server + 0 <= 0) {
                     continue; //something went wrong
@@ -39,6 +39,27 @@ class Configuration extends Configurable {
                 }
             }
         }
+        if (has(delta, "Airtunes")) {
+            for (var k in delta.Airtunes) {
+                if(delta.Airplay[k] === -1){
+                    Airplay.Remove(k);
+                    continue;
+                }
+                var server = Airplay.Get(k);
+                if(!server) {
+                    server = <any>Airplay.Add(k, ConfMgr.Get(SECTION.NETWORK).RouterIP, 'AUD');
+                }
+                if(<any>server + 0 <= 0) {
+                    continue; //something went wrong
+                }
+                if(delta.Airtunes[k] === 1){
+                    Airplay.Start(k);
+                }
+                if(delta.Airtunes[k] === 0){
+                    Airplay.Stop(k);
+                }
+            }
+        }
         process.nextTick(cb);
     }
 }
@@ -46,6 +67,9 @@ class Configuration extends Configurable {
 var defaultConfig = {
     Airplay: {
         "edge": 1  // 1 for started, 0 for stopped, -1 mark for removal
+    },
+    Airtunes: {
+        "edge-tunes": 1  // 1 for started, 0 for stopped, -1 mark for removal
     }
 };
 
@@ -67,6 +91,14 @@ export function Initialize(cb) {
 
     var configStreaming = new Configuration(SECTION.STREAMING, defaultConfig);
     configStreaming.Initialize(cb);
+}
+
+export function Subscribe(cb) {
+    var sub = StatMgr.Sub(SECTION.NETWORK);
+    sub.network.on('RouterIP', (oldValue, newValue) => {
+        Airplay.SetIP(newValue);
+    });
+    cb();
 }
 
 export function Diagnose(callback:Callback) {

@@ -1,7 +1,7 @@
 import airplay = require('./airplay');
 
 export function Initialize(cb){
-    var server:any = airplay.Add('Test', 1);
+    var server:any = airplay.Add('Test', "DUMMY", "IMG");
     if(typeof server === 'number')
         return console.log('▂▃▅▆█ airplay failed'['yellowBG'].bold, server);
     else{
