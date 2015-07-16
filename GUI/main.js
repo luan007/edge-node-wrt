@@ -59,6 +59,8 @@ window.API = global.API = undefined;
 })();
 
 var block = $("#main");
+var online = $("#online");
+var total = $("#total");
 
 GUIProcess.on('loading', function () {
 	block.css('display', 'none');
@@ -67,7 +69,7 @@ GUIProcess.on('loading', function () {
 GUIProcess.on('load', function () {
 	block.css('display', 'block');
 	push("SYSTEM CONNECTED");
-	API.RegisterEvent("Stat.set", function(err, result){
+	API.RegisterEvent(["Stat.set", "Device.up", "Device.down"], function(err, result){
 		if(err){
 			push(err ? "ERR": "" + " " + err.message, 1);
 		}
@@ -81,6 +83,25 @@ GUIProcess.on('load', function () {
 		API.Stat.on('del', function(key, v, old, n){
 			push('DEL' + '*' + key + " - " + v + "<br>" + n, "#e00");
 		});
+		function update(){
+			push("- DEVICE UPDATE -", "#dd6");
+			API.Device.All(function(err, result){
+				if(err){
+					push(err ? "ERR": "" + " " + err.message, 1);
+				}
+				else{
+					var count = 0;
+					for(var i in result){
+						count += result[i].state;
+					}
+					online.html('' + count);
+					total.html('' + Object.keys(result).length);
+				}
+			});
+		}
+		update();
+		API.Device.on('up', update);
+		API.Device.on('down', update);
 	});
 });
 //GUI Stuff..?
