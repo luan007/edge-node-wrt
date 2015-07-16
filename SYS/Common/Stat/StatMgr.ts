@@ -34,6 +34,14 @@ class StatNode extends events.EventEmitter {
         }
     }
 
+    //TODO: Allow correct multilayer event behaviour
+    //Network.Test.on("a")
+    //Network.on("*.*");
+    //Network.on("*");
+    //Network.on("Test.*");
+    
+    //'Test.a'
+    //
     _notifyParent = (_self, _action, _k, old, val) => {
         if (_self.__parent) {
             var levelKey = _self.__name + '.' + _k;
