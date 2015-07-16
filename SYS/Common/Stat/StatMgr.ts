@@ -100,6 +100,10 @@ class StatNode extends events.EventEmitter {
         //warn('valueOf', valueOf);
         return valueOf;
     }
+    
+    Get = (k) => {
+        return this.__value[k];
+    }
 
     static IsStatNode = (obj) => {
         if(!obj) return false;
@@ -138,6 +142,20 @@ class StatMgr {
     Get = (k:string): any => {
         return this._statuses[k];
     }
+    
+    RecursiveGet = (k:string) : any => {
+        var sp = k.split('.');
+        if(sp.length === 0) return undefined;
+        var cur = this;
+        for(var i = 0; i < sp.length; i++){
+            cur = cur.Get(sp[i]);
+            if(!cur) return undefined;
+        }
+        if(cur === this){
+            return undefined;
+        }
+        return cur;
+    }
 }
 
 var statMgr = new StatMgr();
@@ -147,5 +165,16 @@ global.StatMgr = statMgr;
 
 __EVENT("Stat.set", [Permission.AnyApp]);
 __EVENT("Stat.del", [Permission.AnyApp]);
+
+__API((k, cb)=>{
+    var d = statMgr.RecursiveGet(k);
+    if(!d) {
+        return cb(new Error('Not Found'));
+    } else {
+        return cb(undefined, d.ValueOf());
+    }
+}, "Stat.Get");
+
+// __API('Stat.Get');
 
 //TODO: Stat should be refactorized into seperate events

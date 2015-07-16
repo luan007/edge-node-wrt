@@ -6,24 +6,25 @@
     <link rel="stylesheet" href="./font/HelveticaNeueLight.css">
     <style>
       body {
-        background: black;
+        background: #000;
         margin:0;
         padding:0;
         overflow:hidden;
       }
-      .main {
+      body > div {
         overflow:hidden;
         transform: rotate(-90deg);
-        height: 310px;
-        width: 310px;
-        color: black;
+        height: 340px;
+        width: 340px;
+        color: white;
         position:fixed;
         border-radius: 10000em;
-        top:0;
-        left:0;
+        top:2px;
+        left:-10px;
         text-align: center;
         font-family: Helvetica;
         position:absolute;
+        background: black;
       }
       canvas {
         display:block;
@@ -31,22 +32,25 @@
         top:0;
         left:0;
       }
-      .main > div{
+      body > div > div{
         display: table-cell;
         width: 310px;
         height: 310px;
         vertical-align: middle;
-        color: #fff;
-        top:0;
-        left:0;
+        color: white;
+        top:15px;
+        left:15px;
+        position:relative;
         text-align: center;
+        border-radius: 100000em;
+        box-sizing: border-box;
+        background: black;
       }
-      
-            
+       
       .loader {
         display: inline-block;
-        width: 50px;
-        height: 50px;
+        width: 70px;
+        height: 70px;
         position: relative;
         border: 4px solid #fff;
         overflow:hidden;
@@ -114,85 +118,105 @@
         }
       }
       
-      .i {
+      @keyframes init {
+        0% {
+          color: #000;
+        }
         
+        35% {
+          color: #2fafff;
+        }
+        
+        100% {
+          color: #000;
+        }
       }
+      
+      @keyframes init-bg {
+        0% {
+          background: #000;
+        }
+        
+        35% {
+          background: #fff;
+        }
+        
+        100% {
+          background: #000;
+        }
+      }
+      
+      @keyframes fadeOut {
+        0% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+      
+      #cover{
+        background: white;
+        animation: fadeOut 2s forwards;
+      }
+      
+      #main, #main > div{
+        background:white;
+        color:black;
+      }
+      h1,h2,h3,h4,h5{
+        margin:0;
+        padding:0;
+      }
+      
+      #log-area > h5 {
+        transition: opacity 0.1s ease-out, font-size 0.2s ease-out;
+        margin: 4px;
+        font-size:0.8em;
+      }
+      
+      #log-area > h5:nth-child(2) {
+        padding: 5px 0;
+        border-bottom: 1px dashed #666;
+        opacity: 1;
+      }
+      #log-area > h5:nth-child(3) {
+        opacity: 0.6;
+        font-size:0.7em;
+      }
+      #log-area > h5:nth-child(4) {
+        opacity: 0.3;
+        font-size:0.6em;
+      }
+      
     </style>
   </head>
+  <!--<span class="loader">
+      <span class="loader-inner"></span>
+  </span>-->
   
   <body>
-    <div class='main'>
+    <div id='loading'>
       <div>
-        <span class="loader">
-          <span class="loader-inner"></span>
-        </span>
+        <h1 style="margin:0; padding:0; color:#fff; font-size:70px; ">edge</h1>
+        <h2 style="animation: init 3s infinite ease; margin:5px; color:#fff; font-weight:100; font-size:18px;">Booting</h2>
       </div>
+    </div>
+    <div id="cover"></div>
+    <div id="main" style="display:none;">
       <div>
-        <div>edge-GUI
-          <br>
-          <b id='log'></b>
-          <br>
-          <b id='log2'></b>
-          </span>
+        <h1 style="font-weight: 100">edge.dev</h1>
+        <div id="log-area" style="text-align: left; padding-left: 5px; padding-right: 5px; overflow:visible; height:80px; padding-top:15px;">
+          <div id="insert-point"><div>
         </div>
       </div>
-      <script>
-        var os = require('os');
-        var fs = require('fs');
-        var net = require('net');
-         var i = document.getElementById('log');
-         var i2 = document.getElementById('log2');
-         setInterval(function(){
-            i.innerHTML = "mem:" + (100 - (Math.floor((os.freemem() / os.totalmem()) * 1000) / 10)) + "%" ;
-         }, 1000);
-         
-         fs.writeFileSync('/var/GUI', process.pid);
-         var rpc = require("../Modules/RPC/index");
-         var task = 0;
-         
-         var tick = false;
-         function reconnect(){
-             clearTimeout(task);
-             task = setTimeout(conntask, 700);
-         }
-         
-         function conntask(){
-           try{
-             tick = !tick;
-             i2.innerHTML = (tick ? "+" : "-") + " Waiting for OS " + (tick ? "-" : "+");
-             if(fs.existsSync('/var/GUI_sock')) {
-             var _api = JSON.parse(fs.readFileSync('/var/GUI_sock').toString());
-             var _rpc;
-             var sock = net.connect(_api.port, function (err, result) {
-                 if (err) {
-                     reconnect();
-                 }
-                 else {
-                     _rpc = new rpc.RPCEndpoint(sock);
-                     sock.once('error', reconnect).once('end', reconnect).once('close', reconnect);
-                     _api_full = rpc.APIManager.GetAPI(_api, _rpc);
-                     global.API = API = _api_full.API;
-                     i2.innerHTML = "Edge Connected";
-                     API.RegisterEvent('Stat.set', function(err){
-                       i2.innerHTML = JSON.stringify(err);
-                       API.Stat.on('set', function(level, key, old, n){
-                         if(level === "WLAN2G.devices"){
-                          i2.innerHTML = key;
-                         }
-                       });
-                     });
-                 }
-             }).once('error', reconnect).once('end', reconnect).once('close', reconnect);
-           }else{
-             reconnect();
-           }
-           }catch(e){
-             reconnect();
-           }
-         }
-         
-         conntask();
-      </script>
+    </div>
+    <script src="./TweenLite.js"></script>
+    <script src="./jquery-2.1.3.js"></script>
+    <script src="./Velocity.js"></script>
+    <script>
+      require('./main.js');
+    </script>
   </body>
 
 </html>

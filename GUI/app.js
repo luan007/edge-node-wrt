@@ -3,7 +3,6 @@ var app = require('app');
 var fs = require('fs');
 var net = require('net');
 
-
 var BrowserWindow = require('browser-window'); 
 
 var mainWindow = null;

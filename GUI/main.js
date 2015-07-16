@@ -1,0 +1,100 @@
+/* global TweenLite */
+/// <reference path="../typings/jquery/jquery.d.ts"/>
+/* global API */
+//remember, this crap runs in BROWSER CONTEXT so plz be careful with errors
+
+
+/* RPC kinda logic */
+
+var os = require('os');
+var fs = require('fs');
+var net = require('net');
+var rpc = require("../Modules/RPC/index");
+var events = require('events');
+window.jQuery = window.$ = require("./jquery-2.1.3.js");
+var Velocity = require("./Velocity.js");
+require("./TweenLite.js");
+var GUIProcess = window.GUIProcess = global.GUIPrcoess = new events.EventEmitter();
+
+window.API = global.API = undefined;
+
+(function () {
+	fs.writeFileSync('/var/GUI', process.pid);
+	var task;
+	var last_ready = 0;
+	function reconnect() {
+		if (last_ready) {
+			GUIProcess.emit('loading');
+			last_ready = 0;
+		}
+		clearTimeout(task);
+		task = setTimeout(conntask, 500);
+	}
+	function conntask() {
+		try {
+			if (fs.existsSync('/var/GUI_sock')) {
+				var _api = JSON.parse(fs.readFileSync('/var/GUI_sock').toString());
+				var _rpc;
+				var sock = net.connect(_api.port, function (err, result) {
+					if (err) {
+						reconnect();
+					}
+					else {
+						_rpc = new rpc.RPCEndpoint(sock);
+						last_ready = 1;
+						sock.once('error', reconnect).once('end', reconnect).once('close', reconnect);
+						var _api_full = rpc.APIManager.GetAPI(_api, _rpc);
+						global.API = API = _api_full.API;
+						GUIProcess.emit('load');
+					}
+				}).once('error', reconnect).once('end', reconnect).once('close', reconnect);
+			} else {
+				reconnect();
+			}
+		} catch (e) {
+			reconnect();
+		}
+	}
+	conntask();
+})();
+
+var block = $("#main");
+
+GUIProcess.on('loading', function () {
+	block.css('display', 'none');
+});
+
+GUIProcess.on('load', function () {
+	block.css('display', 'block');
+	push("SYSTEM CONNECTED");
+	API.RegisterEvent("Stat.set", function(err, result){
+		if(err){
+			push(err ? "ERR": "" + " " + err.message, 1);
+		}
+		else{
+			push("Event Registered", 1);
+		}
+		
+		API.Stat.on('set', function(key, v, old, n){
+			push(key + " - " + v + "<br>" + n);
+		});
+		API.Stat.on('del', function(key, v, old, n){
+			push('DEL' + '*' + key + " - " + v + "<br>" + n, "#e00");
+		});
+	});
+});
+//GUI Stuff..?
+
+var logarea = $("#log-area");
+var insertpoint = $("#insert-point");
+function push(log, warn) {
+	if(!log) return;
+	// logarea.add()
+	var d = $("<h5>" + log + "</h5>");
+	d.insertAfter(insertpoint);
+	var color = warn ? "#f00" : "#555";
+	if(warn && warn.length) color = warn;
+	d.css("color", color);
+	var fin = logarea.children().get(4);
+	if(fin) fin.remove();
+}
