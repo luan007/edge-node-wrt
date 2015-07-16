@@ -175,8 +175,10 @@
                      i2.innerHTML = "Edge Connected";
                      API.RegisterEvent('Stat.set', function(err){
                        i2.innerHTML = JSON.stringify(err);
-                       API.Stat.on('set', function(key, old, n){
-                         i2.innerHTML = key;
+                       API.Stat.on('set', function(level, key, old, n){
+                         if(level === "WLAN2G.devices"){
+                          i2.innerHTML = key;
+                         }
                        });
                      });
                  }

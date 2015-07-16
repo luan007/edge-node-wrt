@@ -39,7 +39,6 @@ class StatNode extends events.EventEmitter {
     //Network.on("*.*");
     //Network.on("*");
     //Network.on("Test.*");
-    
     //'Test.a'
     //
     _notifyParent = (_self, _action, _k, old, val) => {
@@ -52,8 +51,15 @@ class StatNode extends events.EventEmitter {
             this.__parent.emit(_action, wildcard, old, val);
             this._notifyParent(_self.__parent, _action, levelKey, old, val);
             this._notifyParent(_self.__parent, _action, wildcard, old, val);
+        } 
+    }
+    
+    _notifyAPI = (_self, _action, level, origin_k, old, val) => {
+        if (_self.__parent) {
+            level = _self.__parent.__name + "." + level;
+            this._notifyAPI(_self.__parent, _action, level, origin_k, old, val);
         } else {
-            __EMIT("Stat." + _action, _self.__name + "." + _k, old, val);
+            __EMIT("Stat." + _action, level, origin_k, old, val);
         }
     }
     
@@ -61,7 +67,9 @@ class StatNode extends events.EventEmitter {
         var oldValue = this.__value[key] ? (this.__value[key].ValueOf ? this.__value[key].ValueOf() : this.__value[key]) : undefined;
         var newValue = val.ValueOf ? val.ValueOf() : val;
 
+
         this._notifyParent(this, 'set', key, oldValue, newValue);
+        this._notifyAPI(this, 'set', this.__name, key, oldValue, newValue);
         this.emit(key, oldValue, newValue);
         this.emit('set', key, oldValue, newValue);
 
