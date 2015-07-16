@@ -10,7 +10,7 @@ interface _Function_With_Permission_Token extends Function {
     _p: any[];
 }
 
-function __API(func:_Function_With_Permission_Token,
+function __API(func,
                path:string,
                permission?:Permission[],
                needUsersAuthorization?:boolean) {
@@ -73,3 +73,9 @@ function __API(func:_Function_With_Permission_Token,
 
 global.__API = __API;
 
+
+
+
+__API((cb)=>{
+    cb(undefined, "Hello");
+}, "Hello");

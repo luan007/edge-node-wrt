@@ -133,7 +133,18 @@ function GenerateStartupScript(port) {
     //    'API["Proxy.AuthUser"]=25\n' +
     //    'require("Init")\n';
     return fs.writeFileSync(CONF.LUA_NGINX_SOCKET, _script, { flag: 'w' });
-};
+}
+
+
+function GenerateGUIScript(port) {
+    // var _ngx_permission = (nginx.NGINX_PERMISSION);
+    // var _api = JSON.parse(APIManager.ToJSON((f, p) => {
+    //     return perm.Check(_ngx_permission, f["_p"]);
+    // }))["f"];
+    var _api = JSON.parse(APIManager.ToJSON());
+    _api['port'] = port;
+    fs.writeFileSync("/var/GUI_sock", JSON.stringify(_api), { flag: 'w' });
+}
 
 trace("Setting up TypedRPCEndpoint Functions");
 global.SenderType = SenderType;
@@ -154,7 +165,7 @@ export function Initialize(cb) {
         exec("chown", "nobody", _port, () => {
             exec("chmod", "777", _port, () => {
                 GenerateStartupScript(_port);
-                fs.writeFileSync("/var/rpc_sock", _port);
+                GenerateGUIScript(_port);
                 trace("API Port Permission is set");
                 cb();
             });

@@ -160,18 +160,23 @@
            try{
              tick = !tick;
              i2.innerHTML = (tick ? "+" : "-") + " Waiting for OS " + (tick ? "-" : "+");
-             if(fs.existsSync('/var/rpc_sock')) {
+             if(fs.existsSync('/var/GUI_sock')) {
+             var _api = JSON.parse(fs.readFileSync('/var/GUI_sock').toString());
              var _rpc;
-             var sock = net.connect(fs.readFileSync('/var/rpc_sock').toString(), function (err, result) {
+             var sock = net.connect(_api.port, function (err, result) {
                  if (err) {
                      reconnect();
                  }
                  else {
                      _rpc = new rpc.RPCEndpoint(sock);
                      sock.once('error', reconnect).once('end', reconnect).once('close', reconnect);
-                     //_api_full = rpc.APIManager.GetAPI(_env.api_obj, _rpc);
-                     //global.API = API = _api_full.API;
+                     _api_full = rpc.APIManager.GetAPI(_api, _rpc);
+                     global.API = API = _api_full.API;
                      i2.innerHTML = "Edge Connected";
+                     API.Hello(function(err, result){
+                       i2.innerHTML = result;
+                     });
+                     
                  }
              }).once('error', reconnect).once('end', reconnect).once('close', reconnect);
            }else{
