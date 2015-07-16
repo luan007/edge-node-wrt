@@ -91,7 +91,7 @@ GUIProcess.on('load', function () {
 		// 	uplink.html(Object.keys(result));
 		// });
 		API.Stat.Get('NETWORK.addr.eth2', function(err, result){
-			uplink.html(Object.keys(result));
+			uplink.html(JSON.stringify(result[0])); 
 		});
 		function update(){
 			push("- DEVICE UPDATE -", "#dd6");

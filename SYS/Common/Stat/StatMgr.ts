@@ -75,7 +75,7 @@ class StatNode extends events.EventEmitter {
         this.emit('set', key, oldValue, newValue);
         
         if(!val._wrap && !val.ValueOf){
-            val = JSON.stringify(val);
+            val = JSON.parse(JSON.stringify(val));
         }
         this.__value[key] = val;
         this._wrap(this, key);

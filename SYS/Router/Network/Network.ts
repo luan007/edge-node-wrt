@@ -244,9 +244,7 @@ export function Initialize(cb) {
                     pub.addr.Set(id, iproute2.Addr.Interfaces[id]);
                 });
 
-
                 iproute2.Addr.on(iproute2.Addr.EVENT_RECORD_DEL, (id, index) => {
-                    
                     pub.addr.Set(id, iproute2.Addr.Interfaces[id]);
                 });
 
