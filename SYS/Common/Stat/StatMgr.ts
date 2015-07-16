@@ -38,14 +38,14 @@ class StatNode extends events.EventEmitter {
         if (_self.__parent) {
             var levelKey = _self.__name + '.' + _k;
             var wildcard = _self.__name + '.*';
-            this.__parent.emit(wildcard, _k, old, val);
+            this.__parent.emit(wildcard, old, val);
             this.__parent.emit(levelKey, old, val);
             this.__parent.emit(_action, levelKey, old, val);
             this.__parent.emit(_action, wildcard, old, val);
             this._notifyParent(_self.__parent, _action, levelKey, old, val);
-            this._notifyParent(_self, _action, wildcard, old, val);
+            this._notifyParent(_self.__parent, _action, wildcard, old, val);
         } else {
-            __EMIT("Stat." + _action, _k, old, val);
+            __EMIT("Stat." + _action, _self.__name + "." + _k, old, val);
         }
     }
     
@@ -128,7 +128,6 @@ var statMgr = new StatMgr();
 export = statMgr;
 
 global.StatMgr = statMgr;
-
 
 __EVENT("Stat.set", [Permission.AnyApp]);
 __EVENT("Stat.del", [Permission.AnyApp]);

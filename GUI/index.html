@@ -173,10 +173,12 @@
                      _api_full = rpc.APIManager.GetAPI(_api, _rpc);
                      global.API = API = _api_full.API;
                      i2.innerHTML = "Edge Connected";
-                     API.Hello(function(err, result){
-                       i2.innerHTML = result;
+                     API.RegisterEvent('Stat.set', function(err){
+                       i2.innerHTML = JSON.stringify(err);
+                       API.Stat.on('set', function(key, old, n){
+                         i2.innerHTML = key;
+                       });
                      });
-                     
                  }
              }).once('error', reconnect).once('end', reconnect).once('close', reconnect);
            }else{

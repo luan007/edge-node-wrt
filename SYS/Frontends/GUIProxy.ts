@@ -33,8 +33,8 @@ function ConnectionHandler(credential:{ uid; pid; gid; },
             fatal("GUI Proxy Socket Inbound " + credential.pid);
             PermissionLib.SetPermission(gui_runtime_id, GUI_PERMISSION);
             //Start serving STUFF
-            Server.Serve(socket, CONF.SENDER_TYPE_PROXY, gui_runtime_id,
-                undefined);
+            Server.Serve(socket, CONF.SENDER_TYPE_GUI, gui_runtime_id, 
+                gui_runtime_id);
             fatal("GUI Proxy RPC is Bound with " + credential.pid);
         }
         else {

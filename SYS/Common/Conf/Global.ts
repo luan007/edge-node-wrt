@@ -53,6 +53,7 @@ class _sys_global_conf {
     DRV_MATCH_TIMEOUT = 1500;
     SENDER_TYPE_APP = "App";
     SENDER_TYPE_PROXY = "Proxy";
+    SENDER_TYPE_GUI = "GUI";
     BASE_FIREWALL = false;
     SSDP_DEBUG = true;
     RELOAD_DEFAULT_CONFIG = true; //Turn this on to restore sys's default config (as for Configurable.ts and its children)
