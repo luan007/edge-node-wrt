@@ -38,12 +38,17 @@ class StatNode extends events.EventEmitter {
         if (_self.__parent) {
             var levelKey = _self.__name + '.' + _k;
             var wildcard = _self.__name + '.*';
-            _self.__parent.emit(wildcard, _k, old, val);
-            _self.__parent.emit(levelKey, old, val);
-            _self.__parent.emit(_action, levelKey, old, val);
+            this.__parent.emit(wildcard, _k, old, val);
+            this.__parent.emit(levelKey, old, val);
+            this.__parent.emit(_action, levelKey, old, val);
+            this.__parent.emit(_action, wildcard, old, val);
+            this._notifyParent(_self.__parent, _action, levelKey, old, val);
+            this._notifyParent(_self, _action, wildcard, old, val);
+        } else {
+            __EMIT("Stat." + _action, _k, old, val);
         }
     }
-
+    
     Set = (key:string, val:any) => {
         var oldValue = this.__value[key] ? (this.__value[key].ValueOf ? this.__value[key].ValueOf() : this.__value[key]) : undefined;
         var newValue = val.ValueOf ? val.ValueOf() : val;
@@ -55,8 +60,6 @@ class StatNode extends events.EventEmitter {
         this.__value[key] = val;
         this._wrap(this, key);
 
-        __EMIT("Stat.set", key, oldValue, newValue);
-
         if(this.__value[key] && this.__value[key].emit) //emit if child is a emitter
             this.__value[key].emit('set', key, oldValue, newValue);
     }
@@ -64,9 +67,6 @@ class StatNode extends events.EventEmitter {
     Del = (key:string) => {
         if (this.__value.hasOwnProperty(key)) {
             var oldValue = this.__value[key].ValueOf ? this.__value[key].ValueOf() : this.__value[key];
-
-            __EMIT("Stat.del", key, oldValue);
-
             this._notifyParent(this, 'del', key, oldValue, undefined);
             this.emit(key, oldValue, undefined);
             this.emit('del', key, oldValue, undefined);
@@ -132,3 +132,5 @@ global.StatMgr = statMgr;
 
 __EVENT("Stat.set", [Permission.AnyApp]);
 __EVENT("Stat.del", [Permission.AnyApp]);
+
+//TODO: Stat should be refactorized into seperate events
