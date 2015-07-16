@@ -8,8 +8,8 @@ import util = require("util");
 import os = require("os");
 import events = require("events");
 import crypto = require("crypto");
-import PermissionLib = require('../../API/Permission');
 import Server = require('../../API/Server');
+import PermissionLib = require('../../API/Permission');
 
 export var NGINX_PERM_ARR = [Permission.Proxy];
 export var NGINX_PERMISSION = PermissionLib.Encode(NGINX_PERM_ARR);

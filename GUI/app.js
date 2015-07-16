@@ -1,8 +1,8 @@
-/// <reference path="typings/node/node.d.ts"/>
+/// <reference path="../Include/global.d.ts"/>
 var app = require('app');
 var fs = require('fs');
+var net = require('net');
 
-fs.writeFileSync('/var/GUI', process.pid);
 
 var BrowserWindow = require('browser-window'); 
 

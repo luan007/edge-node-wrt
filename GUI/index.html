@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+  
   <head>
     <title></title>
     <link rel="stylesheet" href="./font/HelveticaNeueLight.css">
@@ -116,30 +117,73 @@
       .i {
         
       }
-      
-      
-      
     </style>
   </head>
+  
   <body>
     <div class='main'>
       <div>
-        <span class="loader"><span class="loader-inner"></span></span>
-       </div>
-       <div>
-         <div>
-           edge-GUI<br>
-            <b id='log'>
-            </b>
-         </span>
-       </div>
-    </div>
+        <span class="loader">
+          <span class="loader-inner"></span>
+        </span>
+      </div>
+      <div>
+        <div>edge-GUI
+          <br>
+          <b id='log'></b>
+          <br>
+          <b id='log2'></b>
+          </span>
+        </div>
+      </div>
       <script>
-         var os = require('os');
+        var os = require('os');
+        var fs = require('fs');
+        var net = require('net');
          var i = document.getElementById('log');
+         var i2 = document.getElementById('log2');
          setInterval(function(){
             i.innerHTML = "mem:" + (100 - (Math.floor((os.freemem() / os.totalmem()) * 1000) / 10)) + "%" ;
          }, 1000);
+         
+         fs.writeFileSync('/var/GUI', process.pid);
+         var rpc = require("../Modules/RPC/index");
+         var task = 0;
+         
+         var tick = false;
+         function reconnect(){
+             clearTimeout(task);
+             task = setTimeout(conntask, 700);
+         }
+         
+         function conntask(){
+           try{
+             tick = !tick;
+             i2.innerHTML = (tick ? "+" : "-") + " Waiting for OS " + (tick ? "-" : "+");
+             if(fs.existsSync('/var/rpc_sock')) {
+             var _rpc;
+             var sock = net.connect(fs.readFileSync('/var/rpc_sock').toString(), function (err, result) {
+                 if (err) {
+                     reconnect();
+                 }
+                 else {
+                     _rpc = new rpc.RPCEndpoint(sock);
+                     sock.once('error', reconnect).once('end', reconnect).once('close', reconnect);
+                     //_api_full = rpc.APIManager.GetAPI(_env.api_obj, _rpc);
+                     //global.API = API = _api_full.API;
+                     i2.innerHTML = "Edge Connected";
+                 }
+             }).once('error', reconnect).once('end', reconnect).once('close', reconnect);
+           }else{
+             reconnect();
+           }
+           }catch(e){
+             reconnect();
+           }
+         }
+         
+         conntask();
       </script>
   </body>
+
 </html>

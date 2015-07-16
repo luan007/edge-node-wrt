@@ -139,7 +139,6 @@ function _early_rpc(cb) {
         else {
             _api_full = rpc.APIManager.GetAPI(_env.api_obj, _rpc);
             global.API = API = _api_full.API;
-            //_rpc.once("ready", cb);
             cb();
         }
     }));

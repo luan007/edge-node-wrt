@@ -154,6 +154,7 @@ export function Initialize(cb) {
         exec("chown", "nobody", _port, () => {
             exec("chmod", "777", _port, () => {
                 GenerateStartupScript(_port);
+                fs.writeFileSync("/var/rpc_sock", _port);
                 trace("API Port Permission is set");
                 cb();
             });

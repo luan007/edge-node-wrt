@@ -1,5 +1,6 @@
 ﻿enum Permission {
     System,
+    GUIProcess,
     Proxy,
     Event,
     IO,
