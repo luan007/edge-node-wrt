@@ -7,3 +7,7 @@ global.CJSONString = function(obj): string {
 global.CJSONParse = function(str) {
     return cjson.parse(str);
 }
+
+global.jclone = function(obj){
+    return JSON.parse(JSON.stringify(obj));
+};

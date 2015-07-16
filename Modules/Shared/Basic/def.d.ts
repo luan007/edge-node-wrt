@@ -14,6 +14,7 @@ declare function CJSONParse(str: string): any;
  */
 declare function has(obj, key);
 
+declare function jclone(obj);
 
 /**
  * Helper Method

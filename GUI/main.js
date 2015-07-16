@@ -11,6 +11,7 @@ var fs = require('fs');
 var net = require('net');
 var rpc = require("../Modules/RPC/index");
 var events = require('events');
+var exec = require('child_process').exec;
 window.jQuery = window.$ = require("./jquery-2.1.3.js");
 var Velocity = require("./Velocity.js");
 require("./TweenLite.js");
@@ -61,6 +62,8 @@ window.API = global.API = undefined;
 var block = $("#main");
 var online = $("#online");
 var total = $("#total");
+var mem = $("#mem");
+var uplink = $("#uplink");
 
 GUIProcess.on('loading', function () {
 	block.css('display', 'none');
@@ -77,11 +80,18 @@ GUIProcess.on('load', function () {
 			push("Event Registered", 1);
 		}
 		
+		
 		API.Stat.on('set', function(key, v, old, n){
 			push(key + " - " + v + "<br>" + n);
 		});
 		API.Stat.on('del', function(key, v, old, n){
 			push('DEL' + '*' + key + " - " + v + "<br>" + n, "#e00");
+		});
+		// API.Stat.Get('NETWORK.link.eth2', function(err, result){
+		// 	uplink.html(Object.keys(result));
+		// });
+		API.Stat.Get('NETWORK.addr.eth2', function(err, result){
+			uplink.html(Object.keys(result));
 		});
 		function update(){
 			push("- DEVICE UPDATE -", "#dd6");
@@ -105,6 +115,27 @@ GUIProcess.on('load', function () {
 	});
 });
 //GUI Stuff..?
+
+setInterval(function(){
+	exec("free | awk 'FNR == 3 {print $3/($3+$4)*100}'", function(err, r, d){
+		try{
+			var vm = parseInt(r.toString());
+			mem.html('' + vm + "%");
+			if(vm > 90) {
+				mem.css('color', '#f00');
+			}
+			else if(vm > 70) {
+				mem.css('color', '#990');
+			}
+			else {
+				mem.css('color', '#4a0');
+			}
+		}
+		catch(e) {
+			push('Failed to Load Memory<br>' + e.message, 1);
+		}
+	});
+}, 1000);
 
 var logarea = $("#log-area");
 var insertpoint = $("#insert-point");

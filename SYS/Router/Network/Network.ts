@@ -29,7 +29,8 @@ var pub = StatMgr.Pub(SECTION.NETWORK, {
     mdns: {},
     ssdp: {},
     p0f: {},
-    link: {}
+    link: {},
+    addr: {}
 });
 
 class Configuration extends Configurable {
@@ -227,16 +228,44 @@ export function Initialize(cb) {
                     pub.arp.Del(neighRecord.Mac);
                 });
 
-                iproute2.Link.on(iproute2.Link.EVENT_RECORD_NEW, (link:LinkInterface)=>{
-                    pub.link.Set(link.Dev, link);
+                iproute2.Link.on(iproute2.Link.EVENT_RECORD_NEW, (dev, link:LinkInterface)=>{
+                    pub.link.Set(dev, link);
                 });
 
-                iproute2.Link.on(iproute2.Link.EVENT_RECORD_CHANGE, (link:LinkInterface)=>{
-                    pub.link.Set(link.Dev, link);
+                iproute2.Link.on(iproute2.Link.EVENT_RECORD_CHANGE, (dev, link:LinkInterface)=>{
+                    pub.link.Set(dev, link);
                 });
 
-                iproute2.Link.on(iproute2.Link.EVENT_RECORD_DEL, (link:LinkInterface)=>{
-                    pub.link.Del(link.Dev);
+                iproute2.Link.on(iproute2.Link.EVENT_RECORD_DEL, (dev, link:LinkInterface)=>{
+                    pub.link.Del(dev);
+                });
+
+                iproute2.Addr.on(iproute2.Addr.EVENT_RECORD_NEW, (id, index)=>{
+                    pub.addr.Set(id, iproute2.Addr.Interfaces[id]);
+                });
+
+
+                iproute2.Addr.on(iproute2.Addr.EVENT_RECORD_DEL, (id, index) => {
+                    
+                    pub.addr.Set(id, iproute2.Addr.Interfaces[id]);
+                });
+
+
+                iproute2.Link.Load(()=>{
+                    //TODO: Check for records that might be 'missed out' upon boot
+                    for(var i in iproute2.Link.Interfaces){
+                        pub.link.Set(i, iproute2.Link.Interfaces[i]);
+                    }
+                });
+                iproute2.Neigh.Load(()=>{
+                    for(var i in iproute2.Neigh.MacList){
+                        pub.arp.Set(i, iproute2.Neigh.MacList[i]);
+                    }
+                });
+                iproute2.Addr.Load(()=>{
+                    for(var i in iproute2.Addr.Interfaces){
+                        pub.addr.Set(i, iproute2.Addr.Interfaces[i]);
+                    }
                 });
 
                 cb();

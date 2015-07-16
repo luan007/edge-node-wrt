@@ -203,7 +203,7 @@ class addr extends events.EventEmitter {
             Prefix: ifa[1]
         });
 
-        this.emit(this.EVENT_RECORD_NEW, id, index);
+        this.emit(this.EVENT_RECORD_NEW, id, index, this.Interfaces[id][index]);
         //this.Debug_Output();
     };
 

@@ -64,15 +64,19 @@ class StatNode extends events.EventEmitter {
     }
     
     Set = (key:string, val:any) => {
+        if(val === undefined || val === null) return;
         var oldValue = this.__value[key] ? (this.__value[key].ValueOf ? this.__value[key].ValueOf() : this.__value[key]) : undefined;
-        var newValue = val.ValueOf ? val.ValueOf() : val;
+        var newValue = val.ValueOf ? val.ValueOf() : JSON.parse(JSON.stringify(val));
 
 
         this._notifyParent(this, 'set', key, oldValue, newValue);
         this._notifyAPI(this, 'set', this.__name, key, oldValue, newValue);
         this.emit(key, oldValue, newValue);
         this.emit('set', key, oldValue, newValue);
-
+        
+        if(!val._wrap && !val.ValueOf){
+            val = JSON.stringify(val);
+        }
         this.__value[key] = val;
         this._wrap(this, key);
 
@@ -171,7 +175,8 @@ __API((k, cb)=>{
     if(!d) {
         return cb(new Error('Not Found'));
     } else {
-        return cb(undefined, d.ValueOf());
+        return cb(undefined, d.ValueOf ? d.ValueOf() : d);
+        
     }
 }, "Stat.Get");
 
