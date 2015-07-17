@@ -3,10 +3,16 @@ var path = require('path');
 
 module.exports = function (grunt) {
 
-
+    //DO MODIFY THESE!
+    
     var remote_target = "/remote";
-    //var local_target = "/edge/buildroot-new/overlay";
     var local_target = "/tmp/test";
+
+
+
+
+
+
 
     var sysroot = "/ramdisk";
     var approot = "/storage"
