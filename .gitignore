@@ -33,6 +33,7 @@ node_modules
 *.map
 *.dll
 *.exe
+.baseDir.ts
 bin/
 obj/
 _Releases/
