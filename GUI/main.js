@@ -64,6 +64,7 @@ var online = $("#online");
 var total = $("#total");
 var mem = $("#mem");
 var uplink = $("#uplink");
+var uplink_status = $("#uplink_status");
 
 GUIProcess.on('loading', function () {
 	block.css('display', 'none');
@@ -83,16 +84,36 @@ GUIProcess.on('load', function () {
 		
 		API.Stat.on('set', function(key, v, old, n){
 			push(key + " - " + v + "<br>" + n);
+			if(key === "NETWORK.link" && v == "eth2" ){
+				uplink_status.html(n.State);
+				if(result.State.indexOf("DOWN") !== -1){
+					uplink.html('');
+				}
+			}
+			if(key === "NETWORK.addr" && v == "eth2" ){
+				if(Object.keys(n).length > 0)
+					uplink.html(n[0].Address);
+				else
+					uplink.html('');
+			}
 		});
 		API.Stat.on('del', function(key, v, old, n){
 			push('DEL' + '*' + key + " - " + v + "<br>" + n, "#e00");
 		});
-		// API.Stat.Get('NETWORK.link.eth2', function(err, result){
-		// 	uplink.html(Object.keys(result));
-		// });
-		API.Stat.Get('NETWORK.addr.eth2', function(err, result){
-			uplink.html(JSON.stringify(result[0])); 
+		API.Stat.Get('NETWORK.link.eth2', function(err, result){
+			if(result.State.indexOf("DOWN") !== -1){
+				uplink.html('');
+			}
+			uplink_status.html(result.State);
 		});
+		API.Stat.Get('NETWORK.addr.eth2', function(err, n){
+			if(Object.keys(n).length > 0)
+				uplink.html(n[0].Address);
+			else
+				uplink.html('');
+		});
+		
+		
 		function update(){
 			push("- DEVICE UPDATE -", "#dd6");
 			API.Device.All(function(err, result){
