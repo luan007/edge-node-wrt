@@ -99,6 +99,7 @@ class _sys_global_conf {
     IPTABLES_TRAFFIC_SAVE_INTERVAL = 30 * 1000;
     IW_STATION_DUMP_INTERVAL = 10 * 1000;
     LOG_LEVELS = []; // 'error', 'fatal'
+    LOG_TO_FILE = true;
     ON_BOARD = true; //on-board
     LUA_NGINX_SOCKET = '/var/lua_nginx_socket';
 
