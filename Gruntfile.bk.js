@@ -6,7 +6,7 @@ module.exports = function (grunt) {
     //DO MODIFY THESE!
     
     var remote_target = "/remote";
-    var local_target = "/tmp/test";
+    var local_target = "/tmp/edge_build";
     var sysroot = "/ramdisk";
     var approot = "/storage"
     
