@@ -18,7 +18,7 @@ chmod 755 -R /tmp/fdsock
 
 
 if [ ! -d /${PWD%/*}/_data ]; then mkdir -p /${PWD%/*}/_data; fi
-
+if [ ! -d /ramdisk/SYS/logs ]; then mkdir -p /ramdisk/SYS/logs; fi
 
 mkdir -p /var/run/netns
 rm -rf /var/run/netns/*
