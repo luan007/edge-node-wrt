@@ -7,16 +7,9 @@ module.exports = function (grunt) {
     
     var remote_target = "/remote";
     var local_target = "/tmp/test";
-
-
-
-
-
-
-
     var sysroot = "/ramdisk";
     var approot = "/storage"
-
+    
     var _syslocal = path.join(local_target, sysroot);
     var _applocal = path.join(local_target, approot);
     function initGrunt(enable_remote){
@@ -39,8 +32,8 @@ module.exports = function (grunt) {
                 
                 ,appsts: {
                     files: [
-                        'Modules/**/*.ts',
-                        'typings/**/*.ts',
+                        //'Modules/**/*.ts',
+                        //'typings/**/*.ts',
                         'Apps/**/*.ts'
                     ],
                     tasks: ['ts:app', 'sync'],
@@ -94,7 +87,7 @@ module.exports = function (grunt) {
             }
             , ts: {
                 sys: {
-                    src: ["!Apps/**/*.ts", '**/*.ts', '!node_modules/**/*.ts'],
+                    src: ['**/*.ts', "!Apps/**/*", '!node_modules/**/*.ts'],
                     target: 'es5',
                     outDir: _syslocal,
                     options: {
