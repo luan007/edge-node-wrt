@@ -8,7 +8,7 @@ module.exports = function (grunt) {
     var remote_target = "/remote";
     var local_target = "/tmp/edge_build";
     var sysroot = "/ramdisk";
-    var approot = "/storage"
+    var approot = "/storage";
     
     var _syslocal = path.join(local_target, sysroot);
     var _applocal = path.join(local_target, approot);
