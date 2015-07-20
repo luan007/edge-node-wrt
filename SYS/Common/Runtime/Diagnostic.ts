@@ -90,4 +90,5 @@ global.ClearDiagnostic = ClearDiagnostic;
 global.RegisterModule = RegisterModule;
 global.ReportModuleSuccess = ReportModuleSuccess;
 global.ReportModuleFailed = ReportModuleFailed;
+global.ClearRuntimePID = ClearRuntimePID;
 

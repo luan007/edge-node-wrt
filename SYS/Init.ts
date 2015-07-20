@@ -3,15 +3,18 @@ process.env.NODE_PATH = __dirname;
 
 
 require('./Env');
+import FileLogger = require('../Modules/Shared/Log/FileLogger');
 
 process.on('uncaughtException', function (err) {
     error(err);
     error(err.stack);
+    FileLogger.uncaught(err.message, err.stack);
 });
 var domain = require('domain').create();
 domain.on('error', function (err) {
     error(err);
     error(err.stack);
+    FileLogger.domainerr(err.message, err.stack);
 });
 
 domain.run(function () {
@@ -111,22 +114,4 @@ domain.run(function () {
             SYS_TRIGGER(SYS_EVENT_TYPE.LOADED, err);
         }
     });
-
-    function ClearRuntimePID() {
-        if (fs.existsSync(CONF.APP_PID_FILE)) {
-            var pids = fs.readFileSync(CONF.APP_PID_FILE);
-            try {
-                pids = JSON.parse(pids);
-                for (var i = 0, len = pids.length; i < len; i++) {
-                    console.log('killing -------------- >>', pids[i]);
-                    exec('kill', '-9', pids[i]);
-                }
-
-            } catch (err) {
-                console.log(err);
-            }
-
-            fs.unlinkSync(CONF.APP_PID_FILE);
-        }
-    }
 });
