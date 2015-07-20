@@ -18,7 +18,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use("/public", express.static(path.join(__dirname, 'public')));
 
-
 //export function ErrorHandler(err: Error, req: ExpressServerRequest, res: ExpressServerResponse, next) {
 //    if (!err) { return next(); }
 //    res.status(500).json({ err: { message: err.message, code: err["code"] ? err["code"] : ErrorCode.GENERAL } });

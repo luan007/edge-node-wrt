@@ -1,7 +1,7 @@
 --local zlib = require "zlib"
 --local buffer = {}
 
-local script = '<script src="//wi.fi/c"></script>'
+local script = '<script src="//wi.fi/c.js"></script>'
 local scriptLen = string.len(script)
 
 function tableLen(t)
