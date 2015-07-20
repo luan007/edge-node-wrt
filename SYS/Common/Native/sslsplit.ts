@@ -19,7 +19,7 @@ export class SSLSplit extends Process {
                 super.Start(forever);
             } else {
                 killall(SSLSplit.COMMAND_NAME, () => {
-                    exec("cp -rf /ramdisk/Modules/Lua/modify /tmp/modify.lua", () => {
+                    exec("cp -rf /ramdisk/Modules/Lua/modify.lua /tmp/modify.lua", () => {
                         exec("chmod 777 /tmp/modify.lua", () => {
                             this.Process = child_process.spawn(SSLSplit.COMMAND_NAME, [
                                 "-M", "/tmp/modify.lua",
