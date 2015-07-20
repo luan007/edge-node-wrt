@@ -57,6 +57,7 @@ module.exports = function (grunt) {
                         '**/*.svg',
                         '**/*.eot',
                         '**/*.html',
+                        '**/*.txt',
                         '**/*.json'
                     ],
                     tasks: ['sync'],

@@ -19,9 +19,7 @@ if (!global.EDGE) {
 }
 else {
     var OUI = require('./drivers/OUI/OUI');
-    OUI.Initialize(()=> {
-    });
-    
+    OUI.Initialize(()=> { });
     fs.stat("/");
     //Clean Up
     if (fs.existsSync("/Data/sock")) {

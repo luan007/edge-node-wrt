@@ -146,6 +146,26 @@ function _early_rpc(cb) {
 
 function _jail(cb) {
     require("../../../Modules/Shared/use");
+    global.SharedLibs = {};
+    try{
+       var pkgjson = require(path.join(_env.target_dir, 'package.json'));
+       console.log(pkgjson);
+       var deps = pkgjson.dependencies;
+       for(var i in deps){
+           if(i.indexOf('/') >= 0) continue;
+           if(deps[i] === "*"){
+               try{
+                   global.SharedLibs[i] = require(i);
+                   console.log('Loaded Shared Lib:' + i);
+               } catch(e){ 
+                   console.log('Failed loading Shared Lib:' + i, e);
+               }
+           }
+       }
+       
+    } catch(e) {
+        console.log('Invalid Package.json');
+    }
     var d = require('dns');
     var _d = require('native-dns');
     for(var k in d){
@@ -170,7 +190,10 @@ function _jail(cb) {
                     process.exit();
 
                 chroot(_env.target_dir, _env.runtime_id); // YOU ARE NOBODY FROM NOW - NO MORE NOTHING
+                console.log('############## TARGET DIR IS SET');
                 process.chdir("/");
+                
+                
                 global.API_JSON = _env.api_obj;
                 global.runtime_id = _env.runtime_id;
                 process.env = {};
@@ -193,6 +216,7 @@ function _post_reverse_api(cb) {
         require("/driver");
         if(global.Drivers) {
             for(var drvId in global.Drivers) {
+                console.log(drvId);
                 ((_drvId) => {
                     var driver = global.Drivers[_drvId];
                     driver.Change = (deviceId, assump) => {

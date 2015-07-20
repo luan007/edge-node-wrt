@@ -80,8 +80,12 @@ iptables -w -t mangle -A PREROUTING -j pre_traffic
 iptables -w -t mangle -A POSTROUTING -j post_traffic
 
 iptables -w -t nat -A PREROUTING -j nginx_proxy
+#iptables -w -t nat -A nginx_proxy -p tcp --dport 80 -j REDIRECT --to-ports 3378
+#iptables -w -t nat -A nginx_proxy -p tcp --dport 443 -j REDIRECT --to-ports 3128
+
 iptables -w -t nat -A nginx_proxy -p tcp --dport 80 -j REDIRECT --to-ports 3378
 iptables -w -t nat -A nginx_proxy -p tcp --dport 443 -j REDIRECT --to-ports 3128
+
 iptables -w -t nat -A PREROUTING -j pre_sys
 iptables -w -t nat -A pre_sys -j wifi_nat
 

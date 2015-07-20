@@ -1,24 +1,26 @@
 {
-  "name": "DriverApp",
+  "name": "Launcher",
   "version": "0.0.0",
-  "description": "TestApp",
+  "description": "Launcher",
   "main": "app.js",
   "author": {
     "name": "luanc_000",
     "email": ""
   },
   "dependencies": {
-    "levelup": "*",
-    "leveldown": "*",
-    "levelup-sync": "*",
-    "leveldown-sync": "*",
-    "level-subkey": "*",
-    "level-queryengine": "*",
-    "linebyline": "*",
-    "ua-parser-js" : "*",
-    "ipp": "*",
-    "mmmagic": "*",
-    "phantom-html-to-pdf": "*",
-    "request": "*"
+    // "express": "*",
+    // "ejs": "*",
+    // "levelup": "*",
+    // //"leveldown": "*",
+    // "levelup-sync": "*",
+    // "leveldown-sync": "*",
+    // "level-subkey": "*",
+    // "level-queryengine": "*",
+    // "linebyline": "*",
+    // "ua-parser-js" : "*",
+    // "ipp": "*",
+    // "mmmagic": "*",
+    // "phantom-html-to-pdf": "*",
+    // "request": "*"
   }
 }

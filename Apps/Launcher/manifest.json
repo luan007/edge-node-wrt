@@ -1,7 +1,8 @@
 ﻿{
-  "name": "DriverApp",
-  "url": "DriverApp",
+  "name": "Launcher",
+  "url": "Launcher",
   "permission": [1],
+  "IsLauncher:": 1,
   "drivers": {
     "NameService": {
       "Buses": ["WIFI"],
