@@ -37,7 +37,7 @@ function filterhost(host)
 		then
 		return true
 	end
-	return nil
+	return false
 end
 
 function modify(data, ctx, host) -- response only

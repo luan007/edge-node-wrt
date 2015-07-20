@@ -2,21 +2,23 @@
 
 . ./patch.sh
 
-chmod +x Scripts/Router/Network/traffic.sh
+chmod +x Scripts/Network/traffic.sh
 
-. Scripts/Router/Network/set_env.sh
+. Scripts/Network/set_env.sh
 
-. Scripts/Router/Network/firewall.sh
+. Scripts/Network/firewall.sh
 
 sleep 1
 
-. Scripts/Router/Network/wireless.sh
+. Scripts/Network/wireless.sh
 
 . Scripts/App/isolated_zone.sh
 
-. Scripts/Router/Network/set_mac.sh
+. Scripts/Frontend/init_nginx.sh
+
+. Scripts/Network/set_mac.sh
 
 if [ ! -f /etc/mitmrunning ]
 then
-	. Scripts/Router/Network/mitm.sh &
+	. Scripts/Frontend/mitm.sh &
 fi

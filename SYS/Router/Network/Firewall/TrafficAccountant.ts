@@ -50,7 +50,7 @@ var systemTraffic:SystemTraffic = {
     intranet_down_traffic: [0, 0]
 };
 
-var scriptPath = path.join(process.env.ROOT_PATH, 'Scripts/Router/Network/traffic.sh')
+var scriptPath = path.join(process.env.ROOT_PATH, 'Scripts/Network/traffic.sh')
     , jobName = 'traffic_accountant'
     , iptables = 'iptables'
     , filter = 'filter'

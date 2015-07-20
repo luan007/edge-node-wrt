@@ -17,7 +17,7 @@ var pub5G7 = StatMgr.Pub(SECTION.WLAN5G, {
     devices: {}
 });
 
-var scriptPath = path.join(process.env.ROOT_PATH, 'Scripts/Router/Network/iw_station.sh')
+var scriptPath = path.join(process.env.ROOT_PATH, 'Scripts/Network/iw_station.sh')
     , jobName = 'iw_station_dump';
 
 interface Station {
