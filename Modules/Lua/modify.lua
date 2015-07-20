@@ -22,7 +22,7 @@ function matchHost(host, html, pattern)
 end
 
 function padding(src)
-	print("padding ============ src    " .. src)
+	--print("padding ============ src    " .. src)
 	if (string.len(src) < scriptLen) then
 		print("[WARN]: src.length must be >= script.length.")
 		return nil
@@ -40,10 +40,14 @@ function filterhost(host)
 	return false
 end
 
-function modify(data, ctx, host) -- response only
-	print("================= BEGIN", host)
+function modify(data, ctx, host, method, http_uri, status_code) -- response only
+	print("================= BEGIN", ctx, host, method, http_uri, status_code)
 
 	local matched = matchHost(host, data, "<meta.->")
+    local seenbody = string.find(matched, "</head>")
+    if (seenbody ~= nil) then
+        return data
+    end
 	if (matched) then 
 		local dst = padding(matched)				
 		data = string.gsub(data, matched, dst)	
