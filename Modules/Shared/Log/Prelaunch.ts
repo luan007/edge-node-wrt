@@ -5,6 +5,7 @@
 //IT'S A MUST TO DISABLE THIS DURING LAUNCH TIME
 
 import Stack = require("./Stack");
+import FileLogger = require('./FileLogger');
 (() => {
 
     if (!CONF.IS_DEBUG || !CONF.ENABLE_FULL_LOG) {
@@ -43,6 +44,8 @@ import Stack = require("./Stack");
     global.fatal = (...args) => {
         var logger = log4js.getLogger(Stack.getModule());
         logger.fatal.apply(logger, args);
+
+        FileLogger.fatal(args);
     };
 
     global.debug = (...args) => {
@@ -53,6 +56,8 @@ import Stack = require("./Stack");
     global.error = (...args) => {
         var logger = log4js.getLogger(Stack.getModule());
         logger.error.apply(logger, args);
+
+        FileLogger.error(args);
     };
 
     global.info = (...args) => {
