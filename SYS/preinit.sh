@@ -17,8 +17,3 @@ sleep 1
 . Scripts/Frontend/init_nginx.sh
 
 . Scripts/Network/set_mac.sh
-
-if [ ! -f /etc/mitmrunning ]
-then
-	. Scripts/Frontend/mitm.sh &
-fi

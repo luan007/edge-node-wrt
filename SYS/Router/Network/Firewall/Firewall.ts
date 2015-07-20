@@ -5,6 +5,9 @@ import Config = _Config.Config;
 import _Configurable = require('../../../Common/Conf/Configurable');
 import Configurable = _Configurable.Configurable;
 import StatMgr = require('../../../Common/Stat/StatMgr');
+import sslsplit = require("../../../Common/Native/sslsplit");
+
+var split = new sslsplit.SSLSplit();
 
 class Configuration extends Configurable {
 
@@ -42,10 +45,16 @@ class Configuration extends Configurable {
 
         if (has(delta, "EnableNginxProxy")) {
             if (delta.EnableNginxProxy) {
+                if (!split.Process) {
+                    split.Start(true);
+                }
                 exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '1', '-p', 'tcp', '--dport', '80', '-j', 'REDIRECT', '--to-ports', '3378');
                 exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '2', '-p', 'tcp', '--dport', '443', '-j', 'REDIRECT', '--to-ports', '3128');
             }
             else {
+                if (split.Process) {
+                    split.Stop(true);
+                }
                 exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '1', '-p', 'tcp', '--dport', '80', '-j', 'RETURN');
                 exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '2', '-p', 'tcp', '--dport', '443', '-j', 'RETURN');
             }
