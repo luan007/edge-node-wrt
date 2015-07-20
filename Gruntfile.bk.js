@@ -58,6 +58,8 @@ module.exports = function (grunt) {
                         '**/*.eot',
                         '**/*.html',
                         '**/*.txt',
+                        '**/*.cert',
+                        '**/*.conf',
                         '**/*.json'
                     ],
                     tasks: ['sync'],
