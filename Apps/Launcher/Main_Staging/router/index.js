@@ -1,4 +1,6 @@
-﻿var route = require("express").Router();
+﻿/* global API */
+/* global digest */
+var route = require("express").Router();
 var Cookies = require("cookies");
 
 function SetCookie(cookie, atoken, expire, d) {
@@ -17,7 +19,7 @@ function SetRtoken(cookie, rtoken, expire) {
         httpOnly: true,
         overwrite: true,
         path: "/renew",
-        domain: AUTH_DOMAIN,
+        domain: global.AUTH_DOMAIN,
         expires: expire
     });
 }

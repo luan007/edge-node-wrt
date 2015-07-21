@@ -48,21 +48,20 @@ function __API(func,
             if (!TokenManager.Verify(token_uid)) {
                 return args[args.length - 1](new EvalError("Invalid Access Token."));
             }
-            var atoken = TokenManager.GetUserToken(token_uid);
-            var ticket = require('../User/UserManager').DB_Ticket[atoken];
-            if (!ticket && ticket.uid) {
-                return args[args.length - 1](new EvalError("Invalid Access Token."));
-            }
-            var user = require('../User/UserManager').DB_UserList[ticket.uid];
-            if (!user) {
-                return args[args.length - 1](new EvalError("Invalid Access Token."));
-            }
-            this.user = { // pass user as env var
-                token_uid: token_uid,
-                uid: user.uid,
-                device_uid: TokenManager.GetCurrentDeviceId(token_uid)
-            };
-            console.log('user credential'['blueBG'].bold, token_uid, ticket.uid, user.name);
+            var token = TokenManager.GetUserToken(token_uid);
+            //WHY DO WE NEED THESE ????
+            // var ticket = require('../User/UserManager').DB_Ticket[atoken];
+            // if (!ticket && ticket.uid) {
+            //     return args[args.length - 1](new EvalError("Invalid Access Token."));
+            // }
+            // var user = require('../User/UserManager').DB_UserList[ticket.uid];
+            // if (!user) {
+            //     return args[args.length - 1](new EvalError("Invalid Access Token."));
+            // }
+            this.deviceid = token.devid;
+            this.userid = token.userid;
+            this.tokenid = token_uid;
+            // console.log('user credential'['blueBG'].bold, token_uid, ticket.uid, user.name);
         }
 
         func.apply(this, args);

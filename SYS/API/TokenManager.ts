@@ -1,6 +1,7 @@
 export interface Token {
     token_uid: string;
     atoken: string;
+    userid: string;
     expire:number;
     devid: string;
 }
@@ -20,7 +21,7 @@ export var TokenArray:Array<Token> = [];
  * @param atoken
  * @returns {any}
  */
-export function Issue(atoken:string, devid: string):string {
+export function Issue(atoken:string, userid: string, devid: string):string {
     var now = Date.now();
     var index = __binarySearch(now);
     console.log('clear token array, total:'['cyanBG'].bold, TokenArray.length, ', expire index:', index);
@@ -33,12 +34,12 @@ export function Issue(atoken:string, devid: string):string {
         token_uid: UUIDstr(),
         expire: Date.now() + CONF.TOKEN_EXPIRE_SECONDS,
         atoken: atoken,
-        devid: devid
+        devid: devid,
+        userid: userid
     };
     TokenArray.unshift(token);
     TokenMap[token.token_uid] = token;
     TokenUUIDMap[atoken] = token.token_uid;
-    console.log('((( atoken', atoken, '))) ((( token_uid', token.token_uid, ')))');
     return token.token_uid;
 }
 
@@ -46,8 +47,8 @@ export function Issue(atoken:string, devid: string):string {
  * Get atoken
  * @param token_uid
  */
-export function GetUserToken(token_uid):string {
-    return TokenMap[token_uid].atoken;
+export function GetUserToken(token_uid): Token {
+    return TokenMap[token_uid];
 }
 
 export function GetCurrentDeviceId(token_uid):string{

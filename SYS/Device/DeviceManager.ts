@@ -434,8 +434,8 @@ export function SetOwnership(devId, ownership) {
 }
 
 function GetCurrentDevice(token_uid, cb){
-    if(this.user.device_uid) {
-        var device = Get(this.user.device_uid);
+    if(this.deviceid) {
+        var device = Get(this.deviceid);
         if (device)
             return cb(undefined, cookdev(device));
     }

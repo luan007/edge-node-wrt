@@ -15,7 +15,6 @@ function MainAuth()
 		return ngx.exit(ngx.HTTP_OK)
 	end
 	
-	
 	local dev, err = RPCCall(socket, "Proxy.CurrentDevHeader", clientIp);
 	if err or not dev then
 		ngx.say("!!!Unmanaged device is not allowed   " .. clientIp .. err)
@@ -59,6 +58,7 @@ function MainAccess()
 	ngx.var._target = result[1]
 	ngx.var._cookie_path = result[2]
 	Log("_target: " .. result[1] .. "\n host:" .. ngx.var.host .. "\n request_uri: " .. ngx.var.request_uri .. "\n _auth: " .. ngx.var._auth)
+
 end
 
 local function trim(s)
