@@ -89,7 +89,7 @@ class _sys_global_conf {
         hci1: "BLUETOOTH",
     };
     ORBIT = {
-        HOST: "192.168.99.130", //for test onboard
+        HOST: "139.162.6.35", //for test onboard
         PORT: 8080,
         DEFAULT_TIMEOUT: 20000
     };
