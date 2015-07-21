@@ -15,7 +15,7 @@ if (!global.EDGE) {
     ],(err) => {
              console.log("Launcher is up @ " +
                     9999 + " ~ " + 8888);
-        });
+    });
 }
 else {
     var OUI = require('./drivers/OUI/OUI');
@@ -57,41 +57,42 @@ else {
 
 }
 
-setTimeout(()=> {
-    console.log('_____________>> [1]');
-    API.RegisterEvent('Device.change', (err, res) => {
-        if (err) {
-            return console.log('_____________>> register remote event error: ', err);
-        }
-        else {
-            API.Driver.Match('print', (err, drivers)=> {
-                console.log('_____________>> [4]', err, drivers);
-                if (err) return console.log(err);
-                if (!drivers) return console.log('_____________>> [4] no driver matched.');
-                if (Object.keys(drivers).length === 0) return console.log('_____________>> [4] no driver matched.');
 
-                //var pair = drivers[0];
-
-                //API.IO.CreateFD((err, fd)=> {
-                //    console.log('_____________>> [5] API.IO.CreateFD', err, fd);
-                //
-                //    var params = <any>{
-                //        fd: fd,
-                //        job_name: 'Job-' + fd
-                //    };
-                //    params.user = {name: 'Admin'};
-                //
-                //    var filePath = '/three.docx';
-                //    var r = fs.createReadStream(filePath);
-                //    var w = fs.createWriteStream("/Share/IO/" + fd);
-                //    r.pipe(w);
-                //
-                //    API.Driver.Invoke(pair.driverId, pair.deviceId, 'print', params, (err)=> {
-                //        if (err) return console.log('received invoke callback err', err);
-                //        else return console.log('print job was queued.');
-                //    });
-                //});
-            });
-        }
-    });
-}, 10 * 1000);
+// setTimeout(()=> {
+//     console.log('_____________>> [1]');
+//     API.RegisterEvent('Device.change', (err, res) => {
+//         if (err) {
+//             return console.log('_____________>> register remote event error: ', err);
+//         }
+//         else {
+//             API.Driver.Match('print', (err, drivers)=> {
+//                 console.log('_____________>> [4]', err, drivers);
+//                 if (err) return console.log(err);
+//                 if (!drivers) return console.log('_____________>> [4] no driver matched.');
+//                 if (Object.keys(drivers).length === 0) return console.log('_____________>> [4] no driver matched.');
+// 
+//                 //var pair = drivers[0];
+// 
+//                 //API.IO.CreateFD((err, fd)=> {
+//                 //    console.log('_____________>> [5] API.IO.CreateFD', err, fd);
+//                 //
+//                 //    var params = <any>{
+//                 //        fd: fd,
+//                 //        job_name: 'Job-' + fd
+//                 //    };
+//                 //    params.user = {name: 'Admin'};
+//                 //
+//                 //    var filePath = '/three.docx';
+//                 //    var r = fs.createReadStream(filePath);
+//                 //    var w = fs.createWriteStream("/Share/IO/" + fd);
+//                 //    r.pipe(w);
+//                 //
+//                 //    API.Driver.Invoke(pair.driverId, pair.deviceId, 'print', params, (err)=> {
+//                 //        if (err) return console.log('received invoke callback err', err);
+//                 //        else return console.log('print job was queued.');
+//                 //    });
+//                 //});
+//             });
+//         }
+//     });
+// }, 10 * 1000);
