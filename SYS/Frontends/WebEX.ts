@@ -3,7 +3,13 @@
 import express = require('express');
 import APIManager = require("../API/FunctionExposer");
 var app = express();
-var port = "/var/webex";
+var _port = "/tmp/fdsock/webex";
+
+app.get("/", (req, res)=>{
+	res.json({
+		result: "welcome"
+	});
+});
 
 app.get("*", (req, res)=>{
 	var p = req.path.toLowerCase();
@@ -35,15 +41,19 @@ app.get("*", (req, res)=>{
 				});
 			}
 		}, 50000));
+		console.log(params);
 		//extract referer
 		var mockRPC = {
-			remote: 0
+			rpc: { remote: 0 }
 		};
 		APIManager.APIDict[d].apply(mockRPC, params);
 	}
 });
 
-function Initialize(cb){
-	app.listen(port);
-	cb();
+export function Initialize(cb){
+	info("Initializing WebEX");
+	app.listen(_port, ()=>{
+		exec("chmod", "777", _port);
+		cb();
+	});
 }
