@@ -13,8 +13,8 @@ end
 
 function matchHost(host, html, pattern)
 	for matched in string.gmatch(html, pattern) do
-		if (string.len(matched) >= scriptLen and 
-			string.match(matched, 'content.type') == nil) then
+		if (string.len(matched) >= scriptLen and
+			string.match(string.lower(matched), 'content.type') == nil) then
 			--print ("found ========== " .. matched) 	
 			return string.gsub(matched, '-', '.') --HOLY SHIT
 		end	
