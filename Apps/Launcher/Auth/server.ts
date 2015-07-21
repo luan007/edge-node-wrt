@@ -94,7 +94,7 @@ app.get("/",(req, res) => {
     var deviceid = req.header("edge-dev");
     API.Device.Get(deviceid, (err, result)=>{
         return res.render("Entry.ejs", {
-            dev: result
+            dev: result.attributes
         });
     });
 
@@ -114,7 +114,7 @@ app.get("/",(req, res) => {
     //}
 });
 
-app.post("/auth",(req, res) => {
+app.post("/",(req, res) => {
     console.log('=============== ((( /auth POST');
 
     var host = req.header("edge-host").toLowerCase();
