@@ -18,7 +18,7 @@ export class Device {
     //config: KVSet = {};
     config: string = "";
     ownership: string = "";
-    
+    thirdparty: string = "{}";
     
     static table(): orm.Typed.TypedModel<IDevice> {
         if (!Table) {

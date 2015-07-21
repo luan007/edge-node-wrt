@@ -15,6 +15,8 @@ var db_devices:IDic<deviceData> = {};
 var hwaddr_map:IDic<KVSet> = {}; // <Bus<HWAddr>>
 var device_updates:KVSet = {};
 
+export var DB_Devices = db_devices;
+
 export var Events = new events.EventEmitter();
 
 var not_saved = false;

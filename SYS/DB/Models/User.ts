@@ -14,6 +14,7 @@ export class User {
     version: number = 0;    // unix timestamp / new Date().getTime()
     avatar:string = "";     // uuid
     lastSeen: Date = new Date();
+    thirdparty: string = "{}";
     
     static table(): orm.Typed.TypedModel<IUser> {
         if (!Table) {
@@ -21,5 +22,4 @@ export class User {
         }
         return Table;
     }
-
 }
