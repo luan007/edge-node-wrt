@@ -4,7 +4,7 @@ import Config = _Config.Config;
 import StatMgr = require('../../../Common/Stat/StatMgr');
 
 export function Initialize(cb) {
-    fatal('============>>> firewall: Block Remote Addresses testing...');
+    info('============>>> firewall: Block Remote Addresses testing...');
     var BlockedRemoteAddresses = [];
     var confFirewall:any = ConfMgr.Get(SECTION.FIREWALL);
     if (confFirewall && confFirewall.BlockedRemoteAddresses)

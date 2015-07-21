@@ -170,13 +170,13 @@ function _update_driver_data(drv:IDriver, dev:IDevice, assump:IDeviceAssumption,
                 }
             }
             if (!changed) {
-                fatal("Empty / Malformed Assumption - Skipped");
+                warn("Empty / Malformed Assumption - Skipped");
                 return;
             }
             real.driverId = drv.id(); //make sure
             var curAssump = dev.assumptions[real.driverId];
             if (_.isEqual(curAssump, real)) {
-                fatal("Exact-Same Assumption - Skipped");
+                warn("Exact-Same Assumption - Skipped");
                 return;
             }
 

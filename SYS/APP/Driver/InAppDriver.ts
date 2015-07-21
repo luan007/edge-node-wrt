@@ -82,7 +82,7 @@ class InAppDriver implements IDriver {
     }
 
     match = (dev: IDevice, delta, cb: Callback) => {
-        fatal('Match ' + this.name());
+        info('Match ' + this.name());
         if (!this.status()) return cb(new Error("Driver is Offline"));
         var devCopy = this.__assumptions2APP(dev);
         var deltaCopy = this._assumption2APP(delta);
@@ -90,7 +90,7 @@ class InAppDriver implements IDriver {
     };
 
     attach = (dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) => {
-        fatal('Attach ' + this.name());
+        info('Attach ' + this.name());
         if (!this.status()) return cb(new Error("Driver is Offline"));
         var devCopy = this.__assumptions2APP(dev);
         var deltaCopy = this._assumption2APP(delta);
@@ -98,7 +98,7 @@ class InAppDriver implements IDriver {
     };
 
     change = (dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) => {
-        fatal('Change ' + this.name());
+        info('Change ' + this.name());
         if (!this.status()) return cb(new Error("Driver is Offline"));
         var devCopy = this.__assumptions2APP(dev);
         var deltaCopy = this._assumption2APP(delta);
@@ -106,7 +106,7 @@ class InAppDriver implements IDriver {
     };
 
     detach = (dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) => {
-        fatal('Detach ' + this.name());
+        info('Detach ' + this.name());
         if (!this.status()) return cb(new Error("Driver is Offline"));
         var devCopy = this.__assumptions2APP(dev);
         var deltaCopy = this._assumption2APP(delta);
@@ -114,7 +114,7 @@ class InAppDriver implements IDriver {
     };
 
     load = (cb: Callback) => {
-        fatal('Load ' + this.name());
+        info('Load ' + this.name());
         if (this.Loaded) {
             return cb(undefined, true);
         } else {

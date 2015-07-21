@@ -205,7 +205,7 @@ export class Runtime extends events.EventEmitter {
         this._status.PlannedLaunchTime = //Date.now() +
             Math.pow(10, (1 - this._status.StabilityRating) * CONF.APP_SPAN_SCALER) * 1000
             * (this._status.FailHistory.length / _FAIL_STACK_SIZE) * (this._status.FailHistory.length / _FAIL_STACK_SIZE);
-        fatal(this.App.name.bold + " * StabilityRating " + (this._status.StabilityRating * 100 + "%")["yellowBG"].black.bold);
+        info(this.App.name.bold + " * StabilityRating " + (this._status.StabilityRating * 100 + "%")["yellowBG"].black.bold);
         console.log('^------------------^ PlannedLaunchTime', this._status.PlannedLaunchTime);
 
         this._stateMachine(RuntimeStatusEnum.Error);
@@ -323,7 +323,7 @@ export class Runtime extends events.EventEmitter {
         RemoveRuntimePID(this.GetPID());
         ReleaseVirtualIp(this._virtualip);
         if (this.RPC) {
-            fatal("Releasing RPC event listeners..");
+            trace("Releasing RPC event listeners..");
             this.RPC.Destroy();
             this.RPC = undefined;
         }

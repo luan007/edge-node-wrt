@@ -112,8 +112,8 @@ function SetupLauncherPort(main, auth, cb) {
 
     LauncherMainPort = path.join(AppManager.GetRealAppDataDir(launcher.App.uid), main);
     LauncherAuthPort = path.join(AppManager.GetRealAppDataDir(launcher.App.uid), auth);
-    fatal("^_________^ Main:" + LauncherMainPort);
-    fatal("^_________^ Auth:" + LauncherAuthPort);
+    info("^_________^ Main:" + LauncherMainPort);
+    info("^_________^ Auth:" + LauncherAuthPort);
 
     async.series([
         exec.bind(null, "chown", "nobody", LauncherMainPort),

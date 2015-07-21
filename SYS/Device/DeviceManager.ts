@@ -54,10 +54,10 @@ function LoadFromDB(callback:Callback) {
                     hwaddr_map[dev.busname][dev.hwaddr] = dev.uid;
 
                 } else {
-                    fatal(" X " + dev.uid + " - " + dev.busname.cyan); //SKIP
+                    warn(" X " + dev.uid + " - " + dev.busname.cyan); //SKIP
                     //and remove it
                     dev.remove(() => {
-                        fatal(' -REMOVED- ');
+                        warn(' -REMOVED- ');
                     });
                 }
             }
@@ -366,7 +366,7 @@ export function OrbitSync(devId, cb) {
     if (!has(db_devices, devId)) {
         process.nextTick(cb.bind(null, new Error("Device not found")));
     }
-    fatal('==========<<< SYNC to orbit, dev', devId);
+    info('==========<<< SYNC to orbit, dev', devId);
     Orbit.UploadDevice(devId, db_devices[devId].busname, db_devices[devId].hwaddr, db_devices[devId], cb);
 }
 

@@ -74,7 +74,7 @@ var defaultConfig = {
 };
 
 export function Initialize(cb) {
-    fatal('[[[ Streaming ]]] Initialize');
+    info('[[[ Streaming ]]] Initialize');
 
     //rewiring
     AirplayEvents.on('add', (name) => {

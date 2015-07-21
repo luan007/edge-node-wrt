@@ -167,7 +167,7 @@ export function Install(app_uid:string, callback:Callback) {
                                                     return callback(err);
                                                 }
                                                 else {
-                                                    fatal("Deploy Complete");
+                                                    info("Deploy Complete");
                                                     pub.apps.Set(app_uid, {
                                                         State: 'loading'
                                                     });

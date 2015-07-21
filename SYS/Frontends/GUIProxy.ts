@@ -12,7 +12,7 @@ export var GUI_PERMISSION = PermissionLib.Encode(GUI_PERMISSION_ARR);
 function ConnectionHandler(credential:{ uid; pid; gid; },
                            socket:net.Socket,
                            callback:(handled:boolean) => any) {
-    fatal("RPC Socket Scan (GUI PROXY) ~ " + credential.pid);
+    info("RPC Socket Scan (GUI PROXY) ~ " + credential.pid);
 
     // if (!GUIInstance || GUIInstance.IsChoking()
     //     || !GUIInstance.Process) {
@@ -30,15 +30,15 @@ function ConnectionHandler(credential:{ uid; pid; gid; },
         if(!fs.existsSync("/var/GUI")) return callback(undefined);
         var pid = fs.readFileSync("/var/GUI").toString();
         if (pid == credential.pid) {
-            fatal("GUI Proxy Socket Inbound " + credential.pid);
+            info("GUI Proxy Socket Inbound " + credential.pid);
             PermissionLib.SetPermission(gui_runtime_id, GUI_PERMISSION);
             //Start serving STUFF
             Server.Serve(socket, CONF.SENDER_TYPE_GUI, gui_runtime_id, 
                 gui_runtime_id);
-            fatal("GUI Proxy RPC is Bound with " + credential.pid);
+            info("GUI Proxy RPC is Bound with " + credential.pid);
         }
         else {
-            fatal("NO MATCH, Moving on.. " + credential.pid);
+            trace("NO MATCH, Moving on.. " + credential.pid);
             callback(undefined);
         }
     } catch (e) {

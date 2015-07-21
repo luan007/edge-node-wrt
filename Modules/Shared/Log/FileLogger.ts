@@ -16,7 +16,7 @@ function writeLog(level, ...args) {
     if(!CONF.LOG_TO_FILE || !args) // should switch on
         return;
 
-    var stack = Stack.getModule(2);
+    var stack = Stack.getModule(3);
     var now = new Date();
     var prefix = path.join(dir, now.getFullYear() + '' + TwoDigitalize(now.getMonth() + 1));
     var time = now.getFullYear() + '-' + TwoDigitalize(now.getMonth() + 1) + '-' + TwoDigitalize(now.getDate())

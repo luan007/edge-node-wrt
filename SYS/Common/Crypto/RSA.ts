@@ -88,8 +88,8 @@ function LoadFromFile(keyname, suffix) {
     } else {
         var data = fs.readFileSync(f, 'utf8').toString();
         LoadKey(keyname, data);
-        fatal("* GOT PEM " + keyname["greenBG"].bold);
-        fatal("* KEY LENGTH = " + temp_keystore[keyname].getKeySize());
+        info("* GOT PEM " + keyname["greenBG"].bold);
+        info("* KEY LENGTH = " + temp_keystore[keyname].getKeySize());
     }
 }
 
