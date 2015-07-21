@@ -23,6 +23,8 @@
 require("./PermissionDef");
 
 var PermissionTable = {};
+var _sys_perm = Encode([Permission.System]);
+SetPermission(0, _sys_perm)
 
 export function SetPermission(id, buffer: number[]) {
     PermissionTable[id] = Encode(Decode(buffer));

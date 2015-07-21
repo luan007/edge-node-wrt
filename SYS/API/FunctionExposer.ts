@@ -6,6 +6,8 @@ import pm = require("./Permission");
 import TokenManager = require('./TokenManager');
 var _api = rpc.APIManager;
 
+export var APIDict = {};
+
 interface _Function_With_Permission_Token extends Function {
     _p: any[];
 }
@@ -68,6 +70,7 @@ function __API(func,
     }
     shell["_p"] = perm; //for outer access
     _api.RegisterFunction(shell, path);
+    APIDict[path.toLowerCase()] = shell;
 }
 
 global.__API = __API;
