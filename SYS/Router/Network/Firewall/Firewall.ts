@@ -48,15 +48,15 @@ class Configuration extends Configurable {
                 if (!split.Process) {
                     split.Start(true);
                 }
-                exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '1', '-p', 'tcp', '--dport', '80', '-j', 'REDIRECT', '--to-ports', '3378');
-                exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '2', '-p', 'tcp', '--dport', '443', '-j', 'REDIRECT', '--to-ports', '3128');
+                exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '2', '-p', 'tcp', '--dport', '80', '-j', 'REDIRECT', '--to-ports', '3378');
+                exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '3', '-p', 'tcp', '--dport', '443', '-j', 'REDIRECT', '--to-ports', '3128');
             }
             else {
                 if (split.Process) {
                     split.Stop(true);
                 }
-                exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '1', '-p', 'tcp', '--dport', '80', '-j', 'RETURN');
-                exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '2', '-p', 'tcp', '--dport', '443', '-j', 'RETURN');
+                exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '2', '-p', 'tcp', '--dport', '80', '-j', 'RETURN');
+                exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '3', '-p', 'tcp', '--dport', '443', '-j', 'RETURN');
             }
         }
 
@@ -149,9 +149,11 @@ export function Subscribe(cb) {
             localNetmask = networkStatus ? networkStatus.LocalNetmask : '';
         if (has(network, "RouterIP")) {
             routerIP = network.RouterIP;
+            exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '1', '-d', routerIP + "/" + localNetmask, '-j', 'RETURN');
         }
         if (has(network, "LocalNetmask")) {
             localNetmask = network.LocalNetmask;
+            exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '1', '-d', routerIP + "/" + localNetmask, '-j', 'RETURN');
         }
         if (has(network, "DropIncomingRequests")) {
             exec(iptables, '-w', '-t', 'filter', '-R', drop_incoming, '1', '-m', 'state', '--state', 'NEW', '-j', 'ACCEPT', '-i', network.DropIncomingRequests.Interface);

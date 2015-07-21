@@ -1,6 +1,6 @@
 ﻿import events = require("events");
 
-global.withCb = function (syncFunc) {
+global.withCb = function (syncFunc, resultfilter?) {
     return function () {
         var cb = arguments[arguments.length - 1];
         delete arguments[arguments.length - 1];
@@ -8,6 +8,7 @@ global.withCb = function (syncFunc) {
         var error = void 0;
         try {
             result = syncFunc.apply(null, arguments);
+            if(resultfilter) result = resultfilter(result);
         } catch (e) {
             error = e;
         }

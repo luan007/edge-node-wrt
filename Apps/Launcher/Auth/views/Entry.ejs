@@ -1,28 +1,187 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>:Gate:</title>
+    <title>Edge Router</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Edge.Wifi">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="/custom_icon.png">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"></meta>
     <style>
         body {
+            padding:0;
             font-family:Helvetica, Arial, sans-serif;
             font-weight:lighter;
+            text-align: center;
+            color:white;
+            background: #2fafff;
+            overflow: hidden;
         }
-        h1 {
-            font-weight:normal;
+        
+        body > div {
+            position:absolute;
+            margin:0;
+            top:0;
+            left:0;
+            bottom:0;
+            right:0;
+            height: 100%;
+            width: 100%;
+            display:table;
+            background: rgba(6,116,189,1);
+            background: -moz-linear-gradient(top, rgba(6,116,189,1) 0%, rgba(36,189,189,1) 100%);
+            background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(6,116,189,1)), color-stop(100%, rgba(36,189,189,1)));
+            background: -webkit-linear-gradient(top, rgba(6,116,189,1) 0%, rgba(36,189,189,1) 100%);
+            background: -o-linear-gradient(top, rgba(6,116,189,1) 0%, rgba(36,189,189,1) 100%);
+            background: -ms-linear-gradient(top, rgba(6,116,189,1) 0%, rgba(36,189,189,1) 100%);
+            background: linear-gradient(to bottom, rgba(6,116,189,1) 0%, rgba(36,189,189,1) 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0674bd', endColorstr='#24bdbd', GradientType=0 );
+         
+            
         }
-        h2 {
-            font-weight:lighter;
+        body > div > div{
+            display: table-cell;
+            width: 100%;
+            vertical-align: middle;
         }
+        h1, h4 {
+            font-weight:100;
+            margin: 0;
+            margin-bottom: 5px;
+        }
+        h4{
+            opacity: 0.3;
+            margin-bottom: 45px;
+        }
+        
+        input[type='password'], input[type='text'] {
+            color:white;
+            font-size: 1.2em;
+            display: block;
+            margin: 0 auto;
+            border: none;
+            border-radius: 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: transparent;
+            margin-bottom: 10px;
+            padding-top: 5px;
+            font-weight: 100;
+        }
+        #submit{
+            border-radius: 500em;
+            border: 1px solid rgba(255,255,255,0.5);
+            color:white;
+            background: transparent;
+            display: block;
+            padding: 5px 20px;
+            font-size: 1.1em;
+            margin: 35px auto;
+            font-weight: 100;
+        }
+        
+        form{
+            text-align: center;
+        }
+        
+        svg {
+            width: 70px;
+            height: 70px;
+            border-radius: 8888em;
+            padding: 10px;
+            background: white;
+            display: block;
+            margin: 0px auto;
+            margin-bottom: 30px;
+            margin-top: 40px;
+            box-shadow: 0px 1px 2px rgba(0,0,0,0.1);
+            
+        }
+        
+        
+        svg > * {
+            fill: #2fafff;
+            stroke: #2fafff;
+            
+        }
+        
+        ::-webkit-input-placeholder { /* WebKit browsers */
+            color:    rgba(255,255,255,0.3);
+            font-weight: 100;
+        }
+        :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+            color:    rgba(255,255,255,0.3);
+            font-weight: 100;
+        }
+        ::-moz-placeholder { /* Mozilla Firefox 19+ */
+            color:     rgba(255,255,255,0.3);
+            font-weight: 100;
+        }
+        :-ms-input-placeholder { /* Internet Explorer 10+ */
+            color:     rgba(255,255,255,0.3);
+            font-weight: 100;
+        }
+        
+        
+        @media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1024px)  {
+            h4{
+                margin-bottom: 45px;
+            }
+            input[type='password'], input[type='text'] {
+                /* Remove First */
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+            
+                display:block;
+                width: 100%;
+                font-size: 1.3em;
+                padding: 10px;
+                border-bottom: 1px solid rgba(0,0,0,0.1);
+                margin: 0;
+                
+            }
+            #submit {
+                /* Remove First */
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                display:block;
+                width: 100%;
+                font-size: 1.3em;
+                padding: 20px;
+                border: none;
+                border-bottom: 1px solid rgba(0,0,0,0.1);
+                margin: 0;
+                border-radius:0;
+            }
+            svg {
+                width: 80px;
+                height: 80px;
+                border-radius: 8888em;
+                padding: 10px;
+                background: white;
+                display: block;
+                margin: 0px auto;
+                margin-bottom: 15px;
+                margin-top: 20px;
+            }
+        }   
     </style>
 </head>
 <body>
-    <h1>EDGE</h1>
-    <h2>AuthServer</h2>
-
-    <form method="post" action="/auth">
-        <input name="uore" />
-        <input type="password" name="pass"/>
-        <input type="submit" value="Login"/>
-    </form>
+    <div>
+        <div>
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve"><g><g><path d="M450.105,236.441c-51.848-51.848-120.783-80.401-194.106-80.402c-73.323,0-142.258,28.554-194.105,80.402l-11.314-11.313    c54.866-54.867,127.827-85.088,205.42-85.088c0.004,0-0.005,0,0,0c77.598,0,150.55,30.218,205.421,85.088L450.105,236.441z"/></g></g><g><g><path d="M383.519,303.03c-34.061-34.062-79.348-52.821-127.519-52.821c-48.172,0-93.459,18.759-127.52,52.821l-11.314-11.313    c37.083-37.084,86.389-57.507,138.834-57.507c52.444,0,101.75,20.423,138.833,57.507L383.519,303.03z"/></g></g><g><g><path d="M195.069,369.618l-11.314-11.313c19.297-19.297,44.954-29.925,72.244-29.925c27.291,0,52.947,10.627,72.244,29.925    l-11.314,11.313c-16.274-16.275-37.912-25.238-60.93-25.238C232.982,344.379,211.344,353.342,195.069,369.618z"/></g></g></svg>
+            
+            <h4><%= message%></h4>
+            <form method="post" action="/auth">
+                <input name="uore" type="text" placeholder="your name"/>
+                <input type="password" name="pass" placeholder="password"/>
+                <input id="submit" type="submit" value="Login"/>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

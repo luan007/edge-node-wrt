@@ -334,7 +334,6 @@ export function Diagnose(callback:Callback) {
 export function RegisterBus(bus) {
     bus.on('device', _OnDevice);
     bus.on('drop', _OnDrop);
-
     pub.buses.Set(bus.name(), {});
 }
 
@@ -438,20 +437,51 @@ function GetCurrentDevice(token_uid, cb){
     if(this.user.device_uid) {
         var device = Get(this.user.device_uid);
         if (device)
-            return cb(undefined, device);
+            return cb(undefined, cookdev(device));
     }
 
     return cb(new Error('no such device'));
 }
 
+function cooklist(dev_s){
+    if(!dev_s) return dev_s;
+    for(var i in dev_s){
+        dev_s[i] = cookdev(dev_s[i]);
+    }
+    return dev_s;
+}
+
+function cookdev(dev:IDevice){
+    if(!dev) return;
+    dev = jclone(dev);
+    for(var drv in dev.assumptions) {
+        var a = dev.assumptions[drv];
+        for(var key in a) {
+            if(!dev[key]){
+                dev[key] = {};
+            }
+            var subkey = a[key];
+            for(var k in subkey){
+                if(!dev[key][k]){
+                    dev[key][k] = {};
+                }
+                dev[key][k][drv] = subkey[k];
+                dev[key][k].value = subkey[k];
+            }
+        }
+    }
+    return dev;
+}
+
+
 __EVENT("Device.down", [Permission.DeviceAccess]);
 __EVENT("Device.up", [Permission.DeviceAccess]);
 
-__API(withCb(Get), "Device.Get", [Permission.DeviceAccess]);
-__API(withCb(GetDevIdByHWAddr), "Device.GetByMAC", [Permission.DeviceAccess]);
-__API(withCb(Devices), "Device.All", [Permission.DeviceAccess]);
-__API(withCb(List), "Device.List", [Permission.DeviceAccess]);
-__API(withCb(FromBus), "Device.FromBus", [Permission.DeviceAccess]);
+__API(withCb(Get, cookdev), "Device.Get", [Permission.DeviceAccess]);
+__API(withCb(GetDevIdByHWAddr, cookdev), "Device.GetByMAC", [Permission.DeviceAccess]);
+__API(withCb(Devices, cooklist), "Device.All", [Permission.DeviceAccess]);
+__API(withCb(List, cooklist), "Device.List", [Permission.DeviceAccess]);
+__API(withCb(FromBus, cookdev), "Device.FromBus", [Permission.DeviceAccess]);
 __API(withCb(Config), "Device.Config", [Permission.DeviceAccess, Permission.System]);
 
 __API(GetCurrentDevice, "Device.GetCurrent", [Permission.DeviceAccess], true);

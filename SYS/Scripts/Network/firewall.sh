@@ -76,15 +76,17 @@ iptables -w -t filter -A fw_sys -i $WLAN_BR -m set --match-set block_remote_addr
 iptables -w -t filter -A OUTPUT -j ot_sys
 iptables -w -t filter -A OUTPUT -j ot_custom
 
+
 iptables -w -t mangle -A PREROUTING -j pre_traffic
 iptables -w -t mangle -A POSTROUTING -j post_traffic
 
 iptables -w -t nat -A PREROUTING -j nginx_proxy
 #iptables -w -t nat -A nginx_proxy -p tcp --dport 80 -j REDIRECT --to-ports 3378
 #iptables -w -t nat -A nginx_proxy -p tcp --dport 443 -j REDIRECT --to-ports 3128
-
+iptables -w -t nat -A nginx_proxy -d 192.168.66.0/24 -j RETURN
 iptables -w -t nat -A nginx_proxy -p tcp --dport 80 -j REDIRECT --to-ports 3378
 iptables -w -t nat -A nginx_proxy -p tcp --dport 443 -j REDIRECT --to-ports 3128
+
 
 iptables -w -t nat -A PREROUTING -j pre_sys
 iptables -w -t nat -A pre_sys -j wifi_nat

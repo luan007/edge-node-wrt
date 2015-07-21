@@ -15,6 +15,8 @@ global.AuthServerKey = key;
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+console.log(__dirname);
+app.use(favicon('/favico.ico'));
 
 app.use("/public", express.static(path.join(__dirname, 'public')));
 
@@ -89,7 +91,10 @@ app.get("/",(req, res) => {
         //leaving to /renew
         return res.redirect("/renew?" + querystring.stringify(req.query));
     }
-    return res.render("Entry.ejs");
+    var deviceid = req.header("edge-dev");
+    return res.render("Entry.ejs", {
+        message: deviceid
+    });
 
     ////console.log(atoken);
     //if (atoken) {
