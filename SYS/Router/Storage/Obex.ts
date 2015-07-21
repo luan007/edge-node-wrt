@@ -66,7 +66,7 @@ var defaultConfig = {
 };
 
 export function Initialize(cb) {
-    fatal('[[[ Obex ]]] Initialize');
+    info('[[[ Obex ]]] Initialize');
     var configObex = new Configuration(SECTION.OBEX, defaultConfig);
     configObex.Initialize(cb);
 }

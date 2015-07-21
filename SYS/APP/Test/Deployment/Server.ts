@@ -119,6 +119,6 @@ app.post('/', (req, res) => {
 
 export function Initialize(cb) {
     app.listen(10086);
-    fatal("DEPLOYMENT SERVER @ 10086");
+    info("DEPLOYMENT SERVER @ 10086");
     cb();
 }

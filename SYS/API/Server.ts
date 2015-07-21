@@ -32,7 +32,7 @@ function _api_server_on_new_socket(socket: net.Socket) {
     });
 
     uscred.getCredentials(socket, (err, res) => {
-        fatal("New Socket Inbound, Entering loop - PID " + (res.pid + "").bold);
+        info("New Socket Inbound, Entering loop - PID " + (res.pid + "").bold);
         if (err) {
             //error(err); //FAILED
             return socket.destroy();
@@ -154,10 +154,10 @@ export function Initialize(cb) {
 
     SYS_ON(SYS_EVENT_TYPE.LOADED, () => {
         if (CONF.IS_DEBUG) {
-            fatal(" ** API DUMP ** ");
-            fatal("\n" + util.inspect(JSON.parse(rpc.APIManager.ToJSON().toString())));
+            info(" ** API DUMP ** ");
+            info("\n" + util.inspect(JSON.parse(rpc.APIManager.ToJSON().toString())));
         }
-        fatal(" ** -------- ** ");
+        info(" ** -------- ** ");
     });
 
     _port = getSock(UUIDstr());

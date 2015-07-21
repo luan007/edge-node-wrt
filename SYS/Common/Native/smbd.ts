@@ -309,7 +309,7 @@ export class SmbDaemon extends Process {
 
     Start(forever: boolean = true) {
         if (CONF.IS_DEBUG && CONF.DISABLE_SAMBA) {
-            if(CONF.DISABLE_SAMBA) fatal('************ samba was disabled ***********');
+            if(CONF.DISABLE_SAMBA) warn('************ samba was disabled ***********');
             return;
         }
         if (!this.IsChoking()) {

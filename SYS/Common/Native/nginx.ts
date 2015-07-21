@@ -29,7 +29,7 @@ export class nginx extends Process {
 
     Start(forever:boolean = true) {
         if (this.firstTime) {
-            fatal('---------------------------NGINX first starting');
+            //info('---------------------------NGINX first starting');
 
             return killall("nginx", (err, result) => {
                 this.firstTime = false;
@@ -37,7 +37,7 @@ export class nginx extends Process {
             });
         }
         if (!this.IsChoking()) {
-            fatal('---------------------------NGINX second starting');
+            //info('---------------------------NGINX second starting');
             //this.Ctrl.Init((err) => {
             //    if (err) {
             //        error("Error Generating Nginx Conf");

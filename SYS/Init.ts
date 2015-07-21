@@ -105,12 +105,12 @@ domain.run(function () {
     });
 
     async.series(cleanups.concat(subscribes.concat(initializes)), (err) => {
-        fatal('========>>> entire series executed, then daemon.');
+        info('========>>> entire series executed, then daemon.');
         if (err) {
             SYS_TRIGGER(SYS_EVENT_TYPE.ERROR, err);
             if (err) error(err);
         } else {
-            fatal('SYS LOADED');
+            info('SYS LOADED');
             SYS_TRIGGER(SYS_EVENT_TYPE.LOADED, err);
         }
     });

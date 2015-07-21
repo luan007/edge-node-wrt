@@ -9,11 +9,11 @@ import DeviceManager = require('../Device/DeviceManager');
 function ConnectionHandler(credential:{ uid; pid; gid; },
                            socket:net.Socket,
                            callback:(handled:boolean) => any) {
-    fatal("RPC Socket Scan (PROXY) ~ " + credential.pid);
+    info("RPC Socket Scan (PROXY) ~ " + credential.pid);
 
     if (!NginxInstance || NginxInstance.IsChoking()
         || !NginxInstance.Process) {
-        fatal("NO MATCH, Moving on.. " + credential.pid);
+        trace("NO MATCH, Moving on.. " + credential.pid);
         return callback(undefined);
     }
 
@@ -27,15 +27,15 @@ function ConnectionHandler(credential:{ uid; pid; gid; },
         var content = fs.readFileSync("/proc/" + credential.pid + "/stat").toString();
         var ppid = Number(content.split(" ")[3].trim());
         if (ppid == NginxInstance.Process.pid) {
-            fatal("Proxy Socket Inbound " + credential.pid);
+            info("Proxy Socket Inbound " + credential.pid);
             PermissionLib.SetPermission(nginx_runtime_id, nginx.NGINX_PERMISSION);
             //Start serving STUFF
             Server.Serve(socket, CONF.SENDER_TYPE_PROXY, nginx_runtime_id,
                 undefined);
-            fatal("Proxy RPC is Bound with " + credential.pid);
+            info("Proxy RPC is Bound with " + credential.pid);
         }
         else {
-            fatal("NO MATCH, Moving on.. " + credential.pid);
+            trace("NO MATCH, Moving on.. " + credential.pid);
             callback(undefined);
         }
     } catch (e) {
