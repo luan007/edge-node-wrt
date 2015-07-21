@@ -18,6 +18,10 @@ export class Device {
     //config: KVSet = {};
     config: string = "";
     ownership: string = "";
+    //thirdparty = {}
+    thirdparty: string = "";
+    
+    
     static table(): orm.Typed.TypedModel<IDevice> {
         if (!Table) {
             Table = <any>store.DefineTable("Device", Device, { id: ["uid"] });

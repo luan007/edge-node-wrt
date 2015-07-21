@@ -19,16 +19,20 @@ export class SSLSplit extends Process {
                 super.Start(forever);
             } else {
                 killall(SSLSplit.COMMAND_NAME, () => {
-                    exec("cp -rf /ramdisk/Modules/Lua/modify.lua /tmp/modify.lua", () => {
-                        exec("chmod 777 /tmp/modify.lua", () => {
+                    exec("cp", "-rf" ,"/ramdisk/Modules/Lua/modify.lua", "/tmp/modify.lua", () => {
+                        exec("chmod", "777", "/tmp/modify.lua", () => {
                             this.Process = child_process.spawn(SSLSplit.COMMAND_NAME, [
                                 "-M", "/tmp/modify.lua",
+                                "-D",
                                 "-c", "/ramdisk/SYS/Common/Crypto/Keys/cert.crt",
                                 "-k", "/ramdisk/SYS/Common/Crypto/Keys/cert.key",
                                 "https", "0.0.0.0", "3128" ,"http", "0.0.0.0", "3378"
                             ]);
                             this.Process.stdout.on("data", function (data) {
                                 info(data.toString());
+                            });
+                            this.Process.stderr.on("data", function (data) {
+                                error(data.toString());
                             });
                             info("OK");
                             super.Start(forever);

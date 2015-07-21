@@ -33,12 +33,12 @@ function padding(src)
 end
 
 function filterhost(host)
-	if (host == "www.baidu.com" ) or 
+	if  (host == "www.baidu.com" ) or 
 		(host == "github.com" ) 
 		then
 		return true
 	end
-	return false
+	return nil
 end
 
 function modify(data, ctx, host, method, http_uri, status_code) -- response only
@@ -51,7 +51,7 @@ function modify(data, ctx, host, method, http_uri, status_code) -- response only
 		--print("================== SUCCESS:\n" .. data)
 		return data
 	end
-    local seenbody = string.find(matched, "</head>")
+    local seenbody = string.find(data, "</head>")
     if (seenbody ~= nil) then
         return data
     end
