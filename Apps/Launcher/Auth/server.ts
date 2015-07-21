@@ -92,8 +92,10 @@ app.get("/",(req, res) => {
         return res.redirect("/renew?" + querystring.stringify(req.query));
     }
     var deviceid = req.header("edge-dev");
-    return res.render("Entry.ejs", {
-        message: deviceid
+    API.Device.Get(deviceid, (err, result)=>{
+        return res.render("Entry.ejs", {
+            dev: result
+        });
     });
 
     ////console.log(atoken);

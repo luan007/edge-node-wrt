@@ -124,62 +124,57 @@ function _remove_name(dev: IDevice, cb) {
     }, cb);
 }
 
+var job = (dev, cb) => {
+    if (!dev.bus.data.Lease || dev.state < 1) {
+        _remove_name(dev, () => {
+        });
+    } else {
+        _update_name(dev, () => {
+            //do nothing
+        });
+    }
+    var assumption: IDeviceAssumption = { valid: true };
+    var lease = dev.bus.data.Lease;
+    var hostname = lease.Hostname.trim();
+    if (hostname) {
+        assumption.attributes = {};
+        assumption.attributes['name'] = hostname;
+    }
+    return cb(undefined, assumption);
+};
+
 var NameService: IInAppDriver = {
 
-    match : (dev: IDevice, delta, cb: Callback) => {
+    match: (dev: IDevice, delta, cb: Callback) => {
         //IpAddress is required
         return cb(undefined, !!dev.bus.data.Lease && dev.state);
     },
 
-    attach : (dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) => {
-        if (!dev.bus.data.Lease) {
-            return cb(new Error("Lease is missing"), undefined);
-        } else {
-            //What's your name?
-            _update_name(dev, () => {
-                //do nothing
-            });
-            cb(undefined, { valid: true });
-        }
+    attach: (dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) => {
+        job(dev, cb);
     },
 
-    change : (dev: IDevice, delta: IDriverDetla, cb: PCallback<IDeviceAssumption>) => {
-        console.log('NameService CHANGE Called.');
-        if (!dev.bus.data.Lease || dev.state < 1) {
-            _remove_name(dev, () => {
-            });
-        } else {
-            _update_name(dev, () => {
-                //do nothing
-            });
-        }
-        var assumption: IDeviceAssumption = { valid: true };
-        var lease = dev.bus.data.Lease;
-        var hostname = lease.Hostname.trim();
-        if (hostname) {
-            assumption.attributes = {};
-            assumption.attributes['name'] = hostname;
-        }
-        return cb(undefined, assumption);
+    change: (dev: IDevice, delta: IDriverDetla, cb: PCallback<IDeviceAssumption>) => {
+        job(dev, cb);
     },
 
-    detach : (dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) => {
+    detach: (dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) => {
         _remove_name(dev, () => {
             //do nothing
         });
         return cb(undefined, { valid: true });
     },
 
-    load : (cb: Callback) => {
+    load: (cb: Callback) => {
         //Core.Router.Network.dnsmasq.Hosts[this._key] = this._name_cache; //no clash
         return cb(undefined, true);
     },
 
-    unload : (cb: Callback) => {
+    unload: (cb: Callback) => {
         return cb();
     },
 
-    invoke : (dev, actionId, params, cb) => {
+    invoke: (dev, actionId, params, cb) => {
         return cb();
     }
 
