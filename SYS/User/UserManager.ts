@@ -478,16 +478,12 @@ export function Initialize(callback:Callback) {
 }
 
 function GetCurrentUser(token_uid, cb) {
-    var atoken = TokenManager.GetUserToken(token_uid);
-    var ticket = DB_Ticket[atoken];
-    if (ticket && ticket.uid) {
-        var user = DB_UserList[ticket.uid];
-        return cb(undefined, {
-            name: user.name,
-            data: user.data,
-            lastSeen: user.lastSeen
-        });
-    }
+    if(!this.user_id || !DB_UserList[this.user_id]) return cb();
+    return cb(undefined, {
+         name: DB_UserList[this.user_id].name,
+         data: DB_UserList[this.user_id].data,
+         lastSeen: DB_UserList[this.user_id].lastSeen
+    });
     return cb(new Error('No logon'));
 }
 

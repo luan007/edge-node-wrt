@@ -127,7 +127,7 @@ function AuthUser(atoken, devid, cb) {
     if (!UserManager.DB_Ticket[atoken]) {
         cb(new Error());
     } else {
-        var token_uid = TokenManager.Issue(atoken, devid);
+        var token_uid = TokenManager.Issue(atoken, UserManager.DB_Ticket[atoken].owner_uid,  devid);
         cb(undefined, token_uid);
         //cb(undefined, UserManager.DB_Ticket[atoken].owner_uid);
     }
