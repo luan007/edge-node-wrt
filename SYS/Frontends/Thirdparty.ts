@@ -82,3 +82,5 @@ export function Clear(source_key) {
 
 __API(withCb(Primary), "Thirdparty.Primary", [Permission.AnyApp]);
 __API(withCb(Aux), "Thirdparty.Aux", [Permission.AnyApp]);
+__API(withCb(Clear), "Thirdparty.Clear", [Permission.AnyApp]);
+__API(withCb(Owned), "Thirdparty.Owned", [Permission.AnyApp]);

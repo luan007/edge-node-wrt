@@ -29,10 +29,8 @@ function GetDefFromClass(dataclass) {
 }
 
 export function DefineTable(table_name, module_class, options) {
-
     var def: any = GetDefFromClass(module_class);
     return Database.define(table_name, def, options);
-
 }
 
 export function Initialize(callback: (err, db) => any) {

@@ -40,6 +40,8 @@ domain.run(function () {
         , {path: './Frontends/MainUI', name: 'MainUI'}
         , {path: './Frontends/GUIProxy', name: 'GUIProxy'}
         , {path: './Frontends/HttpProxy', name: 'HttpProxy'}
+        , {path: './Frontends/Thirdparty'}
+        , {path: './Frontends/MsgManager'}
         //, {path: './Frontends/HttpProxy', name: 'HttpProxy'}
         , {path: './APP/Test/FakeData/Generator'}
         , {path: './APP/Test/Deployment/Server'}

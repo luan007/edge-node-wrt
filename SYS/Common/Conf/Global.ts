@@ -51,6 +51,8 @@ class _sys_global_conf {
     USERAUTH_PATROL_INTERVAL = 30000;
     MAX_DRIVERCHAIN_DEPTH = 30;
     DRV_MATCH_TIMEOUT = 1500;
+    PIN_TICKET_EXPIRE = 5 * 60 * 60 * 1000;
+    PIN_TOKEN_EXPIRE = 72 * 60 * 60 * 1000;
     SENDER_TYPE_APP = "App";
     SENDER_TYPE_PROXY = "Proxy";
     SENDER_TYPE_GUI = "GUI";
@@ -102,7 +104,7 @@ class _sys_global_conf {
     LOG_TO_FILE = true;
     ON_BOARD = true; //on-board
     LUA_NGINX_SOCKET = '/var/lua_nginx_socket';
-
+    
     //Storage
     STORAGE_DISK_DIR = process.env.storage || '/storage/';
     KEY_STORE_DIR = path.join(this.STORAGE_DISK_DIR, 'Keys');

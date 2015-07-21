@@ -25,6 +25,69 @@ var pub = StatMgr.Pub(SECTION.USER, {
     online: {}
 });
 
+/* Implement a local 'Orbit Login' for Pin-usages */
+var pinStore = {};
+var pinTokenStore = {};
+
+function pinStorePatrol(){
+    //pinStore
+    //tokenStore
+    var now = Date.now();
+    for(var i in pinStore){
+        if(pinStore[i].timeout < now){
+            delete pinStore[i];
+        }
+    }
+    for(var i in pinTokenStore){
+        if(pinTokenStore[i].expire < now){
+            delete pinTokenStore[i];
+        }
+    }
+}
+
+export function CreatePin(deviceid: string, callback){
+    for(var i in pinStore){
+        if(pinStore[i].dev === deviceid){
+            delete pinStore[i];
+        }
+    }
+}
+
+export function PinLogin(pin: string,
+                         deviceid:string,
+                         callback:(err, result?) => any){
+                             
+    if(pinStore[pin] && pinStore[pin].dev === deviceid){
+        var atoken = UUIDstr();
+        var rtoken = UUIDstr();
+        var token = {
+            atoken: UUIDstr(),
+            rtoken: UUIDstr(),
+            dev: deviceid,
+            expire: CONF.PIN_TOKEN_EXPIRE + Date.now()
+        };
+        pinTokenStore[token.atoken] = token;
+        var _a = new Ticket();
+            _a.device_uid = deviceid;
+            _a.expire = CONF.PIN_TICKET_EXPIRE + Date.now();
+            _a.owner_uid = undefined;
+            _a.owner = undefined;
+            _a.uid = token.atoken;
+        Ticket.table().create(_a, (err, ath) => {
+             if (err) {
+                 return callback(err, null);
+             }
+             DB_Ticket[atoken] = ath;
+             info("TICKET " + _a.uid.bold + " CREATED");
+             callback(undefined, {
+                             atoken: atoken,
+                             rtoken: rtoken,
+                             user: undefined});
+        });
+    }
+    
+    return callback(new Error("Wrong Pin"));
+}
 
 export function Login(identity:string,
                       password:string,
@@ -75,6 +138,7 @@ export function Logout(atoken:string,
     //clean local entries
     if (DB_Ticket[atoken]) {
         DB_Ticket[atoken].remove(callback);
+        delete DB_Ticket[atoken];
     } else {
         return callback(new Error("Not Found"));
     }
@@ -89,27 +153,65 @@ export function Renew(atoken:string,
                       rtoken:string,
                       deviceid:string,
                       callback:(err, result?) => any) {
-    Orbit.Put("Ticket", Orbit.PKG(atoken, deviceid, {
-        rtoken: rtoken
-    }), (err, result) => {
-        error(err);
-        if (err) return callback(err);
-        UserAppear(
-            result.owner_uid,
-            result.accessToken,
-            deviceid,
-            result.expire, (err, user) => {
-                return callback(err, {
-                    atoken: result.accessToken,
-                    rtoken: result.refreshToken,
-                    user: {
-                        data: user.data,
-                        name: user.name,
-                        uid: user.uid
-                    }
-                });
+    if(getTicket(atoken) && getTicket(atoken).owner_uid === undefined) {
+        //Pinbased          
+        if(!pinTokenStore[atoken]) return callback(new Error("Invalid Pinbased Token"));    
+        if(pinTokenStore[atoken].dev === deviceid && 
+           pinTokenStore[atoken].rtoken === rtoken){
+            delete pinTokenStore[atoken];
+            Logout(atoken, ()=>{});
+            var atoken = UUIDstr();
+            var rtoken = UUIDstr();
+            var token = {
+                atoken: UUIDstr(),
+                rtoken: UUIDstr(),
+                dev: deviceid,
+                expire: CONF.PIN_TOKEN_EXPIRE + Date.now()
+            };
+            pinTokenStore[token.atoken] = token;
+            var _a = new Ticket();
+                _a.device_uid = deviceid;
+                _a.expire = CONF.PIN_TICKET_EXPIRE + Date.now();
+                _a.owner_uid = undefined;
+                _a.owner = undefined;
+                _a.uid = token.atoken;
+            Ticket.table().create(_a, (err, ath) => {
+                if (err) {
+                    return callback(err, null);
+                }
+                DB_Ticket[atoken] = ath;
+                info("PIN TICKET " + _a.uid.bold + " CREATED");
+                callback(undefined, {
+                                atoken: atoken,
+                                rtoken: rtoken,
+                                user: undefined});
             });
-    });
+        }
+    }
+    else 
+    {
+        Orbit.Put("Ticket", Orbit.PKG(atoken, deviceid, {
+            rtoken: rtoken
+        }), (err, result) => {
+            error(err);
+            if (err) return callback(err);
+            UserAppear(
+                result.owner_uid,
+                result.accessToken,
+                deviceid,
+                result.expire, (err, user) => {
+                    return callback(err, {
+                        atoken: result.accessToken,
+                        rtoken: result.refreshToken,
+                        user: {
+                            data: user.data,
+                            name: user.name,
+                            uid: user.uid
+                        }
+                    });
+                });
+        });
+    }
 }
 
 /* abstracted for future replacement */
@@ -255,6 +357,7 @@ export function AuthPatrolThread() {
             delete DB_Ticket[i];
         }
     }
+    pinStorePatrol();
 }
 
 export function GetState(userid) {
