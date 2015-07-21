@@ -191,6 +191,10 @@ __USE EVENTS INSTEAD__
 
 -> API.Edge.SetAsUplink
 
+-> API.Edge.Wireless.Stations
+
+-> API.Edge.Traffic.Get
+
 ###Credential
 
 -> API.Credential.Login
