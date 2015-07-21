@@ -142,7 +142,7 @@ function SaveToDB(callback:Callback) {
     });
 }
 
-function parseTraffic() {
+function parseTraffic(callback?:Callback) {
     exec('sh', scriptPath, (err, res)=> {
         if (err) {
             lastError = err;
@@ -172,8 +172,17 @@ function parseTraffic() {
                     var traffic = JSON.parse(JSON.stringify(Devices[mac]));
                     pub.traffics.Set(mac, traffic);
                 }
-                pub.system.Set('traffic', JSON.parse(JSON.stringify(systemTraffic)));
+                var serializedDevice = JSON.parse(JSON.stringify(Devices));
+                var serializedSystem = JSON.parse(JSON.stringify(systemTraffic));
+                //pub.system.Set('traffic', serializedSystem);
                 deltaDevices.length = 0; // clear
+
+                if(callback)
+                    return callback(undefined, {
+                        device: serializedDevice,
+                        system: serializedSystem
+                    });
+
             } catch (err) {
                 lastError = err;
                 error(err);
@@ -370,3 +379,5 @@ export function Subscribe(cb) {
 
     cb();
 }
+
+__API(parseTraffic, "Edge.Traffic.Get", [Permission.AnyApp]);

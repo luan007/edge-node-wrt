@@ -199,7 +199,7 @@ function extractIWStationDump(stationsContainer, iwStationsDump, ap, deltaArray,
     }, cb);
 }
 
-function parseIWStationDump() {
+function parseIWStationDump(callback?:Callback) {
     exec('sh', scriptPath, (err, res)=> {
         if (err) error(err);
         else {
@@ -213,26 +213,39 @@ function parseIWStationDump() {
                 var iwStations = JSON.parse(json);
                 //trace('parse iw station dump', require('util').inspect(iwStations));
 
-                delta2GStations.length = 0;
-                if (Object.keys(iwStations[CONF.DEV.WLAN.DEV_2G]).length > 0) {
-                    extractIWStationDump(Stations2G4, iwStations[CONF.DEV.WLAN.DEV_2G], CONF.DEV.WLAN.DEV_2G, delta2GStations, ()=> {
-                        for (var i = 0, len = delta2GStations.length; i < len; i++) {
-                            var mac = delta2GStations[i];
-                            pub2G4.stations.Set(mac, Stations2G4[mac]);
-                        }
-                        delta2GStations.length = 0;
+                var jobs = [];
+                jobs.push((cb)=> {
+                    delta2GStations.length = 0;
+                    if (Object.keys(iwStations[CONF.DEV.WLAN.DEV_2G]).length > 0) {
+                        extractIWStationDump(Stations2G4, iwStations[CONF.DEV.WLAN.DEV_2G], CONF.DEV.WLAN.DEV_2G, delta2GStations, ()=> {
+                            for (var i = 0, len = delta2GStations.length; i < len; i++) {
+                                var mac = delta2GStations[i];
+                                pub2G4.stations.Set(mac, Stations2G4[mac]);
+                            }
+                            delta2GStations.length = 0;
+                            cb();
+                        });
+                    } else cb();
+                });
+                jobs.push((cb)=> {
+                    delta5GStations.length = 0;
+                    if (Object.keys(iwStations[CONF.DEV.WLAN.DEV_5G]).length > 0) {
+                        extractIWStationDump(Stations5G7, iwStations[CONF.DEV.WLAN.DEV_5G], CONF.DEV.WLAN.DEV_5G, delta5GStations, ()=> {
+                            for (var i = 0, len = delta5GStations.length; i < len; i++) {
+                                var mac = delta5GStations[i];
+                                pub5G7.stations.Set(mac, Stations5G7[mac]);
+                            }
+                            delta5GStations.length = 0;
+                        });
+                        cb();
+                    } else cb();
+                });
+                async.series(jobs, ()=> {
+                    callback(undefined, {
+                        station2G: JSON.parse(JSON.stringify(Stations2G4)),
+                        station5G: JSON.parse(JSON.stringify(Stations5G7))
                     });
-                }
-                delta5GStations.length = 0;
-                if (Object.keys(iwStations[CONF.DEV.WLAN.DEV_5G]).length > 0) {
-                    extractIWStationDump(Stations5G7, iwStations[CONF.DEV.WLAN.DEV_5G], CONF.DEV.WLAN.DEV_5G, delta5GStations, ()=> {
-                        for (var i = 0, len = delta5GStations.length; i < len; i++) {
-                            var mac = delta5GStations[i];
-                            pub5G7.stations.Set(mac, Stations5G7[mac]);
-                        }
-                        delta5GStations.length = 0;
-                    });
-                }
+                });
             } catch (err) {
                 console.log('IW JSON error', json);
             }
@@ -262,11 +275,11 @@ export function Initialize(cb) {
 
     async.series([
         (cb) => {
-            if(!defconfig2G4.Power) return cb();
+            if (!defconfig2G4.Power) return cb();
             config2G4.Initialize(cb);
         },
         (cb) => {
-            if(!defconfig5G7.Power) return cb();
+            if (!defconfig5G7.Power) return cb();
             config5G7.Initialize(cb);
         },
         (cb)=> {
@@ -283,11 +296,11 @@ export function Diagnose(callback:Callback) {
     setTask('stability_check_wifi', ()=> {
         var jobs = [];
         jobs.push((cb) => {
-            if(!defconfig2G4.Power) return cb();
+            if (!defconfig2G4.Power) return cb();
             Hostapd2G4.StabilityCheck(cb)
         });
         jobs.push((cb) => {
-            if(!defconfig5G7.Power) return cb();
+            if (!defconfig5G7.Power) return cb();
             Hostapd5G7.StabilityCheck(cb)
         });
         async.series(jobs, (err, results)=> {
@@ -321,14 +334,16 @@ function SetSSID(hostapdInstance:hostapd.hostapd, sectionName, ssid, cb:Callback
 export function Subscribe(cb) {
     var sub = StatMgr.Sub(SECTION.NETWORK);
     sub.network.on('NetworkName', (oldValue, newValue) => {
-        if(defconfig2G4.Power) {
+        if (defconfig2G4.Power) {
             SetSSID(Hostapd2G4, SECTION.WLAN2G, newValue, ()=> {
             });
         }
-        if(defconfig5G7.Power) {
+        if (defconfig5G7.Power) {
             SetSSID(Hostapd5G7, SECTION.WLAN5G, newValue, ()=> {
             });
         }
     });
     cb();
 }
+
+__API(parseIWStationDump, "Edge.Wireless.Stations", [Permission.AnyApp]);

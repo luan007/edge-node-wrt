@@ -39,7 +39,7 @@ var level = {
     uncaught: 'UNCAUGHT',
     domainerr: 'DOMAINERR'
 };
-var dir = path.join(__dirname, "logs");
+var dir = path.join(process.env.ROOT_PATH || __dirname, "logs");
 
 export function debug(...args){
     return writeLog(level.debug, args);
