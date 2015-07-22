@@ -39,23 +39,21 @@ export class Gatttool {
     static Probe(MAC, callback:Callback){
         if(__exists(MAC)) return callback(new Error("query in progress."));
         __add(MAC);
-        var newcb = must(callback, 5000);
-        exec(Gatttool.cmd, "-i", CONF.DEV.BLUETOOTH.DEV_HCI, "-b", MAC, "--primary",  (err)=>{
+        exec(Gatttool.cmd, "-i", CONF.DEV.BLUETOOTH.DEV_HCI, "-b", MAC, "--primary",  must((err)=>{
             __done(MAC);
-            if(err) return newcb(err);
-            return newcb(undefined);
-        });
+            if(err) return callback(err);
+            return callback(undefined);
+        }, 5000));
     }
 
     Primary(callback:Callback) {
         if(__exists(this.MAC)) return callback(new Error("query in progress."));
         __add(this.MAC);
-        var newcb = must(callback, 5000);
-        exec(Gatttool.cmd, "-i", this.hciInterface, "-b", this.MAC, "--primary", (err, data)=> {
+        exec(Gatttool.cmd, "-i", this.hciInterface, "-b", this.MAC, "--primary", must((err, data)=> {
             __done(this.MAC);
-            if (err) return newcb(err);
-            if (this.__IsError(data)) return newcb(new Error(data));
-            if (!Gatttool.primaryRegExp.exec(data)) return newcb(new Error(data));
+            if (err) return callback(err);
+            if (this.__IsError(data)) return callback(new Error(data));
+            if (!Gatttool.primaryRegExp.exec(data)) return callback(new Error(data));
 
             var lines = data.split("\n");
             var res = {};
@@ -70,19 +68,18 @@ export class Gatttool {
                 }
             }
 
-            return newcb(undefined, res);
-        });
+            return callback(undefined, res);
+        }, 5000));
     }
 
     Characteristics(callback:Callback) {
         if(__exists(this.MAC)) return callback(new Error("query in progress."));
         __add(this.MAC);
-        var newcb = must(callback, 5000);
-        exec(Gatttool.cmd, "-i", this.hciInterface, "-b", this.MAC, "--characteristics", (err, data)=> {
+        exec(Gatttool.cmd, "-i", this.hciInterface, "-b", this.MAC, "--characteristics", must((err, data)=> {
             __done(this.MAC);
-            if (err) return newcb(err);
-            if (this.__IsError(data)) return newcb(new Error(data));
-            if (!Gatttool.characteristicsRegExp.exec(data)) return newcb(new Error(data));
+            if (err) return callback(err);
+            if (this.__IsError(data)) return callback(new Error(data));
+            if (!Gatttool.characteristicsRegExp.exec(data)) return callback(new Error(data));
 
             var lines = data.split("\n");
             var res = {};
@@ -98,7 +95,7 @@ export class Gatttool {
                 }
             }
 
-            return newcb(undefined, res);
-        });
+            return callback(undefined, res);
+        }, 5000));
     }
 }
