@@ -359,7 +359,7 @@ export class Bluez extends Process {
                             //        info("Discovery Started...");
                             //    }
                             //});
-                            adapter.StartDiscovery();
+                            //adapter.StartDiscovery();
                             info("Start Discovery");
                             this.emit("dbus_Started");
                             return cb();

@@ -1,0 +1,32 @@
+{{#photoGroup}}
+<h2 class="photo-group-title">{{groupTitle}}</h2>
+<ul class="photo-list clearfix">
+    {{#photoList}}
+    <li class="{{photoType}}">
+        <div class="photo-wrap">
+            <article class="photo">
+                <header>
+                    <div class="sel">
+                        <input type="radio"/>
+                    </div>
+                </header>
+                <section class="photo-content">
+                    <img src="{{photoImg}}" alt="{{photoAlt}}"/>
+                </section>
+                <footer>
+                    <div class="type">
+                        <i class="{{photoTypeIcon}}"></i>
+                    </div>
+                    <div class="name">
+                        <span>{{photoName}}</span>
+                    </div>
+                    <button type="button" class="more">
+                        <i class="fa fa-ellipsis-h"></i>
+                    </button>
+                </footer>
+            </article>
+        </div>
+    </li>
+    {{/photoList}}
+</ul>
+{{/photoGroup}}

@@ -1,0 +1,1 @@
+define(["underscore","backbone"],function(e,t){return t.Model.extend({defaults:{isDevice:!0,deviceFlagIcon:"",deviceIcon:"",galleryImg:"",galleryNum:"0",galleryTitle:"",glleryAlt:""}})});

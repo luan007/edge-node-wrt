@@ -1,0 +1,1 @@
+define(["jquery","underscore","backbone","handlebars","utils/gridUtil","text!templates/photos/photoFooter.html"],function(e,t,n,r,i,s){return n.View.extend({el:"#photoFooter",initialize:function(){this.render()},render:function(){var e=r.compile(s);this.$el.html(e({currPageInfo:"1508 photos, 3 devices, 6 albums",currSelNum:"3 of 1508 photos"}))}})});

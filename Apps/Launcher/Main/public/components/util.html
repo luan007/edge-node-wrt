@@ -1,0 +1,53 @@
+﻿<item-template>
+    <script>
+        var
+            root = this.root,
+            opts = opts,
+            self = this;
+        root.riot = this; //hack
+        var realParent = this.parent.parent;  //another hack - for getting out of {each context}
+        if (!realParent.root.templateId) {
+            var id = "template-" + parseInt(Math.random() * 1000000000);
+            realParent.root.templateId = id;
+            realParent.root.templateHTML =
+                "\<" + id + "\>" +
+                    realParent.root.innerHTML.trim().replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t') +
+                "\<\/" + id + "\>";
+            realParent.root.innerHTML = "";
+            var tg = riot.compile(realParent.root.templateHTML);
+        }
+        id = realParent.root.templateId;
+        this.root.innerHTML = "\<" + id + "\>" + "\<\/" + id + "\>";
+        this.on('mount', function () {
+            setTimeout(function () {
+                riot.mount(root.firstChild, id, self);
+                realParent.trigger("childMount", self);
+            }, 0);
+        });
+
+        this.on('unmount', function () {
+            realParent.trigger("childUnmount", self);
+        });
+    </script>
+</item-template>
+
+
+<!--ORDER IS IMPORTANT-->
+<!-- USE <CONTENT> INSTEAD -->
+<inner-html>
+    <script>
+        var p = this.parent.root;
+        self = this;
+        var elems = [];
+        for (var i = 0; i < p.childNodes.length; i++) {
+            elems.push(p.childNodes[i]);
+        }
+        this.on('mount', function () {
+            setTimeout(function () {
+                while (elems.length) {
+                    self.root.appendChild(elems.shift());
+                }
+            }, 0);
+        });
+    </script>
+</inner-html>

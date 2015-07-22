@@ -1,0 +1,321 @@
+﻿@import "utils.less";
+
+body {
+}
+
+.ui.button {
+    padding-top: 0.4em !important;
+    padding-bottom: 0.4em !important;
+}
+
+edge-titlebar > :first-child {
+    box-shadow: 0px 0px 1px rgba(0,0,0,1);
+}
+
+.scroller {
+    overflow:hidden;
+    position:absolute;
+    top:60px;
+    left:0;
+    right:0;
+    bottom:0;
+}
+
+.rightarea {
+    background: rgb(255,255,255);
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 260px;
+    right: 0;
+    padding-top: 30px;
+    padding-left: 35px;
+    padding-right: 35px;
+    overflow-y: auto;
+
+    .toolhang {
+        text-align: right;
+        position: relative;
+
+        .ui.button {
+            width: 40px;
+        }
+
+        .nav {
+            position:absolute; 
+            top:0; 
+            line-height: 30px;
+            color:#b4b4b4;
+        }
+    }
+
+    .usercard {
+        cursor: default;
+        @h: 150px;
+        @w: 240px;
+        height: @h;
+        width: @w;
+        text-align: center;
+        border-radius: 5px;
+        margin-right: 15px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        display: inline-table;
+        padding-bottom: 15px;
+        padding-top: 20px;
+        padding-left: 15px;
+        padding-right: 15px;
+        background: white;
+        border: 1px solid #ddd;
+        .avatar {
+            width: @w / 3;
+            max-width: @w / 3;
+            min-width: @w / 3;
+            vertical-align: top;
+            // background:red;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+            div:last-child {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                margin: 0;
+
+                h3 {
+                    .transition(ease-out, 0.2s);
+                    margin-top: 15px;
+                    font-size: 1em;
+                    display: inline-block;
+                    padding: 3px 10px;
+                    border-radius: 30px;
+                    border: 1px solid #f0f0f0;
+                    color: #9d9d9d;
+                }
+            }
+
+                div:last-child:hover h3 {
+                    border: 1px solid #2fafff;
+                    color: #2fafff;
+                }
+
+            div:first-child {
+                position: relative;
+            }
+
+                div:first-child:after {
+                    position: absolute;
+                    display: block;
+                    right: 6px;
+                    bottom: 3px;
+                    height: 13px;
+                    width: 13px;
+                    background: rgb(255, 139, 21);
+                    content: " ";
+                    border-radius: 999em;
+                    box-shadow: 0 0 0 2px rgba(255,255,255,1);
+                }
+
+            img {
+                border: 1px solid rgba(100,100,100,0.1);
+                display: inline-block;
+                border-radius: 999em;
+                position: relative;
+                width: 70px;
+                height: 70px;
+                vertical-align: top;
+            }
+        }
+
+        .info {
+            padding-left: 20px;
+            width: @w / 3 * 2;
+            max-width: @w / 3 * 2;
+            min-width: @w / 3 * 2;
+            vertical-align: top;
+            text-align: left;
+            overflow: hidden;
+            position: relative;
+
+            .actionbar {
+                margin-top: 15px;
+                font-size: 1.1em;
+                color: #9d9d9d;
+                position: absolute;
+                bottom: 0;
+                right: 0;
+
+                > div {
+                    display: inline-block;
+                    margin-right: 1px;
+                    padding: 3px 0;
+                    text-align: center;
+                    width: 40px;
+                    border-radius: 333px;
+                    .transition(ease-out, 0.2s);
+                    transform: scale(0.9);
+                }
+
+                    > div:hover {
+                        transform: scale(1);
+                        background: #2fafff;
+                        color: #fff;
+                    }
+            }
+
+            > b {
+                display: block;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-size: 1.2em;
+                line-height: 1.4em;
+                margin-bottom: 5px;
+                white-space: nowrap;
+            }
+
+            a {
+                display: block;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                margin-bottom: 5px;
+                white-space: nowrap;
+                font-size:1.1em;
+            }
+
+            span {
+                i {
+                    color: rgb(56, 226, 33);
+                }
+
+                color: rgba(0,0,0,0.6);
+                font-size: 0.8em;
+            }
+        }
+    }
+}
+
+.leftarea {
+
+    border-right: 1px solid rgba(0,0,0,0.01);
+    box-shadow: -1px 0 5px rgba(0,0,0,0.1) inset;
+    width: 260px;
+    /*background: #2fafff;*/
+    /*background: rgba(54,89,194,1);
+    background: -moz-linear-gradient(45deg, rgba(54,89,194,1) 0%, rgba(54,89,194,1) 1%, rgba(70,179,219,1) 100%);
+    background: -webkit-gradient(left bottom, right top, color-stop(0%, rgba(54,89,194,1)), color-stop(1%, rgba(54,89,194,1)), color-stop(100%, rgba(70,179,219,1)));
+    background: -webkit-linear-gradient(45deg, rgba(54,89,194,1) 0%, rgba(54,89,194,1) 1%, rgba(70,179,219,1) 100%);
+    background: -o-linear-gradient(45deg, rgba(54,89,194,1) 0%, rgba(54,89,194,1) 1%, rgba(70,179,219,1) 100%);
+    background: -ms-linear-gradient(45deg, rgba(54,89,194,1) 0%, rgba(54,89,194,1) 1%, rgba(70,179,219,1) 100%);
+    background: linear-gradient(45deg, rgba(54,89,194,1) 0%, rgba(54,89,194,1) 1%, rgba(70,179,219,1) 100%);*/
+    /*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3659c2', endColorstr='#46b3db', GradientType=1 );*/
+    position: absolute;
+    background: url(../images/noise.png) #65747a;
+    background-size: 75px 75px;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    text-align: center;
+    padding-top: 60px;
+    padding-left: 35px;
+    padding-right: 35px;
+    color: #fff;
+
+    .location-title {
+        font-size:1.7em;
+        margin-top: 0;
+        margin-bottom: 60px;
+        color: #fff;
+    }
+
+    h4 {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    .input {
+        font-size: 0.9em;
+        margin: 30px 0px 20px 0px;
+        display: block;
+
+        > input {
+            box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
+            background: #fff;
+            padding: 5px 15px;
+            border: none;
+            border-radius: 999em !important;
+        }
+
+        i {
+            width: auto !important;
+            right: 30px !important;
+            top: -1px !important;
+        }
+    }
+
+    .toolarea {
+        text-align: center;
+    }
+
+}
+
+
+.splash {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    left: 0;
+    bottom: 0;
+    z-index: 99999;
+    display: table;
+    text-align: center;
+    -moz-perspective: 500px 500px;
+    -ms-perspective: 500px 500px;
+    -webkit-perspective: 500px 500px;
+    perspective: 500px 500px;
+
+    div {
+        background: #fff;
+        transition: all ease 0.8s;
+        opacity: 0;
+        transform: translateY(10px) scale(0.8) rotateX(-30deg);
+        vertical-align: middle;
+    }
+    
+    div:hover {
+        opacity: 1;
+        transform: scale(1);
+
+        h1 {
+            opacity: 1;
+            transform: translateY(0px);
+        }
+    }
+
+    div:active {
+        transition: transform ease 1s, opacity ease 0.5s;
+        transform: scale(1.2);
+        opacity: 0;
+    }
+
+    img {
+        vertical-align: middle;
+        border-radius: 15px;
+        height: 100px;
+        width: 100px;
+        /*border: 3px solid rgba(255,255,255,0.1);*/
+        box-shadow: 0 0 2px rgba(0,0,0,0.5);
+    }
+
+    h1 {
+        transition: all ease 0.8s;
+        color: #9d9d9d;
+        font-size: 1.2em;
+        opacity: 0;
+        margin-top: 15px;
+        margin-bottom: 0px;
+        transform: translateY(-10px);
+    }
+}

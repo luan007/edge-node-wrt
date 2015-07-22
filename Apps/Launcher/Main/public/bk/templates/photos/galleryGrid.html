@@ -1,0 +1,36 @@
+<ul class="clearfix gallery-grid">
+    {{#galleryGrid }}
+    <li class="{{#if isDevice}}type-device{{/if}}">
+        <div class="gallery-wrap">
+            <a href="#list" class="gallery">
+                <header>
+                    <div class="sel">
+                        <input type="radio" />
+                    </div>
+                    {{#if isDevice}}
+                    <div class="flag">
+                        <i class="fa {{deviceFlagIcon}}"></i>
+                    </div>
+                    {{/if}}
+                </header>
+                <section class="gallery-content">
+                    {{#if isDevice}}
+                    <i class="fa {{ deviceIcon }}"></i>
+                    {{ else }}
+                    <img src="{{ galleryImg }}" alt="{{ glleryAlt }}"/>
+                    {{/if }}
+                </section>
+            </a>
+
+            <h2 class="gallery-title">
+                {{ galleryTitle }}
+                {{#unless isDevice}}
+                <span class="meta">
+                    <span>{{ galleryNum }}</span>
+                </span>
+                {{/unless}}
+            </h2>
+        </div>
+    </li>
+    {{/galleryGrid }}
+</ul>

@@ -1,0 +1,26 @@
+﻿<v-center>
+    <!--http://stackoverflow.com/questions/396145/how-to-vertically-center-a-div-for-all-browsers-->
+    <style scoped>
+        .outer {
+            display: table;
+            position: absolute;
+            height: 100%;
+            width: 100%;
+        }
+        .middle {
+            display: table-cell;
+            vertical-align: middle;
+        }
+        .inner {
+            margin-left: auto;
+            margin-right: auto; 
+        }
+    </style>
+    <div class="outer">
+        <div class="middle">
+            <yield/>
+        </div>
+    </div>
+    <script>
+    </script>
+</v-center>

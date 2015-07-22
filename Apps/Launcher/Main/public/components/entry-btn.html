@@ -1,0 +1,338 @@
+﻿<entry-btn>
+    <style scoped>
+        :scope {
+            -moz-backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 9999em;
+            text-align: center;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-user-select: none;
+            user-select: none;
+            cursor: pointer;
+        }
+
+            :scope .layer {
+                overflow: hidden;
+            }
+
+            :scope .alldots,
+            :scope .alldots.norm {
+                opacity: 0.9;
+            }
+
+            :scope .layer,
+            :scope .decborder {
+                border-radius: 9999em;
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                display: block;
+            }
+            
+            :scope .shine.lit {
+                background:rgba(255,255,255,0);
+                box-shadow: 0 0 10px rgba(255,255,255,0.1),
+                            0 0 3px rgba(255,255,255,0.2),
+                            0 0 0 1px rgba(255,255,255,0.7);
+            }
+
+            :scope .shine.lit_full {
+                background:rgba(0,0,0,0.2);
+                box-shadow: 0 0 20px rgba(255,255,255,0.9),
+                            0 0 3px rgba(255,255,255,0.3),
+                            0 0 0 1px rgba(255,255,255,1);
+            }
+
+            :scope .shine, :scope .shine.norm {
+                background:rgba(255,255,255,0);
+                box-shadow: 0 0 10px rgba(255,255,255,0),
+                            0 0 3px rgba(255,255,255,0),
+                            0 0 0 1px rgba(160,160,160,0);
+            }
+
+            :scope .shine {
+                top: 5%;
+                left: 5%;
+                right: 5%;
+                bottom: 5%;
+            }
+
+            :scope .decborder {
+                background: rgba(255,255,255,0.4);
+                -moz-transform: scale(0);
+                -ms-transform: scale(0);
+                -o-transform: scale(0);
+                -webkit-transform: scale(0);
+                transform: scale(0);
+                opacity: 0;
+                /*box-shadow: 0px 0px 10px rgba(255,255,255,0.8);*/
+            }
+
+            :scope .dot {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                display: block;
+            }
+
+            :scope .dots-a {
+                left: -18%;
+                right: 18%;
+                -moz-transform: scale(0.21);
+                -ms-transform: scale(0.21);
+                -o-transform: scale(0.21);
+                -webkit-transform: scale(0.21);
+                transform: scale(0.21);
+            }
+
+            :scope .dots-c {
+                left: 18%;
+                right: -18%;
+                -moz-transform: scale(0.21);
+                -ms-transform: scale(0.21);
+                -o-transform: scale(0.21);
+                -webkit-transform: scale(0.21);
+                transform: scale(0.21);
+            }
+
+            :scope .dots-b {
+                -moz-transform: scale(0.21);
+                -ms-transform: scale(0.21);
+                -o-transform: scale(0.21);
+                -webkit-transform: scale(0.21);
+                transform: scale(0.21);
+            }
+
+
+            :scope .layer div {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                display: block;
+                line-height: 85px;
+            }
+
+            :scope .tagline {
+                opacity: 0;
+                -moz-transform: scale(0.5);
+                -ms-transform: scale(0.5);
+                -o-transform: scale(0.5);
+                -webkit-transform: scale(0.5);
+                transform: scale(0.5);
+                color: #0092ff;
+                font-size: 1em;
+            }
+    </style>
+
+    <div class="layer shine">
+    </div>
+    <div class="decborder">
+    </div>
+    <!--<div class="layer">
+        <div class="dot dots-a"></div>
+        <div class="dot dots-b"></div>
+        <div class="dot dots-c"></div>
+    </div>-->
+    <div class="layer alldots">
+        <svg class="dot dots-a"><circle cx="50%" cy="50%" r="25" fill="#fff"></circle></svg>
+        <svg class="dot dots-c"><circle cx="50%" cy="50%" r="25" fill="#fff"></circle></svg>
+        <svg class="dot dots-b"><circle class="circle-center" cx="50%" cy="50%" r="25" fill="#fff"></circle></svg>
+
+        <div class="tagline">
+            <b>Apps</b>
+        </div>
+    </div>
+    <script>
+        var
+            root = this.root,
+            self = this
+        root.riot = this;
+
+        function load() {
+
+            var $layer = $(root).find('.layer');
+            var $alldots = $(root).find('.alldots');
+            var $shine = $(root).find('.shine');
+            var $decborder = $(root).find('.decborder');
+            var $center = $(root).find('.dots-b');
+            var $circle = $(root).find('.circle-center');
+            var $dotA = $(root).find('.dots-a');
+            var $dotC = $(root).find('.dots-c');
+            var $tagline = $(root).find('.tagline');
+            var state = 0;
+
+            var shine = new TimelineLite({ onComplete: repeatTimeline });
+            shine.pause();
+
+            
+
+            function repeatTimeline() {
+                shine.restart();
+            }
+            shine.to($shine, 1, {
+                delay: 2,
+                className: "+=lit",
+                ease: Power0.noease
+            }).to($shine, 2, {
+                className: "+=lit_full",
+                ease: Power0.noease
+            }).to($shine, 5, {
+                className: "+=norm",
+                ease: Power3.easeInOut
+            });
+
+            function mouseUp() {
+
+                shine.stop();
+                state = 1;
+                setTimeout(function () {
+                    if (state === 0) return;
+                    TweenLite.to($decborder, 0.8, {
+                        css: {
+                            scale: 1,
+                            opacity: 1,
+                            backgroundColor: "rgba(255,255,255,0.2)"
+                        },
+                        ease: Power2.easeOut
+                    });
+
+                }, 50);
+
+                TweenLite.to($alldots, 0.2, {
+                    opacity: 1
+                });
+                TweenLite.to($shine, 0.2, {
+                    opacity: 0
+                });
+                TweenLite.to($circle, 0.3, {
+                    css: {
+                        fill: "#FFF"
+                    },
+                    ease: Power3.easeOut
+                });
+                TweenLite.to($tagline, 0.5, {
+                    css: {
+                        opacity: 1,
+                        scale: 1,
+                        color: "#0092ff"
+                    },
+                    ease: Power3.easeOut
+                });
+                TweenLite.to($center, 0.8, {
+                    css: {
+                        scale: 1.4
+                    },
+                    ease: Power3.easeOut
+                });
+                TweenLite.to([$dotA, $dotC], 0.4, {
+                    css: {
+                        scale: 0
+                    }
+                });
+            }
+
+
+            function mouseDown() {
+                state = 2;
+                TweenLite.to($center, 0.3, {
+                    css: {
+                        scale: 1.2
+                    },
+                    ease: Power3.easeOut
+                });
+                TweenLite.to($tagline, 0.5, {
+                    css: {
+                        scale: 0.9,
+                        color:"#fff"
+                    },
+                    ease: Power3.easeOut
+                });
+                TweenLite.to($circle, 0.3, {
+                    css: {
+                        fill: "#0092ff"
+                    },
+                    ease: Power3.easeOut
+                });
+                TweenLite.to($decborder, 0.4, {
+                    css: {
+                        scale: 0.95,
+                        backgroundColor: "rgba(255,255,255,0.6)"
+                    },
+                    ease: Power3.easeOut
+                });
+            }
+
+            function normal() {
+                shine.restart();
+                state = 0;
+
+                TweenLite.to($alldots, 0.2, {
+                    opacity: 0.9
+                });
+                TweenLite.to($shine, 0.2, {
+                    opacity: 1
+                });
+                TweenLite.to($decborder, 0.2, {
+                    css: {
+                        scale: 0,
+                        opacity: 0,
+                        backgroundColor: "rgba(255,255,255,1)"
+                    }
+                });
+                TweenLite.to($tagline, 0.3, {
+                    css: {
+                        opacity: 0,
+                        scale: 0.5,
+                        color: "#0092ff"
+                    },
+                    ease: Power3.easeOut
+                });
+                TweenLite.to($tagline, 0.3, {
+                    css: {
+                        opacity: 0
+                    },
+                    ease: Power3.easeOut
+                });
+                TweenLite.to($circle, 0.2, {
+                    css: {
+                        fill: "#fff"
+                    },
+                    ease: Power3.easeOut
+                });
+                TweenLite.to($center, 0.6, {
+                    css: {
+                        scale: 0.21
+                    },
+                    ease: Power3.easeOut
+                });
+                TweenLite.to([$dotA, $dotC], 1.5, {
+                    css: {
+                        scale: 0.21
+                    },
+                    ease: Power2.easeOut
+                });
+            }
+            state = 0;
+            shine.play();
+            $layer.hover(mouseUp, normal);
+            $layer.mousedown(mouseDown);
+            $layer.mouseup(mouseUp);
+
+
+        }
+
+        this.on('mount', function () {
+            load();
+        });
+    </script>
+</entry-btn>

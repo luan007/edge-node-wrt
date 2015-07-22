@@ -61,7 +61,10 @@ function _on_device_appear(mac) {
                     );
                 });
             });
-            async.series(jobs, ()=>{});
+            async.series(jobs, (err, result)=>{
+                console.log(err, result);
+                _mac_list[mac] = 0;
+            });
         });
     }
 

@@ -1,0 +1,116 @@
+﻿<fluid-container>
+   
+    <div style='overflow-x:hidden; overflow-y:hidden;'>
+        <div class="inner-container" if="{{root.hasAttribute('item-template')}}" style="position:absolute;  overflow-y:visible;">
+            <item-template class="item" each="{{opts.data}}" />
+        </div>
+        <inner-html class="inner-container" if="{{!root.hasAttribute('item-template')}}" style="position:absolute; overflow-y:visible;" />
+    </div>
+
+    <script>
+        /* Comp-Fluid Container */
+        var
+            root = this.root,
+            opts = opts,
+            loaded = false,
+            self = this;
+
+        opts.data = opts.data || [{}];
+        var container = itemlist = $container = iso = undefined;
+
+        root.riot = this; //hack
+        //force self-center
+        
+        this.recalculateCenter = function (force, instant) {
+
+            
+            var offset = 0;
+            if (force || opts.center || root.hasAttribute('center')) {
+                //get first line / or max X?
+                var items = itemlist.querySelectorAll('.item');
+                var pwidth = $container.width();
+                if (items.length) {
+                    var top = items[0].style.top;
+                    var left = $(items[0]).position().left;
+                    var right = left + $(items[0]).outerWidth(true);
+                    var found = false;
+                    //console.log(right);
+                    for (var i = 1; i < items.length; i++) {
+                        if (top !== items[i].style.top) {
+                            found = true;
+                            right = $(items[i - 1]).position().left + $(items[i - 1]).outerWidth(true);
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        var right = $(items[items.length - 1]).position().left + $(items[items.length - 1]).outerWidth(true);
+                    }
+                    //console.log(left, right, pwidth);
+                    //get offset <-  ->
+                    offset = (pwidth - right + left) / 2;
+                }
+                else {
+                    //reset
+                }
+            }
+            TweenLite.to(itemlist, instant ? 0 : 0.8, {
+                css: {
+                    x: offset
+                },
+                ease: Power3.easeOut
+            });
+        };
+
+        function load() {
+            loaded = true;
+            container = root.querySelector("div");
+            itemlist = root.querySelector(".inner-container");
+            $container = $(container);
+            iso = new Isotope(container, {
+                // options
+                itemSelector: '.item',
+                getSortData: {
+                    test: '[data-test]',
+                },
+            });
+            //window.addEventListener('resize', this.recalculateCenter.bind(this, false, false));
+            iso.on("layoutComplete",  this.recalculateCenter.bind(this, false, false));
+            iso.on("removeComplete",  this.recalculateCenter.bind(this, false, false));
+            iso.on("arrangeComplete", this.recalculateCenter.bind(this, false, false));
+            setTimeout(function () {
+                self.reloadItems();
+                self.recalculateCenter(true, true);
+            }, 10);
+            //$container.find('.item').click(function () {
+            //    iso.remove(this);
+            //    iso.layout();
+            //});
+        }
+
+        this.append = function (elem, hide) {
+            $(itemlist).append(elem);
+            if (hide) return;
+            iso.appended(elem);
+        };
+
+        this.remove = function (elem) {
+            iso.remove(elem);
+        };
+
+        this.reloadItems = function () {
+            iso.reloadItems();
+            iso.arrange();
+        };
+
+        this.on('mount', function () {
+            load.apply(self);
+        });
+
+        this.on('update', function () {
+            setTimeout(function () {
+                self.reloadItems();
+            }, 0);
+        });
+
+    </script>
+</fluid-container>
