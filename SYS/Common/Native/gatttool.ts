@@ -39,7 +39,8 @@ export class Gatttool {
     static Probe(MAC, callback:Callback){
         if(__exists(MAC)) return callback(new Error("query in progress."));
         __add(MAC);
-        exec(Gatttool.cmd, "-i", CONF.DEV.BLUETOOTH.DEV_HCI, "-b", MAC, "--primary",  must((err)=>{
+        var ps = child_process.exec(Gatttool.cmd + " -i " + CONF.DEV.BLUETOOTH.DEV_HCI + " -b " + MAC + " --primary",  must((err)=>{
+            ps.kill();
             __done(MAC);
             if(err) return callback(err);
             return callback(undefined);
@@ -49,7 +50,8 @@ export class Gatttool {
     Primary(callback:Callback) {
         if(__exists(this.MAC)) return callback(new Error("query in progress."));
         __add(this.MAC);
-        exec(Gatttool.cmd, "-i", this.hciInterface, "-b", this.MAC, "--primary", must((err, data)=> {
+        var ps = child_process.exec(Gatttool.cmd + " -i " + this.hciInterface +" -b " + this.MAC + " --primary", must((err, data)=> {
+            ps.kill();
             __done(this.MAC);
             if (err) return callback(err);
             if (this.__IsError(data)) return callback(new Error(data));
@@ -75,7 +77,8 @@ export class Gatttool {
     Characteristics(callback:Callback) {
         if(__exists(this.MAC)) return callback(new Error("query in progress."));
         __add(this.MAC);
-        exec(Gatttool.cmd, "-i", this.hciInterface, "-b", this.MAC, "--characteristics", must((err, data)=> {
+        var ps = child_process.exec(Gatttool.cmd + " -i " + this.hciInterface + " -b " + this.MAC + " --characteristics", must((err, data)=> {
+            ps.kill();
             __done(this.MAC);
             if (err) return callback(err);
             if (this.__IsError(data)) return callback(new Error(data));
