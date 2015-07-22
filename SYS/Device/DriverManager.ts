@@ -463,23 +463,22 @@ export function DriverInvoke(driverId, deviceId, actionId, params:KVSet, cb) {
     });
 }
 
-function DriverMatch(actionId, callback) {
-    console.log('____________>> [3]', actionId, arguments);
-    var drvs = [];
-    var devices = DeviceManager.Devices();
-    for (var d in devices) {
-        if (devices[d].assumptions) {
-            for (var k in Drivers) {
-                var assump = devices[d].assumptions[Drivers[k].id()];
-                if (assump && assump.actions && assump.actions.hasOwnProperty(actionId)) {
-                    drvs.push({driverId: k, deviceId: d});
-                }
-            }
-        }
-    }
-    console.log('____________>> [3]', drvs);
-    return callback(undefined, drvs);
-}
+// 
+// function DriverMatch(actionId, callback) {
+//     var drvs = [];
+//     var devices = DeviceManager.Devices();
+//     for (var d in devices) {
+//         if (devices[d].assumptions) {
+//             for (var k in Drivers) {
+//                 var assump = devices[d].assumptions[Drivers[k].id()];
+//                 if (assump && assump.actions && assump.actions.hasOwnProperty(actionId)) {
+//                     drvs.push({driverId: k, deviceId: d});
+//                 }
+//             }
+//         }
+//     }
+//     return callback(undefined, drvs);
+// }
 
 export function Initialize(cb) {
     trace("Init..");
@@ -497,9 +496,46 @@ function __driverChangeDevice(inAppDrvId, deviceId, assump:IDeviceAssumption, cb
     cb();
 }
 
+
+export function GetDriverDesc(driver: IDriver){
+    var drv = {
+        name: driver.name(),
+        status: driver.status(),
+        interest: driver.interest(),
+        bus: driver.bus(),
+        id: driver.id(),
+        type: driver["Runtime"] ? "App" : "System"
+    };
+    if(driver["Runtime"]){
+        drv["app"] = RuntimePool.GetSnapshot(driver["Runtime"])
+    }
+    return drv;
+}
+
+function GetDriverDescription(ids, cb) {
+    //Forms description for driver
+    if(!ids) return cb(new Error('DriverId is missing'));
+    if(!Array.isArray(ids)){
+        ids = [ids];
+    }
+    var result = {};
+    for(var i = 0; i < ids.length; i++){
+        var cur = ids[i];
+        result[cur] = undefined;
+        var drv = Drivers[cur];
+        if(drv){
+            result[cur] = GetDriverDesc(drv);
+        }
+    }
+    return cb(undefined, result);
+}
+
+
 __API(__driverChangeDevice, 'Device.Change', [Permission.Driver]);
 __API(DriverInvoke, 'Driver.Invoke', [Permission.Driver]);
-__API(DriverMatch, 'Driver.Match', [Permission.Driver]);
+// __API(DriverMatch, 'Driver.Match', [Permission.Driver]);
+__API(GetDriverDescription, 'Driver.GetDescription');
+
 
 __EVENT("Device.change", [Permission.DeviceAccess]);
 __EVENT("Driver.down", [Permission.Driver]);
