@@ -287,12 +287,14 @@ export function UserAppear(userid:string,
 
 export function SyncUser(userid:string, devid:string, cb) {//TODO: need testsing
     var user = DB_UserList[userid];
-    Orbit.Post('User/sync', JSON.parse(JSON.stringify(user)), (err, orbitResult)=> {
+    var pkg = Orbit.PKG(undefined, devid, JSON.parse(JSON.stringify(user)));
+
+    Orbit.Post('User/sync', pkg, (err, orbitResult)=> {
         if (err) return cb(err);
         if (orbitResult.state === 'OK') return cb();
         if (orbitResult.state === 'DOWN') {
             if (orbitResult.avatar_diff) {
-                Orbit.Download('User/avatar/download/' + orbitResult.entity.avatar, {}, (err, stream)=> {
+                Orbit.Download('User/avatar/download/' + orbitResult.entity.avatar, {uid:user.uid,}, (err, stream)=> {
                     var avatarPath = path.join(CONF.AVATAR_PATH, orbitResult.entity.avatar);
                     var wstream = fs.createWriteStream(avatarPath);
                     stream.pipe(wstream);
@@ -314,7 +316,8 @@ export function SyncUser(userid:string, devid:string, cb) {//TODO: need testsing
                 fs.readFile(avatarPath, (err, avatar_data)=> {
                     if(err) return cb(err);
                     Orbit.Post('User/avatar/upload/' + orbitResult.entity.avatar
-                        , {user_id:user.uid, version: user.version, avatar_data: avatar_data}, cb);
+                        , Orbit.PKG(undefined, devid, { uid:user.uid, version: user.version, avatar_data: avatar_data })
+                        , cb);
                 });
             }
             return cb();
@@ -477,12 +480,12 @@ export function Initialize(callback:Callback) {
     return callback();
 }
 
-function GetCurrentUser(token_uid, cb) {
-    if(!this.user_id || !DB_UserList[this.user_id]) return cb();
+function GetCurrentUser(cb) {
+    if(!this.userid || !DB_UserList[this.userid]) return cb();
     return cb(undefined, {
-         name: DB_UserList[this.user_id].name,
-         data: DB_UserList[this.user_id].data,
-         lastSeen: DB_UserList[this.user_id].lastSeen
+         name: DB_UserList[this.userid].name,
+         data: DB_UserList[this.userid].data,
+         lastSeen: DB_UserList[this.userid].lastSeen
     });
     return cb(new Error('No logon'));
 }
