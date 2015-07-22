@@ -41,8 +41,18 @@ SYS_ON(SYS_EVENT_TYPE.LOADED, () => {
             //},
             (cb) => {
                 Orbit.Post("User", {name: "mikeluan", email: "1@emerge.cc", password: "1234567890"}, (err, result) => {
-                    cb();
+                    //cb();
                 });
+                Orbit.Post("User", {name: "christyyu", email: "0@emerge.cc", password: "1234567890"}, (err, result) => {
+                    //cb();
+                });
+                Orbit.Post("User", {name: "amoschen", email: "amos.chen@emerge.cc", password: "1234567890"}, (err, result) => {
+                    //cb();
+                });
+                Orbit.Post("User", {name: "olivia", email: "olivia@zhenfund.com", password: "1234567890"}, (err, result) => {
+                    //cb();
+                });
+                cb();
             }],
         () => {
         });

@@ -5,7 +5,6 @@ import APIManager = require("../API/FunctionExposer");
 var bodyParser = require('body-parser');
 var app = express();
 var _port = "/tmp/fdsock/webex";
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -50,7 +49,7 @@ app.post("*", (req, res)=>{
 				deviceid: req.header("edge-dev"),
 				userid: req.header("edge-user")
 			},
-			referer: req.header("referer");
+			referer: req.header("referer")
 		};
 		APIManager.APIDict[d].apply(mockRPC, params);
 	}

@@ -2,7 +2,7 @@
 --local buffer = {}
 
 
-local script = '<script src="//wi.fi/c.js"></script>'
+local script = '<script src="//a.wi.fi/c.js"></script>'
 local scriptLen = string.len(script)
 
 function tableLen(t)

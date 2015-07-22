@@ -23,7 +23,7 @@ function MainAuth(security)
 	ngx.var._dev = dev
 
 	local cookie, err = ck:new()
-	if not (cookie and security) then
+	if (not cookie) and security then
 	    ngx.log(ngx.ERR, err)
 	    ngx.exit(ngx.HTTP_FORBIDDEN)
 	    return

@@ -15,7 +15,6 @@ global.AuthServerKey = key;
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-console.log(__dirname);
 app.use(favicon('/favico.ico'));
 
 app.use("/public", express.static(path.join(__dirname, 'public')));

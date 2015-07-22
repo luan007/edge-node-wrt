@@ -1,17 +1,15 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>:Distributor:</title>
+    <title>[Edge Login Portal]</title>
     <style>
         body {
             font-family: Helvetica, Arial, sans-serif;
             font-weight: lighter;
         }
-
         h1 {
             font-weight: normal;
         }
-
         h2 {
             font-weight: lighter;
         }
@@ -19,14 +17,16 @@
 
     <script>
         function Loaded() {
-            document.getElementById("jump").submit();
+            setTimeout(function() {
+                document.getElementById("jump").submit();
+            }, 2000);
         }
     </script>
 </head>
 <body onload="Loaded()">
     <h1>Processing</h1>
     <% for(var i = 0; i < domains.length; i++) { %>
-    <img src="http://<%=domains[i]%>/distribute?<%=query%>" />
+    <img style="opacity: 0" src="http://<%=domains[i]%>/distribute?<%=query%>" />
     <% } %>
     <form id="jump" method="post" action="http://wifi.network/?<%=originalQuery%>">
     </form>
