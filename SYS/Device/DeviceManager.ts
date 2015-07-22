@@ -433,13 +433,12 @@ export function SetOwnership(devId, ownership) {
     }
 }
 
-function GetCurrentDevice(token_uid, cb){
+function GetCurrentDevice(cb){
     if(this.deviceid) {
         var device = Get(this.deviceid);
         if (device)
             return cb(undefined, cookdev(device));
     }
-
     return cb(new Error('no such device'));
 }
 

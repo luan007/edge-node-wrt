@@ -1,5 +1,5 @@
 -- Catch all Auth
-function MainAuth()
+function MainAuth(security)
 
 	local clientIp = ngx.var.remote_addr
 	--filter clientIp
@@ -23,7 +23,7 @@ function MainAuth()
 	ngx.var._dev = dev
 
 	local cookie, err = ck:new()
-	if not cookie then
+	if not (cookie and security) then
 	    ngx.log(ngx.ERR, err)
 	    ngx.exit(ngx.HTTP_FORBIDDEN)
 	    return

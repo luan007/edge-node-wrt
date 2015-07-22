@@ -2,16 +2,20 @@
 
 import express = require('express');
 import APIManager = require("../API/FunctionExposer");
+var bodyParser = require('body-parser');
 var app = express();
 var _port = "/tmp/fdsock/webex";
 
-app.get("/", (req, res)=>{
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.post("/", (req, res)=>{
 	res.json({
 		result: "welcome"
 	});
 });
 
-app.get("*", (req, res)=>{
+app.post("*", (req, res)=>{
 	var p = req.path.toLowerCase();
 	var d = p.trim().replace(/\//gim, '.');
 	while(d[0] === '.'){
@@ -26,13 +30,7 @@ app.get("*", (req, res)=>{
 			error: new Error("Not Found")
 		});
 	} else {
-		var params = [];
-		for(var i in req.query){
-		 	params.push(req.query[i]);
-	 	} 
-		//DOES NOT WORK
-		
-		//MUST HAS BUGS
+		var params = Array.isArray(req.body) ? req.body : [];
 		params.push(must((err, result) => {
         	info("*WEBEX*  " + err + result);
 			if (err) {
@@ -47,7 +45,11 @@ app.get("*", (req, res)=>{
 		}, 30000));
 		//extract referer
 		var mockRPC = {
-			rpc: { remote: 0 }
+			rpc: { remote: 0 },
+			webex: {
+				deviceid: req.header("edge-dev"),
+				userid: req.header("edge-user")
+			}
 		};
 		APIManager.APIDict[d].apply(mockRPC, params);
 	}
