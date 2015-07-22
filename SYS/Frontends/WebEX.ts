@@ -49,7 +49,8 @@ app.post("*", (req, res)=>{
 			webex: {
 				deviceid: req.header("edge-dev"),
 				userid: req.header("edge-user")
-			}
+			},
+			referer: req.header("referer");
 		};
 		APIManager.APIDict[d].apply(mockRPC, params);
 	}
