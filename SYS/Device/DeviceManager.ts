@@ -445,33 +445,39 @@ function GetCurrentDevice(token_uid, cb){
 
 function cooklist(dev_s){
     if(!dev_s) return dev_s;
+    var t = {};
+    
     for(var i in dev_s){
-        dev_s[i] = cookdev(dev_s[i]);
+        t[i] = cookdev(dev_s[i]);
     }
-    return dev_s;
+    return t;
 }
 
-function cookdev(dev:IDevice){
+
+function cookdev(dev){
     if(!dev) return;
-    dev = jclone(dev);
-    for(var drv in dev.assumptions) {
-        var a = dev.assumptions[drv];
+    var q = JSON.parse(JSON.stringify(dev));
+    for(var drv in q.assumptions) {
+        var a = q.assumptions[drv];
+        if(!a.valid) continue;
         for(var key in a) {
-            if(!dev[key]){
-                dev[key] = {};
+            if(key === "driverId") continue;
+            if(!q[key]){
+                q[key] = {};
             }
             var subkey = a[key];
             for(var k in subkey){
-                if(!dev[key][k]){
-                    dev[key][k] = {};
+                if(!q[key][k]){
+                    q[key][k] = {};
                 }
-                dev[key][k][drv] = subkey[k];
-                dev[key][k].value = subkey[k];
+                q[key][k][drv] = subkey[k];
+                q[key][k].value = subkey[k];
             }
         }
     }
-    return dev;
+    return q;
 }
+
 
 
 __EVENT("Device.down", [Permission.DeviceAccess]);

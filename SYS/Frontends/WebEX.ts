@@ -22,26 +22,29 @@ app.get("*", (req, res)=>{
 	}
 	info('Web EX Call: ' + d);
 	if(!APIManager.APIDict[d]) {
-		res.status(404).json({
+		return res.json({
 			error: new Error("Not Found")
 		});
 	} else {
 		var params = [];
-		for(var i in req.params){
-			params.push(req.params[i]);
-		}
+		for(var i in req.query){
+		 	params.push(req.query[i]);
+	 	} 
+		//DOES NOT WORK
+		
+		//MUST HAS BUGS
 		params.push(must((err, result) => {
+        	info("*WEBEX*  " + err + result);
 			if (err) {
-				return res.status(500).json({
+				return res.json({
 					error: new Error("Not Found")
 				});
 			} else {
-				return res.status(200).json({
+				return res.json({
 					result: result
 				});
 			}
-		}, 50000));
-		console.log(params);
+		}, 30000));
 		//extract referer
 		var mockRPC = {
 			rpc: { remote: 0 }
