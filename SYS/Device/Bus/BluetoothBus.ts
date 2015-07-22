@@ -1,6 +1,4 @@
 ﻿import bluez = require('../../Common/Native/bluez');
-import _gatttool = require('../../Common/Native/gatttool');
-import Gatttool = _gatttool.Gatttool;
 import Bus = require("./Bus");
 import StatBiz = require('../../Common/Stat/StatBiz');
 
@@ -37,32 +35,6 @@ function _on_device_appear(mac) {
         _bluetoothBus.DeviceUp(mac,
             baseProperty //expand properties
         );
-        Gatttool.Probe(mac, (err)=>{
-            if(err) return error(err);
-            var gatttool = new Gatttool(CONF.DEV.BLUETOOTH.DEV_HCI, mac);
-            var jobs = [];
-            jobs.push((cb)=> {
-                gatttool.Primary((err, primary) => {
-                    cb();
-                    if (err) return error(err);
-                    baseProperty.ble.primary = primary;
-                    _bluetoothBus.DeviceUp(mac,
-                        baseProperty
-                    );
-                });
-            });
-            jobs.push((cb)=>{
-                gatttool.Characteristics((err, characteristics) => {
-                    cb();
-                    if(err) return error(err);
-                    baseProperty.ble.characteristics = characteristics;
-                    _bluetoothBus.DeviceUp(mac,
-                        baseProperty
-                    );
-                });
-            });
-            async.series(jobs, ()=>{});
-        });
     }
 
     // one second
