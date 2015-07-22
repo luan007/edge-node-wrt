@@ -46,6 +46,8 @@ class Configuration extends Configurable {
             }
         }
         if (reload) {
+            var conf = ConfMgr.Get(SECTION.NETWORK);
+            smbInstance.SetIP(conf.RouterIP);
             smbInstance.Start(true);
             smbInstance.StabilityCheck(cb);
         }
@@ -97,6 +99,10 @@ export function Subscribe(cb) {
             smbInstance.Config.CommonSections["global"]["Netbios_Name"] = newValue;
             smbInstance.Start(true);
         }
+    });
+    sub.network.on('RouterIP', (oldValue, newValue) => {
+        smbInstance.SetIP(newValue);
+        smbInstance.Start(true);
     });
     cb();
 }

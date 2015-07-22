@@ -235,6 +235,7 @@ export class SmbConfig {
                 "Server_String": "Edge Server",
                 "Guest_Account": "nobody",
                 "Netbios_Name": "edge",
+                "Router_IP": "192.168.1.1",
                 "Dns_Proxy": YesOrNo.NO,
                 //"Wins_Support": YesOrNo.YES,
                 "Server_Role": SmbConfServerRole.STANDALONE,
@@ -305,7 +306,9 @@ export class SmbDaemon extends Process {
         this.OutputLevel = outputLevel;
     }
 
-
+    public SetIP(routerIP:string) {
+        this.Config.CommonSections["global"]["Router_IP"] = routerIP;
+    }
 
     Start(forever: boolean = true) {
         if (CONF.IS_DEBUG && CONF.DISABLE_SAMBA) {
@@ -330,7 +333,9 @@ export class SmbDaemon extends Process {
             }
             if (this.Config.CommonSections["global"]["Available"] === YesOrNo.YES) {
                 this._ad1 = mdns.createAdvertisement(mdns.tcp('smb'), 445, {
-                    name: this.Config.CommonSections["global"]["Netbios_Name"]
+                    name: this.Config.CommonSections["global"]["Netbios_Name"],
+                    networkInterface: CONF.DEV.WLAN.WLAN_BR,
+                    addresses: this.Config.CommonSections["global"]["Router_IP"]
                 });
                 this._ad1.start();
                 this._ad2 = mdns.createAdvertisement(mdns.tcp('device-info'), 0, {
