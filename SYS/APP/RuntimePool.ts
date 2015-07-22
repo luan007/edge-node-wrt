@@ -138,7 +138,8 @@ function _clean_up(runtimeId, cb) {
     if (runtime) {
         //fatal('----------clean up data folder....');
         umount_till_err(path.join(AppManager.GetAppRootPath(runtime.App.uid), 'etc'), (err, result) => {
-            //ignore
+        });
+        umount_till_err(path.join(AppManager.GetAppRootPath(runtime.App.uid), 'Share/Resource'), (err, result) => {
         });
         umount_till_err(AppManager.GetAppDataLn(runtime.App.uid), (err, result) => {
             try {
@@ -296,10 +297,12 @@ function StartRuntime(app_uid) {
             _setup_quota.bind(null, runtime.RuntimeId),
             exec.bind(null, "rm", '-rf', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'Share/IO/*')),
             exec.bind(null, "chmod", '-R', "0755", AppManager.GetAppRootPath(runtime.App.uid)),
-            exec.bind(null, "mkdir", '-p', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'Data')),
-            exec.bind(null, "mkdir", '-p', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'Share/IO')),
-            exec.bind(null, "mkdir", '-p', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'etc')),
+            exec.bind(null, "mkdir", '-p', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'Data')), //REAL
+            exec.bind(null, "mkdir", '-p', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'Share/IO')), //REAL
+            exec.bind(null, "mkdir", '-p', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'Share/Resource')), //SHADOW
+            exec.bind(null, "mkdir", '-p', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'etc')), //SHADOW
             mount_auto.bind(null, _path, AppManager.GetAppDataLn(runtime.App.uid), ["--bind"]),
+            mount_auto.bind(null, CONF.RESOURCE_STORE_DIR, path.join(AppManager.GetAppRootPath(runtime.App.uid), 'Share/Resource'), ["--bind"]),
             mount_auto.bind(null, '/etc', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'etc'),
                 ["--bind", '-o', 'noexec,nosuid,nodev']),
             exec.bind(null, "chown", "root", AppManager.GetAppRootPath(runtime.App.uid)), //TODO: not secure

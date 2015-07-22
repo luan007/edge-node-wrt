@@ -115,10 +115,12 @@ class _sys_global_conf {
     PKG_PASSWORD_DIR = path.join(this.STORAGE_DISK_DIR, 'passwords');
     PKG_INIT_PASSWORD_FILE = path.join(this.PKG_PASSWORD_DIR, 'init_password');
     PKG_LATEST_PASSWORD_FILE = path.join(this.PKG_PASSWORD_DIR, 'pkg_latest_password');
-
+    
     APP_BASE_PATH = path.join(this.STORAGE_DISK_DIR, "Apps");
 
-    AVATAR_PATH = path.join(this.STORAGE_DISK_DIR, "Avatar");
+    RESOURCE_STORE_DIR = path.join(this.STORAGE_DISK_DIR, 'Resource');
+    AVATAR_PATH = path.join(this.RESOURCE_STORE_DIR, "Avatar");
+    SYMBOL_PATH = path.join(this.RESOURCE_STORE_DIR, "Symbol");
 
     //ramdisk
     RAM_DISK_DIR = process.env.ramdisk || '/ramdisk/';
