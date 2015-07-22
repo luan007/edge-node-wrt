@@ -8,7 +8,7 @@ class _sys_global_conf {
     ALWAYS_REBUILD_OUI = false;
     INTERACTIVE_DEBUG = true;
     IPTABLES_GUARD_LOG = false;
-    DISABLE_SAMBA = true;
+    DISABLE_SAMBA = false;
     IW_LOG = false;
     RPC_FUNC_LOG = true;
     SKIP_QUOTA_CHECK = false; // = true if your boot is too slow, however Runtime.ts will be unstable
