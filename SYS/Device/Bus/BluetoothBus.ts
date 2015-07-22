@@ -10,18 +10,6 @@ import StatBiz = require('../../Common/Stat/StatBiz');
 var _bluetoothBus = new Bus('BLUETOOTH');
 var _mac_list = {};
 
-function _probe(mac, cb) {
-    exec("hcitool", "-i", CONF.DEV.BLUETOOTH.DEV_HCI, "lecc", mac, (err, data)=>{
-        if(err) return cb(err);
-        var matched = /Connection handle (\d)+/gmi.exec(data);
-        if(matched){
-            var handler = matched[1];
-            exec("hcitool", "hcitool", "-i", CONF.DEV.BLUETOOTH.DEV_HCI, "ledc", handler, cb);
-        } else
-            return cb(new Error("Not a bluetooth LE device."));
-    });
-}
-
 function _on_device_disappear(mac) {
     //might be some sort of minor probs..
     mac = mac.toLowerCase();
@@ -49,7 +37,7 @@ function _on_device_appear(mac) {
         _bluetoothBus.DeviceUp(mac,
             baseProperty //expand properties
         );
-        _probe(mac, (err)=>{
+        Gatttool.Probe(mac, (err)=>{
             if(err) return error(err);
             var gatttool = new Gatttool(CONF.DEV.BLUETOOTH.DEV_HCI, mac);
             var jobs = [];

@@ -4,6 +4,18 @@ import fs = require("fs");
 import path = require("path");
 import util = require("util")
 
+var mac_list = {};
+function __exists(MAC) {
+    return has(mac_list, MAC);
+}
+function __add(MAC) {
+    if(!has(mac_list, MAC))
+        mac_list[MAC] = 1;
+}
+function __done(MAC) {
+    delete mac_list[MAC];
+}
+
 export class Gatttool {
     static cmd = "gatttool";
     static primaryRegExp = /attr handle = (.*?), end grp handle = (.*?) uuid: ([^\n]+)/gmi;
@@ -24,9 +36,23 @@ export class Gatttool {
         return /.*? \(\d+\)/gmi.test(data);
     }
 
+    static Probe(MAC, callback:Callback){
+        if(__exists(MAC)) return callback(new Error("query in progress."));
+        __add(MAC);
+        var newcb = must(callback, 5000);
+        exec(Gatttool.cmd, "-i", CONF.DEV.BLUETOOTH.DEV_HCI, "-b", MAC, "--primary",  (err)=>{
+            __done(MAC);
+            if(err) return newcb(err);
+            return newcb(undefined);
+        });
+    }
+
     Primary(callback:Callback) {
+        if(__exists(this.MAC)) return callback(new Error("query in progress."));
+        __add(this.MAC);
         var newcb = must(callback, 5000);
         exec(Gatttool.cmd, "-i", this.hciInterface, "-b", this.MAC, "--primary", (err, data)=> {
+            __done(this.MAC);
             if (err) return newcb(err);
             if (this.__IsError(data)) return newcb(new Error(data));
             if (!Gatttool.primaryRegExp.exec(data)) return newcb(new Error(data));
@@ -49,8 +75,11 @@ export class Gatttool {
     }
 
     Characteristics(callback:Callback) {
+        if(__exists(this.MAC)) return callback(new Error("query in progress."));
+        __add(this.MAC);
         var newcb = must(callback, 5000);
         exec(Gatttool.cmd, "-i", this.hciInterface, "-b", this.MAC, "--characteristics", (err, data)=> {
+            __done(this.MAC);
             if (err) return newcb(err);
             if (this.__IsError(data)) return newcb(new Error(data));
             if (!Gatttool.characteristicsRegExp.exec(data)) return newcb(new Error(data));
