@@ -1,4 +1,6 @@
 ﻿import bluez = require('../../Common/Native/bluez');
+import _gatttool = require('../../Common/Native/gatttool');
+import Gatttool = _gatttool.Gatttool;
 import Bus = require("./Bus");
 import StatBiz = require('../../Common/Stat/StatBiz');
 
@@ -7,6 +9,18 @@ import StatBiz = require('../../Common/Stat/StatBiz');
 //hope GATT was the only standard
 var _bluetoothBus = new Bus('BLUETOOTH');
 var _mac_list = {};
+
+function _probe(mac, cb) {
+    exec("hcitool", "-i", CONF.DEV.BLUETOOTH.DEV_HCI, "lecc", mac, (err, data)=>{
+        if(err) return cb(err);
+        var matched = /Connection handle (\d)+/gmi.exec(data);
+        if(matched){
+            var handler = matched[1];
+            exec("hcitool", "hcitool", "-i", CONF.DEV.BLUETOOTH.DEV_HCI, "ledc", handler, cb);
+        } else
+            return cb(new Error("Not a bluetooth LE device."));
+    });
+}
 
 function _on_device_disappear(mac) {
     //might be some sort of minor probs..
@@ -29,11 +43,38 @@ function _on_device_appear(mac) {
         );
     } else {
         var baseProperty = StatBiz.GetBluetoothPropertiesByMac(mac);
+        baseProperty.ble = {};
         _mac_list[mac] = 1;
         //Register All handlers?
         _bluetoothBus.DeviceUp(mac,
             baseProperty //expand properties
         );
+        _probe(mac, (err)=>{
+            if(err) return error(err);
+            var gatttool = new Gatttool(CONF.DEV.BLUETOOTH.DEV_HCI, mac);
+            var jobs = [];
+            jobs.push((cb)=> {
+                gatttool.Primary((err, primary) => {
+                    cb();
+                    if (err) return error(err);
+                    baseProperty.ble.primary = primary;
+                    _bluetoothBus.DeviceUp(mac,
+                        baseProperty
+                    );
+                });
+            });
+            jobs.push((cb)=>{
+                gatttool.Characteristics((err, characteristics) => {
+                    cb();
+                    if(err) return error(err);
+                    baseProperty.ble.characteristics = characteristics;
+                    _bluetoothBus.DeviceUp(mac,
+                        baseProperty
+                    );
+                });
+            });
+            async.series(jobs, ()=>{});
+        });
     }
 
     // one second
@@ -44,7 +85,7 @@ function _on_device_appear(mac) {
 }
 
 function drop_all() {
-    for (var t in this._mac_list) {
+    for (var t in _mac_list) {
         trace("Gracfully Removing " + t);
         _on_device_disappear(t);
     }
