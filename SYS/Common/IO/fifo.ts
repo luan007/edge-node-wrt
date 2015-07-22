@@ -84,6 +84,7 @@ function _fifo_ok(name){
 
     return function(){
         if(fifos[name] && fifos[name].stream && fifos[name].isSource){
+            info('WFIFO IS READABLE * ', name);
             console.log("upstream is OK");
             fifos[name].ready = true;
             //emit event if needed
@@ -106,6 +107,8 @@ function WriteOnlyFIFO(owner, path, cb){
             otherend: undefined,
             isSource: true
         };
+        info('W FIFO Created * ', name);
+        info(fifos[name]);
         stream.once("readable", _fifo_ok(name));
         cb(undefined, name);
     });
@@ -125,6 +128,8 @@ function ReadOnlyFIFO(owner, path, source, cb) {
             otherend: undefined,
             isSource: false
         };
+        info('R FIFO Created * ', name);
+        info(fifos[name]);
         _notify_when_ok(source, (err)=>{
             if(err){
                 _release(name);
