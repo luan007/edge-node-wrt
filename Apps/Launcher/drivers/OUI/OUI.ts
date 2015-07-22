@@ -12,7 +12,7 @@ export function Rebuild(fileName, cb) {
     console.log("Rebuild Scheduled - Expect delays");
     hotswap("OUI_DB", (done) => {
         console.log("Rebuilding OUI Database, Go CPU Go!");
-        fileName = fileName ? fileName : path.join(process.env.ROOT_PATH, "OUI/OUI.txt");
+        fileName = fileName ? fileName : path.join("/drivers/OUI/OUI.txt");
         console.log(" - feeding in " + fileName);
         var match = /([\w]{2})-([\w]{2})-([\w]{2})\s+\(hex\)\s+(.+)/;
         var rd = readline(fileName);
@@ -72,7 +72,7 @@ export function Initialize(cb) {
     level = require("levelup");
     var fs = require("fs");
     var rebulid = false;
-    var dbPath = path.join(process.env.ROOT_PATH, 'Data/OUIDB'); // oops
+    var dbPath = path.join('/Data/OUIDB'); // oops
     if (!fs.existsSync(dbPath)) {
         rebulid = true;
         fs.mkdirSync(dbPath);
