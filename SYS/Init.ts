@@ -25,6 +25,7 @@ domain.run(function () {
         , {path: './Device/Graphd/DB', name: 'Graphd'}
         , {path: './Device/Bus/WifiBus', name: 'WifiBus'}
         , {path: './Device/Bus/BluetoothBus', name: 'BluetoothBus'}
+        , {path: './Device/Bus/BTLE', name: 'BTLE'}
         , {path: './Device/DeviceManager', name: 'DeviceManager'}
         , {path: './Device/DriverManager', name: 'DriverManager'}
         , {path: './Router/Network/Network', name: 'Network'}
@@ -32,6 +33,7 @@ domain.run(function () {
         , {path: './Router/Network/Firewall/TrafficAccountant', name: 'TrafficAccountant'}
         , {path: './Router/Network/Wireless/Wifi', name: 'Hostapd'}
         , {path: './Router/Network/Wireless/Bluetooth', name: 'Bluetooth'}
+        , {path: './Router/Network/Wireless/BTLE', name: 'Network'}
         , {path: './Router/Storage/Samba', name: 'Samba'}
         //, {path: './Router/Storage/Obex', name: 'Obex'}
         , {path: './Router/Presentation/Streaming', name: 'Streaming'}

@@ -26,9 +26,10 @@ export class HCITool extends Process{
     }
 
     __handleHCIOutput(row) {
+        trace("hcitool row:", row);
         var matched = HCITool.ROW_REGEXP.exec(row);
-        if(matched.length > 2) {
-            var mac = matched[1];
+        if(matched && matched.length > 2) {
+            var mac = matched[1].toString().toLowerCase();
             if(!__exists(mac)) {
                 __add(mac);
                 var name = matched[2];
