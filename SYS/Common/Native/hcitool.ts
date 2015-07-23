@@ -25,34 +25,46 @@ export class HCITool extends Process {
         super("HCITool");
     }
 
-    __handleHCIOutput(row) {
-        trace("hcitool row:", row);
-        var matched = HCITool.ROW_REGEXP.exec(row);
-        if (matched && matched.length > 2) {
-            var mac = matched[1].toString().toLowerCase();
-            if (!__exists(mac)) {
-                __add(mac);
-                var name = matched[2];
-                this.emit("UP", mac, name);
-            }
+    __handleHCIOutput(data) {
+        var rows = data.split('\n');
+        if(rows){
+            rows.forEach((row)=>{
+                var matched = HCITool.ROW_REGEXP.exec(row);
+                if (matched && matched.length > 2) {
+                    var mac = matched[1].toString().toLowerCase();
+                    if (!__exists(mac)) {
+                        __add(mac);
+                        var name = matched[2];
+                        trace("hcitool row:", row, mac, name);
+                        this.emit("UP", mac, name);
+                    }
+                }
+            });
         }
     }
 
     Start(forever:boolean = true) {
+        var jobs = [
+            (cb)=> {exec("hciconfig", CONF.DEV.BLUETOOTH.DEV_HCI, "down", ignore_err(cb)); },
+            (cb)=> {exec("hciconfig", CONF.DEV.BLUETOOTH.DEV_HCI, "up", ignore_err(cb)); }
+        ];
+
         if (this.Process) {
-            this.Process.kill();
-            info("OK");
-            super.Start(forever);
+            async.series(jobs,() => {
+                info("UPDATE");
+            });
         } else {
             killall(HCITool.HCI_NAME, () => {
-                this.Process = child_process.spawn(HCITool.HCI_NAME, ["-i", CONF.DEV.BLUETOOTH.DEV_HCI, "lescan"]);
-                ((self) => {
-                    self.Process.stdout.on("data", (data) => {
-                        self.__handleHCIOutput(data.toString());
-                    });
-                })(this);
-                info("OK");
-                super.Start(forever);
+                async.series(jobs, ()=>{
+                    this.Process = child_process.spawn(HCITool.HCI_NAME, ["-i", CONF.DEV.BLUETOOTH.DEV_HCI, "lescan"]);
+                    ((self) => {
+                        self.Process.stdout.on("data", (data) => {
+                            self.__handleHCIOutput(data.toString());
+                        });
+                    })(this);
+                    info("OK");
+                    super.Start(forever);
+                });
             });
         }
     }
@@ -61,8 +73,8 @@ export class HCITool extends Process {
         super.OnChoke();
         info("Killing all HCITool processes");
         var jobs = [
-            (cb)=> {exec("hciconfig", "-i", CONF.DEV.BLUETOOTH.DEV_HCI, "down", ignore_err(cb)); },
-            (cb)=> {exec("hciconfig", "-i", CONF.DEV.BLUETOOTH.DEV_HCI, "up", ignore_err(cb)); },
+            (cb)=> {exec("hciconfig", CONF.DEV.BLUETOOTH.DEV_HCI, "down", ignore_err(cb)); },
+            (cb)=> {exec("hciconfig", CONF.DEV.BLUETOOTH.DEV_HCI, "up", ignore_err(cb)); }
         ];
         async.series(jobs, () => {
             this.Process.removeAllListeners();

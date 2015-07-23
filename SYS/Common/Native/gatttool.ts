@@ -32,7 +32,7 @@ export function Primary(hciInterface, MAC, callback:Callback) {
         __done(MAC);
         if (err) return callback(err);
         if (__IsError(data)) return callback(new Error(data));
-        if (primaryRegExp.exec(data)) return callback(new Error(data));
+        if (!primaryRegExp.exec(data)) return callback(new Error(data));
 
         var lines = data.split("\n");
         var res = {};
@@ -59,7 +59,7 @@ export function Characteristics(hciInterface, MAC, callback:Callback) {
         __done(MAC);
         if (err) return callback(err);
         if (__IsError(data)) return callback(new Error(data));
-        if (characteristicsRegExp.exec(data)) return callback(new Error(data));
+        if (!characteristicsRegExp.exec(data)) return callback(new Error(data));
 
         var lines = data.split("\n");
         var res = {};

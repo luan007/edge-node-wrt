@@ -2,37 +2,49 @@ import Bus = require("./Bus");
 import Gatttool = require('../../Common/Native/gatttool');
 var _btleBus = new Bus('BTLE');
 
-function _on_device_appear(mac, name) {
-    _btleBus.DeviceUp(mac, {
-        name: name,
-        BTLE: {}
-    });
+var mac_list = {};
+function __exists(MAC) {
+    return has(mac_list, MAC);
+}
+function __add(MAC) {
+    if (!has(mac_list, MAC))
+        mac_list[MAC] = 1;
+}
 
-    var jobs = [];
-    jobs.push((cb)=> {
-        Gatttool.Primary(CONF.DEV.BLUETOOTH.DEV_HCI, mac, (err, primary) => {
-            cb();
-            if (err) return error(err);
-            _btleBus.DeviceUp(mac, {
-                BTLE: {
-                    primary: primary
-                }
+function _on_device_appear(mac, name) {
+    if(!__exists(mac)){
+        _btleBus.DeviceUp(mac, {
+            name: name,
+            BTLE: {}
+        });
+        __add(mac);
+    } else {
+        var jobs = [];
+        jobs.push((cb)=> {
+            Gatttool.Primary(CONF.DEV.BLUETOOTH.DEV_HCI, mac, (err, primary) => {
+                cb();
+                if (err) return error(err);
+                _btleBus.DeviceUp(mac, {
+                    BTLE: {
+                        primary: primary
+                    }
+                });
             });
         });
-    });
-    jobs.push((cb)=> {
-        Gatttool.Characteristics(CONF.DEV.BLUETOOTH.DEV_HCI, mac, (err, characteristics) => {
-            cb();
-            if (err) return error(err);
-            _btleBus.DeviceUp(mac, {
-                BTLE: {
-                    characteristics: characteristics
-                }
+        jobs.push((cb)=> {
+            Gatttool.Characteristics(CONF.DEV.BLUETOOTH.DEV_HCI, mac, (err, characteristics) => {
+                cb();
+                if (err) return error(err);
+                _btleBus.DeviceUp(mac, {
+                    BTLE: {
+                        characteristics: characteristics
+                    }
+                });
             });
         });
-    });
-    async.series(jobs, ()=> {
-    });
+        async.series(jobs, ()=> {
+        });
+    }
 }
 
 export function Subscribe(cb) {
