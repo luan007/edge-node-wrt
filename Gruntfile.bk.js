@@ -13,7 +13,6 @@ module.exports = function (grunt) {
     var _syslocal = path.join(local_target, sysroot);
     var _applocal = path.join(local_target, approot);
     function initGrunt(enable_remote){
-        
         grunt.initConfig({
             watch: {
                 systs: {

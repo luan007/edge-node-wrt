@@ -75,3 +75,36 @@ declare function forEachFlat(arr, job);
 declare function mkStruct(base, tree, ignoreErr, cb);
 
 declare function didChange(name, thisTime, comp_func?: (cur, last) => boolean);
+
+declare var Fuzzy: {
+	
+// The normal entry point. Filters `arr` for matches against `pattern`.
+// It returns an array with matching values of the type:
+//
+//     [{
+//         string:   '<b>lah' // The rendered string
+//       , index:    2        // The index of the element in `arr`
+//       , original: 'blah'   // The original element in `arr`
+//     }]
+//
+// `opts` is an optional argument bag. Details:
+//
+//    opts = {
+//        // string to put before a matching character
+//        pre:     '<b>'
+//
+//        // string to put after matching character
+//      , post:    '</b>'
+//
+//        // Optional function. Input is an entry in the given arr`,
+//        // output should be the string to test `pattern` against.
+//        // In this example, if `arr = [{crying: 'koala'}]` we would return
+//        // 'koala'.
+//      , extract: function(arg) { return arg.crying; }
+//    }
+
+	filter : (pattern, arr, opts) => any;
+	match : (pattern, string, opts) => any;
+	test: (pattern, string) => any;
+	simpleFilter : (pattern, array) => any;
+};

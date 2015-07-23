@@ -46,8 +46,8 @@ domain.run(function () {
         , {path: './Frontends/Thirdparty'}
         , {path: './Frontends/MsgManager'}
         //, {path: './Frontends/HttpProxy', name: 'HttpProxy'}
-        , {path: './APP/Test/FakeData/Generator'}
-        , {path: './APP/Test/Deployment/Server'}
+        , {path: './Debug/FakeData/Generator'}
+        , {path: './Debug/Deployment/Server'}
         , {path: './APP/RuntimePool', name: 'RuntimePool'}
         , {path: './APP/Resource/IO/FIFO'}
         , {path: './APP/Resource/FileSystem/Limit'}

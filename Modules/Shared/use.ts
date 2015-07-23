@@ -1,4 +1,5 @@
 ﻿require("./Basic/cjson");
+require("./Basic/fuzzy");
 require("./Basic/delta");
 require("./Basic/struct");
 require("./Basic/flowcontrol");
