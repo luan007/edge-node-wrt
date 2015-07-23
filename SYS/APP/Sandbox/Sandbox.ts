@@ -58,9 +58,9 @@
 
 var _p = process;
 process.on("uncaughtException",(err) => {
-    console.error("ERROR:" + err.message);
-    console.error(err.stack);
-    _p.send(err);
+    console.log("ERROR:" + err.message);
+    console.log(err.stack);
+    //_p.send(err);
     _p.exit();
 });
 
@@ -226,8 +226,8 @@ function _post_reverse_api(cb) {
             }
         }
     } catch (e) {
-        console.error('!require driver ========= failed!', e);
-        console.error(e);
+        console.log('!require driver ========= failed!', e);
+        console.log(e);
     }
     var json = reverseAPI.GenerateReverseAPI(_rpc);
     API.Sandbox.SetupReverseAPI(json, cb);
@@ -242,7 +242,7 @@ function _actual_launch(cb) {
         //sandbox.run("require('/app')");
         require("/app");
     } catch (e) {
-        console.error("Code Init Error - " + e);
+        console.log("Code Init Error - " + e);
         process.exit();
     }
 }

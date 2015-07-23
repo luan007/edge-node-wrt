@@ -269,7 +269,7 @@ class IPPService implements IInAppDriver {
                                 this.__detectBufferMime(data, (err, mime)=> {
                                     var msg = {
                                         "operation-attributes-tag": {
-                                            "requesting-user-name": params.user.name,
+                                            "requesting-user-name": params.user ? params.user.name : "Anonymous",
                                             "job-name": params.job_name,
                                             "document-format": mime
                                         }
