@@ -112,7 +112,7 @@ class Configuration extends Configurable {
 
 var defconfig2G4 = {
     Power: true,
-    SSID: "edge_zhuihaode",
+    SSID: "EdgeRouter",
     AutoSSID: false,
     Visible: true,
     Channel: 7,
