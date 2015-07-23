@@ -36,6 +36,7 @@ function ConnectionHandler(credential:{ uid; pid; gid; },
             Server.Serve(socket, CONF.SENDER_TYPE_GUI, gui_runtime_id, 
                 gui_runtime_id);
             info("GUI Proxy RPC is Bound with " + credential.pid);
+            callback(true);
         }
         else {
             trace("NO MATCH, Moving on.. " + credential.pid);
@@ -44,6 +45,7 @@ function ConnectionHandler(credential:{ uid; pid; gid; },
     } catch (e) {
         fatal("Error fetching parent pid " + credential.pid);
         fatal(e);
+       callback(undefined);
     }
 }
 
