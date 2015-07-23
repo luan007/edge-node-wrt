@@ -10,8 +10,8 @@ var _upload = multer({
 
 var app = express()
 var fs = require("fs");
-import RuntimePool = require('../RuntimePool');
-import AppManager = require('../AppManager');
+import RuntimePool = require('../../APP/RuntimePool');
+import AppManager = require('../../APP/AppManager');
 import DevManager = require('../../Device/DeviceManager');
 
 app.use((req, res, next) => {

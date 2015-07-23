@@ -19,9 +19,9 @@ export function Passthrough(name, stream){
 
 export function DoLog(name, log){
 	if(!data[name]) data[name] = [];
-	data[name].unshift({D: str, T: (new Date()).toString(), rT: Date.now() - ticks });
+	data[name].unshift({D: log, T: (new Date()).toString(), rT: Date.now() - ticks });
 	if(data[name].length > MAX_LOG_LEN) {
 		data[name].pop();
 	}
-	LOGHOOK.emit('data', name, log);
+	global.LOGHOOK.emit('data', name, log);
 }

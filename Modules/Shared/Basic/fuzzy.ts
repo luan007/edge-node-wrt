@@ -6,7 +6,7 @@
  * Licensed under the MIT license.
  */
 
-var fuzzy = {};
+var fuzzy : any = {};
 
 module.exports = fuzzy;
 

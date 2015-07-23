@@ -1,4 +1,4 @@
-﻿import _Application = require('../../../DB/Models/Application');
+﻿import _Application = require('../../DB/Models/Application');
 import Application = _Application.Application;
 require('../../../Common/Remote/Client');
 
