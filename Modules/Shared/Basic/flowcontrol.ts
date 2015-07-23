@@ -1,5 +1,42 @@
 ﻿import events = require("events");
 
+var runningJobs = {};
+global.ignore_if_running = function (jobName, job: (cb) => any, swallow_cb = false, error_if_bypassed = false){
+    return function(cb) {
+        if(runningJobs[jobName]){
+            if(swallow_cb) return;
+            return cb(error_if_bypassed ? new Error("Job: " + jobName + " is currently running ! ") : undefined, undefined);
+        }
+        runningJobs[jobName] = 1;
+        var wrapCb = function() {
+            delete runningJobs[jobName];
+            cb.apply(this, arguments);
+        }
+        job(wrapCb);
+    };
+};
+
+global.retry_times = function (someJob_with_CB: (cb: (err,result)=>any) => any, max_retry = 10, delay = 100) {
+    return function(cb) {
+        var t = undefined;
+        var retry = function(){
+            someJob_with_CB((err, result)=>{
+                clearTimeout(t);
+                if(!err) return cb(err, result);
+                if(max_retry === 0){
+                    err.retried = true;
+                    return cb(err);
+                }
+                if(max_retry > 0){
+                    max_retry--;
+                }
+                t = setTimeout(retry, delay);
+            });
+        }
+        retry();
+    };
+};
+
 global.withCb = function (syncFunc, resultfilter?) {
     return function () {
         var cb = arguments[arguments.length - 1];
@@ -7,7 +44,7 @@ global.withCb = function (syncFunc, resultfilter?) {
         var result = void 0;
         var error = void 0;
         try {
-            result = syncFunc.apply(null, arguments);
+            result = syncFunc.apply(this, arguments);
             if(resultfilter) result = resultfilter(result);
         } catch (e) {
             error = e;
