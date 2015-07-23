@@ -1,0 +1,488 @@
+3M Deutschland GmbH
+3M Germany
+ABB Australia
+ABB Genway Xiamen Electrical Equipment CO., LTD
+ABB n.v. Power Quality Products
+ABB Power Systems Power Generation
+Acer Incorporated
+ACER TECHNOLOGIES CORP.
+Alcatel Lucent IPD
+Alcatel Lucent WT
+Alcatel-Lucent Shanghai Bell Co., Ltd
+Apple Inc
+Apple, Inc
+Apple, Inc.
+AT & T Laboratories - Cambridge Ltd
+AT&T Fixed Wireless Services
+Beijing Haier IC Design Co.,Ltd
+Beijing Xiaomi communications co.,ltd
+Beijing Xiaomi Electronic Products Co., Ltd.
+Bluetooth Interest Group Inc.
+Broadcom Corp.
+BROADCOM CORPORATION
+BYD Precision Manufacture Company Ltd.
+CANON FINETECH INC.
+Canon Imaging Systems Inc.
+CANON KOREA BUSINESS SOLUTIONS INC.
+Cisco Consumer Products, LLC
+Cisco Linksys LLC
+Cisco SPVTG
+Cisco Systems
+Cisco Systems Inc
+CISCO SYSTEMS, INC.
+Cisco Systems, Inc.
+Cisco, Service Provider Video Technology Group
+Cisco-Linksys, LLC
+Dell Computer Corp.
+Dell Inc
+Dell Inc.
+D-Link Corporation
+D-Link International
+D-LINK INTERNATIONAL PTE LIMITED
+D-Link Systems, Inc.
+D-LINK SYSTEMS, INC.
+Ericsson - North America
+ERICSSON AB
+Ericsson AB (EAB)
+Ericsson, EAB/RWI/K
+Ericsson-LG Enterprise
+FUJITSU DENSO LTD.
+Fujitsu General Limited
+Fujitsu I-Network Systems Limited.
+FUJITSU ISOTEC LIMITED
+FUJITSU MICROELECTRONICS, INC.
+Fujitsu Softek
+Fujitsu Technology Solutions GmbH
+FUJITSU TELECOMMUNICATIONS EUROPE, LTD.
+FUJITU(HONG KONG) ELECTRONIC Co.,LTD.
+GE Healthcare Bio-Sciences AB
+GE Security
+Google Inc.
+GUANGDONG OPPO MOBILE TELECOMMUNICATIONS CORP.,LTD.
+Haier Group Technologies Ltd.
+HANGZHOU H3C Technologies Co., Ltd.
+HEWLETT-PACKARD
+Hewlett-Packard
+HEWLETT-PACKARD CO.
+HEWLETT-PACKARD COMPANY
+Hewlett-Packard Company - Standards
+HISENSE ELECTRIC CO.,LTD.
+Hitachi Industrial Equipment Systems Co.,Ltd
+Hitachi Maxell, Ltd., Optronics Division
+Hitachi Metals America Ltd
+Hitachi Reftechno, Inc.
+HITACHI SOFTWARE ENGINEERING
+HITACHI-LG DATA STORAGE INC
+Hon Hai Precision Ind Co.,Ltd
+HON HAI-CCPBG  PRECISION IND.CO.,LTD.
+HongKong THTF Co., Ltd
+Huawei Symantec Technologies Co.,Ltd.
+HUAWEI TECHNOLOGIES CO., LTD.
+HUAWEI TECHNOLOGIES CO.,LTD
+IBM Corp
+IBM Corporation
+IBM JAPAN, FUJISAWA MT+D
+Intel Corp
+Intel Corporate
+INTEL CORPORATION - HF1-06
+Kawasaki Microelectronics Incorporated
+Leica Microsystems (Schweiz) AG
+Lenovo (Beijing) Limited.
+Lenovo Mobile Communication (Wuhan) Company Limited
+LG Display
+LG Electronics
+LG Electronics (Mobile Communicaitons)
+LG Electronics (Mobile Communications)
+LG Electronics Inc
+LG ELECTRONICS INC
+LG ELECTRONICS, INC.
+LG INFORMATION & COMM.
+LG innotek
+LG Innotek
+LG Innotek Co., Ltd.
+LG-Ericsson Co.,Ltd.
+Microlink communications Inc.
+Microlink Corporation
+MICROSOFT
+Microsoft Corp.
+Microsoft Corporation
+Microsoft XCG
+Micro-Star INT'L CO., LTD.
+Motorola Inc Business Light Radios
+Motorola Korea
+Motorola Mobility LLC
+Motorola Mobility LLC, a Lenovo Company
+Motorola Solutions Inc.
+MSI
+NEC AMERICA, INC.
+NEC CASIO Mobile Communications
+NEC Personal Products, Ltd
+NETGEAR
+NETGEAR Inc
+Netgear Inc
+Next Generation Systems, Inc.
+Nike, Inc.
+NIKON CORPORATION
+Nokia corporation
+Nokia Danmark A/S
+Nokia GmbH
+NOKIA MULTIMEDIA TERMINALS
+Nokia NET Product Operations
+Nokia Siemens Networks GmbH & Co. KG.
+Nokia Solutions and Networks
+OPPO Digital, Inc.
+Oracle Corporation
+Panasonic Electric Works Automation Controls Techno Co.,Ltd.
+Panasonic Europe Ltd.
+Panasonic Mobile Communications Co., Ltd.
+Panasonic Taiwan Co.,Ltd.
+Philips Consumer Communications
+Philips Electronics Nederland BV
+Philips Lighting BV
+Philips Medical Systems - Cardiac and Monitoring Systems (CM
+Philips Patient Monitoring
+Qingdao Haier Electronics Co.,Ltd
+Qingdao Haier Telecom Co.，Ltd
+QUALCOMM INCORPORATED
+Qualcomm iSkoot, Inc.
+RICOH COMPANY LTD.
+Samsung Elec Co.,Ltd
+Samsung Electonics Digital Video System Division
+Samsung Electro Mechanics co., LTD.
+SAMSUNG ELECTRO MECHANICS CO., LTD.
+SAMSUNG ELECTRO MECHANICS CO.,LTD.
+SAMSUNG ELECTRO-MECHANICS
+SAMSUNG ELECTRO-MECHANICS CO., LTD
+Samsung Electro-Mechanics Co., Ltd.
+SAMSUNG ELECTRO-MECHANICS CO., LTD.
+SAMSUNG ELECTRONICS
+Samsung Electronics CO., LTD
+Samsung Electronics Co., LTD
+Samsung electronics CO., LTD
+SAMSUNG ELECTRONICS CO., LTD.
+Samsung Electronics Co., Ltd.
+Samsung Electronics Co., Ltd., Memory Division
+Samsung Electronics Co.,Ltd
+Samsung Electronics Co.,LTD
+Samsung Electronics ITS, Printer division
+Samsung Eletronics Co., Ltd
+Samsung Eletronics Co., Ltd (Visual Display Divison)
+SAMSUNG HEAVY INDUSTRIES CO., LTD.
+Samsung Semiconductor Inc.
+Samsung Thales
+SANYO DENKI CO., LTD.
+Schneider Electric Canada Inc
+Shanghai Xiaoyi Technology Co., Ltd.
+SHARP Corporation.
+Shehzhen Huawei Communication Technologies Co., Ltd.
+SHENZHEN FAST TECHNOLOGIES CO., LTD.
+SHENZHEN FAST TECHNOLOGIES CO.,LTD
+Shenzhen Huawei Communication Technologies Co., Ltd
+ShenZhen Huawei Communication Technologies Co.,Ltd.
+Shenzhen TCL New Technology Co; Ltd.
+ShenZhen TP-LINK Technologies Co., Ltd.
+Siemens AG - Industrial Automation - EWA
+Siemens AG A&D ET
+Siemens AG I IA PP PRM
+Siemens AG, Healthcare Sector
+SIEMENS BUILDING
+Siemens Electrical Apparatus Ltd., Suzhou Chengdu Branch
+Siemens Low Voltage & Products
+Siemens Ltd.
+Skyworth Wireless Technology Ltd.
+SMC Networks
+SONOS Co., Ltd.
+Sony Computer Entertainment America
+SONY Computer Entertainment inc,
+Sony Computer Entertainment inc.
+Sony Computer Entertainment Inc.
+Sony Computer Entertainment, Inc.
+Sony Ericsson Mobile Communications
+Sony Ericsson Mobile Communications AB
+Sony Mobile Communications AB
+SONY TEKTRONIX CORP.
+TCL King High Frequency EI,Co.,LTD
+TCL Networks Equipment Co., Ltd.
+TCL Technoly Electronics (Huizhou) Co., Ltd.
+TCL Technoly Electronics(Huizhou)Co.,Ltd
+Texas Instruments, Inc
+Texas Instruments.
+TEXAS MICROSYSTEMS, INC.
+TOSHIBA CORPORATION
+Toshiba Global Commerce Solutions
+TOSHIBA MITSUBISHI-ELECTRIC INDUSTRIAL SYSTEMS CORPORATION
+Toshiba Samsung Storage Technolgoy Korea Corporation
+TP-LINK TECHNOLOGIES CO.,LTD
+TP-LINK TECHNOLOGIES CO.,LTD.
+TP-LINK Technologies Co.,Ltd.
+TP-LINK Technology Co., Ltd.
+VMware, Inc
+Wuhan NEC Fibre Optic Communications industry Co. Ltd
+XIAOMI CORPORATION
+XIAOMI Electronics,CO.,LTD
+XIAOMI IMC
+XIAOMI INC
+Xiaomi inc.
+Xiaomi Technology,Inc.
+Yamaha Motor Co., Ltd.
+ZTE CORPORATION
+A & R Cambridge
+ACCESS Systems Americas, Inc.
+ATEX
+B&W Group Ltd
+Cypress Electronics Limited
+Cypress Technology CO., LTD.
+Digital 5, Inc.
+Digital China (Shanghai) Networks Ltd.
+DUCATI SISTEMI
+EOS TECHNOLOGIES, INC.
+GP Electronics (HK) Ltd.
+Hub-Tech
+North Node AB
+Open Telecom
+Radware
+Symwave
+TEN Technology
+Wireless Technologies, Inc
+Wireless Technology, Inc.
+3COM Corporation
+3CX
+3M COMPANY
+8X8 INC.
+ABB Ltd
+Acer Inc.
+Adafruit
+ADDI-DATA GmbH
+ADOBE SYSTEMS, INC.
+ADVANTECH TECHNOLOGIES CO.,LTD
+AKG Acoustics GmbH
+Alcatel Lucent
+Alibaba Cloud Computing Ltd.
+Alps Electric Co., Ltd
+ALTA TECHNOLOGY
+Amazon Technologies Inc.
+AMD
+AMOI ELECTRONICS CO.,LTD
+Analog Devices Inc.
+ANAVEO
+Apple
+AppTech, Inc.
+ARM
+askey computer corp
+Asus Network Technologies, Inc.
+AT&T
+A-TEC Subsystem INC.
+ATI Technologies Inc.
+Atmel Corporation
+ATTO CORPORATION
+ATTO Technology, Inc.
+Audio Engineering Society Inc.
+Audio Partnership
+AVG Advanced Technologies
+AVSystem
+Axion Technologies Inc.
+Axxcelera Broadband Wireless
+Azul Systems, Inc.
+B&B Electronics Manufacturing Co.
+BATTELLE MEMORIAL INSTITUTE
+Beats Electronics LLC
+Beijing Autelan Technology Inc.
+BEIJING GEHUA CATV NETWORK CO.,LTD
+Beijing Jiaxun Feihong Electricial Co., Ltd.
+Beijing Nan Bao Technology Co., Ltd.
+Beijing PKUNITY Microsystems Technology Co., Ltd
+BenQ Corporation
+Billion Electric Co., Ltd.
+BlackBerry Limited
+Blackmagic Design
+B-Link Electronic Limited
+Bluetooth SIG, Inc.
+BMW AG
+Bosch Automotive Aftermarket
+Broadcom Corporation
+Broadlink Pty Ltd
+Brocade Communications Systems, Inc.
+BYD Precision Manufacture Co.,Ltd
+C&I Technologies
+CANAL +
+CANON INC.
+CASIO COMPUTER CO. LTD.
+chaowifi.com
+China Dragon Technology Limited
+Cisco
+Cisco-Linksys
+CLEVO CO.
+Creative Technology, Ltd.
+CRYPTO AG
+CSS Inc.
+Cylon Controls
+Cytyc Corporation
+D3 LED, LLC
+Datacap Systems Inc
+Dell
+Digital Video Broadcasting
+D-LINK
+Dolby Australia
+Dropcam
+Dyson Limited
+Ebay Inc
+ECI Telecom Ltd.
+EDO-EVI
+EMC Corporation (Kashya)
+Ericsson AB
+Espressif Inc.
+Expand Networks
+Facebook
+FAST Inc
+Fitbit Inc.
+Foxconn(NanJing) Communication Co.,Ltd.
+Freescale Semiconductor
+FUJI PHOTO FILM CO., LTD.
+Fuji Xerox Co., Ltd.
+Fujitsu Siemens Computers
+Fujitsu Technology Solutions
+GE
+Gionee Communication Equipment Co,Ltd.ShenZhen
+Global Technologies Inc.
+Google
+GoPro
+GSI Group, MicroE Systems
+GTE SPACENET
+Guangdong East Power Co.,
+GUANGDONG OPPO MOBILE TELECOMMUNICATIONS CORP.,LTD
+Haier
+Hangzhou H3C Technologies Co., Ltd.
+Hanlong Technology Co.,LTD
+Harley-Davidson Motor Company
+Harman Specialty Group
+HCL LIMITED
+HDMI Licensing, LLC
+Hewlett-Packard Company
+Hisense Electric Co., Ltd
+Hitachi Data Systems
+Hitachi, Ltd.
+HIWIFI Co., Ltd.
+Hon Hai Precision Ind. Co.,Ltd
+Honda Electron Co., LED.
+Honeywell Fire System (Shanghai) Co,. Ltd.
+Honeywell HomMed
+Honeywell International Inc
+HONEYWELL-DATING
+HTC Corporation
+Huawei Technologies Co., Ltd.
+IBM
+INTEL CORPORATION
+International Games System Co., Ltd.
+JAPAN RADIO COMPANY
+Java Information
+KAWASAKI HEAVY INDUSTRIES, LTD
+KBS
+King Champion (Hong Kong) Limited
+Kingston Technology Company, Inc.
+Konami Corporation
+Konka Group Co., Ltd.
+KYOCERA Corporation
+Leica Camera AG
+Lenovo
+Letv Mobile and Intelligent Information Technology (Beijing) Corporation Ltd.
+LG CNS
+LG Electronics Inc.
+Logitech - Ultimate Ears
+Luxtera Inc
+MakerBot Industries
+McAfee, Inc
+Megger
+Meizu technology co.,ltd
+Mercury Corporation
+Microlink Communications Inc.
+Microsoft
+Micro-Star International
+Mitsubishi Electric Corporation
+MOTOROLA
+NAMCO LIMITED
+Nanjing SilverNet Software Co., Ltd.
+NASA-Goddard Space Flight Center
+NEC Corporation
+Neonode AB
+Nest Labs Inc.
+Netgear
+NEXT, INC.
+Nokia Corporation
+NVIDIA
+OLYMPUS IMAGE SYSTEMS, INC.
+OnePlus Tech (Shenzhen) Ltd
+Open Systems International
+Oracle
+ORANGE POLSKA
+Panasas, Inc
+Panasonic Corporation
+PayPal, Inc.
+Philips
+PIONEER CORPORATION
+Polycom
+Promise Technology, Inc.
+Qihoo  360  Technology Co.,Ltd
+Qualcomm Atheros
+QUALCOMM Incorporated
+QUANTUM CORPORATION
+Razer Inc
+Realplay Digital Technology(Shenzhen) Co.,Ltd
+REALTEK SEMICONDUCTOR CORP.
+RED Digital Cinema
+REUTERS HOLDINGS PLC
+RICOH COMPANY,LTD.
+Sage Instruments Inc.
+Samsung Electronics
+SanDisk Corporation
+SANYO ELECTRIC CO. LTD.
+Schneider Electric
+SEGA ENTERPRISES, LTD.
+Seiko Epson Corporation
+Shanghai Mochui Network Technology Co., Ltd
+SHARP Corporation
+Shenzhen Tencent Computer System Co., Ltd.
+Sichuan Changhong Electric Ltd.
+SIEMENS AG
+SIERRA WIRELESS INC.
+SK hynix
+Skyworth Digital Technology(Shenzhen) Co.,Ltd
+SMART Technologies, Inc.
+Smartisan Technology Co., Ltd.
+SMC Networks, Inc.
+Sonos, Inc.
+Sony Corporation
+Sougou Keikaku Kougyou Co.,Ltd.
+SOYO COMPUTER, INC.
+STAR MICRONICS CO.,LTD.
+Sun Communications, Inc.
+TAC Inc.
+Taiwan Secom Co,. Ltd
+TCL INCORPORATED
+Tenda Technology Co., Ltd.
+Texas INstruments
+The Coca Cola Company
+Thomson Technology Inc
+Tokyo Electron Device Limited
+Toshiba
+TP-LINK Technologies Co., Ltd.
+Tsinghua Tongfang Legend Silicon Tech. Co., Ltd.
+VIA Networking Technologies, Inc.
+Vimicro corporation
+Visonic Ltd.
+vivo Mobile Communication Co., Ltd.
+VIZIO, Inc.
+VMware, Inc.
+Vodafone UK
+WACOM Co.,Ltd
+Wi-Fi Alliance
+XIAMEN MEITU MOBILE TECHNOLOGY CO.LTD
+XIAMEN YEALINK NETWORK TECHNOLOGY CO.,LTD
+Xiaomi Technology Co.,Ltd
+Yahoo! JAPAN
+YAMAHA CORPORATION
+Yeastar Technology Co., Ltd.
+YODA COMMUNICATIONS, INC.
+Yokogawa Electric Corporation
+Yulong Computer Telecommunication Scientific(shenzhen)Co.,Lt
+Zhejiang Tianle Digital Electric Co.,Ltd
+ZTE Corporation

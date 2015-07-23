@@ -1,0 +1,88 @@
+﻿
+.NTITLEBAR {
+    height:60px;
+    display:none;
+}
+
+.scroller {
+    top:0px;
+    height:200%;
+    transform-origin: 0% 0%;
+     transition:all ease 3s;
+}
+
+    .scroller:hover {
+    transform: translateX(100%) rotate(90deg);
+    }
+
+.location-title {
+    z-index: 300;
+    position:relative;
+     transition:all ease 3s;
+
+}
+
+.leftbg {
+    position:absolute;
+    top:0;
+    left:0;
+    bottom:0;
+    width: 220px - 60px;
+}
+
+
+.leftarea {
+    background: rgba(0,0,0,0.3);
+    width: 160px;
+}
+
+.midarea {
+    left: 160px;
+    opacity: 1;
+    top: 0;
+    position: absolute;
+    bottom: 0;
+    width: 40px;
+    background: white;
+    text-align: center;
+    color:#333;
+    .ico {
+        padding-top: 20px;
+        padding-bottom: 10px;
+        font-size:1.1em;
+        transition:all ease 3s;
+        border-bottom: 1px solid #eee;
+        margin:0;
+    }
+    .ico:hover {
+        background:red;
+    }
+}
+
+.rightarea {
+     transition:all ease 3s;
+}
+
+.scroller:hover .bignum {
+    transform: rotate(-90deg);
+}
+
+.scroller:hover .bignum:hover {
+    transform: rotate(-80deg);
+}
+
+.scroller:hover .ico {
+    transform: rotate(-90deg);
+}
+
+.scroller:hover .location-title {
+    transform: rotate(-90deg) translateY(-10px);
+}
+
+.scroller:hover .rightarea {
+    left: 250px;
+    background: none;
+    transform-origin: 0% 0%;
+    transform: translateY(90%) rotate(-90deg);
+}
+

@@ -1,0 +1,378 @@
+﻿<edge-titlebar>
+
+    <style scoped>
+
+        /*Base*/
+        :scope * {
+            vertical-align: middle;
+        }
+
+        svg {
+            background : rgba(255,255,255,0.3);
+        }
+
+        .expand svg {
+            background : rgba(0,0,0,0.3);
+        }
+
+        svg * {
+            stroke-width: 2px;
+            stroke: rgba(0,0,0,0.7);
+        }
+
+        .expand svg * {
+            stroke-width: 2px;
+            stroke: rgba(255,255,255,0.9);
+        }
+
+        /*Le Bar*/
+        :scope .titlebar {
+            position: absolute;
+            height: 60px;
+            left: 0;
+            right: 0;
+            top: 0;
+            color: rgb(245,245,245);
+            z-index: 9999;
+        }
+
+        /*Le Background*/
+        :scope .bg-container {
+            position:absolute; 
+            top:0; 
+            left:0;
+            right:0;
+            height: 60px;
+        }
+
+        :scope .app-icon {
+            -moz-transition: all ease 0.6s;
+            -o-transition: all ease 0.6s;
+            -webkit-transition: all ease 0.6s;
+            transition: all ease 0.6s;
+            -moz-transform: translateY(70px);
+            -ms-transform: translateY(70px);
+            -o-transform: translateY(70px);
+            -webkit-transform: translateY(70px);
+            transform: translateY(70px);
+            width:40px; text-align:center; white-space:nowrap;
+        }
+
+        :scope .app-icon * {
+            -moz-transition: all ease 0.9s;
+            -o-transition: all ease 0.9s;
+            -webkit-transition: all ease 0.9s;
+            transition: all ease 0.9s;
+            display: block;
+            width: 40px;
+            height: 40px;
+            padding: 7px;
+            border-radius: /*12px*/ 12px;
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 0 1px rgba(0,0,0,0);
+        }
+
+        :scope .titlebar > .table {
+            -moz-transform: translateY(-70px);
+            -ms-transform: translateY(-70px);
+            -o-transform: translateY(-70px);
+            -webkit-transform: translateY(-70px);
+            transform: translateY(-70px);
+            -moz-transition: all ease 0.9s;
+            -o-transition: all ease 0.9s;
+            -webkit-transition: all ease 0.9s;
+            transition: all ease 0.9s;
+            position: absolute;
+            height: 60px;
+            width: 100%;
+            font-size: 1.2em;
+            left: 0;
+            right: 0;
+        }
+
+        :scope .titlebar .actionbar > :first-child {
+            width: 15px;
+            text-align: center;
+            opacity: 0.1;
+            -moz-transition: all ease 0.5s;
+            -o-transition: all ease 0.5s;
+            -webkit-transition: all ease 0.5s;
+            transition: all ease 0.5s;
+        }
+
+            :scope .titlebar .actionbar > :first-child:hover {
+                opacity: 1;
+                -moz-transform: translateX(10px);
+                -ms-transform: translateX(10px);
+                -o-transform: translateX(10px);
+                -webkit-transform: translateX(10px);
+                transform: translateX(10px);
+            }
+
+            :scope .titlebar .actionbar > :first-child:hover ~ .app-icon {
+                -moz-transform: translateX(8px) scale(0.8);
+                -ms-transform: translateX(8px) scale(0.8); translateX(5px) s; translateX(5px) s; translateX(5px) s;
+                -o-transform: translateX(8px) scale(0.8);
+                -webkit-transform: translateX(8px) scale(0.8);
+                transform: translateX(8px) scale(0.8);
+            }
+
+
+        :scope .titlebar .hero {
+            text-align:center; 
+            pointer-events:none;
+        }
+
+        :scope .titlebar > .table .content-cell {
+            text-align:left; white-space:nowrap; padding-left: 15px;
+        }
+
+        :scope .titlebar > .table > .user-area {
+            font-size: 0.8em;
+            width: auto; text-align:right; padding-right:40px;
+        }
+        
+        :scope .titlebar > .bg-container {
+            position: absolute;
+            height: 60px;
+            left: 0;
+            right: 0;
+            top: 0;
+            background: rgb(0,0,0);
+            -moz-transform: translateY(-70px);
+            -ms-transform: translateY(-70px);
+            -o-transform: translateY(-70px);
+            -webkit-transform: translateY(-70px);
+            transform: translateY(-70px);
+            -moz-transition: all ease 0.5s;
+            -o-transition: all ease 0.5s;
+            -webkit-transition: all ease 0.5s;
+            transition: all ease 0.5s;
+        }
+
+        :scope .titlebar fluid-bg {
+            position: absolute;
+            bottom:0;
+            left: 0;
+            right: 0;
+            top: 0;
+            -moz-transition: all ease 0.5s;
+            -o-transition: all ease 0.5s;
+            -webkit-transition: all ease 0.5s;
+            transition: all ease 0.5s;
+            opacity: 0.9;
+        }
+
+        :scope h1 {
+            color:white;
+            letter-spacing: 1px;
+            font-size: 2.1em;
+            text-shadow: 0 0 2px rgba(0,0,0,0.5);
+        }
+
+        .titlebar.expand > .table > .app-icon {
+            -moz-transform: translateY(0);
+            -ms-transform: translateY(0);
+            -o-transform: translateY(0);
+            -webkit-transform: translateY(0);
+            transform: translateY(0);
+        }
+
+        .titlebar.expand > .table > .app-icon > * {
+            border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: 0 0 5px rgba(0,0,0,0);
+            border-radius: 12px;
+        }
+
+        .titlebar.expand > .bg-container {
+            -moz-transform: translateY(0);
+            -ms-transform: translateY(0);
+            -o-transform: translateY(0);
+            -webkit-transform: translateY(0);
+            transform: translateY(0);
+        }
+
+        .titlebar.expand > .bg-container > fluid-bg {
+            -moz-transform: translateY(0);
+            -ms-transform: translateY(0);
+            -o-transform: translateY(0);
+            -webkit-transform: translateY(0);
+            transform: translateY(0);
+            opacity: 0.8;
+        }
+
+        .titlebar.expand > .table {
+            -moz-transform: translateY(0);
+            -ms-transform: translateY(0);
+            -o-transform: translateY(0);
+            -webkit-transform: translateY(0);
+            transform: translateY(0);
+        }
+
+        .titlebar.expand {
+            -moz-transform: translateY(0);
+            -ms-transform: translateY(0);
+            -o-transform: translateY(0);
+            -webkit-transform: translateY(0);
+            transform: translateY(0);
+        }
+
+
+
+        /*hang*/
+
+        /*Le Background*/
+        :scope .titlebar.hang > .bg-container {
+            top:60px; 
+            height: 80px;
+        }
+
+        
+        :scope .titlebar.hang > .hero {
+            top:0; bottom:0;
+            height:100%;
+            transform: translateY(-5px) scale(1.4);
+            opacity: 1;
+        }
+        
+        :scope .titlebar.expand.hang > .hero {
+            transform: translateY(0px) scale(1);
+        }
+
+         .titlebar.hang.expand > .bg-container {
+            -moz-transform: translateY(-60px);
+            -ms-transform: translateY(-60px);
+            -o-transform: translateY(-60px);
+            -webkit-transform: translateY(-60px);
+            transform: translateY(-60px);
+        }
+
+        
+        /*large*/
+
+        /*Le Background*/
+        :scope .titlebar.large > .bg-container {
+            height: 190px;
+        }
+        
+        :scope .titlebar.large > .hero {
+            top:0; bottom:0;
+            height:100%;
+            transform: translateY(20px) scale(2);
+            opacity: 1;
+        }
+
+        :scope .titlebar.large.expand > .hero {
+            transform: translateY(100px) scale(1.8);
+            opacity: 0.6;
+        }
+
+        :scope .titlebar.large .app-icon {
+            transform: scale(1.5) translateY(100px) translateX(20px) ;
+        }
+
+        :scope .titlebar.large .app-icon * {
+            border-radius: /*12px*/ 30px;
+        }
+
+        :scope .titlebar.large.expand > .bg-container {
+            -moz-transform: translateY(0);
+            -ms-transform: translateY(0);
+            -o-transform: translateY(0);
+            -webkit-transform: translateY(0);
+            transform: translateY(0);
+        }
+
+        
+        :scope .titlebar.large.expand > .hero {
+        }
+
+        /*noretract*/
+
+        /*Le Background*/
+        :scope .titlebar.noretract .app-icon {
+            transform: scale(0.7);
+        }
+
+        :scope .titlebar.noretract > .table {
+            transform: none;
+        }
+
+        /*inverted*/
+
+        :scope .titlebar.inverted {
+            color:#555;
+        }
+        
+        /*Le Background*/
+        :scope .titlebar.inverted > .bg-container {
+            background: rgb(255,255,255);
+        }
+
+        :scope .titlebar.inverted fluid-bg {
+            opacity: 0.7;
+        }
+
+         .titlebar.inverted.expand > .bg-container > fluid-bg {
+            opacity: 0.2;
+        }
+
+    </style>
+
+    <div class="titlebar {{root.getAttribute('class')}}">
+        <div class="bg-container">
+            <fluid-bg fov="15" src="{{root.getAttribute('background')}}"></fluid-bg>
+        </div>
+        <div class="table actionbar">
+            <div class="cell">
+            </div>
+            <div class="cell app-icon">
+             <!--   <img src="../images/svg/userico.svg" />-->
+                <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     width="80px" height="80px" viewBox="0 0 80 80" enable-background="new 0 0 80 80" xml:space="preserve">
+<g>
+                <polygon fill="none" stroke="#fff" stroke-miterlimit="10" points="26.764,0.707 50.511,0.707 47.074,16.955 31.157,16.955 	" />
+                <polyline fill="none" stroke="#fff" stroke-miterlimit="10" points="52.807,40.912 58.636,63.357 39.262,79.293 19.107,62.888
+		31.138,18.83 47.074,18.83 52.104,38.202 	" />
+                <path fill="none" stroke="#fff" stroke-miterlimit="10" d="M52.807,40.912" />
+                <path fill="none" stroke="#fff" stroke-miterlimit="10" d="M52.104,38.202" />
+                <rect x="42.126" y="38.203" fill="none" stroke="#fff" stroke-miterlimit="10" width="12.239" height="2.708" />
+</g>
+</svg>
+            </div>
+            <div class="cell content-cell">
+                <span style="margin-right: 25px; padding-right:20px; margin-left:5px; ">{{root.getAttribute('app-name')}}</span>
+                <!--<span style="letter-spacing: 1px; "><i class="fa fa-plus"></i></span>
+                <span style="letter-spacing: 1px; margin-left:25px;"><i class="fa fa-send"></i></span>
+                <span style="letter-spacing: 1px; margin-left:25px;"><i class="fa fa-circle-thin"></i></span>-->
+            </div>
+            <div class="cell user-area">
+                {{root.getAttribute('username')}}
+            </div>
+        </div>
+        <div class="table hero">
+            <div class="cell"><yield/></div>
+        </div>
+    </div>
+
+    <script>
+        var
+            root = this.root,
+            self = this;
+        root.riot = this;
+
+        function load() {
+            //$(".titlebar").hover(function () {
+            //    $(".titlebar").toggleClass("expand");
+            //}, function () {
+            //    $(".titlebar").toggleClass("expand");
+            //});
+
+        }
+
+        this.on('mount', function () {
+            setTimeout(load, 1);
+        });
+    </script>
+
+</edge-titlebar>

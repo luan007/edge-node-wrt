@@ -1,5 +1,6 @@
 import _hcitool = require('../../../Common/Native/hcitool');
 import HCITool = _hcitool.HCITool;
+import Gatttool = require('../../../Common/Native/gatttool');
 import ConfMgr = require('../../../Common/Conf/ConfMgr');
 import _Config = require('../../../Common/Conf/Config');
 import Config = _Config.Config;
@@ -34,3 +35,6 @@ export function Initialize(cb) {
         pub.devices.Set(mac, name);
     });
 }
+
+__API(Gatttool.CharWriteReq, "Edge.Wireless.BTLE.Write", [Permission.DeviceAccess]);
+__API(Gatttool.CharReadHandle, "Edge.Wireless.BTLE.Read", [Permission.DeviceAccess]);

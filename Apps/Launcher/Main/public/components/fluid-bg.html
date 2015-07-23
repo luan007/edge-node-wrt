@@ -1,0 +1,154 @@
+﻿<fluid-bg>
+    <style scoped>
+        :scope {
+            -moz-backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            overflow:hidden;
+            background:#242424;
+        }
+        :scope .background {
+            position: relative;
+            height: 100%;
+            width: 100%;
+            pointer-events: none;
+            overflow:visible;
+        }
+        :scope .background img {
+            opacity: 0;
+            display: block;
+            -webkit-transform-origin: left top;
+            -moz-transform-origin: left top;
+            -ms-transform-origin: left top;
+            -o-transform-origin: left top;
+            transform-origin: left top;
+        }
+    </style>
+    <div class="background" data-perspective="{{root.getAttribute('fov')}}">
+        <img />
+    </div>
+    <script>
+        /* Comp-Background */
+        var
+            root = this.root,
+            self = this,
+            perspective = 20;
+        root.riot = this;
+        function load() {
+            var
+                element = $(root).find(".background"),
+                outer = $(root),
+                pano_ = 0.2,
+                pano_ratio = 1 + pano_,
+                timeout = 100,
+                img = $(root).find("img").get(0);
+            perspective = element.attr("data-perspective") || perspective;
+            offset = { left: 0, top: 0 };
+
+            if (!img.naturalWidth) {
+                //poor man's lazyload
+                $(img).load(load);
+                $(img).attr("src", root.getAttribute("src"));
+                return;
+            }
+
+            //le closure
+            var
+                h = img.naturalHeight,
+                w = img.naturalWidth,
+                ratio = w / h,
+                _mtimeout = 0,
+                first_time = true;
+
+            var fit = self.fit = function () {
+                offset = outer.offset();
+                clearTimeout(_mtimeout);
+                _mtimeout = setTimeout(function () {
+                    var targetW, targetH;
+                    //fit
+
+                    var iw = outer.innerWidth();
+                    var ih = outer.innerHeight();
+
+                    var wratio = iw / ih;
+                    if (wratio > ratio) {
+                        //stretch w
+                        targetH = (iw / ratio) * pano_ratio;
+                        targetW = (iw) * pano_ratio;
+
+                    } else {
+                        //stretch h
+                        targetW = (ih * ratio) * pano_ratio;
+                        targetH = (ih) * pano_ratio;
+                        //img.style.top = -(window.innerHeight) * (pano_ratio - 1) / 2 + "px";
+                        //img.style.left = -((window.innerHeight * ratio) - window.innerWidth) / 2 * pano_ratio + "px";
+                    }
+
+                    if (first_time) {
+                        TweenLite.to(img, 1.5, {
+                            startAt: {
+                                opacity: 0,
+                                scale: targetW / w,
+                                x: -((targetW - iw) / 2) + "px",
+                                y: -((targetH - ih) / 2) + 30 + "px"
+                            },
+                            y: -((targetH - ih) / 2) + "px",
+                            opacity: 1,
+                            ease: Power3.easeOut
+                        });
+
+                        TweenLite.to(element, 1.5, {
+                            startAt: {
+                                scale: 0.9,
+                            },
+                            scale:1,
+                            ease: Power3.easeOut
+                        });
+                        first_time = false;
+                    } else {
+                        TweenLite.to(img, 0.8, {
+                            css: {
+                                scale: targetW / w,
+                                x: -((targetW - iw) / 2) + "px",
+                                y: -((targetH - ih) / 2) + "px"
+                            },
+                            ease: Power3.easeOut
+                        });
+                    }
+                }, timeout);
+            }
+            fit();
+            window.addEventListener("resize", fit);
+
+            if (perspective > 0) {
+                TweenLite.set(element, {
+                    transformPerspective: 4000, perspective: 4000
+                });
+                window.addEventListener("mousemove", function (e) {
+                    var iw = outer.innerWidth();
+                    var ih = outer.innerHeight();
+                    var relpX = (perspective * iw) / 500;
+                    var relpY = (perspective * ih) / 500;
+                    var deltaX = Math.min(iw / 2, Math.max(-iw / 2, ((e.clientX - offset.left) - iw / 2))) / iw;
+                    var deltaY = Math.min(ih / 2, Math.max(-ih / 2, ((e.clientY - offset.top) - ih / 2))) / ih;
+                    TweenLite.to(element, 0.8, {
+                        css: {
+                            rotationX: deltaY * perspective / 1.6,
+                            rotationY: deltaX * perspective / 1.6,
+                            x: -deltaX * relpX,
+                            y: -deltaY * relpY
+                        },
+                        ease: Power0.easeNone
+                    });
+                });
+            }
+        }
+
+
+        this.on('mount', function () {
+            setTimeout(function () {
+                load();
+            }, 0);
+        });
+    </script>
+</fluid-bg>

@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EmergeLab - photos</title>
+    <link rel="shortcut icon" href=favicon.ico>
+    <link rel="stylesheet" href="vendor/font-awesome/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="fonts/auxico.css"/>
+    <link rel="stylesheet" href="vendor/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="css/photos.css"/>
+</head>
+<body>
+<header class="header">
+    <ol class="breadcrumb">
+        <li>
+            <i class="fa fa-square"></i>
+            <a href="index.html">EmergeLab</a>
+        </li>
+        <li class="active" id="photos"><a href="#">photos</a></li>
+    </ol>
+    <div class="widget-list">
+        <a href="#" class="widget-user">
+            <img src="img/avatar.gif">
+        </a>
+    </div>
+</header>
+
+<div class="main">
+    <div class="toolbar">
+        <div class="btn-group">
+            <button type="button" id="uploadPhoto" class="btn btn-default">
+                <i class="ico-upload2"></i>
+            </button>
+            <button type="button" id="editPhoto" class="btn btn-default edit-photo">
+                <i class="ico-edit"></i>
+            </button>
+            <button type="button" id="listPhoto" class="btn btn-default">
+                <i class="fa fa-reorder"></i>
+            </button>
+            <button type="button" id="listAlbum" class="btn btn-default active">
+                <i class="ico-grid2"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="infobar">
+        <a class="curr-back" href="#">
+            <i class="ico-arrow-left"></i> back
+        </a>
+        <h1 class="curr-title">未命名</h1>
+    </div>
+
+    <div id="mainContent" class="content">
+        <div id="mainContentWrap" class="content-wrap">
+            <!-- multi photo -->
+            <div class="photo-grid-wrap photo-multi-wrap">
+                <ul class="photo-grid clearfix">
+                    <li class="photo-item type-device type-multi">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio" />
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <i class="fa fa-desktop"></i>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>115</span>
+                                    </div>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">
+                                July 10, 2015
+                            </h2>
+                        </div>
+                    </li>
+                    <li class="photo-item type-device type-multi">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <i class="fa fa-camera"></i>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>15</span>
+                                    </div>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">July 10, 2015</h2>
+                        </div>
+                    </li>
+                    <li class="photo-item type-album type-multi">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(1).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>15</span>
+                                    </div>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">
+                                July 10, 2015
+                                <div class="meta">
+                                    <span>115</span>
+                                </div>
+                            </h2>
+                        </div>
+                    </li>
+                    <li class="photo-item type-album type-multi">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(2).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>215</span>
+                                    </div>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">
+                                July 10, 2015
+                                <div class="meta">
+                                    <span>115</span>
+                                </div>
+                            </h2>
+                        </div>
+                    </li>
+                    <li class="photo-item type-album type-multi">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(3).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>215</span>
+                                    </div>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">
+                                July 10, 2015
+                                <div class="meta">
+                                    <span>115</span>
+                                </div>
+                            </h2>
+                        </div>
+                    </li>
+                    <li class="photo-item type-album type-multi">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(4).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>215</span>
+                                    </div>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">
+                                July 10, 2015
+                                <div class="meta">
+                                    <span>115</span>
+                                </div>
+                            </h2>
+                        </div>
+                    </li>
+                    <li class="photo-item type-album type-multi">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(5).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>215</span>
+                                    </div>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">July 10, 2015</h2>
+                        </div>
+                    </li>
+                    <li class="photo-item type-album type-multi">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(7).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>15</span>
+                                    </div>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">July 10, 2015</h2>
+                        </div>
+                    </li>
+                    <li class="photo-item type-album type-multi">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(8).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>15</span>
+                                    </div>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">July 10, 2015</h2>
+                        </div>
+                    </li>
+                    <li class="photo-item type-album type-multi">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(9).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>15</span>
+                                    </div>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">July 10, 2015</h2>
+                        </div>
+                    </li>
+                    <li class="photo-item type-album type-multi">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(10).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>15</span>
+                                    </div>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">July 10, 2015</h2>
+                        </div>
+                    </li>
+                    <li class="photo-item type-album type-multi">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(11).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>15</span>
+                                    </div>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">July 10, 2015</h2>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <!-- single photo -->
+            <div class="photo-grid-wrap photo-single-wrap">
+                <h2 class="photo-grid-title">July 9, 2015</h2>
+                <ul class="photo-grid clearfix">
+                    <li class="photo-item type-single">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(21).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>15</span>
+                                    </div>
+                                    <div class="type">
+                                        <i class="fa fa-camera"></i>
+                                    </div>
+                                    <div class="name">
+                                        <span>test_image...</span>
+                                    </div>
+                                    <button type="button" class="more">
+                                        <i class="fa fa-ellipsis-h"></i>
+                                    </button>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">July 10, 2015</h2>
+                        </div>
+                    </li>
+                </ul>
+                <h2 class="photo-grid-title">July 8, 2015</h2>
+                <ul class="photo-grid clearfix">
+                    <li class="photo-item type-single">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(22).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>15</span>
+                                    </div>
+                                    <div class="type">
+                                        <i class="fa fa-camera"></i>
+                                    </div>
+                                    <div class="name">
+                                        <span title="test_image_01.jpg">test_image...</span>
+                                    </div>
+                                    <button type="button" class="more">
+                                        <i class="fa fa-ellipsis-h"></i>
+                                    </button>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">July 10, 2015</h2>
+                        </div>
+                    </li>
+                    <li class="photo-item type-single">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(1).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>15</span>
+                                    </div>
+                                    <div class="type">
+                                        <i class="fa fa-camera"></i>
+                                    </div>
+                                    <div class="name">
+                                        <span title="test_image_01.jpg">test_image...</span>
+                                    </div>
+                                    <button type="button" class="more">
+                                        <i class="fa fa-ellipsis-h"></i>
+                                    </button>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">July 10, 2015</h2>
+                        </div>
+                    </li>
+                    <li class="photo-item type-single">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(2).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>15</span>
+                                    </div>
+                                    <div class="type">
+                                        <i class="fa fa-camera"></i>
+                                    </div>
+                                    <div class="name">
+                                        <span title="test_image_01.jpg">test_image...</span>
+                                    </div>
+                                    <button type="button" class="more">
+                                        <i class="fa fa-ellipsis-h"></i>
+                                    </button>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">July 10, 2015</h2>
+                        </div>
+                    </li>
+                </ul>
+                <h2 class="photo-grid-title">June 9, 2015</h2>
+                <ul class="photo-grid clearfix">
+                    <li class="photo-item type-single">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(3).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>15</span>
+                                    </div>
+                                    <div class="type">
+                                        <i class="fa fa-camera"></i>
+                                    </div>
+                                    <div class="name">
+                                        <span title="test_image_01.jpg">test_image...</span>
+                                    </div>
+                                    <button type="button" class="more">
+                                        <i class="fa fa-ellipsis-h"></i>
+                                    </button>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">July 10, 2015</h2>
+                        </div>
+                    </li>
+                    <li class="photo-item type-single">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(4).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>15</span>
+                                    </div>
+                                    <div class="type">
+                                        <i class="fa fa-camera"></i>
+                                    </div>
+                                    <div class="name">
+                                        <span title="test_image_01.jpg">test_image...</span>
+                                    </div>
+                                    <button type="button" class="more">
+                                        <i class="fa fa-ellipsis-h"></i>
+                                    </button>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">July 10, 2015</h2>
+                        </div>
+                    </li>
+                    <li class="photo-item type-single">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(5).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>15</span>
+                                    </div>
+                                    <div class="type">
+                                        <i class="fa fa-camera"></i>
+                                    </div>
+                                    <div class="name">
+                                        <span title="test_image_01.jpg">test_image...</span>
+                                    </div>
+                                    <button type="button" class="more">
+                                        <i class="fa fa-ellipsis-h"></i>
+                                    </button>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">July 10, 2015</h2>
+                        </div>
+                    </li>
+                    <li class="photo-item type-single">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(7).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>15</span>
+                                    </div>
+                                    <div class="type">
+                                        <i class="fa fa-camera"></i>
+                                    </div>
+                                    <div class="name">
+                                        <span title="test_image_01.jpg">test_image...</span>
+                                    </div>
+                                    <button type="button" class="more">
+                                        <i class="fa fa-ellipsis-h"></i>
+                                    </button>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">July 10, 2015</h2>
+                        </div>
+                    </li>
+                    <li class="photo-item type-single">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(8).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>15</span>
+                                    </div>
+                                    <div class="type">
+                                        <i class="fa fa-camera"></i>
+                                    </div>
+                                    <div class="name">
+                                        <span title="test_image_01.jpg">test_image...</span>
+                                    </div>
+                                    <button type="button" class="more">
+                                        <i class="fa fa-ellipsis-h"></i>
+                                    </button>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">July 10, 2015</h2>
+                        </div>
+                    </li>
+                    <li class="photo-item type-single">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(9).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>15</span>
+                                    </div>
+                                    <div class="type">
+                                        <i class="fa fa-camera"></i>
+                                    </div>
+                                    <div class="name">
+                                        <span title="test_image_01.jpg">test_image...</span>
+                                    </div>
+                                    <button type="button" class="more">
+                                        <i class="fa fa-ellipsis-h"></i>
+                                    </button>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">July 10, 2015</h2>
+                        </div>
+                    </li>
+                </ul>
+                <h2 class="photo-grid-title">June 1, 2015</h2>
+                <ul class="photo-grid clearfix">
+                    <li class="photo-item type-single">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(10).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>15</span>
+                                    </div>
+                                    <div class="type">
+                                        <i class="fa fa-camera"></i>
+                                    </div>
+                                    <div class="name">
+                                        <span title="test_image_01.jpg">test_image...</span>
+                                    </div>
+                                    <button type="button" class="more">
+                                        <i class="fa fa-ellipsis-h"></i>
+                                    </button>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">July 10, 2015</h2>
+                        </div>
+                    </li>
+                    <li class="photo-item type-single">
+                        <div class="photo-wrap">
+                            <article class="photo">
+                                <header class="photo-header">
+                                    <div class="sel">
+                                        <input type="radio"/>
+                                    </div>
+                                    <div class="flag">
+                                        <i class="fa fa-flag-o"></i>
+                                    </div>
+                                </header>
+                                <section class="photo-content">
+                                    <img src="img/test/img%20(11).jpg" alt=""/>
+                                </section>
+                                <footer class="photo-footer">
+                                    <div class="meta">
+                                        <span>15</span>
+                                    </div>
+                                    <div class="type">
+                                        <i class="fa fa-camera"></i>
+                                    </div>
+                                    <div class="name">
+                                        <span title="test_image_01.jpg">test_image...</span>
+                                    </div>
+                                    <button type="button" class="more">
+                                        <i class="fa fa-ellipsis-h"></i>
+                                    </button>
+                                </footer>
+                            </article>
+                            <h2 class="photo-title">July 10, 2015</h2>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- airPlay modal -->
+<div id="airPlayModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">想在哪里Airplay?</h4>
+            </div>
+            <div class="modal-body">
+                <div class="airplay-targets">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <a href="#" class="active">
+                                <i class="fa fa-desktop"></i>
+                                <h5>客厅电视</h5>
+                            </a>
+                        </div>
+                        <div class="col-xs-6">
+                            <a href="#">
+                                <i class="fa fa-desktop"></i>
+                                <h5>睡房电视</h5>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- delete fullscreen photo modal -->
+<div id="delFsPhoto" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="del-fs-photo">确定要删除?</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- other modal ... -->
+
+<!-- photo actionbar -->
+<div class="photo-toolbar">
+    <ul class="clearfix">
+        <li>
+            <a href="#" class="active">
+                <i class="fa fa-trash-o"></i>
+                <h5>Delete</h5>
+            </a>
+        </li>
+        <li>
+            <a href="#" class="specil">
+                <i class="fa fa-laptop"></i>
+                <h5>AirPlay</h5>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <i class="fa fa-print"></i>
+                <h5>Print</h5>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <i class="fa fa-download"></i>
+                <h5>Download</h5>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <i class="fa fa-lock"></i>
+                <h5>Privacy</h5>
+            </a>
+        </li>
+    </ul>
+</div>
+
+<!-- fullscreen photo -->
+<div class="photo-fs">
+    <header class="fs-header">
+        <a id="exitFsBtn" class="btn btn-default">
+            <i class="fa fa-compress"></i>
+        </a>
+    </header>
+    <div class="fs-content">
+        <a href="#" class="prev-photo">
+            <i class="fa fa-angle-left"></i>
+        </a>
+        <img src="" alt=""/>
+        <a href="#" class="next-photo">
+            <i class="fa fa-angle-right"></i>
+        </a>
+    </div>
+    <footer class="fs-footer">
+        <div class="fs-preview">
+            <a href="#" class="prev-preview">
+                <i class="fa fa-angle-left"></i>
+            </a>
+            <ul class="fs-preview-mini">
+                <li>
+                    <a href="#">
+                        <img src="img/test/img%20(2).jpg" alt="img-test01"/>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <img src="img/test/img%20(4).jpg" alt="img-test01"/>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="#">
+                        <img src="img/test/img%20(3).jpg" alt="img-test01"/>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <img src="img/test/img%20(5).jpg" alt="img-test01"/>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <img src="img/test/img%20(7).jpg" alt="img-test01"/>
+                    </a>
+                </li>
+            </ul>
+            <a href="#" class="next-preview">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        </div>
+        <div class="fs-toolbar">
+            <ul class="clearfix">
+                <li>
+                    <a href="#">
+                        <i class="fa fa-lock"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fa fa-desktop"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fa fa-print"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fa fa-download"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#delFsPhoto">
+                        <i class="fa fa-trash-o"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-toggle="popover"
+                       data-html="true"
+                       data-container=".photo-fs"
+                       data-trigger="focus"
+                       data-content='<div class="photo-info">
+                           <div class="info-device">
+                               <i class="fa fa-camera"></i> Nikon 50hR
+                           </div>
+                           <div class="info-time">拍摄于2014, July, 2014</div>
+                           <div class="info-size">大小为58.3 MB</div>
+                           <div class="info-meta clearfix">
+                               <div class="meta-item">
+                                   <div class="inner">
+                                       <i class="fa fa-bullseye"></i> ƒ/2.8
+                                   </div>
+                               </div>
+                               <div class="meta-item">
+                                   <div class="inner">
+                                       <i class="fa fa-bullseye"></i> 6.0mm
+                                   </div>
+                               </div>
+                               <div class="meta-item">
+                                   <div class="inner">
+                                       <i class="fa fa-bullseye"></i> 1/30
+                                   </div>
+                               </div>
+                               <div class="meta-item">
+                                   <div class="inner">
+                                       <i class="fa fa-bullseye"></i> 100
+                                   </div>
+                               </div>
+                           </div>
+                       </div>'
+                       data-placement="top">
+                        <i class="fa fa-info-circle"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </footer>
+</div>
+
+<footer class="footer">
+    <div class="photo-actionbar">
+        <div class="curr-info">
+            <span>1508 photos, 3 devices, 6 albums</span>
+        </div>
+        <div class="photo-action">
+            <i class="fa fa-th-large"></i>
+            <div class="action-scale">
+                <div id="scaleDragbar" class="dragdealer scale-dragbar">
+                    <div id="scaleDragbarCurr" class="scale-dragbar-curr"></div>
+                    <div class="handle scale-btn"></div>
+                </div>
+            </div>
+            <i class="fa fa-stop"></i>
+        </div>
+        <div class="curr-sel">
+            <span id="currSelPhotoNum">3 of 1508 photos</span>
+        </div>
+    </div>
+</footer>
+
+<script src="vendor/requirejs/require.js"></script>
+<script type="text/javascript">
+    require(['./scripts/common'], function (common) {
+       require(['main/main-photos']);
+    });
+</script>
+</body>
+</html>

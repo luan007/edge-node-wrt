@@ -303,7 +303,6 @@ export class Bluez extends Process {
 
         if (this.bus) return cb();
         this.bus = dbus.systemBus({ socket: "/var/run/dbus/system_bus_socket" });
-
         this.bus.exportInterface(this.GenericPairingAgent, this.agentPath, this.IAgent);
         this.bus.exportInterface(this.AudioPairingAgent, this.audioPath, this.IAgent);
         
@@ -359,7 +358,7 @@ export class Bluez extends Process {
                             //        info("Discovery Started...");
                             //    }
                             //});
-                            adapter.StartDiscovery();
+                            //adapter.StartDiscovery();
                             info("Start Discovery");
                             this.emit("dbus_Started");
                             return cb();

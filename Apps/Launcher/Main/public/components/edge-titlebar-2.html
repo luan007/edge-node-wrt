@@ -1,0 +1,119 @@
+﻿<edge-titlebar>
+
+    <style scoped>
+        /*Base*/
+        :scope * {
+            vertical-align: middle;
+        }
+        :scope .apptitlebar.transparent {
+            background: rgba(0,0,0,0);
+             border-bottom: 1px solid rgba(221, 209, 203, 0.45);
+         }
+        :scope .apptitlebar {
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 999;
+          text-align: left;
+          width: 100%;
+          display: table;
+          height: 50px;
+          background: #ffffff;
+          border-bottom: 1px solid #efe7e2;
+        }
+        
+        :scope .apptitlebar.light {
+          background: rgba(255,255,255,0.0);
+          border-bottom: 1px solid transparent;
+        }
+
+        :scope .apptitlebar.float {
+          position: absolute;
+        }
+
+        :scope .apptitlebar .cell {
+          vertical-align: middle;
+        }
+        :scope .apptitlebar .cell:nth-child(1) > div {
+          -moz-transition: all ease 0.5s;
+          -o-transition: all ease 0.5s;
+          -webkit-transition: all ease 0.5s;
+          transition: all ease 0.5s;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          -webkit-user-select: none;
+          user-select: none;
+          cursor: default;
+          padding: 5px 10px 5px 5px;
+          text-align: center;
+          font-size: 18px;
+          border-left: 0;
+          color: #2fafff;
+          white-space: nowrap;
+          margin-left: 8px;
+        }
+        :scope .apptitlebar .cell:nth-child(1) > div * {
+          pointer-events: none;
+        }
+        :scope .apptitlebar .cell:nth-child(1) > div b {
+          color: #5a5a5a;
+        }
+        :scope .apptitlebar .cell:nth-child(1) > div span:last-of-type {
+          color: #969696;
+        }
+        :scope .apptitlebar .cell:nth-child(2) {
+          width: 100%;
+        }
+        :scope .apptitlebar .cell:nth-child(3) > div {
+          -moz-transition: all ease 0.5s;
+          -o-transition: all ease 0.5s;
+          -webkit-transition: all ease 0.5s;
+          transition: all ease 0.5s;
+          margin-right: 15px;
+          font-size: 18px;
+          white-space: nowrap;
+          vertical-align: middle;
+          color:#5a5a5a;
+        }
+        
+        :scope .apptitlebar.light .cell:nth-child(1) > div b {
+            color: rgba(0,0,0,0.65);
+        }
+        :scope .apptitlebar.light .cell:nth-child(3) > div {
+            color: rgba(0,0,0,0.65);
+        }
+        :scope .apptitlebar .cell:nth-child(3) > div img {
+          display: inline-block;
+          height: 30px;
+          width: 30px;
+          vertical-align: middle;
+          margin-right: 10px;
+          border-radius: 888em;
+        }
+        :scope .apptitlebar .cell:nth-child(3) > div span {
+          display: inline-block;
+          vertical-align: middle;
+        }
+    </style>
+
+    <div class="apptitlebar {{root.hasAttribute('light') ? 'light' : ''}} {{root.hasAttribute('float') ? 'float' : ''}}  {{root.hasAttribute('transparent') ? 'transparent' : ''}}">
+        <div class="cell"><div><span>{{root.getAttribute('network')}}</span> <span>/</span> <b>{{root.getAttribute('app')}}</b> </div></div>
+        <div class="cell"><div></div></div>
+        <div class="cell"><div><img src="{{root.getAttribute('avatar')}}" /><span>{{root.getAttribute('username')}}</span></div></div>
+    </div>
+
+    <script>
+        var
+            root = this.root,
+            self = this;
+        root.riot = this;
+
+        function load() {
+        }
+
+        this.on('mount', function () {
+            setTimeout(load, 1);
+        });
+    </script>
+
+</edge-titlebar>

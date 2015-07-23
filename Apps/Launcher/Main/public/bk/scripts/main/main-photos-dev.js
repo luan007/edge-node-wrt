@@ -1,0 +1,1 @@
+require(["jquery","underscore","backbone","routers/photos/photosRouter"],function(e,t,n,r){new r,n.history.start()});
