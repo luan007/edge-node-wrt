@@ -49,6 +49,7 @@ domain.run(function () {
         , {path: './Debug/FakeData/Generator'}
         , {path: './Debug/Deployment/Server'}
         , {path: './APP/RuntimePool', name: 'RuntimePool'}
+        , {path: './APP/Resource/Shared/Brand'}
         , {path: './APP/Resource/IO/FIFO'}
         , {path: './APP/Resource/FileSystem/Limit'}
         , {path: './APP/Resource/Ports/Redirector'}
