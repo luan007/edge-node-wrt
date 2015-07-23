@@ -133,8 +133,7 @@ export class Runtime extends events.EventEmitter {
 
         this.App = app;
         this.RuntimeId = runtimeId;
-        this.Manifest = JSON.parse(fs.readFileSync(path.join(AppManager.GetAppRootPath(this.App.uid), "manifest.json"), "utf8").toString().trim());
-
+        
         //FS CHECK
         //
         if (!fs.existsSync(AppManager.GetAppRootPath(app.uid))
@@ -145,6 +144,7 @@ export class Runtime extends events.EventEmitter {
 
             throw new Error("Corrupt Package ~ " + this.App.uid.bold);
         }
+        this.Manifest = JSON.parse(fs.readFileSync(path.join(AppManager.GetAppRootPath(this.App.uid), "manifest.json"), "utf8").toString().trim());
 
         this._status = {
             Heartbeat: undefined,

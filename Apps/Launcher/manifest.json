@@ -31,6 +31,7 @@
     "OUI": {
       "Buses": ["WIFI"],
       "Interest": {
+        "match": true,
         "stateChange": true
       }
     },

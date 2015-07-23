@@ -25,9 +25,10 @@ class OUI_Identifier implements IInAppDriver {
 
 
 
+
     match = (dev:IDevice, delta, cb:Callback) => {
         var matched = dev.bus.hwaddr.length > 8 ? {} : undefined;
-        cb(undefined, matched);
+        cb(undefined, {});
     };
 
     attach = (dev:IDevice, delta, matchResult:any, cb:PCallback<IDeviceAssumption>) => {

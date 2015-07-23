@@ -249,7 +249,10 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
                     config: deltaConf,
                     ownership: deltaOwn
                 }, <any>must((err, data) => {
-
+                    if(err){
+                        error(err);
+                        error(err.stack);
+                    }
                     if (!data || !_sanity_check(version, dev, driver, err)) return;
                     try {
 
