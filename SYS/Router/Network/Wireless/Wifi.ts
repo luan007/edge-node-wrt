@@ -109,6 +109,7 @@ class Configuration extends Configurable {
     };
 }
 
+
 var defconfig2G4 = {
     Power: true,
     SSID: "EdgeRouter",
@@ -130,6 +131,7 @@ var defconfig2G4 = {
         }
     }
 };
+
 
 var defconfig5G7 = {
     Power: false,
