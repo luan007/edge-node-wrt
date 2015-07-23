@@ -20,7 +20,6 @@
     // "ua-parser-js" : "*",
     // "ipp": "*",
     // "mmmagic": "*",
-    // "phantom-html-to-pdf": "*",
     // "request": "*"
   }
 }

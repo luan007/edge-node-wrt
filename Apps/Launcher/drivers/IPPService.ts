@@ -1,10 +1,11 @@
 var ipp = require('ipp');
 var util = require('util');
 var fs = require('fs');
+var path = require('path');
 var request:any = require('request');
-var conversion = require("phantom-html-to-pdf")();
+var myurl2pdf:any = require("./lib/myurltopdf");
 var PDF_MIME = 'application/pdf';
-var OCTET_STREAM = 'application/octet-stream';
+var DATA_TMP_DIR = '/Data/tmp';
 var USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36';
 var __printers:IDic<any> = {};  // deviceId1: {ippUrl, jobs} / deviceId2 : {ippUrl, jobs}
 
@@ -56,16 +57,27 @@ class IPPService implements IInAppDriver {
 
     private __uri2PDF(uri:string, cb) {
         var opts:any = {};
-        opts.url = uri;
-        opts.method = 'GET';
-        opts.gzip = opts.gzip || true;
-        opts.headers = {
-            'User-Agent': USER_AGENT
-        };
-        request(opts, function (err, response, html) {
-            if (err) return cb(err);
-            conversion({html: html}, cb);
+        opts.tmpFolderPath = DATA_TMP_DIR;
+        opts.fileName = path.join(DATA_TMP_DIR, UUIDstr());
+        myurl2pdf.myurltopdf(uri, opts, (err)=> {
+            return cb(err, opts.fileName);
         });
+    }
+
+    private __blob2PDF(mime, data, cb) {
+        if (mime === 'image/png' || mime === 'image/jpeg' || mime === 'image/gif') { //exception
+            var opts:any = {};
+            opts.tmpFolderPath = DATA_TMP_DIR;
+            opts.fileName = path.join(DATA_TMP_DIR, UUIDstr());
+            var html = '<html><body><img src="data:' + mime + ';base64,"'
+                + data.toString('base64')
+                + ' /></body></html>';
+            myurl2pdf.myhtmltopdf(html, opts, (err)=> {
+                return cb(err, opts.fileName);
+            });
+        } else {
+            return cb(new Error('unsupported mime type: ' + mime));
+        }
     }
 
     private __analyzePrinter(dev, cb) {
@@ -133,11 +145,8 @@ class IPPService implements IInAppDriver {
     }
 
     private __printerJoin(dev, printer) {
-        // job scanning
-        //console.log('_________<< __printerJoin', dev.id);
         if (!__printers.hasOwnProperty(dev.id)) {
             __printers[dev.id] = {ippUrl: printer.url.href, queue: {}, doneJobs: {}};
-            //console.log('_________<< __printerJoin', __printers);
         }
     }
 
@@ -153,18 +162,19 @@ class IPPService implements IInAppDriver {
 
     private __ippGetJobAttributes(ippUrl, jobUri, cb) {
         var printer = ipp.Printer(ippUrl);
-            var msg = {"operation-attributes-tag": {'job-uri': jobUri}};
+        var msg = {"operation-attributes-tag": {'job-uri': jobUri}};
         printer.execute("Get-Job-Attributes", msg, function (err, res) {
-            //console.log('_____<< Get-Jobs-Attributes', jobUri, JSON.stringify(res));
             if (err) return cb(err);
             return cb(null, res);
         });
     }
 
     constructor() {
+        if (!fs.existsSync(DATA_TMP_DIR))
+            fs.mkdirSync(DATA_TMP_DIR);
+
         ((self)=> {
             setInterval(()=> {
-                //if (__printers) console.log('----------- printers ', __printers);
                 for (var deviceId in __printers) {
                     ((_deviceId) => {
                         var printer = __printers[_deviceId];
@@ -255,16 +265,6 @@ class IPPService implements IInAppDriver {
                                 var data = Buffer.concat(bufs);
 
                                 this.__detectBufferMime(data, (err, mime)=> {
-                                    if (err) {
-                                        console.log('ipp.invoke mime error', err);
-                                        return cb(err);
-                                    }
-                                    console.log('detected buffer mime', mime);
-                                    var supported = assumption['attributes']['printer.document-format-supported'];
-                                    if ((Array.isArray(supported) && supported.indexOf(mime) === -1)
-                                        || (typeof supported === 'string' && supported !== mime)) {
-                                        return console.log('unsupported mime type:', mime);
-                                    }
                                     var msg = {
                                         "operation-attributes-tag": {
                                             "requesting-user-name": params.user.name,
@@ -276,6 +276,29 @@ class IPPService implements IInAppDriver {
                                         }
                                         , data: data
                                     };
+                                    if (err) {
+                                        console.log('ipp.invoke mime error', err);
+                                        return cb(err);
+                                    }
+                                    console.log('detected buffer mime', mime);
+                                    var supported = assumption['attributes']['printer.document-format-supported'];
+                                    if ((Array.isArray(supported) && supported.indexOf(mime) === -1)
+                                        || (typeof supported === 'string' && supported !== mime)) {
+                                        this.__blob2PDF(mime, data, (err, fileName)=> {
+                                            if (err) return console.log(err);
+
+                                            return fs.readFile(fileName, (err2, imgData) => {
+                                                if (err2) return console.log(err2);
+
+                                                msg['data'] = imgData;
+                                                msg['operation-attributes-tag']['document-format'] = PDF_MIME;
+                                                printer.execute("Print-Job", msg, this.__printJobThunk((err, res)=> {
+                                                    console.log('Print-Job result', res);
+                                                }));
+                                            });
+                                        });
+                                    }
+
                                     printer.execute("Print-Job", msg, this.__printJobThunk((err, res)=> {
                                         console.log('Print-Job result', res);
                                     }));
@@ -330,10 +353,10 @@ class IPPService implements IInAppDriver {
 
                 } else if (actionId === 'query') {
                     var ippUrl = printer.url.href;
-                    if(params.job_uri) {
-                        this.__ippGetJobAttributes(ippUrl, params.job_uri, (err, jobs)=>{
-                            if(err) return cb(err);
-                            var pure = jobs.map((job)=>{
+                    if (params.job_uri) {
+                        this.__ippGetJobAttributes(ippUrl, params.job_uri, (err, jobs)=> {
+                            if (err) return cb(err);
+                            var pure = jobs.map((job)=> {
                                 delete job.id;
                                 return job;
                             });

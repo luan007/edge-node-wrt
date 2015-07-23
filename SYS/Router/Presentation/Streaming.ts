@@ -102,5 +102,5 @@ export function Subscribe(cb) {
 }
 
 export function Diagnose(callback:Callback) {
-    return callback();
+    return callback(undefined, true);
 }
