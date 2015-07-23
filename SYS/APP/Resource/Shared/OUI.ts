@@ -1,19 +1,52 @@
 ﻿var level;
 var db;
 import path = require("path");
-var fs = require("fs");
+import fs = require("fs");
 var readline = require("linebyline");
+import http = require('http');
 
-export function update_scheduler() {
+var DB_PATH = path.join(CONF.RESOURCE_STORE_DIR, '/OUI/Database');
+var TXT_PATH = path.join(CONF.RESOURCE_STORE_DIR, '/OUI/OUI.txt');
+var TXTSWP_PATH = path.join(CONF.RESOURCE_STORE_DIR, '/OUI/OUI_SWAP');
+
+export function update(CB) {
     //http://standards-oui.ieee.org/oui.txt
+     http.request(options, function(response) {
+            var out = fs.createWriteStream(TXTSWP_PATH);
+            response.setEncoding('utf8');
+            response.on('data', function(chunk) {
+                out.write(chunk);
+            }).on('end', function() {
+                out.end();
+                Rebuild(TXTSWP_PATH, (err)=> {
+                    if(!err){
+                        try{
+                            fs.unlinkSync(TXT_PATH);
+                            fs.renameSync(TXTSWP_PATH, TXT_PATH);
+                        }catch(e){
+                            return cb(e);
+                        }
+                        info("OUI UPDATE SUCCESS");
+                        return cb();
+                    }
+                }));
+            }).on('close', function() {
+                out.end();
+                fs.unlink(txt, function(err) {/* jshint unused: false */
+                    cb(new Error('premature eof on ' + net), null);
+                });
+            });
+        }).on('error', function(err) {
+            cb(err, null);
+        }).end();
 }
 
 export function Rebuild(fileName, cb) {
     console.log("Rebuild Scheduled - Expect delays");
     hotswap("OUI_DB", (done) => {
-        console.log("Rebuilding OUI Database, Go CPU Go!");
-        fileName = fileName ? fileName : path.join("/drivers/OUI/OUI.txt");
-        console.log(" - feeding in " + fileName);
+        info("Rebuilding OUI Database, Go CPU Go!");
+        fileName = fileName ? fileName : TXT_PATH;
+        info(" - feeding in " + fileName);
         var match = /([\w]{2})-([\w]{2})-([\w]{2})\s+\(hex\)\s+(.+)/;
         var rd = readline(fileName);
         var total = 0;
@@ -72,7 +105,7 @@ export function Initialize(cb) {
     level = require("levelup");
     var fs = require("fs");
     var rebulid = false;
-    var dbPath = path.join('/Data/OUIDB'); // oops
+    var dbPath =  // oops
     if (!fs.existsSync(dbPath)) {
         rebulid = true;
         fs.mkdirSync(dbPath);
@@ -97,3 +130,5 @@ export function Initialize(cb) {
 process.on('exit', ()=> {
     db.close();
 });
+
+__API(OUI_Find, "Resource.OUISearch");

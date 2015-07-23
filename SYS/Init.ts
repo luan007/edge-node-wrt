@@ -46,15 +46,16 @@ domain.run(function () {
         , {path: './Frontends/Thirdparty'}
         , {path: './Frontends/MsgManager'}
         //, {path: './Frontends/HttpProxy', name: 'HttpProxy'}
-        , {path: './Debug/FakeData/Generator'}
-        , {path: './Debug/Deployment/Server'}
         , {path: './APP/RuntimePool', name: 'RuntimePool'}
+        , {path: './APP/Resource/Shared/OUI'}
         , {path: './APP/Resource/Shared/Brand'}
         , {path: './APP/Resource/IO/FIFO'}
         , {path: './APP/Resource/FileSystem/Limit'}
         , {path: './APP/Resource/Ports/Redirector'}
         , {path: './APP/Resource/Ports/Tracker'}
         , {path: './APP/Resource/AppConfig'}
+        , {path: './Debug/FakeData/Generator'}
+        , {path: './Debug/Deployment/Server'}
         //, {path: './Router/Network/Firewall/__Test'}
         //, {path: './Device/Graphd/__Test'}
         //, {path: './Device/__Test'}

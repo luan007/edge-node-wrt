@@ -8,5 +8,4 @@ function Resolve(){
 }
 
 
-__API(Writeable, "IO.CreateFD", [Permission.IO]);
-__API(Readable, "IO.ReadFD", [Permission.IO]);
+__API(Brand_Search, "Resource.FindOUI.Find");
