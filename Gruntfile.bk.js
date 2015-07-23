@@ -44,23 +44,7 @@ module.exports = function (grunt) {
                 
                 , staticFiles: {
                     files: [
-                        '**/*.jpg',
-                        '**/*.jpeg',
-                        '**/*.svg',
-                        '**/*.png',
-                        '**/*.js',
-                        '**/*.lua',
-                        '**/*.css',
-                        '**/*.less',
-                        '**/*.sh',
-                        '**/*.woff',
-                        '**/*.svg',
-                        '**/*.eot',
-                        '**/*.html',
-                        '**/*.txt',
-                        '**/*.cert',
-                        '**/*.conf',
-                        '**/*.json'
+                        '**/*.*'
                     ],
                     tasks: ['sync'],
                     options: {
@@ -76,7 +60,8 @@ module.exports = function (grunt) {
                         { src: ['Modules/**/*.*', '!Modules/**/*.ts'] , dest: _syslocal },
                         { src: ['SYS/**/*.*', '!SYS/**/*.ts'] , dest: _syslocal },
                         { src: ['Tests/**/*.*', '!Tests/**/*.ts'] , dest: _syslocal },
-                        { src: ['Apps/**/*.*', '!Apps/**/*.ts'] , dest: _applocal }
+                        { src: ['Apps/**/*.*', '!Apps/**/*.ts'] , dest: _applocal },
+                        { src: ['Resource/**/*.*'] , dest: _applocal }
                     ].concat(
                         (!enable_remote) ? [] : [
                             { 
