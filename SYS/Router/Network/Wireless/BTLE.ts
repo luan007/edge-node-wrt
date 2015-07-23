@@ -13,27 +13,31 @@ var pub = StatMgr.Pub(SECTION.BTLE, {
     devices: {}
 });
 
-class Configuration extends Configurable {
-    constructor(moduleName:string, defaultConfig:any) {
-        super(moduleName, defaultConfig);
-    }
-
-    protected _apply = (mod, raw, cb:Callback) => {
-        hcitoolInstance.Start(true);
-        cb();
-    }
-}
-
-var defaultConfig = {
-}
+//class Configuration extends Configurable {
+//    constructor(moduleName:string, defaultConfig:any) {
+//        super(moduleName, defaultConfig);
+//    }
+//
+//    protected _apply = (mod, raw, cb:Callback) => {
+//        hcitoolInstance.Start(true);
+//        cb();
+//    }
+//}
+//
+//var defaultConfig = {
+//}
 
 export function Initialize(cb) {
-    var configBluez = new Configuration(SECTION.BTLE, defaultConfig);
-    configBluez.Initialize(cb);
+    //var configBluez = new Configuration(SECTION.BTLE, defaultConfig);
+    //configBluez.Initialize(cb);
 
     hcitoolInstance.on("UP", (mac, name) => {
         pub.devices.Set(mac, name);
     });
+
+    hcitoolInstance.Start(true);
+
+    cb();
 }
 
 __API(Gatttool.CharWriteReq, "Edge.Wireless.BTLE.Write", [Permission.DeviceAccess]);

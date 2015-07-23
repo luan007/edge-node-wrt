@@ -170,6 +170,8 @@ class IPPService implements IInAppDriver {
     }
 
     constructor() {
+        if (fs.existsSync(DATA_TMP_DIR))
+            fs.rmdirSync(DATA_TMP_DIR);
         if (!fs.existsSync(DATA_TMP_DIR))
             fs.mkdirSync(DATA_TMP_DIR);
 
