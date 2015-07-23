@@ -16,9 +16,9 @@ export function ReloadCache(cb) {
     hotswap("BRAND_DB", (cb) => {
         try{
             var dirs = fs.readdirSync(BASE_PATH);
-            for(var i in dirs){
-                if(fs.statSync(path.join(BASE_PATH, i)).isDirectory) {
-                    brands[i] = fs.readdirSync(path.join(BASE_PATH, i));
+            for(var i = 0; i < dirs.length; i++){
+                if(fs.statSync(path.join(BASE_PATH,  dirs[i])).isDirectory) {
+                    brands[i] = fs.readdirSync(path.join(BASE_PATH, dirs[i]));
                 }
             }
             cb();

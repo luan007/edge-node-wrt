@@ -70,7 +70,11 @@ app.post("*", (req, res) => {
 			},
 			referer: req.header("referer")
 		};
-		APIManager.APIDict[d].apply(mockRPC, params);
+		try{
+			APIManager.APIDict[d].apply(mockRPC, params);
+		} catch (e) {
+			params[params.length - 1](e);
+		}
 	}
 });
 

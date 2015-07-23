@@ -75,7 +75,16 @@ function __API(func,
     }
     shell["_p"] = perm; //for outer access
     _api.RegisterFunction(shell, path);
-    APIDict[path.toLowerCase()] = shell;
+    APIDict[path.toLowerCase()] = function safety () { 
+        try{
+            shell.apply(this, arguments);
+        } catch(e) {
+            var args = [].slice.call(arguments);
+            if(args.length && args[args.length - 1] instanceof Function){
+                args[args.length - 1](e);
+            }
+        }
+    };
 }
 
 global.__API = __API;

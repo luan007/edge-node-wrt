@@ -2,7 +2,7 @@
   "name": "Launcher",
   "url": "Launcher",
   "permission": [1],
-  "IsLauncher:": 1,
+  "is_system:": 1,
   "drivers": {
     "NameService": {
       "Buses": ["WIFI"],

@@ -110,7 +110,7 @@ export function Initialize(cb) {
     level = require("levelup");
     var fs = require("fs");
     var rebulid = false;
-    var dbPath = dbPath; // oops
+    var dbPath = DB_PATH; // oops
     if(!fs.existsSync(dbPath)) {
         rebulid = true;
         fs.mkdirSync(dbPath);
