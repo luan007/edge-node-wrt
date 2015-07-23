@@ -267,7 +267,7 @@ class IPPService implements IInAppDriver {
                                     }
                                     var msg = {
                                         "operation-attributes-tag": {
-                                            "requesting-user-name": params.user ? params.user.name : "Anonymous",
+                                            "requesting-user-name": params.user.name,
                                             "job-name": params.job_name,
                                             "document-format": mime
                                         }

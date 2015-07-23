@@ -172,6 +172,7 @@ class _global_section {
     PKG = "PKG";
     DB = "DB";
     CONNECTIVITY = "CONNECTIVITY";
+    BTLE = "BTLE";
 }
 
 var CONF = new _sys_global_conf();
