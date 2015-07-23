@@ -133,6 +133,8 @@ export class Runtime extends events.EventEmitter {
 
         this.App = app;
         this.RuntimeId = runtimeId;
+        this.Manifest = JSON.parse(fs.readFileSync(path.join(AppManager.GetAppRootPath(this.App.uid), "manifest.json"), "utf8").toString().trim());
+
         //FS CHECK
         //
         if (!fs.existsSync(AppManager.GetAppRootPath(app.uid))
@@ -143,7 +145,7 @@ export class Runtime extends events.EventEmitter {
 
             throw new Error("Corrupt Package ~ " + this.App.uid.bold);
         }
-        this.Manifest = JSON.parse(fs.readFileSync(path.join(AppManager.GetAppRootPath(app.uid), "manifest.json"), "utf8").toString().trim());
+
         this._status = {
             Heartbeat: undefined,
             FailHistory: <any>[],
@@ -165,17 +167,6 @@ export class Runtime extends events.EventEmitter {
             Registry.RootKeys.App,
             this.App.uid
         );
-
-        if (this.Manifest.drivers) {
-            for (var id in this.Manifest.drivers) {
-                var drv = new InAppDriver(
-                    this,
-                    id,
-                    this.Manifest.drivers[id].Buses,
-                    this.Manifest.drivers[id].Interest);
-                this.Drivers[id] = drv;
-            }
-        }
 
         trace("Runtime Initiated.. " + this.App.uid.bold);
     }
@@ -237,6 +228,23 @@ export class Runtime extends events.EventEmitter {
 
     Start = () => {
         clearTask('relaunch_' + this.App.uid);
+        try {
+            this.Manifest = JSON.parse(fs.readFileSync(path.join(AppManager.GetAppRootPath(this.App.uid), "manifest.json"), "utf8").toString().trim());
+            if (this.Manifest.drivers) {
+                for (var id in this.Manifest.drivers) {
+                    var drv = new InAppDriver(
+                        this,
+                        id,
+                        this.Manifest.drivers[id].Buses,
+                        this.Manifest.drivers[id].Interest);
+                    this.Drivers[id] = drv;
+                }
+            }
+        } catch(err) {
+            error(err);
+            return this.Broken();
+        }
+
         if (this._status.State == RuntimeStatusEnum.Broken) {
             error("[ SKIP ] App is marked Broken " + this.App.name.bold);
             return this.Stop();
@@ -247,8 +255,8 @@ export class Runtime extends events.EventEmitter {
             //Kill it if being alive
             this.Stop();
         }
-        var path = AppManager.GetAppDataDir(this.App.uid);
-        trace(path);
+        var appDataPath = AppManager.GetAppDataDir(this.App.uid);
+        trace(appDataPath);
         this._virtualip = LeaseVirtualIp();
         if(!this._virtualip){
             this._push_fail(new Error('Run out of virtual Ip!'));
@@ -256,7 +264,7 @@ export class Runtime extends events.EventEmitter {
         }
 
         trace("Launching " + this.App.name.bold);
-        trace("--with Data Path " + path);
+        trace("--with Data Path " + appDataPath);
         trace("--with RuntimeId " + this.RuntimeId.bold);
         this._status.LaunchTime = -1; //wait..
         this._status.PlannedLaunchTime = -1;

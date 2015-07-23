@@ -64,9 +64,9 @@
             "bus": {
                 "data.Lease": { "$exists": true }
             }
-          },
-          "stateChange": true
-        }
+          }
+        },
+        "stateChange": true
       }
     }
   }

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/ash
 
 echo Check if the folder exists..
 
