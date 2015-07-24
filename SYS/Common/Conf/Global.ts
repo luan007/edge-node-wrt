@@ -123,6 +123,7 @@ class _sys_global_conf {
 
     RESOURCE_STORE_DIR = path.join(this.STORAGE_DISK_DIR, 'Resource');
     STREAMING_STORE_DIR = path.join(this.RESOURCE_STORE_DIR, 'Streaming'); //clear often.
+    AIRPLAY_STORE_DIR = path.join(this.STREAMING_STORE_DIR, 'Airplay'); //clear often.
     AVATAR_PATH = path.join(this.RESOURCE_STORE_DIR, "Avatar");
     SYMBOL_PATH = path.join(this.RESOURCE_STORE_DIR, "Symbol");
 

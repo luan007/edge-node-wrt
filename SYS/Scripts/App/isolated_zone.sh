@@ -64,3 +64,4 @@ cp -rf /ramdisk/SYS/Common/Crypto/Keys/init.password /ramdisk/passwords/init.pas
 ####resource
 rm -rf /storage/Resource/Streaming/
 mkdir -p /storage/Resource/Streaming/
+mkdir -p /storage/Resource/Streaming/Airplay

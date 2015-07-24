@@ -133,7 +133,7 @@ export class AirPlay_BaseServer extends events.EventEmitter {
             if (action === 'displayCached') {
                 self.stateMachine(STATE_IMG, key, session, ip);
             } else {
-                var stream = fs.createWriteStream(path.join(CONF.AIRSERVICES_DIR, key + ".jpg"));
+                var stream = fs.createWriteStream(path.join(CONF.AIRPLAY_STORE_DIR, key + ".jpg"));
                 req.pipe(stream);
             }
             req.on('end', function() {
