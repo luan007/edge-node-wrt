@@ -18,7 +18,7 @@ function _on_device_appear(mac, name) {
             BTLE: {}
         });
         __add(mac);
-    } else {
+
         var jobs = [];
         jobs.push((cb)=> {
             Gatttool.Primary(CONF.DEV.BLUETOOTH.DEV_HCI, mac, (err, primary) => {
