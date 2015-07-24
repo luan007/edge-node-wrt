@@ -1,0 +1,7 @@
+﻿{
+  "name": "Test",
+  "url": "Test",
+  "permission": [1],
+  "is_system:": 0,
+  "drivers": {}
+}

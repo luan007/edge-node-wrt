@@ -72,7 +72,7 @@ var STATE_UPDATE = 5;
 
 export class AirPlay_BaseServer extends events.EventEmitter {
 
-    private _history_len = 50;
+    private _history_len = 20;
     private _app;
     private _mdns = [];
     public Queue = [];
@@ -333,7 +333,7 @@ var airtunes = require('nodetunes'); //please, make sure you use https://github.
 
 export class AirPlay_AudioServer extends events.EventEmitter {
 
-    private _history_len = 50;
+    private _history_len = 20;
     private _mdns = [];
     public Queue = [];
 
@@ -406,6 +406,10 @@ export class AirPlay_AudioServer extends events.EventEmitter {
         this._server.on('clientConnected', (stream) => {
             this._stream = stream;
             this.stateMachine(STATE_CLIENT_UPDATE);
+            this._stream.on('data', (d) => {
+                //this ensures no data leak'z present! :P
+                this.emit("data", d);
+            });
         });
         this._server.on('clientNameChange', (name) => {
             this._clientName = name;

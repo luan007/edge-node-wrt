@@ -33,9 +33,9 @@ SYS_ON(SYS_EVENT_TYPE.LOADED, () => {
             (cb)=> {
                 GenerateAppRecord('Launcher', cb);
             },
-            //(cb)=> {
-            //    GenerateAppRecord('TestApp', cb);
-            //},
+            (cb)=> {
+               GenerateAppRecord('Test', cb);
+            },
             //(cb) => {
             //    GenerateAppRecord('DriverApp', cb);
             //},
