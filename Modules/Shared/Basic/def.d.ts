@@ -53,8 +53,9 @@ declare function must(cb: Function, timeout?, ...defaultargs);
 declare function hotswapSafe(name, cb, job: (done) => any);
 declare function hotswap(name, _safe_to_swap_now: (done) => any);
 
+declare function ignore_if_running(jobName, job: (cb) => any, swallow_cb?, error_if_bypassed?);
 
-
+declare function retry_times (someJob_with_CB: (cb: (err,result)=>any) => any, max_retry?, delay?);
 
 declare function setJob(name, job, interval, ...args);
 declare function clearJob(name);

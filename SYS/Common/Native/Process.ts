@@ -126,7 +126,7 @@ class ManagedProcess extends events.EventEmitter {
             setTimeout(()=>{
                 if(!this.Process) return cb(new Error("Process " + this.Name + " is not stable"), false);
                 return cb(undefined, true);
-            }, 2000);
+            }, 3000);
         });
     };
 
