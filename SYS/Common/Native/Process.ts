@@ -112,19 +112,22 @@ class ManagedProcess extends events.EventEmitter {
     public StabilityCheck = (cb) => {
         if (this.BypassStabilityTest) return cb(undefined, true);
         var pid;
-        var t1 = setTimeout(() => {
-            clearTimeout(t1);
-            if (!this.Process) {
-                clearTimeout(t2);
-                return cb(new Error("Process " + this.Name + " is not Running"), false);
+        
+        //stage one
+        var JOB1 = retry_times((c) => {
+            if(!this.Process){
+                return c(new Error("Process " + this.Name + " is not Running"), false);
+            } else {
+                return c(undefined, true);
             }
-            pid = this.Process.pid;
-        }, 500);
-        var t2 = setTimeout(() => {
-            var result = !this.Process || (pid != this.Process.pid);
-            clearTimeout(t2);
-            cb(result ? new Error("Process is in Unstable state") : undefined, !result);
-        }, 3000);
+        }, 50, 500);
+        JOB1((err, result)=>{
+            if(err) return cb(err, result);
+            setTimeout(()=>{
+                if(!this.Process) return cb(new Error("Process " + this.Name + " is not stable"), false);
+                return cb(undefined, true);
+            }, 2000);
+        });
     };
 
 }

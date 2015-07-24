@@ -88,7 +88,7 @@ export function Diagnose(callback:Callback) {
             if (err) return callback(err);
             return callback(null, stable);
         });
-    }, 2000);
+    }, 10000);
 }
 
 export function Subscribe(cb) {
