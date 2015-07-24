@@ -23,29 +23,33 @@ export var HostnameTable = {
 };
 
 function pushStack(obj, key, val) {
-    if (!has(obj, key)) {
+    //if (!has(obj, key)) {
         obj[key] = val;
-    }
+    //}
 }
 function popStack(obj, key) {
-    if (has(obj, key)) {
+    //if (has(obj, key)) {
         delete obj[key];
-    }
+    //}
 }
 
 export function Subscribe(cb) {
     var sub = StatMgr.Sub(SECTION.RUNTIME);
     sub.apps.on('set', (appUid, oldStatus, newStatus) => {
-        if (newStatus.AppUrl.trim() !== '') {
-            console.log('▂▃▅▆█ runtime pool apps set'['cyanBG'].bold, appUid, newStatus);
+        if (newStatus.AppUrl.trim() !== '' && newStatus.State > 1) {
+            info('▂▃▅▆█ runtime pool apps set'['cyanBG'].bold, appUid, newStatus);
             var pair = [newStatus.AppUrl, newStatus.MainSock];
             pushStack(PrefixTable, newStatus.RuntimeId, pair);
             pushStack(HostnameTable, newStatus.RuntimeId, pair);
         }
+        else if (newStatus.State <= 1) {
+            popStack(PrefixTable, oldStatus.RuntimeId);
+            popStack(HostnameTable, oldStatus.RuntimeId);
+        }
     });
     sub.apps.on('del', (appUid, oldStatus) => {
         if (oldStatus.AppUrl.trim() !== '') {
-            console.log('▂▃▅▆█ runtime pool apps set'['cyanBG'].bold, appUid, oldStatus);
+            info('▂▃▅▆█ runtime pool apps set'['cyanBG'].bold, appUid, oldStatus);
             popStack(PrefixTable, oldStatus.RuntimeId);
             popStack(HostnameTable, oldStatus.RuntimeId);
         }
