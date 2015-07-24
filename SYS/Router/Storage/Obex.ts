@@ -6,11 +6,9 @@ import Configurable = _Configurable.Configurable;
 //import Registry =  require('../../DB/Registry');
 import obex = require('../../Common/Native/obex');
 
-var pub = StatMgr.Pub(SECTION.NETWORK, {
-    leases: {},
+var pub = StatMgr.Pub(SECTION.OBEX, {
+    files: {}
 });
-
-
 export var Obexd = new obex.Obexpushd();
 var transfer_folder = path.join(CONF.USER_DATA_PATH, "FileTransfer");
 
