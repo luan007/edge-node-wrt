@@ -90,6 +90,9 @@ export function GetDeviceByIp(_ip, cb) {
     var subnet = ip.cidr_num(_ip, netmask);
     var oursub = ip.cidr_num(routerip, netmask);
     if (oursub != subnet) {
+        if(CONF.IS_DEBUG && CONF.BYPASS_ALL_AUTH){
+            return cb(undefined, 0);
+        }
         //unhappy :(
         cb(new Error("Outside current subnet"));
     } else {

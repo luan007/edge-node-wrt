@@ -63,15 +63,15 @@ function GetTarget(host:string, Uri:string, authenticated:string, cb) {
 
     var hostsplit = host.toLowerCase().split(".");
 
-    if (authenticated === "1") {
+    if (authenticated === "1" || (CONF.IS_DEBUG && CONF.BYPASS_ALL_AUTH)) {
 
         cookie_affect_range = "";
         base = LauncherMainPort;
 
-        //fatal('HOST:');
-        //fatal(HostnameTable);
-        //fatal('PREFIX:');
-        //fatal(PrefixTable);
+        info('HOST:');
+        info(HostnameTable);
+        info('PREFIX:');
+        info(PrefixTable);
 
         if (hostsplit.length === 3) {
             var h = hostsplit[0];
