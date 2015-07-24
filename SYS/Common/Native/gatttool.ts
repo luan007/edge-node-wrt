@@ -16,7 +16,6 @@ function __done(MAC) {
     delete mac_list[MAC];
 }
 
-var cmd = "gatttool";
 var primaryRegExp = /attr handle = (.*?), end grp handle = (.*?) uuid: ([^\n]+)/gmi;
 var characteristicsRegExp = /handle = (.*?), char properties = (.*?), char value handle = (.*?), uuid=([^\n]+)/gmi;
 
@@ -26,8 +25,10 @@ function __IsError(data) {
 
 export function Primary(hciInterface, MAC, callback:Callback) {
     if (__exists(MAC)) return callback(new Error("query in progress."));
+    var cmd = "gatttool -i " + hciInterface + " -b " + MAC + " --primary";
+    trace("spawn command", cmd);
     __add(MAC);
-    var ps = child_process.exec(cmd + " -i " + hciInterface + " -b " + MAC + " --primary", must((err, data)=> {
+    var ps = child_process.exec(cmd, must((err, data)=> {
         ps.kill();
         __done(MAC);
         if (err) return callback(err);
@@ -53,8 +54,10 @@ export function Primary(hciInterface, MAC, callback:Callback) {
 
 export function Characteristics(hciInterface, MAC, callback:Callback) {
     if (__exists(MAC)) return callback(new Error("query in progress."));
+    var cmd = "gatttool -i " + hciInterface + " -b " + MAC + " --characteristics";
+    trace("spawn command", cmd);
     __add(MAC);
-    var ps = child_process.exec(cmd + " -i " + hciInterface + " -b " + MAC + " --characteristics", must((err, data)=> {
+    var ps = child_process.exec(cmd, must((err, data)=> {
         ps.kill();
         __done(MAC);
         if (err) return callback(err);
