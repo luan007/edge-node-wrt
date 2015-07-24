@@ -56,7 +56,7 @@ export class HCITool extends Process {
         } else {
             killall(HCITool.HCI_NAME, () => {
                 async.series(jobs, ()=>{
-                    this.Process = child_process.spawn(HCITool.HCI_NAME, ["-i", CONF.DEV.BLUETOOTH.DEV_HCI, "lescan"]);
+                    this.Process = child_process.spawn("stdbuf", ["-i0", "-o0", "-e0", HCITool.HCI_NAME, "-i", CONF.DEV.BLUETOOTH.DEV_HCI, "lescan"]);
                     ((self) => {
                         self.Process.stdout.on("data", (data) => {
                             self.__handleHCIOutput(data.toString());
