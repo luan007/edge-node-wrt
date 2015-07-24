@@ -8,7 +8,7 @@
     "email": ""
   },
   "dependencies": {
-    // "express": "*",
+    "express": "*"
     // "ejs": "*",
     // "levelup": "*",
     // //"leveldown": "*",

@@ -96,7 +96,7 @@ function GetTarget(host:string, Uri:string, authenticated:string, cb) {
                     break;
                 }
             }
-            uri = uri.substr(targetPrefix.length);
+            uri = "/" + uri.substr(targetPrefix.length + 1);
         }
         //TODO: Add more logic here :)
     } else {
