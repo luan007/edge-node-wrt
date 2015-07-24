@@ -98,7 +98,6 @@ export function LoadApplication(app_uid:string, callback:PCallback<string>) {
                     RuntimeId: status.RuntimeId,
                     MainSock: status.MainSock,
                     WebExSock: status.WebExSock,
-                    RuntimeId: runtimeId
                 });
             });
             runtime.on('heartbeat', () => {
