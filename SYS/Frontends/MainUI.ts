@@ -43,8 +43,8 @@ export function Subscribe(cb) {
             pushStack(HostnameTable, newStatus.RuntimeId, pair);
         }
         else if (newStatus.State <= 1) {
-            popStack(PrefixTable, oldStatus.RuntimeId);
-            popStack(HostnameTable, oldStatus.RuntimeId);
+            popStack(PrefixTable, newStatus.RuntimeId);
+            popStack(HostnameTable, newStatus.RuntimeId);
         }
     });
     sub.apps.on('del', (appUid, oldStatus) => {
