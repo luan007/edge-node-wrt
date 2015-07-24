@@ -13,6 +13,7 @@ import events = require("events");
 import express = require("express");
 import fs = require("fs");
 import path = require("path");
+import net = require('net');
 var mdns = require('mdns');
 
 
@@ -269,10 +270,10 @@ export function Add(name, ip, type) {
         return -1;
     }
     var server;
-    if(type === 'IMG'){
+    if (type === 'IMG') {
         server = new AirPlay_BaseServer(mac, allocatedmacs[mac], ip, name);
         airservers[name] = server;
-    } else if (type === 'AUD'){
+    } else if (type === 'AUD') {
         server = new AirPlay_AudioServer(mac, allocatedmacs[mac], ip, name);
         airservers[name] = server;
     }
@@ -318,8 +319,8 @@ export function Get(name) {
     return airservers[name];
 }
 
-export function SetIP(newip){
-    for(var i in airservers){
+export function SetIP(newip) {
+    for (var i in airservers) {
         airservers[i]._ip = newip;
         airservers[i].stop();
         airservers[i].start();
@@ -347,6 +348,11 @@ export class AirPlay_AudioServer extends events.EventEmitter {
     private _artwork;
     private _clientName;
     private _name = "Edge";
+
+    private _clientarr: net.Socket[] = [];
+
+    private _bcast_Server: net.Server;
+    public StreamUID;
 
     public CurrentSong;
 
@@ -378,6 +384,7 @@ export class AirPlay_AudioServer extends events.EventEmitter {
             Volume: this._volume,
             Progress: this._progress,
             Artwork: this._artwork,
+            StreamUID: this.StreamUID,
             Time: Date.now()
         });
         if (this.Queue.length > this._history_len) {
@@ -389,6 +396,78 @@ export class AirPlay_AudioServer extends events.EventEmitter {
     public GetName() {
         return this._name;
     }
+
+    private _burst(data) {
+        for (var i = 0; i < this._clientarr.length; i++) {
+            if (!this._clientarr[i]["q"]) {
+                try{
+                    var stuck = !this._clientarr[i].write(data);
+                } catch(e){
+                    continue;
+                }
+                if (stuck) {
+                    this._clientarr[i]["q"] = stuck;
+                    ((i) => {
+                        this._clientarr[i].once("drain", () => {
+                            if (this._clientarr[i]) {
+                                this._clientarr[i]["q"] = false;
+                            }
+                        });
+                    })(i);
+                }
+            }
+        }
+    }
+
+    private _setupStream() {
+        this.StreamUID = UUIDstr();
+        this._bcast_Server = net.createServer((sock) => {
+            var index = this._clientarr.push(sock);
+            sock.on("error", () => {
+                sock.destroy();
+                sock.removeAllListeners();
+                this._clientarr[index] = undefined;
+            });
+
+            sock.on("data", (d) => {
+                //DO NOTHING
+            });
+
+            sock.on("end", () => {
+                var t = setTimeout(()=>{
+                    clearTimeout(t);
+                    sock.removeAllListeners();
+                }, 2000)
+                this._clientarr[index] = undefined;
+            });
+
+            sock.on("close", () => {
+                sock.removeAllListeners();
+                this._clientarr[index] = undefined;
+            });
+        });
+        this._bcast_Server.listen(path.join(CONF.AIRPLAY_STORE_DIR, this.StreamUID));
+        this._bcast_Server.on('error', error);
+    }
+
+    private _destroyStream() {
+        if (this._bcast_Server) {
+            if (this._clientarr) {
+                while (this._clientarr.length) {
+                    var p = this._clientarr.pop();
+                    if (!p) continue;
+                    p.end();
+                    p.removeAllListeners();
+                }
+            }
+            this._bcast_Server.removeAllListeners();
+            this._bcast_Server.close();
+            this._bcast_Server = undefined;
+        }
+        try { fs.unlinkSync(path.join(CONF.AIRPLAY_STORE_DIR, this.StreamUID)); } catch (e) { }
+        this._stream = this.StreamUID = undefined;
+    }
+
 
     public start(name?) {
         if (this.running) return;
@@ -405,10 +484,12 @@ export class AirPlay_AudioServer extends events.EventEmitter {
         });
         this._server.on('clientConnected', (stream) => {
             this._stream = stream;
+            this._setupStream();
             this.stateMachine(STATE_CLIENT_UPDATE);
             this._stream.on('data', (d) => {
                 //this ensures no data leak'z present! :P
-                this.emit("data", d);
+                this._burst(d);
+                //this.emit("data", d);
             });
         });
         this._server.on('clientNameChange', (name) => {
@@ -433,6 +514,7 @@ export class AirPlay_AudioServer extends events.EventEmitter {
         });
 
         this._server.on('clientDisconnected', () => {
+            this._destroyStream();
             this._clientip = undefined;
             this._clientName = undefined;
             this._stream = undefined;
@@ -449,6 +531,7 @@ export class AirPlay_AudioServer extends events.EventEmitter {
         if (this.running) return;
         this._server.stop();
         this._server.removeAllListeners();
+        this._destroyStream();
         this.running = false;
         this._clientip = undefined;
         this._clientName = undefined;
