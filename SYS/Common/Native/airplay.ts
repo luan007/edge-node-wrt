@@ -399,7 +399,7 @@ export class AirPlay_AudioServer extends events.EventEmitter {
 
     private _burst(data) {
         for (var i = 0; i < this._clientarr.length; i++) {
-            if (!this._clientarr[i]["q"]) {
+            if (this._clientarr[i] && !this._clientarr[i]["q"]) {
                 try{
                     var stuck = !this._clientarr[i].write(data);
                 } catch(e){
