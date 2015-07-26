@@ -165,7 +165,6 @@ class _global_section {
     BLUETOOTH = 'BLUETOOTH';
     FIREWALL = "FIREWALL";
     TRAFFIC = "TRAFFIC";
-    MAINUI = 'MAINUI';
     STREAMING = 'STREAMING';
     DEVICE = 'DEVICE';
     USER = 'USER';

@@ -97,6 +97,9 @@ function GetTarget(host:string, Uri:string, authenticated:string, cb) {
                 }
             }
             uri = "/" + uri.substr(targetPrefix.length + 1);
+            if(uri.indexOf("//") === 0) {
+                uri = uri.substr(1);
+            }
         }
         //TODO: Add more logic here :)
     } else {

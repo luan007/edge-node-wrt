@@ -310,7 +310,8 @@ function StartRuntime(app_uid) {
             exec.bind(null, "chown", "root", AppManager.GetAppRootPath(runtime.App.uid)), //TODO: not secure
             //exec.bind(null, "mount", '-o', 'remount,ro', path.join(AppManager.GetAppRootPath(runtime.App.uid), 'etc')),
             exec.bind(null, "chown", "-R", runtime.RuntimeId, AppManager.GetAppDataLn(runtime.App.uid)),
-            exec.bind(null, "chmod", "-R", "0755", AppManager.GetAppDataLn(runtime.App.uid)) //TODO: FIX THIS CHMOD 711 -> 701
+            exec.bind(null, "chmod", "-R", "0755", AppManager.GetAppDataLn(runtime.App.uid)), //TODO: FIX THIS CHMOD 711 -> 701
+            exec.bind(null, "chmod", "-R", "0755", path.join(AppManager.GetAppRootPath(runtime.App.uid), 'Share')) //TODO: FIX THIS CHMOD 711 -> 701
         ], (e, r) => {
             if (e) {
                 error(e);

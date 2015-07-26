@@ -142,6 +142,7 @@ export class AirPlay_BaseServer extends events.EventEmitter {
                     return;
                 } else {
                     self.stateMachine(STATE_IMG, key, session, ip);
+                    try{ fs.chmodSync(path.join(CONF.AIRPLAY_STORE_DIR, key + ".jpg"), "0755"); } catch(e) {  }
                 }
             });
             res.send(200);
@@ -447,6 +448,7 @@ export class AirPlay_AudioServer extends events.EventEmitter {
             });
         });
         this._bcast_Server.listen(path.join(CONF.AIRPLAY_STORE_DIR, this.StreamUID));
+        try { fs.chmodSync(path.join(CONF.AIRPLAY_STORE_DIR, this.StreamUID), "0777"); } catch(e) {  }
         this._bcast_Server.on('error', error);
     }
 
