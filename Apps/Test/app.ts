@@ -108,3 +108,12 @@ API.Stat.on('set', function(key, v, old, n) {
 //         console.log("Sent by Test App: ");
 //         console.log(result);
 //     });
+
+// API.Thirdparty.Primary("test", "9a917c50df924e55bba9c8822bfc8491", {
+//     Test: 1
+// }, (err)=>{
+//     console.log("yeah");
+//         
+//     API.Thirdparty.Primary("test", "9a917c50df924e55bba9c8822bfc8491", console.log);
+//         
+// });
