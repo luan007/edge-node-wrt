@@ -81,7 +81,7 @@ export function ToJSON(
 }
 
 
-function _method_shell(rpc: RPCEndpoint, funcId, paramArray: any[]) {
+function _method_shell(rpc: RPCEndpoint, funcId, paramArray: any[], remark) {
     if (paramArray) {
         //check for callback if there's any
         var cb: Function = undefined;
@@ -92,7 +92,7 @@ function _method_shell(rpc: RPCEndpoint, funcId, paramArray: any[]) {
         var arr = [];
         while (arr.length < paramArray.length) arr.push(paramArray[arr.length]);
         //cb CAN be undefined.
-        rpc.Call(funcId, arr, cb);
+        rpc.Call(funcId, arr, cb, remark);
     } else {
         //bad method call
         return;
@@ -164,7 +164,7 @@ export function GetAPI(api_skeleton: { f: any; e: any }, rpc: RPCEndpoint): API_
         }
         cur[d[d.length - 1]] = ((i) => {
             return function () {
-                _method_shell(_API_Endpoint.rpc_endpoint, api_skeleton.f[i], <any>arguments);
+                _method_shell(_API_Endpoint.rpc_endpoint, api_skeleton.f[i], <any>arguments, i);
             }
         })(i);
     }

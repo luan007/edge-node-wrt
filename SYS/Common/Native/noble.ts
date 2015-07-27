@@ -169,7 +169,7 @@ export function Write(address:string, uuid:string, data, cb:Callback) {
 
             trace("characteristics >>> ", uuid, perf.characteristics[uuid]);
 
-            perf.characteristics[uuid].write(data, function (err2) {
+            perf.characteristics[uuid].write(data, false, function (err2) {
                 if (err2) return cb(err2);
                 return cb();
             });

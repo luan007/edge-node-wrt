@@ -103,12 +103,12 @@ export class RPCEndPoint extends events.EventEmitter {
 
     };
 
-    private _time_out_closure = (track_id, gen) => {
+    private _time_out_closure = (track_id, gen, remark) => {
         var timer = setTimeout(() => {
                 if (this._callbacks.age(track_id) == gen) {
                     var obj = this._callbacks.pop(track_id);
                     if (obj && obj.callback) {
-                        obj.callback(new Error("RPC Operation Time-out"), undefined);
+                        obj.callback(new Error("RPC Operation Time-out - " + remark), undefined);
                     }
                 }
                 clearTimeout(timer);
@@ -203,7 +203,7 @@ export class RPCEndPoint extends events.EventEmitter {
         }
     };
 
-    public Call = (remote_func_id, params: any[], callback: Function) => {
+    public Call = (remote_func_id, params: any[], callback: Function, remark) => {
         if (callback !== undefined) {
             callback = callback.bind({});
         }
@@ -214,7 +214,7 @@ export class RPCEndPoint extends events.EventEmitter {
         var track_id = this._callbacks.push(callback_sig);
         var gen = this._callbacks.age(track_id);
 
-        callback_sig.timer = this._time_out_closure(track_id, gen);
+        callback_sig.timer = this._time_out_closure(track_id, gen, remark);
         this.Send_Pack(RPC_Message_Type._REQUEST, remote_func_id, params, track_id, gen);
         return [ track_id, gen ];
     };
