@@ -304,8 +304,8 @@ class IPPService implements IInAppDriver {
                                                     console.log('Print-Job result', res);
                                                 }));
                                                 //clean up
-                                                //fs.unlink(pdfFileName);
-                                                //fs.unlink(imgFileName);
+                                                fs.unlink(pdfFileName);
+                                                fs.unlink(imgFileName);
                                             });
                                         });
                                     }
