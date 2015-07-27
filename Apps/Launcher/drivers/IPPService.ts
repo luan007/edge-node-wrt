@@ -73,7 +73,7 @@ class IPPService implements IInAppDriver {
                 var pdfFileName = path.join(DATA_TMP_DIR, UUIDstr());
                 var opts = {
                     size: 'legal',
-                    layout: 'landscape'
+                    layout: 'portrait'
                 };
                 var slide = new PDFImagePack(opts);
                 slide.output([imgFileName], pdfFileName, (err2)=>{
@@ -304,8 +304,8 @@ class IPPService implements IInAppDriver {
                                                     console.log('Print-Job result', res);
                                                 }));
                                                 //clean up
-                                                //fs.unlink(pdfFileName);
-                                                //fs.unlink(imgFileName);
+                                                fs.unlink(pdfFileName);
+                                                fs.unlink(imgFileName);
                                             });
                                         });
                                     }
