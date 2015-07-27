@@ -197,14 +197,14 @@ export function Read(address:string, uuid:string, cb:Callback) {
 
 export function Connect(address:string, cb){
     if(devices[address].connected === true)
-        return cb(new Error("device was connected already."));
+        return cb(); //don't throw error!
     var perf:any = peripherals[address.toLowerCase()];
     if (perf) {
         perf.connect((err)=>{
             console.log(">>> peripheral was connnectd");
             if (err) return cb(err);
             perf.discoverAllServicesAndCharacteristics((err2, services, characteristics)=> {
-                console.log(">>> peripheral was disconvered", err2);
+                console.log(">>> peripheral was discovered", err2);
                 if(err2) return cb(err2);
                 for (var i in services) {
                     perf.services[services[i].uuid] = services[i];
@@ -222,7 +222,7 @@ export function Connect(address:string, cb){
 
 export function Disconnect(address:string, cb?:Callback){
     if(devices[address].connected === false)
-        return cb(new Error("device was not connected."));
+        return cb(); //it's OK ..
     var perf:any = peripherals[address.toLowerCase()];
     if (perf) {
         perf.disconnect(cb);
