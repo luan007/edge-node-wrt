@@ -86,10 +86,7 @@ class YeelightService implements IInAppDriver {
                 if (err) return cb(err);
                 if (actionId === 'adjust') {
                     var color = this.__toControl(params.red, params.green, params.blue, params.brightness);
-                    API.Edge.Wireless.BTLE.Write(address, "fff1", color, (err, result)=>{
-                        console.log("Done Writing");
-                        cb(err, result);
-                    }));
+                    API.Edge.Wireless.BTLE.Write(address, "fff1", color, cb);
                 } else if (actionId === 'set') {
                     var effect = new Buffer(params.effect);
                     API.Edge.Wireless.BTLE.Write(address, "fffc", effect, cb);
