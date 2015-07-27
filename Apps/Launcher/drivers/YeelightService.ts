@@ -1,4 +1,3 @@
-
 class YeelightService implements IInAppDriver {
 
     private __toControl(R, G, B, L) {
@@ -7,6 +6,14 @@ class YeelightService implements IInAppDriver {
             str += ",";
         }
         return new Buffer(str);
+    }
+
+    private __disconnectThunk(address, cb){
+        return (err) => {
+            API.Edge.Wireless.BTLE.Disconnect(address);
+            if (err) return cb(err);
+            return cb();
+        };
     }
 
     private __analyzeLight(dev, cb) {
@@ -22,7 +29,7 @@ class YeelightService implements IInAppDriver {
             assump['light.status-query'] = characteristics.hasOwnProperty('fff5') && characteristics.hasOwnProperty('fff6');
             assump['light.color-flow'] = characteristics.hasOwnProperty('fff7');
             assump['light.LED-name'] = characteristics.hasOwnProperty('fff8') && characteristics.hasOwnProperty('fff9');
-            if(characteristics.hasOwnProperty('fffc')) {
+            if (characteristics.hasOwnProperty('fffc')) {
                 assump['light.effect-setting'] = true;
                 actions['set'] = '';
             }
@@ -72,12 +79,16 @@ class YeelightService implements IInAppDriver {
 
         if (assumption['actions'] && assumption['actions'].hasOwnProperty(actionId)) {
             var address = dev.bus.hwaddr;
-            if (actionId === 'adjust') {
-                var color = this.__toControl(params.red, params.green, params.blue, params.brightness);
-                API.Edge.Wireless.BTLE.Write(address, "fff1", color, cb);
-            } else if(actionId === 'set') {
-                API.Edge.Wireless.BTLE.Write(address, "fffc", params.effect, cb);
-            }
+            API.Edge.Wireless.BTLE.Connect(address, (err)=> {
+                if (err) return cb(err);
+                if (actionId === 'adjust') {
+                    var color = this.__toControl(params.red, params.green, params.blue, params.brightness);
+                    API.Edge.Wireless.BTLE.Write(address, "fff1", color, this.__disconnectThunk(address, cb));
+                } else if (actionId === 'set') {
+                    var effect = new Buffer(params.effect);
+                    API.Edge.Wireless.BTLE.Write(address, "fffc", effect, this.__disconnectThunk(address, cb));
+                }
+            });
         } else {
             return cb(new Error('current device does not support the action: ' + actionId));
         }

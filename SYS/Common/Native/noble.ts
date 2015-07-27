@@ -81,9 +81,11 @@ noble.on('discover', function (peripheral) {
         peripheral.on('connect', function () {
             //trace("[NOBLE CONNECT]", peripheral.address, peripheral.advertisement.localName);
             clearTask(peripheral.address);
+            __EMIT("Edge.Wireless.BTLE.connect", peripheral.address);
         });
         peripheral.on('disconnect', function () {
             //trace("[NOBLE DISCONNECT]", peripheral.address, peripheral.advertisement.localName);
+            __EMIT("Edge.Wireless.BTLE.disconnect", peripheral.address);
         });
         peripheral.on('rssiUpdate', function (rssi) {
             devices[peripheral.address].rssi = rssi;
@@ -104,7 +106,7 @@ noble.on('discover', function (peripheral) {
                         properties: services[i].properties,
                         type: services[i].type
                     };
-                    peripherals[peripheral.address].services[services[i].uuid] = services[i];
+                    //peripherals[peripheral.address].services[services[i].uuid] = services[i];
                 }
 
                 peripherals[peripheral.address].characteristics = {};
@@ -126,7 +128,7 @@ noble.on('discover', function (peripheral) {
                             });
                         })(i);
                     }
-                    peripherals[peripheral.address].characteristics[characteristics[i].uuid] = characteristics[i];
+                    //peripherals[peripheral.address].characteristics[characteristics[i].uuid] = characteristics[i];
                 }
                 async.series(jobs, ()=> {
                     Emitter.emit("UP", peripheral.address, devices[peripheral.address]);
@@ -138,38 +140,88 @@ noble.on('discover', function (peripheral) {
 });
 
 export function Write(address:string, uuid:string, data, cb:Callback) {
+    console.log(">>> Write");
     var perf:any = peripherals[address.toLowerCase()];
     if (perf) {
-        perf.connect((err)=> {
-            if (err) return cb(err);
+            if (!perf.characteristics) return cb(new Error("No connection"));
             if (perf.characteristics.length === 0) return cb(new Error("No such characteristic"));
 
+            if(!Buffer.isBuffer(data))
+                data = new Buffer(data);
+
+            //perf.discoverSomeServicesAndCharacteristics([], [uuid], (err2, services, characteristics)=>{
+            //    trace("characteristics", characteristics);
+            //
+            //    if (err2) {
+            //        perf.disconnect();
+            //        return cb(err2);
+            //    }
+            //    if(characteristics)
+            //        characteristics[0].write(data, function (err3) {
+            //            perf.disconnect();
+            //            if (err3) return cb(err2);
+            //            return cb();
+            //        });
+            //});
+
+            trace("characteristics >>> ", uuid, perf.characteristics[uuid]);
+
             perf.characteristics[uuid].write(data, function (err2) {
-                perf.disconnect();
                 if (err2) return cb(err2);
                 return cb();
             });
 
-        });
+    } else {
+        return cb(new Error("No such device"));
     }
-    return cb(new Error("No such device"));
 }
 
 export function Read(address:string, uuid:string, cb:Callback) {
     var perf:any = peripherals[address.toLowerCase()];
     if (perf) {
-        perf.connect((err)=> {
-            if (err) return cb(err);
-            if (perf.characteristics.length === 0) return cb(new Error("No such characteristic"));
+        if (!perf.characteristics) return cb(new Error("No connection"));
+        if (perf.characteristics.length === 0) return cb(new Error("No such characteristic"));
 
-            perf.characteristics[uuid].read(function (err2, result) {
-                perf.disconnect();
-                if (err2) return cb(err2);
-                return cb(undefined, result);
-            });
+        perf.characteristics[uuid].read(function (err2, result) {
+            if (err2) return cb(err2);
+            return cb(undefined, result);
         });
     }
-    return cb(new Error("No such device"));
+    else {
+        return cb(new Error("No such device"));
+    }
+}
+
+export function Connect(address:string, cb){
+    var perf:any = peripherals[address.toLowerCase()];
+    if (perf) {
+        perf.connect((err)=>{
+            console.log(">>> peripheral was connnectd");
+            if (err) return cb(err);
+            perf.discoverAllServicesAndCharacteristics((err2, services, characteristics)=> {
+                console.log(">>> peripheral was disconvered", err2);
+                if(err2) return cb(err2);
+                for (var i in services) {
+                    perf.services[services[i].uuid] = services[i];
+                }
+                for (var i in characteristics) {
+                    perf.characteristics[characteristics[i].uuid] = characteristics[i];
+                }
+                return cb();
+            });
+        });
+    } else {
+        return cb(new Error("No such device"));
+    }
+}
+
+export function Disconnect(address:string, cb?:Callback){
+    var perf:any = peripherals[address.toLowerCase()];
+    if (perf) {
+        perf.disconnect(cb);
+    } else {
+        return cb(new Error("No such device"));
+    }
 }
 
 export function RSSI(address:string) {
