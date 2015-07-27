@@ -40,7 +40,7 @@ noble.on('forceChange', function (state) {
 });
 
 noble.on('discover', function (peripheral) {
-    setTask(peripheral.address, ()=> { //TODO: clearTask(uuid) when connected to the uuid
+    setTask(peripheral.address, ()=> {
         if (has(devices, peripheral.address))  delete devices[peripheral.address];
         if (has(peripherals, peripheral.address))  delete peripherals[peripheral.address];
         Emitter.emit("DOWN", peripheral.address);
@@ -63,7 +63,8 @@ noble.on('discover', function (peripheral) {
             name: peripheral.advertisement.localName,
             advertisedServices: peripheral.advertisement.serviceUuids,
             services: {},
-            characteristics: {}
+            characteristics: {},
+            connected: false
         };
 
         var serviceData = peripheral.advertisement.serviceData;
@@ -81,11 +82,13 @@ noble.on('discover', function (peripheral) {
         peripheral.on('connect', function () {
             //trace("[NOBLE CONNECT]", peripheral.address, peripheral.advertisement.localName);
             clearTask(peripheral.address);
-            __EMIT("Edge.Wireless.BTLE.connect", peripheral.address);
+            Emitter.emit('connect', peripheral.address);
+            devices[peripheral.address].connected = true;
         });
         peripheral.on('disconnect', function () {
             //trace("[NOBLE DISCONNECT]", peripheral.address, peripheral.advertisement.localName);
-            __EMIT("Edge.Wireless.BTLE.disconnect", peripheral.address);
+            Emitter.emit('disconnect', peripheral.address);
+            devices[peripheral.address].connected = false;
         });
         peripheral.on('rssiUpdate', function (rssi) {
             devices[peripheral.address].rssi = rssi;
@@ -193,6 +196,8 @@ export function Read(address:string, uuid:string, cb:Callback) {
 }
 
 export function Connect(address:string, cb){
+    if(devices[address].connected === true)
+        return cb(new Error("device was connected already."));
     var perf:any = peripherals[address.toLowerCase()];
     if (perf) {
         perf.connect((err)=>{
@@ -216,6 +221,8 @@ export function Connect(address:string, cb){
 }
 
 export function Disconnect(address:string, cb?:Callback){
+    if(devices[address].connected === false)
+        return cb(new Error("device was not connected."));
     var perf:any = peripherals[address.toLowerCase()];
     if (perf) {
         perf.disconnect(cb);

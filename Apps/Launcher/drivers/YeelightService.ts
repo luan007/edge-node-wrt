@@ -8,7 +8,7 @@ class YeelightService implements IInAppDriver {
         return new Buffer(str);
     }
 
-    private __disconnectThunk(address, cb){
+    private __disconnectThunk(address, cb) {
         return (err) => {
             API.Edge.Wireless.BTLE.Disconnect(address);
             if (err) return cb(err);
@@ -20,7 +20,10 @@ class YeelightService implements IInAppDriver {
         var characteristics = dev.bus.data.characteristics;
         if (characteristics) {
             var classes:KVSet = {'light': ''};
-            var actions:KVSet = {'adjust': ''};
+            var actions:KVSet = {
+                'adjust': '',
+                'power': ''
+            };
             var assump:KVSet = {};
             assump['light.color-on-off'] = characteristics.hasOwnProperty('fff1');
             assump['light.light-on-off'] = characteristics.hasOwnProperty('fff1');
@@ -87,6 +90,9 @@ class YeelightService implements IInAppDriver {
                 } else if (actionId === 'set') {
                     var effect = new Buffer(params.effect);
                     API.Edge.Wireless.BTLE.Write(address, "fffc", effect, this.__disconnectThunk(address, cb));
+                } else if (actionId === 'power') {
+                    var color = (params.flag === true) ? this.__toControl(255, 255, 255, 100) : this.__toControl(255, 255, 255, 0);
+                    API.Edge.Wireless.BTLE.Write(address, "fff1", color, this.__disconnectThunk(address, cb));
                 }
             });
         } else {
