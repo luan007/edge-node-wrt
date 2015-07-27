@@ -103,7 +103,7 @@ export class RPCEndPoint extends events.EventEmitter {
 
     };
 
-    private _time_out_closure = (reason, track_id, gen) => {
+    private _time_out_closure = (track_id, gen) => {
         var timer = setTimeout(() => {
                 if (this._callbacks.age(track_id) == gen) {
                     var obj = this._callbacks.pop(track_id);
