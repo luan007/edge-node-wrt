@@ -43,5 +43,5 @@ export function Initialize(cb) {
     cb();
 }
 
-//__API(Gatttool.CharWriteReq, "Edge.Wireless.BTLE.Write", [Permission.DeviceAccess]);
-//__API(Gatttool.CharReadHandle, "Edge.Wireless.BTLE.Read", [Permission.DeviceAccess]);
+__API(_noble.Write, "Edge.Wireless.BTLE.Write", [Permission.DeviceAccess]);
+__API(_noble.Read, "Edge.Wireless.BTLE.Read", [Permission.DeviceAccess]);

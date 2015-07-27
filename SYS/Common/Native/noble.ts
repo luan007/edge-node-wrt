@@ -25,7 +25,7 @@ noble.on('stateChange', function(state) {
         if(auto_start)
             hciconfig(CONF.DEV.BLUETOOTH.DEV_HCI, true); // keep scanning always
     } else {
-        trace("[NOBLE STATE]", state);
+        //trace("[NOBLE STATE]", state);
         noble.stopScanning();
     }
 });
@@ -53,7 +53,7 @@ noble.on('discover', function(peripheral) {
             Emitter.emit("CHANGE", peripheral.address, devices[peripheral.address]);
         }
     } else {
-        peripherals[peripheral.address] = peripheral;
+        peripherals[peripheral.address] = peripheral; //TODO: remove `random` addressType
         devices[peripheral.address] = {
             uuid: peripheral.uuid,
             address: peripheral.address,
@@ -79,7 +79,7 @@ noble.on('discover', function(peripheral) {
 
         // ---------------- events ----------------
         peripheral.on('connect', function() {
-            trace("[NOBLE CONNECT]", peripheral.address, peripheral.advertisement.localName);
+            //trace("[NOBLE CONNECT]", peripheral.address, peripheral.advertisement.localName);
             peripheral.discoverAllServicesAndCharacteristics ((err, services, characteristics)=>{
                 var jobs = [];
                 if(err) return error(err);
@@ -115,7 +115,7 @@ noble.on('discover', function(peripheral) {
             });
         });
         peripheral.on('disconnect', function() {
-            trace("[NOBLE DISCONNECT]", peripheral.address, peripheral.advertisement.localName);
+            //trace("[NOBLE DISCONNECT]", peripheral.address, peripheral.advertisement.localName);
         });
         peripheral.on('rssiUpdate', function(rssi) {
             devices[peripheral.address].rssi = rssi;
@@ -125,3 +125,34 @@ noble.on('discover', function(peripheral) {
     }
 });
 
+export function Write(address:string, uuid:string, data, cb:Callback){
+    var perf:any = peripherals[address.toLowerCase()];
+    if(perf){
+        perf.discoverSomeServicesAndCharacteristics([], [uuid.toLowerCase().replace('0x', '')], (err, services, characteristics)=>{
+            if(err) return cb(err);
+            if(characteristics.length === 0) return cb(new Error("No such characteristic"));
+
+            characteristics[0].write(data,  function(err2){
+                if(err2) return cb(err2);
+                return cb();
+            });
+        });
+    }
+    return cb(new Error("No such device"));
+}
+
+export function Read(address:string, uuid:string, cb:Callback){
+    var perf:any = peripherals[address.toLowerCase()];
+    if(perf){
+        perf.discoverSomeServicesAndCharacteristics([], [uuid.toLowerCase().replace('0x', '')], (err, services, characteristics)=>{
+            if(err) return cb(err);
+            if(characteristics.length === 0) return cb(new Error("No such characteristic"));
+
+            characteristics[0].read(function(err2, result){
+                if(err2) return cb(err2);
+                return cb(undefined, result);
+            });
+        });
+    }
+    return cb(new Error("No such device"));
+}
