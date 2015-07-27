@@ -45,3 +45,4 @@ export function Initialize(cb) {
 
 __API(_noble.Write, "Edge.Wireless.BTLE.Write", [Permission.DeviceAccess]);
 __API(_noble.Read, "Edge.Wireless.BTLE.Read", [Permission.DeviceAccess]);
+__API(_noble.RSSI, "Edge.Wireless.BTLE.RSSI", [Permission.DeviceAccess]);
