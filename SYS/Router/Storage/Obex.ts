@@ -6,6 +6,9 @@ import Configurable = _Configurable.Configurable;
 //import Registry =  require('../../DB/Registry');
 import obex = require('../../Common/Native/obex');
 
+var pub = StatMgr.Pub(SECTION.OBEX, {
+    files: {}
+});
 export var Obexd = new obex.Obexpushd();
 var transfer_folder = path.join(CONF.USER_DATA_PATH, "FileTransfer");
 
@@ -33,6 +36,7 @@ Obexd.on("connection",(file: obex.ObexpushObject) => {
             fs.unlinkSync(f);
             warn("Broken file / Canceled!");
         }
+        exec("chmod", "666", f);
     });
     file.on("error",(err) => {
         stream.end();

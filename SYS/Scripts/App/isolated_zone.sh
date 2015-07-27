@@ -61,6 +61,7 @@ echo init passwords
 if [ ! -e /ramdisk/passwords ]; then mkdir /ramdisk/passwords ; fi
 cp -rf /ramdisk/SYS/Common/Crypto/Keys/init.password /ramdisk/passwords/init.password
 
-####airplay
-rm -rf /tmp/AirService
-mkdir /tmp/AirService
+####resource
+rm -rf /storage/Resource/Streaming/
+mkdir -p /storage/Resource/Streaming/
+mkdir -p /storage/Resource/Streaming/Airplay

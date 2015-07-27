@@ -47,6 +47,9 @@ class _sys_global_conf {
     PROCESS_DEBUG = false;
     BYPASS_APP_SIGCHECK = true;
     SHOW_NGINX_CONF = true;
+    
+    BYPASS_ALL_AUTH = true; //THIS SHOULD ****NOT**** BE TRUE! UNLESS YOU KNOW WHAT YOUUUU ARE DOING
+    
     DEVICE_SAVE_INTERVAL = 30000;
     USERAUTH_PATROL_INTERVAL = 30000;
     MAX_DRIVERCHAIN_DEPTH = 30;
@@ -119,6 +122,8 @@ class _sys_global_conf {
     APP_BASE_PATH = path.join(this.STORAGE_DISK_DIR, "Apps");
 
     RESOURCE_STORE_DIR = path.join(this.STORAGE_DISK_DIR, 'Resource');
+    STREAMING_STORE_DIR = path.join(this.RESOURCE_STORE_DIR, 'Streaming'); //clear often.
+    AIRPLAY_STORE_DIR = path.join(this.STREAMING_STORE_DIR, 'Airplay'); //clear often.
     AVATAR_PATH = path.join(this.RESOURCE_STORE_DIR, "Avatar");
     SYMBOL_PATH = path.join(this.RESOURCE_STORE_DIR, "Symbol");
 
@@ -133,7 +138,6 @@ class _sys_global_conf {
     PKG_UPGRADE_PASSWORD_FILE = path.join(this.RAM_DISK_DIR, 'pkg_upgrade_password');
 
     TMP_DIR = "/tmp";
-    AIRSERVICES_DIR = path.join(this.TMP_DIR, 'AirService');
 
     //token
     TOKEN_PATROL_INTERVAL = 0.5 * 60 * 1000;
@@ -161,7 +165,6 @@ class _global_section {
     BLUETOOTH = 'BLUETOOTH';
     FIREWALL = "FIREWALL";
     TRAFFIC = "TRAFFIC";
-    MAINUI = 'MAINUI';
     STREAMING = 'STREAMING';
     DEVICE = 'DEVICE';
     USER = 'USER';

@@ -87,9 +87,13 @@ export function GetDeviceByIp(_ip, cb) {
     var conn = ConfMgr.Get(SECTION.NETWORK);
     var routerip = conn.RouterIP;
     var netmask = conn.LocalNetmask;
+    console.log(_ip, routerip, netmask);
     var subnet = ip.cidr_num(_ip, netmask);
     var oursub = ip.cidr_num(routerip, netmask);
-    if (oursub != subnet) {
+    if (oursub !== subnet) {
+        if(CONF.IS_DEBUG && CONF.BYPASS_ALL_AUTH){
+            return cb(undefined, 0);
+        }
         //unhappy :(
         cb(new Error("Outside current subnet"));
     } else {
@@ -97,8 +101,9 @@ export function GetDeviceByIp(_ip, cb) {
         if (mac) {
             var deviceId = DeviceManager.GetDevIdByHWAddr(mac);
             cb(undefined, deviceId);
-        } else
+        } else {
             cb(new Error('device does not exist'));
+        }
     }
 
 }

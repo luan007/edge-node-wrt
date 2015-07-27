@@ -23,29 +23,33 @@ export var HostnameTable = {
 };
 
 function pushStack(obj, key, val) {
-    if (!has(obj, key)) {
+    //if (!has(obj, key)) {
         obj[key] = val;
-    }
+    //}
 }
 function popStack(obj, key) {
-    if (has(obj, key)) {
+    //if (has(obj, key)) {
         delete obj[key];
-    }
+    //}
 }
 
 export function Subscribe(cb) {
     var sub = StatMgr.Sub(SECTION.RUNTIME);
     sub.apps.on('set', (appUid, oldStatus, newStatus) => {
-        if (newStatus.AppUrl.trim() !== '') {
-            console.log('▂▃▅▆█ runtime pool apps set'['cyanBG'].bold, appUid, newStatus);
+        if (newStatus.AppUrl.trim() !== '' && newStatus.State > 1) {
+            info('▂▃▅▆█ runtime pool apps set'['cyanBG'].bold, appUid, newStatus);
             var pair = [newStatus.AppUrl, newStatus.MainSock];
             pushStack(PrefixTable, newStatus.RuntimeId, pair);
             pushStack(HostnameTable, newStatus.RuntimeId, pair);
         }
+        else if (newStatus.State <= 1) {
+            popStack(PrefixTable, newStatus.RuntimeId);
+            popStack(HostnameTable, newStatus.RuntimeId);
+        }
     });
     sub.apps.on('del', (appUid, oldStatus) => {
         if (oldStatus.AppUrl.trim() !== '') {
-            console.log('▂▃▅▆█ runtime pool apps set'['cyanBG'].bold, appUid, oldStatus);
+            info('▂▃▅▆█ runtime pool apps set'['cyanBG'].bold, appUid, oldStatus);
             popStack(PrefixTable, oldStatus.RuntimeId);
             popStack(HostnameTable, oldStatus.RuntimeId);
         }
@@ -63,15 +67,15 @@ function GetTarget(host:string, Uri:string, authenticated:string, cb) {
 
     var hostsplit = host.toLowerCase().split(".");
 
-    if (authenticated === "1") {
+    if (authenticated === "1" || (CONF.IS_DEBUG && CONF.BYPASS_ALL_AUTH)) {
 
         cookie_affect_range = "";
         base = LauncherMainPort;
 
-        //fatal('HOST:');
-        //fatal(HostnameTable);
-        //fatal('PREFIX:');
-        //fatal(PrefixTable);
+        info('HOST:');
+        info(HostnameTable);
+        info('PREFIX:');
+        info(PrefixTable);
 
         if (hostsplit.length === 3) {
             var h = hostsplit[0];
@@ -92,7 +96,10 @@ function GetTarget(host:string, Uri:string, authenticated:string, cb) {
                     break;
                 }
             }
-            uri = uri.substr(targetPrefix.length);
+            uri = "/" + uri.substr(targetPrefix.length + 1);
+            if(uri.indexOf("//") === 0) {
+                uri = uri.substr(1);
+            }
         }
         //TODO: Add more logic here :)
     } else {

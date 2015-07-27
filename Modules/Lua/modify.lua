@@ -34,6 +34,15 @@ end
 
 function filterhost(host)
 	if  (host == "www.baidu.com" ) or 
+		(host == "m.baidu.com" ) or 
+		(host == "baidu.com" ) or 
+		(host == "map.baidu.com" ) or 
+		(host == "m.weibo.com" ) or 
+		(host == "weibo.com" ) or 
+		(host == "www.weibo.com" ) or 
+		(host == "www.youku.com" ) or 
+		(host == "youku.com" ) or 
+		(host == "m.youku.com" ) or 
 		(host == "github.com" ) 
 		then
 		return true

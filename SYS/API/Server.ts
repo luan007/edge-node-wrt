@@ -173,6 +173,25 @@ export function Initialize(cb) {
     });
     trace("API Server Listening on " + _port.bold.magenta);
 
+
+    _api_server.on("error", function(e){
+        fatal("! FATAL ERROR HAPPENED ON API SERVER !");
+        error("! FATAL ERROR HAPPENED ON API SERVER !");
+        fatal("! FATAL ERROR HAPPENED ON API SERVER !");
+        error("! FATAL ERROR HAPPENED ON API SERVER !");
+        fatal("! FATAL ERROR HAPPENED ON API SERVER !");
+        error("! FATAL ERROR HAPPENED ON API SERVER !");
+        fatal("! FATAL ERROR HAPPENED ON API SERVER !");
+        error("! FATAL ERROR HAPPENED ON API SERVER !");
+        fatal("! FATAL ERROR HAPPENED ON API SERVER !");
+        error("! FATAL ERROR HAPPENED ON API SERVER !");
+        fatal("! FATAL ERROR HAPPENED ON API SERVER !");
+        error("! FATAL ERROR HAPPENED ON API SERVER !");
+        fatal("! FATAL ERROR HAPPENED ON API SERVER !");
+        error("! FATAL ERROR HAPPENED ON API SERVER !");
+        fatal(e.message);
+        error(e.stack);
+    });
 }
 
 export function Diagnose(callback: Callback) {

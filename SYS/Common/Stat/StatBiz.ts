@@ -11,6 +11,13 @@ import StatMgr = require('./StatMgr');
 export function GetMacByIP(IP:string) {
     var networkStatues = <any>StatMgr.Get(SECTION.NETWORK).ValueOf();
     //console.log('GetMacByIP networkStatues', require('util').inspect(networkStatues));
+    if (networkStatues && networkStatues.arp) {
+        for (var mac in networkStatues.arp) {
+            var arp = networkStatues.arp[mac];
+            if (arp.Address === IP)
+                return arp.Mac;
+        }
+    }
     if (networkStatues && networkStatues.leases) {
         for (var mac in networkStatues.leases) {
             var lease = networkStatues.leases[mac];

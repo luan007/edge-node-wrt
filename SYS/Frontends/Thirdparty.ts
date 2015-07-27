@@ -1,6 +1,8 @@
 import UserManager = require("../User/UserManager");
 import DeviceManager = require("../Device/DeviceManager");
 import Storage = require('../DB/Storage');
+import Persist = require('../DB/Models/Persist');
+
 
 var cache = {};
 
@@ -80,7 +82,38 @@ export function Clear(source_key) {
     }
 }
 
+
+export function RWPersist(owner, data?, cb?) {
+    //let's write some file then..
+    if(arguments.length < 3){
+        var cb = data;
+        //read
+        return Persist.Table.one({
+            uid: owner
+        }, (err, result)=>{
+            if(err) return cb(err);
+            return JSON.parse(result.data);
+        });
+    } else {
+        Persist.Table.one({
+            uid: owner
+        }, (err, d)=>{
+            if(err) {
+                var p = new Persist.Persist();
+                p.uid = owner;
+                p.data = JSON.stringify(data);
+                return Persist.Table.create([p], cb);
+            } else {
+                d.data = JSON.stringify(data);
+                d.save(cb);
+            }
+        });
+    }
+    //write
+}
+
 __API(withCb(Primary), "Thirdparty.Primary", [Permission.AnyApp]);
 __API(withCb(Aux), "Thirdparty.Aux", [Permission.AnyApp]);
 __API(withCb(Clear), "Thirdparty.Clear", [Permission.AnyApp]);
 __API(withCb(Owned), "Thirdparty.Owned", [Permission.AnyApp]);
+__API(RWPersist, "Persist", [Permission.AnyApp]);
