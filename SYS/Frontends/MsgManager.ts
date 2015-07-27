@@ -18,9 +18,9 @@ export function QueryMessage(opts, cb) {
     if (opts.receiverType) condition['receiverType'] = opts.receiverType;
     if (opts.receiver) condition['receiver'] = opts.receiver;
     if (opts.action) condition['action'] = opts.action;
-    if (opts.timeline) condition['timeline'] = opts.timeline;
-    if (opts.notice) condition['notice'] = opts.notice;
-    if (opts.read) condition['read'] = opts.read;
+    if (opts.hasOwnProperty("timeline")) condition['timeline'] = opts.timeline;
+    if (opts.hasOwnProperty("notice")) condition['notice'] = opts.notice;
+    if (opts.hasOwnProperty("read")) condition['read'] = opts.read;
 
     //console.log('---------- SQL total, page'['blueBG'].bold, opts.total, opts.page, JSON.stringify(condition));
 
@@ -43,10 +43,10 @@ export function SendMessage(opts, cb) {
             if (opts.sender) message['sender'] = opts.sender;
             if (opts.receiverTypes && opts.receiverTypes[i]) message['receiverType'] = opts.receiverTypes[i];
             if (opts.action) message['action'] = opts.action;
-            if (opts.timeline) message['timeline'] = opts.timeline;
+            if (opts.hasOwnProperty("timeline")) message['timeline'] = opts.timeline;
             if (opts.content) message['content'] = opts.content;
-            if (opts.notice) message['notice'] = opts.notice;
-            if (opts.read) message['read'] = opts.read;
+            if (opts.hasOwnProperty("notice")) message['notice'] = opts.notice;
+            if (opts.hasOwnProperty("read")) message['read'] = opts.read;
             message['sendTime'] = new Date();
 
             Message.Table.create(message, (err)=> {
@@ -62,7 +62,7 @@ export function Touch(messageIDs:Array<string>, cb:Callback) {
     var params = messageIDs.map((id)=> {
         return '?';
     }).join(',');
-    var SQL = 'UPDATE Message SET read = 1, readTime = date("now"") WHERE uid in (' + params + ')'; // prevent-Injection
+    var SQL = 'UPDATE Message SET read = 1, readTime = date("now") WHERE uid in (' + params + ')'; // prevent-Injection
     Storage.Database.driver.execQuery(SQL, messageIDs, (err, data)=> {
         if (err) return cb(err);
         console.log('batch updating result: ', data);
@@ -77,7 +77,7 @@ function __SendThunk(timeline:boolean, notice:boolean) {
         opts.source = source;
         opts.sender = sender;
         opts.senderType = senderType;
-        
+        opts.content = content;
         opts.receivers = Array.isArray(receivers) ? receivers : [receivers];
         opts.receiverTypes = Array.isArray(receiverTypes) ? receiverTypes : [receiverTypes];
         opts.timeline = timeline;
@@ -103,7 +103,7 @@ function __QueryThunk(condition) {
 }
 
 __API(Touch, "Message.Touch", [Permission.AnyApp]);
-__API(__SendThunk(false, true), "Message.SendNotificaiton", [Permission.AnyApp]);
+__API(__SendThunk(false, true), "Message.SendNotification", [Permission.AnyApp]);
 __API(__SendThunk(true, false), "Message.SendTimeline", [Permission.AnyApp]);
 
 __API(QueryMessage, "Message.RawQuery", [Permission.AnyApp]);

@@ -34,7 +34,7 @@ app.post("*", (req, res) => {
 	info('Web EX Call: ' + d);
 	if (!APIManager.APIDict[d]) {
 		return res.json({
-			error: new Error("Not Found")
+			error: 'Not Found'
 		});
 	} else {
 		info(req.body);
@@ -48,7 +48,6 @@ app.post("*", (req, res) => {
 				}
 			}
 		}
-		
 		params.push(must((err, result) => {
 			if (err) {
 				return res.json({

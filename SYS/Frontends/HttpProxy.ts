@@ -87,6 +87,7 @@ export function GetDeviceByIp(_ip, cb) {
     var conn = ConfMgr.Get(SECTION.NETWORK);
     var routerip = conn.RouterIP;
     var netmask = conn.LocalNetmask;
+    console.log(_ip, routerip, netmask);
     var subnet = ip.cidr_num(_ip, netmask);
     var oursub = ip.cidr_num(routerip, netmask);
     if (oursub != subnet) {
