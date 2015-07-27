@@ -7,30 +7,30 @@ export var Noble = noble;
 
 var auto_start = true;
 var devices:any = {};
-var peripherals: any = {};
+var peripherals:any = {};
 
-function hciconfig(dev, state, cb?:Callback){
-    var ps = child_process.exec('hciconfig ' + dev + (state ? ' up' : ' down'), function(err){
+function hciconfig(dev, state, cb?:Callback) {
+    var ps = child_process.exec('hciconfig ' + dev + (state ? ' up' : ' down'), function (err) {
         ps.kill();
-        if(cb) cb();
-        if(err) return console.log(err);
+        if (cb) cb();
+        if (err) return console.log(err);
     });
 }
 
-noble.on('stateChange', function(state) {
+noble.on('stateChange', function (state) {
     if (state === 'poweredOn') {
         noble.startScanning([], true);
     } else if (state === 'poweredOn') {
         noble.stopScanning();
-        if(auto_start)
+        if (auto_start)
             hciconfig(CONF.DEV.BLUETOOTH.DEV_HCI, true); // keep scanning always
     } else {
-        trace("[NOBLE STATE]", state);
+        //trace("[NOBLE STATE]", state);
         noble.stopScanning();
     }
 });
 
-noble.on('forceChange', function(state){
+noble.on('forceChange', function (state) {
     auto_start = state;
     if (auto_start === true) {
         noble.startScanning([], true);
@@ -39,21 +39,21 @@ noble.on('forceChange', function(state){
     }
 });
 
-noble.on('discover', function(peripheral) {
-    setTask(peripheral.uuid, ()=>{ //TODO: clearTask(uuid) when connected to the uuid
-        if(has(devices, peripheral.address))  delete devices[peripheral.address];
-        if(has(peripherals, peripheral.address))  delete peripherals[peripheral.address];
+noble.on('discover', function (peripheral) {
+    setTask(peripheral.address, ()=> { //TODO: clearTask(uuid) when connected to the uuid
+        if (has(devices, peripheral.address))  delete devices[peripheral.address];
+        if (has(peripherals, peripheral.address))  delete peripherals[peripheral.address];
         Emitter.emit("DOWN", peripheral.address);
     }, CONF.BLUETOOTH_MAXLIFE);
 
-    if(has(devices, peripheral.address)){
-        if(devices[peripheral.address].rssi !== peripheral.rssi) {
+    if (has(devices, peripheral.address)) {
+        if (devices[peripheral.address].rssi !== peripheral.rssi) {
             devices[peripheral.address].rssi = peripheral.rssi;
             devices[peripheral.address].rssiStamp = new Date().getTime();
             Emitter.emit("CHANGE", peripheral.address, devices[peripheral.address]);
         }
     } else {
-        peripherals[peripheral.address] = peripheral;
+        peripherals[peripheral.address] = peripheral; //TODO: remove `random` addressType
         devices[peripheral.address] = {
             uuid: peripheral.uuid,
             address: peripheral.address,
@@ -78,50 +78,157 @@ noble.on('discover', function(peripheral) {
         }
 
         // ---------------- events ----------------
-        peripheral.on('connect', function() {
-            trace("[NOBLE CONNECT]", peripheral.address, peripheral.advertisement.localName);
-            peripheral.discoverAllServicesAndCharacteristics ((err, services, characteristics)=>{
+        peripheral.on('connect', function () {
+            //trace("[NOBLE CONNECT]", peripheral.address, peripheral.advertisement.localName);
+            clearTask(peripheral.address);
+            __EMIT("Edge.Wireless.BTLE.connect", peripheral.address);
+        });
+        peripheral.on('disconnect', function () {
+            //trace("[NOBLE DISCONNECT]", peripheral.address, peripheral.advertisement.localName);
+            __EMIT("Edge.Wireless.BTLE.disconnect", peripheral.address);
+        });
+        peripheral.on('rssiUpdate', function (rssi) {
+            devices[peripheral.address].rssi = rssi;
+            devices[peripheral.address].rssiStamp = new Date().getTime();
+        });
+
+        peripheral.connect((err)=> {
+            if (err) return error(err);
+            peripheral.discoverAllServicesAndCharacteristics((err, services, characteristics)=> {
                 var jobs = [];
-                if(err) return error(err);
-                for(var i in services){
+                if (err) return error(err);
+
+                peripherals[peripheral.address].services = {};
+
+                for (var i in services) {
                     devices[peripheral.address].services[services[i].uuid] = {
                         name: services[i].name,
-                        properties:  services[i].properties,
+                        properties: services[i].properties,
                         type: services[i].type
                     };
+                    //peripherals[peripheral.address].services[services[i].uuid] = services[i];
                 }
-                for(var i in characteristics){
+
+                peripherals[peripheral.address].characteristics = {};
+
+                for (var i in characteristics) {
                     devices[peripheral.address].characteristics[characteristics[i].uuid] = {
                         name: characteristics[i].name,
                         properties: characteristics[i].properties,
                         value: []
                     };
-                    if(characteristics[i].name && characteristics[i].read && characteristics[i].read instanceof Function){
-                        (function(j){
-                            jobs.push((cb)=>{
-                                characteristics[j].read(function(err, result){
-                                    if(result)
+                    if (characteristics[i].name && characteristics[i].read && characteristics[i].read instanceof Function) {
+                        (function (j) {
+                            jobs.push((cb)=> {
+                                characteristics[j].read(function (err, result) {
+                                    if (result)
                                         devices[peripheral.address].characteristics[characteristics[j].uuid].value = JSON.stringify(result);
                                     return cb();
                                 });
                             });
                         })(i);
                     }
+                    //peripherals[peripheral.address].characteristics[characteristics[i].uuid] = characteristics[i];
                 }
-                async.series(jobs, ()=>{
+                async.series(jobs, ()=> {
                     Emitter.emit("UP", peripheral.address, devices[peripheral.address]);
                     peripheral.disconnect();
                 });
             });
         });
-        peripheral.on('disconnect', function() {
-            trace("[NOBLE DISCONNECT]", peripheral.address, peripheral.advertisement.localName);
-        });
-        peripheral.on('rssiUpdate', function(rssi) {
-            devices[peripheral.address].rssi = rssi;
-        });
-
-        peripheral.connect();
     }
 });
 
+export function Write(address:string, uuid:string, data, cb:Callback) {
+    console.log(">>> Write");
+    var perf:any = peripherals[address.toLowerCase()];
+    if (perf) {
+            if (!perf.characteristics) return cb(new Error("No connection"));
+            if (perf.characteristics.length === 0) return cb(new Error("No such characteristic"));
+
+            if(!Buffer.isBuffer(data))
+                data = new Buffer(data);
+
+            //perf.discoverSomeServicesAndCharacteristics([], [uuid], (err2, services, characteristics)=>{
+            //    trace("characteristics", characteristics);
+            //
+            //    if (err2) {
+            //        perf.disconnect();
+            //        return cb(err2);
+            //    }
+            //    if(characteristics)
+            //        characteristics[0].write(data, function (err3) {
+            //            perf.disconnect();
+            //            if (err3) return cb(err2);
+            //            return cb();
+            //        });
+            //});
+
+            trace("characteristics >>> ", uuid, perf.characteristics[uuid]);
+
+            perf.characteristics[uuid].write(data, function (err2) {
+                if (err2) return cb(err2);
+                return cb();
+            });
+
+    } else {
+        return cb(new Error("No such device"));
+    }
+}
+
+export function Read(address:string, uuid:string, cb:Callback) {
+    var perf:any = peripherals[address.toLowerCase()];
+    if (perf) {
+        if (!perf.characteristics) return cb(new Error("No connection"));
+        if (perf.characteristics.length === 0) return cb(new Error("No such characteristic"));
+
+        perf.characteristics[uuid].read(function (err2, result) {
+            if (err2) return cb(err2);
+            return cb(undefined, result);
+        });
+    }
+    else {
+        return cb(new Error("No such device"));
+    }
+}
+
+export function Connect(address:string, cb){
+    var perf:any = peripherals[address.toLowerCase()];
+    if (perf) {
+        perf.connect((err)=>{
+            console.log(">>> peripheral was connnectd");
+            if (err) return cb(err);
+            perf.discoverAllServicesAndCharacteristics((err2, services, characteristics)=> {
+                console.log(">>> peripheral was disconvered", err2);
+                if(err2) return cb(err2);
+                for (var i in services) {
+                    perf.services[services[i].uuid] = services[i];
+                }
+                for (var i in characteristics) {
+                    perf.characteristics[characteristics[i].uuid] = characteristics[i];
+                }
+                return cb();
+            });
+        });
+    } else {
+        return cb(new Error("No such device"));
+    }
+}
+
+export function Disconnect(address:string, cb?:Callback){
+    var perf:any = peripherals[address.toLowerCase()];
+    if (perf) {
+        perf.disconnect(cb);
+    } else {
+        return cb(new Error("No such device"));
+    }
+}
+
+export function RSSI(address:string) {
+    if (devices[address])
+        return {
+            rssi: devices[address].rssi,
+            rssiStamp: devices[address].rssiStamp
+        };
+    return undefined;
+}

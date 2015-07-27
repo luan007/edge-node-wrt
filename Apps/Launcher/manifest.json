@@ -69,6 +69,24 @@
         },
         "stateChange": true
       }
+    },
+    "Yeelight": {
+      "Buses": ["BTLE"],
+      "Interest": {
+        "match": {
+          "bus": {
+            "data.MDNS.ipp": { "$exists": true }
+          }
+        },
+        "change": {
+          "delta": {
+            "bus": {
+              "data.Lease": { "$exists": true }
+            }
+          }
+        },
+        "stateChange": true
+      }
     }
   }
 }
