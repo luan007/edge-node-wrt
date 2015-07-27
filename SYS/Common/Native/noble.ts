@@ -5,7 +5,7 @@ import events = require("events");
 export var Emitter = new events.EventEmitter();
 export var Noble = noble;
 
-var auto_start = true;
+var auto_start = false;
 var devices:any = {};
 var peripherals:any = {};
 
@@ -20,7 +20,7 @@ function hciconfig(dev, state, cb?:Callback) {
 noble.on('stateChange', function (state) {
     if (state === 'poweredOn') {
         noble.startScanning([], true);
-    } else if (state === 'poweredOn') {
+    } else if (state === 'poweredOff') {
         noble.stopScanning();
         if (auto_start)
             hciconfig(CONF.DEV.BLUETOOTH.DEV_HCI, true); // keep scanning always

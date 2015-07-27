@@ -75,13 +75,13 @@
       "Interest": {
         "match": {
           "bus": {
-            "data.MDNS.ipp": { "$exists": true }
+            "data.characteristics": { "$exists": true }
           }
         },
         "change": {
           "delta": {
             "bus": {
-              "data.Lease": { "$exists": true }
+              "data.characteristics": { "$exists": true }
             }
           }
         },
