@@ -32,6 +32,7 @@ function padding(src)
 	return string.rep(" ", n)..script
 end
 
+
 function filterhost(host)
 	if  (host == "www.baidu.com" ) or 
 		(host == "m.baidu.com" ) or 
@@ -43,6 +44,7 @@ function filterhost(host)
 		(host == "www.youku.com" ) or 
 		(host == "youku.com" ) or 
 		(host == "m.youku.com" ) or 
+		(host == "v.youku.com" ) or 
 		(host == "github.com" ) 
 		then
 		return true
