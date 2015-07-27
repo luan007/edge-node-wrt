@@ -95,13 +95,20 @@ noble.on('discover', function (peripheral) {
             peripheral.discoverAllServicesAndCharacteristics((err, services, characteristics)=> {
                 var jobs = [];
                 if (err) return error(err);
+
+                peripherals[peripheral.address].services = {};
+
                 for (var i in services) {
                     devices[peripheral.address].services[services[i].uuid] = {
                         name: services[i].name,
                         properties: services[i].properties,
                         type: services[i].type
                     };
+                    peripherals[peripheral.address].services[services[i].uuid] = services[i];
                 }
+
+                peripherals[peripheral.address].characteristics = {};
+
                 for (var i in characteristics) {
                     devices[peripheral.address].characteristics[characteristics[i].uuid] = {
                         name: characteristics[i].name,
@@ -119,6 +126,7 @@ noble.on('discover', function (peripheral) {
                             });
                         })(i);
                     }
+                    peripherals[peripheral.address].characteristics[characteristics[i].uuid] = characteristics[i];
                 }
                 async.series(jobs, ()=> {
                     Emitter.emit("UP", peripheral.address, devices[peripheral.address]);
@@ -134,20 +142,14 @@ export function Write(address:string, uuid:string, data, cb:Callback) {
     if (perf) {
         perf.connect((err)=> {
             if (err) return cb(err);
+            if (perf.characteristics.length === 0) return cb(new Error("No such characteristic"));
 
-            perf.discoverSomeServicesAndCharacteristics([], [uuid.toLowerCase().replace('0x', '')], (err, services, characteristics)=> {
-                if (err) {
-                    perf.disconnect();
-                    return cb(err);
-                }
-                if (characteristics.length === 0) return cb(new Error("No such characteristic"));
-
-                characteristics[0].write(data, function (err2) {
-                    perf.disconnect();
-                    if (err2) return cb(err2);
-                    return cb();
-                });
+            perf.characteristics[uuid].write(data, function (err2) {
+                perf.disconnect();
+                if (err2) return cb(err2);
+                return cb();
             });
+
         });
     }
     return cb(new Error("No such device"));
@@ -158,19 +160,12 @@ export function Read(address:string, uuid:string, cb:Callback) {
     if (perf) {
         perf.connect((err)=> {
             if (err) return cb(err);
+            if (perf.characteristics.length === 0) return cb(new Error("No such characteristic"));
 
-            perf.discoverSomeServicesAndCharacteristics([], [uuid.toLowerCase().replace('0x', '')], (err, services, characteristics)=> {
-                if (err) {
-                    perf.disconnect();
-                    return cb(err);
-                }
-                if (characteristics.length === 0) return cb(new Error("No such characteristic"));
-
-                characteristics[0].read(function (err2, result) {
-                    perf.disconnect();
-                    if (err2) return cb(err2);
-                    return cb(undefined, result);
-                });
+            perf.characteristics[uuid].read(function (err2, result) {
+                perf.disconnect();
+                if (err2) return cb(err2);
+                return cb(undefined, result);
             });
         });
     }
