@@ -3,7 +3,7 @@ var util = require('util');
 var fs = require('fs');
 var path = require('path');
 var request:any = require('request');
-var myurl2pdf:any = require("./lib/myurltopdf");
+var fsextra:any = require("fs-extra");
 var PDFImagePack:any = require("pdf-image-pack");
 var PDF_MIME = 'application/pdf';
 var DATA_TMP_DIR = '/Data/tmp';
@@ -60,9 +60,10 @@ class IPPService implements IInAppDriver {
         var opts:any = {};
         opts.tmpFolderPath = DATA_TMP_DIR;
         opts.fileName = path.join(DATA_TMP_DIR, UUIDstr());
-        myurl2pdf.myurltopdf(uri, opts, (err)=> {
-            return cb(err, opts.fileName);
-        });
+        return cb(new Error("unsupported print method"));
+        //myurl2pdf.myurltopdf(uri, opts, (err)=> {
+        //    return cb(err, opts.fileName);
+        //});
     }
 
     private __blob2PDF(mime, data, cb) {
@@ -177,7 +178,7 @@ class IPPService implements IInAppDriver {
 
     constructor() {
         if (fs.existsSync(DATA_TMP_DIR))
-            fs.rmdirSync(DATA_TMP_DIR);
+            fsextra.removeSync(DATA_TMP_DIR);
         if (!fs.existsSync(DATA_TMP_DIR))
             fs.mkdirSync(DATA_TMP_DIR);
 
