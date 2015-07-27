@@ -1,13 +1,11 @@
-import _hcitool = require('../../../Common/Native/hcitool');
-import HCITool = _hcitool.HCITool;
-import Gatttool = require('../../../Common/Native/gatttool');
+import _noble = require("../../../Common/Native/noble");
+import Noble = _noble.Noble;
+import NobleMessage = _noble.Emitter;
 import ConfMgr = require('../../../Common/Conf/ConfMgr');
 import _Config = require('../../../Common/Conf/Config');
 import Config = _Config.Config;
 import _Configurable = require('../../../Common/Conf/Configurable');
 import Configurable = _Configurable.Configurable;
-
-var hcitoolInstance = new HCITool();
 
 var pub = StatMgr.Pub(SECTION.BTLE, {
     devices: {}
@@ -30,15 +28,20 @@ var pub = StatMgr.Pub(SECTION.BTLE, {
 export function Initialize(cb) {
     //var configBluez = new Configuration(SECTION.BTLE, defaultConfig);
     //configBluez.Initialize(cb);
-
-    hcitoolInstance.on("UP", (mac, name) => {
-        pub.devices.Set(mac, name);
+    NobleMessage.on("UP", (address, device)=>{
+        pub.devices.Set(address, JSON.parse(JSON.stringify(device)));
     });
 
-    hcitoolInstance.Start(true);
+    NobleMessage.on("CHANGE", (address, device)=>{
+        pub.devices.Set(address, JSON.parse(JSON.stringify(device)));
+    });
+
+    NobleMessage.on("DOWN", (address)=>{
+        pub.devices.Del(address);
+    });
 
     cb();
 }
 
-__API(Gatttool.CharWriteReq, "Edge.Wireless.BTLE.Write", [Permission.DeviceAccess]);
-__API(Gatttool.CharReadHandle, "Edge.Wireless.BTLE.Read", [Permission.DeviceAccess]);
+//__API(Gatttool.CharWriteReq, "Edge.Wireless.BTLE.Write", [Permission.DeviceAccess]);
+//__API(Gatttool.CharReadHandle, "Edge.Wireless.BTLE.Read", [Permission.DeviceAccess]);

@@ -4,6 +4,7 @@ var fs = require('fs');
 var path = require('path');
 var request:any = require('request');
 var myurl2pdf:any = require("./lib/myurltopdf");
+var PDFImagePack:any = require("pdf-image-pack");
 var PDF_MIME = 'application/pdf';
 var DATA_TMP_DIR = '/Data/tmp';
 var USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36';
@@ -66,14 +67,15 @@ class IPPService implements IInAppDriver {
 
     private __blob2PDF(mime, data, cb) {
         if (mime === 'image/png' || mime === 'image/jpeg' || mime === 'image/gif') { //exception
-            var opts:any = {};
-            opts.tmpFolderPath = DATA_TMP_DIR;
-            opts.fileName = path.join(DATA_TMP_DIR, UUIDstr());
-            var html = '<html><body><img src="data:' + mime + ';base64,"'
-                + data.toString('base64')
-                + ' /></body></html>';
-            myurl2pdf.myhtmltopdf(html, opts, (err)=> {
-                return cb(err, opts.fileName);
+            var imgFileName = path.join(DATA_TMP_DIR, UUIDstr());
+            fs.writeFile(imgFileName, data, (err)=>{
+                if(err) return cb(err);
+                var pdfFileName = path.join(DATA_TMP_DIR, UUIDstr());
+                var slide = new PDFImagePack();
+                slide.output([imgFileName], pdfFileName, (err2)=>{
+                    if(err2) return cb(err2);
+                    return cb(undefined, pdfFileName, imgFileName);
+                });
             });
         } else {
             return cb(new Error('unsupported mime type: ' + mime));
@@ -286,10 +288,10 @@ class IPPService implements IInAppDriver {
                                     var supported = assumption['attributes']['printer.document-format-supported'];
                                     if ((Array.isArray(supported) && supported.indexOf(mime) === -1)
                                         || (typeof supported === 'string' && supported !== mime)) {
-                                        this.__blob2PDF(mime, data, (err, fileName)=> {
+                                        this.__blob2PDF(mime, data, (err, pdfFileName, imgFileName)=> {
                                             if (err) return console.log(err);
 
-                                            return fs.readFile(fileName, (err2, imgData) => {
+                                            return fs.readFile(pdfFileName, (err2, imgData) => {
                                                 if (err2) return console.log(err2);
 
                                                 msg['data'] = imgData;
@@ -297,6 +299,9 @@ class IPPService implements IInAppDriver {
                                                 printer.execute("Print-Job", msg, this.__printJobThunk((err, res)=> {
                                                     console.log('Print-Job result', res);
                                                 }));
+                                                //clean up
+                                                fs.unlink(pdfFileName);
+                                                fs.unlink(imgFileName);
                                             });
                                         });
                                     }
