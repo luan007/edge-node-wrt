@@ -200,6 +200,7 @@ export function Connect(address:string, cb){
         return cb(); //don't throw error!
     var perf:any = peripherals[address.toLowerCase()];
     if (perf) {
+        console.log("Connecting to Perf");
         perf.connect((err)=>{
             console.log(">>> peripheral was connnectd");
             if (err) return cb(err);

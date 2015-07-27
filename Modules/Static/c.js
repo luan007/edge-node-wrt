@@ -135,6 +135,7 @@ else {
 
 var map = {
   baidumap: /map.baidu.com/i,
+  youku: /v.youku.com/i,
   baidusearch: /baidu.com/i
 };
 
