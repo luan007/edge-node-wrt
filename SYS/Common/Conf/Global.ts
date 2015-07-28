@@ -173,7 +173,7 @@ class _global_section {
     RUNTIME = 'RUNTIME';
     APP = "APP";
     PKG = "PKG";
-    DB = "DB";
+    GRAPHD = "GRAPHD";
     CONNECTIVITY = "CONNECTIVITY";
     BTLE = "BTLE";
 }

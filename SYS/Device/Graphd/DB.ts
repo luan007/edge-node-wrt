@@ -18,7 +18,7 @@ var levelQuery:any = require('level-queryengine'),
  * To make this swappable, a queue is needed for every op
  */
 
-var pub = StatMgr.Pub(SECTION.DB, {
+var pub = StatMgr.Pub(SECTION.GRAPHD, {
     graphd: {}
 });
 

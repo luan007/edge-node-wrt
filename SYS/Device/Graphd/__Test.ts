@@ -5,7 +5,7 @@ import StatMgr = require('../../Common/Stat/StatMgr');
 import DB = require('./DB');
 
 export function Subscribe(cb) {
-    var sub = StatMgr.Sub(SECTION.DB);
+    var sub = StatMgr.Sub(SECTION.GRAPHD);
     sub.on('set', (graphd, oldValue, Status) => {
         if(Status.State) {
             if(Status.Error)

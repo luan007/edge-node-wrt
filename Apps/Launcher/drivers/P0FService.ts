@@ -15,6 +15,9 @@ class P0FService implements IInAppDriver {
     }
 
     change(dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) {
+        var runtimekey = 'App_' + global.runtime_id + ':P0F';
+        var devAssump = dev.assumptions[runtimekey];
+
         var useragent = parser.setUA(dev.bus.data.P0F.ua).getResult();
         var queried = dev.bus.data.P0F.assumption;
         console.log("P0f CHANGE Called");
@@ -44,7 +47,7 @@ class P0FService implements IInAppDriver {
         if(queried && queried.language) {
             assumption.attributes['os.language'] = queried.language;
         }
-        if(Object.keys(assumption.classes).length === 0) {
+        if(Object.keys(assumption.classes).length === 0 && devAssump && Object.keys(devAssump.classes).length === 0) {
             if(/Mac OS/gmi.test(useragent.os['name'])){
                 assumption.classes['pc'] = '';
                 if(!assumption.attributes['vendor']) assumption.attributes['vendor'] = 'Apple';
