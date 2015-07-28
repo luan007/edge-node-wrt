@@ -101,7 +101,7 @@ noble.on('discover', function (peripheral) {
                 var jobs = [];
                 if (err) return error(err);
 
-                //peripherals[peripheral.address].services = {};
+                peripheral.services = {};
 
                 for (var i in services) {
                     devices[peripheral.address].services[services[i].uuid] = {
@@ -109,10 +109,10 @@ noble.on('discover', function (peripheral) {
                         properties: services[i].properties,
                         type: services[i].type
                     };
-                    //peripherals[peripheral.address].services[services[i].uuid] = services[i];
+                    peripheral.services[services[i].uuid] = services[i];
                 }
 
-                //peripherals[peripheral.address].characteristics = {};
+                peripheral.characteristics = {};
 
                 for (var i in characteristics) {
                     devices[peripheral.address].characteristics[characteristics[i].uuid] = {
@@ -131,7 +131,7 @@ noble.on('discover', function (peripheral) {
                             });
                         })(i);
                     }
-                    //peripherals[peripheral.address].characteristics[characteristics[i].uuid] = characteristics[i];
+                    peripheral.characteristics[characteristics[i].uuid] = characteristics[i];
                 }
                 async.series(jobs, ()=> {
                     Emitter.emit("UP", peripheral.address, devices[peripheral.address]);
@@ -159,20 +159,25 @@ export function Write(address:string, uuid:string, data, cb:Callback) {
 
     var perf:any = __getPerf(address);
     if (perf) {
-        if (!perf.characteristics) return cb(new Error("No connection"));
-        if (perf.characteristics.length === 0) return cb(new Error("No such characteristic"));
+        if (!perf.characteristics || perf.state !== "connected") return cb(new Error("No connection"));
+        if (!perf.characteristics[uuid]) return cb(new Error("No such characteristic"));
 
         if (!Buffer.isBuffer(data))
             data = new Buffer(data);
 
         //trace("characteristics >>> ", uuid, perf.characteristics[uuid]);
         //throttle this crap
-        return intoQueue(address + "_cmd", (cb)=> {
-            perf.characteristics[uuid].write(data, false, function (err2) {
-                if (err2) return cb(err2);
-                return cb();
-            });
-        }, cb);
+        //  return intoQueue(address + "_cmd", (c) => {
+        //      c = must(c, 300);
+             console.log(">>> Actual Write");
+             perf.characteristics[uuid].write(data, false, () => {
+                 console.log(">>> Done Write");
+                //  return cb();
+             });
+             
+             cb();
+        //  }
+        //  ,cb);
     } else {
         return cb(new Error("No such device"));
     }
@@ -195,43 +200,46 @@ export function Read(address:string, uuid:string, cb:Callback) {
     }
 }
 
-export function Connect(address:string, cb:Callback) {
-    var perf:any = __getPerf(address);
-    if (perf) {
-        if (__isConnected(perf))
-            return cb();
-        console.log("Connecting to Perf");
-        intoQueue(address + "_cmd", (cb)=> {
-            perf.connect((err)=> {
-                console.log(">>> peripheral was connnectd");
-                if (err) return cb(err);
-                perf.discoverAllServicesAndCharacteristics((err2, services, characteristics)=> {
-                    console.log(">>> peripheral was discovered", err2);
-                    if (err2) return cb(err2);
-                    perf.services = {};
-                    for (var i in services) {
-                        perf.services[services[i].uuid] = services[i];
-                    }
-                    perf.characteristics = {};
-                    for (var i in characteristics) {
-                        perf.characteristics[characteristics[i].uuid] = characteristics[i];
-                    }
-                    return cb();
+export function Connect(address:string, cb) {
+    intoQueue(address + "_cmd", (cb) => {
+        cb = must(cb, 8000);
+        var perf:any = __getPerf(address);
+        if (perf) {
+            if (__isConnected(perf))
+                return cb();
+            console.log("Connecting to Perf");
+                console.log("Connecting .. to " + address);
+                perf.connect((err)=> {
+                    console.log(">>> peripheral was connnectd");
+                    if (err) return cb(err);
+                    perf.discoverAllServicesAndCharacteristics((err2, services, characteristics)=> {
+                        console.log(">>> peripheral was discovered", err2);
+                        if (err2) return cb(err2);
+                        perf.services = {};
+                        for (var i in services) {
+                            perf.services[services[i].uuid] = services[i];
+                        }
+                        perf.characteristics = {};
+                        for (var i in characteristics) {
+                            perf.characteristics[characteristics[i].uuid] = characteristics[i];
+                        }
+                        return cb();
+                    });
                 });
-            });
-        }, cb);
-    } else {
-        return cb(new Error("No such device"));
-    }
+        } else {
+            return cb(new Error("No such device"));
+        }
+    }, cb);
 }
+
 
 export function Disconnect(address:string, cb:Callback) {
     var perf:any = __getPerf(address);
     if (perf) {
         if (__isConnected(perf))
-            return intoQueue(address + "_cmd", (cb)=> {
+            // return intoQueue(address + "_cmd", (cb)=> {
                 perf.disconnect(cb);
-            }, cb);
+            // }, cb);
         else
             return cb();
     } else {

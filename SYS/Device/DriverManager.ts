@@ -425,6 +425,11 @@ export function DeviceDrop(dev:IDevice, busDelta?) {
 export function DriverInvoke(driverId, deviceId, actionId, params:KVSet, cb) {
     //TODO: add invoking user info
     // plus:  params['user']
+    
+    if(!Drivers[driverId]) return cb(new Error("Driver does not exist, or not available"));
+    if(!DeviceManager.Devices()[deviceId]) return cb(new Error("Device does not exist"));
+    
+    
     DB.QueryType(2, (err, actions)=> {
         if (err) return cb(err);
         else {

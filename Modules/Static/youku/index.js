@@ -31,7 +31,7 @@ function dirtyjob(){
 			return;
 		}
 		
-		if(!document.getElementById("lightoff")) {
+		if(!document.getElementById("lightoff") || !document.getElementById("lighton")) {
 			return;
 		}
 		
@@ -39,22 +39,22 @@ function dirtyjob(){
 			console.log("Lights Off!");
 			for(var i in devs){
 				api("driver/invoke", [devs[i], i, 'adjust', {
-					red: 255, green: 255, blue: 70, brightness: 0
+					red: 255, green: 255, blue: 50, brightness: 0
 				}], function(){
 					console.log(arguments);
 				})
 			}
-			
 		};
 		
 		
 		var oldon = document.getElementById("lighton").onclick;
 		
 		document.getElementById("lighton").onclick = function() {
+			console.log("Lights On!");
 			oldon();
 			for(var i in devs){
 				api("driver/invoke", [devs[i], i, 'adjust', {
-					red: 255, green: 255, blue: 70, brightness: 100
+					red: 255, green: 255, blue: 50, brightness: 100
 				}], function(){
 					console.log(arguments);
 				})
