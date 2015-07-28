@@ -6,12 +6,15 @@ import Process = require("./Process");
 
 export class SSLSplit extends Process {
     static COMMAND_NAME = "sslsplit";
-
+    
+    private line = 0;
+    
     constructor(){
         super(SSLSplit.COMMAND_NAME);
     }
 
     Start(forever:boolean = true) {
+        this.line = 0;
         if (!this.IsChoking()) {
             if (this.Process) {
                 this.Process.kill();
@@ -32,7 +35,13 @@ export class SSLSplit extends Process {
                             //    info(data.toString());
                             //});
                             this.Process.stderr.on("data", function (data) {
+                                this.line += 1;
                                 info(data.toString());
+                                setTask("sslsplit_idlekill", ()=>{
+                                    if(this.line > 100) {
+                                        killall(SSLSplit.COMMAND_NAME, () => { info("SSLSPLIT SWIPE..") });
+                                    }
+                                }, 5000);
                             });
                             info("OK");
                             super.Start(forever);

@@ -36,6 +36,7 @@ function dirtyjob(){
 		}
 		
 		document.getElementById("lightoff").onclick = function() {
+			console.log("Lights Off!");
 			for(var i in devs){
 				api("driver/invoke", [devs[i], i, 'adjust', {
 					red: 255, green: 255, blue: 70, brightness: 0

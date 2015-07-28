@@ -203,6 +203,8 @@ export function Connect(address:string, cb:any = () => {}){
         return cb(); //don't throw error!
     var perf:any = peripherals[address.toLowerCase()];
     if (perf) {
+        if(perf.state === "connected")
+            return cb(); //don't throw error!
         console.log("Connecting to Perf");
         intoQueue(address + "_cmd", (cb)=>{
             perf.connect((err)=>{
