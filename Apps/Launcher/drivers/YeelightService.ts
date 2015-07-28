@@ -103,3 +103,44 @@ class YeelightService implements IInAppDriver {
 }
 
 export var Instance = new YeelightService();
+
+
+//ERROR LOG
+/*
+Connecting to Perf
+17:43:45.391 :API:FunctionExposer * Proxy.CurrentDevHeader
+192.168.66.24 192.168.66.1 24
+17:43:45.492 :Frontends:WebEX Web EX Call: driver.invoke
+17:43:45.499 :Frontends:WebEX { '0': '"App_Launcher:Yeelight"',
+  '1': '"9a917c50df924e55bba9c8822bfc8491"',
+  '2': '"adjust"',
+  '3': '{"red":255,"green":255,"blue":70,"brightness":100}' }
+17:43:45.516 :API:FunctionExposer * Driver.Invoke
+17:43:45.637 :API:FunctionExposer * Edge.Wireless.BTLE.Connect
+Connecting to Perf
+17:43:46.263 :Init [TypeError: Cannot read property 'stdin' of undefined]
+TypeError: Cannot read property 'stdin' of undefined
+    at L2capBle._queueCommand (/node_modules/noble/lib/linux/l2cap-ble.js:232:21)
+    at L2capBle.exchangeMtu (/node_modules/noble/lib/linux/l2cap-ble.js:327:8)
+    at nobleBindings.onConnect (/node_modules/noble/lib/linux/bindings.js:114:29)
+    at emit (events.js:98:17)
+    at L2capBle.onStdoutData (/node_modules/noble/lib/linux/l2cap-ble.js:98:12)
+    at Socket.emit (events.js:95:17)
+    at Socket.<anonymous> (_stream_readable.js:765:14)
+    at Socket.emit (events.js:92:17)
+    at emitReadable_ (_stream_readable.js:427:10)
+    at emitReadable (_stream_readable.js:423:5)
+17:43:46.335 :Init TypeError: Cannot read property 'stdin' of undefined
+    at L2capBle._queueCommand (/node_modules/noble/lib/linux/l2cap-ble.js:232:21)
+    at L2capBle.exchangeMtu (/node_modules/noble/lib/linux/l2cap-ble.js:327:8)
+    at nobleBindings.onConnect (/node_modules/noble/lib/linux/bindings.js:114:29)
+    at emit (events.js:98:17)
+    at L2capBle.onStdoutData (/node_modules/noble/lib/linux/l2cap-ble.js:98:12)
+    at Socket.emit (events.js:95:17)
+    at Socket.<anonymous> (_stream_readable.js:765:14)
+    at Socket.emit (events.js:92:17)
+    at emitReadable_ (_stream_readable.js:427:10)
+    at emitReadable (_stream_readable.js:423:5)
+17:43:46.977 :Common:Native:commands sh /ramdisk/SYS/Scripts/Network/traffic.sh @1
+
+ */

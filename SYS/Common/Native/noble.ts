@@ -142,7 +142,7 @@ noble.on('discover', function (peripheral) {
     }
 });
 
-export function Write(address:string, uuid:string, data, cb:Callback) {
+export function Write(address:string, uuid:string, data, cb  = () => {}) {
     console.log(">>> Write");
     var perf:any = peripherals[address.toLowerCase()];
     if (perf) {
@@ -167,66 +167,73 @@ export function Write(address:string, uuid:string, data, cb:Callback) {
             //        });
             //});
 
-            trace("characteristics >>> ", uuid, perf.characteristics[uuid]);
-
-            perf.characteristics[uuid].write(data, false, function (err2) {
-                if (err2) return cb(err2);
-                return cb();
-            });
-
+            //trace("characteristics >>> ", uuid, perf.characteristics[uuid]);
+            //throttle this crap
+            intoQueue(address + "_cmd", (cb)=>{
+                  perf.characteristics[uuid].write(data, false, function (err2) {
+                      if (err2) return cb(err2);
+                      return cb();
+                  });
+            }, cb)
     } else {
         return cb(new Error("No such device"));
     }
 }
 
-export function Read(address:string, uuid:string, cb:Callback) {
+export function Read(address:string, uuid:string, cb = () => {}) {
     var perf:any = peripherals[address.toLowerCase()];
     if (perf) {
         if (!perf.characteristics) return cb(new Error("No connection"));
         if (perf.characteristics.length === 0) return cb(new Error("No such characteristic"));
 
-        perf.characteristics[uuid].read(function (err2, result) {
-            if (err2) return cb(err2);
-            return cb(undefined, result);
-        });
+        intoQueue(address + "_cmd", (cb)=>{
+            perf.characteristics[uuid].read(function (err2, result) {
+                if (err2) return cb(err2);
+                return cb(undefined, result);
+            });
+        }, cb);
     }
     else {
         return cb(new Error("No such device"));
     }
 }
 
-export function Connect(address:string, cb){
+export function Connect(address:string, cb = () => {}){
     if(devices[address].connected === true)
         return cb(); //don't throw error!
     var perf:any = peripherals[address.toLowerCase()];
     if (perf) {
         console.log("Connecting to Perf");
-        perf.connect((err)=>{
-            console.log(">>> peripheral was connnectd");
-            if (err) return cb(err);
-            perf.discoverAllServicesAndCharacteristics((err2, services, characteristics)=> {
-                console.log(">>> peripheral was discovered", err2);
-                if(err2) return cb(err2);
-                for (var i in services) {
-                    perf.services[services[i].uuid] = services[i];
-                }
-                for (var i in characteristics) {
-                    perf.characteristics[characteristics[i].uuid] = characteristics[i];
-                }
-                return cb();
+        intoQueue(address + "_cmd", (cb)=>{
+            perf.connect((err)=>{
+                console.log(">>> peripheral was connnectd");
+                if (err) return cb(err);
+                perf.discoverAllServicesAndCharacteristics((err2, services, characteristics)=> {
+                    console.log(">>> peripheral was discovered", err2);
+                    if(err2) return cb(err2);
+                    for (var i in services) {
+                        perf.services[services[i].uuid] = services[i];
+                    }
+                    for (var i in characteristics) {
+                        perf.characteristics[characteristics[i].uuid] = characteristics[i];
+                    }
+                    return cb();
+                });
             });
-        });
+        }, cb);
     } else {
         return cb(new Error("No such device"));
     }
 }
 
-export function Disconnect(address:string, cb?:Callback){
+export function Disconnect(address:string, cb = () => {}){
     if(devices[address].connected === false)
         return cb(); //it's OK ..
     var perf:any = peripherals[address.toLowerCase()];
     if (perf) {
-        perf.disconnect(cb);
+        intoQueue(address + "_cmd", (cb)=>{        
+            perf.disconnect(cb);
+        }, cb);
     } else {
         return cb(new Error("No such device"));
     }
