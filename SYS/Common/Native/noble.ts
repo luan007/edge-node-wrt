@@ -189,20 +189,16 @@ export function Read(address:string, uuid:string, cb:Callback) {
         if (!perf.characteristics) return cb(new Error("No connection"));
         if (perf.characteristics.length === 0) return cb(new Error("No such characteristic"));
 
-        intoQueue(address + "_cmd", (cb)=> {
             perf.characteristics[uuid].read(function (err2, result) {
                 if (err2) return cb(err2);
                 return cb(undefined, result);
             });
-        }, cb);
     } else {
         return cb(new Error("No such device"));
     }
 }
 
 export function Connect(address:string, cb) {
-    intoQueue(address + "_cmd", (cb) => {
-        cb = must(cb, 8000);
         var perf:any = __getPerf(address);
         if (perf) {
             if (__isConnected(perf))
@@ -229,7 +225,7 @@ export function Connect(address:string, cb) {
         } else {
             return cb(new Error("No such device"));
         }
-    }, cb);
+        
 }
 
 
