@@ -64,7 +64,7 @@ noble.on('discover', function (peripheral) {
             advertisedServices: peripheral.advertisement.serviceUuids,
             services: {},
             characteristics: {},
-            connected: false
+            //connected: false
         };
 
         var serviceData = peripheral.advertisement.serviceData;
@@ -83,12 +83,12 @@ noble.on('discover', function (peripheral) {
             //trace("[NOBLE CONNECT]", peripheral.address, peripheral.advertisement.localName);
             clearTask(peripheral.address);
             Emitter.emit('connect', peripheral.address);
-            devices[peripheral.address].connected = true;
+            //devices[peripheral.address].connected = true;
         });
         peripheral.on('disconnect', function () {
             //trace("[NOBLE DISCONNECT]", peripheral.address, peripheral.advertisement.localName);
             Emitter.emit('disconnect', peripheral.address);
-            devices[peripheral.address].connected = false;
+            //devices[peripheral.address].connected = false;
         });
         peripheral.on('rssiUpdate', function (rssi) {
             devices[peripheral.address].rssi = rssi;
@@ -165,21 +165,6 @@ export function Write(address:string, uuid:string, data, cb:Callback) {
         if (!Buffer.isBuffer(data))
             data = new Buffer(data);
 
-        //perf.discoverSomeServicesAndCharacteristics([], [uuid], (err2, services, characteristics)=>{
-        //    trace("characteristics", characteristics);
-        //
-        //    if (err2) {
-        //        perf.disconnect();
-        //        return cb(err2);
-        //    }
-        //    if(characteristics)
-        //        characteristics[0].write(data, function (err3) {
-        //            perf.disconnect();
-        //            if (err3) return cb(err2);
-        //            return cb();
-        //        });
-        //});
-
         //trace("characteristics >>> ", uuid, perf.characteristics[uuid]);
         //throttle this crap
         return intoQueue(address + "_cmd", (cb)=> {
@@ -220,7 +205,6 @@ export function Connect(address:string, cb:Callback) {
             perf.connect((err)=> {
                 console.log(">>> peripheral was connnectd");
                 if (err) return cb(err);
-                return cb();
                 perf.discoverAllServicesAndCharacteristics((err2, services, characteristics)=> {
                     console.log(">>> peripheral was discovered", err2);
                     if (err2) return cb(err2);
