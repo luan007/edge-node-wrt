@@ -142,7 +142,7 @@ noble.on('discover', function (peripheral) {
     }
 });
 
-export function Write(address:string, uuid:string, data, cb  = () => {}) {
+export function Write(address:string, uuid:string, data, cb:any = () => {}) {
     console.log(">>> Write");
     var perf:any = peripherals[address.toLowerCase()];
     if (perf) {
@@ -180,7 +180,7 @@ export function Write(address:string, uuid:string, data, cb  = () => {}) {
     }
 }
 
-export function Read(address:string, uuid:string, cb = () => {}) {
+export function Read(address:string, uuid:string, cb:any = () => {}) {
     var perf:any = peripherals[address.toLowerCase()];
     if (perf) {
         if (!perf.characteristics) return cb(new Error("No connection"));
@@ -198,7 +198,7 @@ export function Read(address:string, uuid:string, cb = () => {}) {
     }
 }
 
-export function Connect(address:string, cb = () => {}){
+export function Connect(address:string, cb:any = () => {}){
     if(devices[address].connected === true)
         return cb(); //don't throw error!
     var perf:any = peripherals[address.toLowerCase()];
@@ -226,7 +226,7 @@ export function Connect(address:string, cb = () => {}){
     }
 }
 
-export function Disconnect(address:string, cb = () => {}){
+export function Disconnect(address:string, cb:any = () => {}){
     if(devices[address].connected === false)
         return cb(); //it's OK ..
     var perf:any = peripherals[address.toLowerCase()];
