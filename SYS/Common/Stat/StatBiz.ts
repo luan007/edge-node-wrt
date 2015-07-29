@@ -1,5 +1,5 @@
 import StatMgr = require('./StatMgr');
-
+import Util = require("../Misc/Util");
 //export interface IDHCPLease {
 //    Mac: string;
 //    Address: string;
@@ -63,6 +63,21 @@ export function GetRuntimeIdByAppUid(appUid:string){
     if (runtimeStatues && runtimeStatues.apps) {
         if(runtimeStatues.apps.hasOwnProperty(appUid))
             return runtimeStatues.apps[appUid].RuntimeId;
+    }
+    return null;
+}
+
+//TODO: need to test
+export function GetPermissionByAppUrl(appUrl:string) {
+    var runtimeStatues = <any>StatMgr.Get(SECTION.RUNTIME).ValueOf();
+    if (runtimeStatues && runtimeStatues.apps) {
+        for(var app_uid in runtimeStatues.apps){
+            var status = runtimeStatues.apps[app_uid];
+            if(Util.StartsWith(appUrl, status.AppUrl))
+                return status.Permission;
+            else if(status.IsLauncher && (appUrl == MACHINE.DefaultUrl || appUrl == MACHINE.ModelUrl))
+                return status.Permission;
+        }
     }
     return null;
 }

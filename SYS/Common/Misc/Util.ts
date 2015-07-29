@@ -22,3 +22,7 @@ export function GetDateTimeString(date) {
             + ' ' + TwoDigitalize(date.getHours()) + ':' + TwoDigitalize(date.getMinutes());
     return str;
 }
+
+export function StartsWith(str, part){
+    return new RegExp("^" + part, "gmi").test(str);
+}

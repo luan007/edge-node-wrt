@@ -158,7 +158,8 @@ export class Runtime extends events.EventEmitter {
             AppName: this.Manifest.name,
             MainSock: this._mainsock,
             WebExSock: this._webexsock,
-            RuntimeId: runtimeId
+            RuntimeId: runtimeId,
+            Permission: this.Manifest.permission
         };
 
         this.System = this.Manifest.is_system;

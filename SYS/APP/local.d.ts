@@ -47,6 +47,7 @@ declare module local {
             MainSock?:string;
             WebExSock?:string;
             RuntimeId:string;
+            Permission?: number[];
         }
 
 
