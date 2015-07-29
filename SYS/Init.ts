@@ -5,7 +5,7 @@ process.env.NODE_PATH = __dirname;
 require('./Env');
 import FileLogger = require('../Modules/Shared/Log/FileLogger');
 
-//var logger = global.GetLogger("system");
+//var logger = GetLogger("system");
 
 process.on('uncaughtException', function (err) {
     error(err);
