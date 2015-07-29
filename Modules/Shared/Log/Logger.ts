@@ -1,22 +1,31 @@
+import FileLogger = require('./FileLogger');
+import hook = require('./leHook');
+var log4js:any = require('log4js');
+
 var ns:any = {};
+var delimiter = ":";
 
-function __isOn(moduleName){
-    var nodes = moduleName.split(":");
-    var cur = ns;
-    for(var i = 0, len = nodes.length; i< len; i++) {
-        var n = nodes[i];
-        if(!cur[n]) return false;
-        cur = cur[n];
-        if(cur.hasOwnProperty("sw") && cur.sw === false) return false;
-    }
-    return true;
-}
 
-export function GetLogger(moduleName, sw?:boolean){
+hook.Passthrough('stderr', process.stderr);
+
+log4js.configure({
+    appenders: [
+        {
+            type: 'console',
+            layout: {
+                type: 'pattern',
+                pattern: "%[%d{ABSOLUTE} %c%] %m"
+            }
+        }
+    ]
+});
+
+export function GetLogger(moduleName:string, sw?:boolean){
+    moduleName = moduleName.toLowerCase();
     if(sw === undefined) sw = true;
     Turn(moduleName, sw);
 
-    var logger = {};
+    var logger:any = {};
 
     logger.trace = (...args) => {
         if(__isOn(moduleName)) {
@@ -73,8 +82,20 @@ export function GetLogger(moduleName, sw?:boolean){
     return logger;
 }
 
-export function Turn(moduleName, sw?:boolean){
-    var nodes = moduleName.split(":");
+function __isOn(moduleName){
+    var nodes = moduleName.toLowerCase().split(delimiter);
+    var cur = ns;
+    for(var i = 0, len = nodes.length; i< len; i++) {
+        var n = nodes[i];
+        if(!cur[n]) return false;
+        cur = cur[n];
+        if(cur.hasOwnProperty("sw") && cur.sw === false) return false;
+    }
+    return true;
+}
+
+export function Turn(moduleName:string, sw?:boolean){
+    var nodes = moduleName.toLowerCase().split(delimiter);
     var cur = ns;
     for(var i = 0, len = nodes.length; i< len; i++) {
         var n = nodes[i];
