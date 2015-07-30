@@ -116,7 +116,8 @@ var defconfig2G4 = {
     AutoSSID: false,
     Visible: true,
     Channel: 7,
-    Password: undefined,
+    
+    Password: "testtest",
     Bridge: CONF.DEV.WLAN.WLAN_BR,
     //NAT: 1,
     //Isolation: 0, //Not Used, reserved for VLAN,
@@ -348,4 +349,35 @@ export function Subscribe(cb) {
     cb();
 }
 
+
+
+
+
+
 __API(parseIWStationDump, "Edge.Wireless.Stations", [Permission.AnyApp]);
+
+__API((cb)=>{
+    info("Sending WPS Control to HostAPD..");
+    if(Hostapd2G4.Process)
+        Hostapd2G4.Ctrl.WPS_PUSHBTN(()=>{
+            info("2G4 rec - WPS PushBtn should be activated");
+        });
+    if(Hostapd5G7.Process)
+        Hostapd5G7.Ctrl.WPS_PUSHBTN(()=>{
+            info("5G7 rec - WPS PushBtn should be activated");
+        });
+    return cb();
+}, "Edge.Wireless.WPS", [Permission.AnyApp]);
+
+__API((cb)=>{
+    info("Sending WPS Cancel to HostAPD..");
+    if(Hostapd2G4.Process)
+        Hostapd2G4.Ctrl.WPS_CANCEL(()=>{
+            info("2G4 rec - WPS Stop");
+        });
+    if(Hostapd5G7.Process)
+        Hostapd5G7.Ctrl.WPS_CANCEL(()=>{
+            info("5G7 rec - WPS Stop");
+        });
+    return cb();
+}, "Edge.Wireless.WPSCancel", [Permission.AnyApp]);

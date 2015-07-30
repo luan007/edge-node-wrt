@@ -102,7 +102,9 @@ function CfgString(conf:ConfigBase, dev, ctrl_sock, mac_accp, mac_deny) {
         case _80211_BASE.A:
             newconf += "wmm_enabled=1" + line;
             newconf += "hw_mode=a" + line;
+            newconf += "ieee80211n=1" + line;
             newconf += "ieee80211ac=1" + line;
+            newconf += "uapsd_advertisement_enabled=1" + line;
             break;
         case _80211_BASE.B:
             newconf += "hw_mode=b" + line;
@@ -112,8 +114,13 @@ function CfgString(conf:ConfigBase, dev, ctrl_sock, mac_accp, mac_deny) {
             break;
         case _80211_BASE.N:
             newconf += "wmm_enabled=1" + line;
+            newconf += "uapsd_advertisement_enabled=1" + line;
             newconf += "hw_mode=g" + line;
             newconf += "ieee80211n=1" + line;
+        //[MAX-AMSDU-7935]
+            newconf += 'ht_capab=[HT40+][LPDC][DSSS_CCK-40][TX-STBC][RX-STBC1][SHORT-GI-20][SHORT-GI-40]'
+                    + line;
+
             break;
     }
 
@@ -133,10 +140,10 @@ function CfgString(conf:ConfigBase, dev, ctrl_sock, mac_accp, mac_deny) {
 
     if (conf.Password) {
         newconf += "wpa=1" + line;
-        newconf += "wpa_key_mgmt=WPA-PSK" + line;
-        //newconf += "wpa_pairwise=TKIP CCMP" + line;
-        newconf += "rsn_pairwise=TKIP CCMP" + line; //wpa2
         newconf += "wpa_passphrase=" + conf.Password + line;
+        newconf += "wpa_key_mgmt=WPA-PSK" + line;
+        newconf += "wpa_pairwise=TKIP CCMP" + line;
+        newconf += "rsn_pairwise=CCMP" + line; //wpa2
     }
 
     for (var _dev in conf.BSS) {
@@ -146,10 +153,10 @@ function CfgString(conf:ConfigBase, dev, ctrl_sock, mac_accp, mac_deny) {
 
         if (conf.BSS[_dev].Password) {
             newconf += "wpa=1" + line;
+            newconf += "wpa_passphrase=" + conf.BSS[_dev].Password + line;
             newconf += "wpa_key_mgmt=WPA-PSK" + line;
-            //newconf += "wpa_pairwise=TKIP CCMP" + line;
-            newconf += "rsn_pairwise=TKIP CCMP" + line; //wpa2
-            newconf += "wpa_passphrase=" + conf.Password + line;
+            newconf += "wpa_pairwise=TKIP CCMP" + line;
+            newconf += "rsn_pairwise=CCMP" + line; //wpa2
         }
 
     }
@@ -159,29 +166,47 @@ function CfgString(conf:ConfigBase, dev, ctrl_sock, mac_accp, mac_deny) {
     newconf += "obss_interval=1" + line;
 
     /* This may cause problem in windows ... network-discovery got crazy */
-    //newconf += "wps_state=1" + line;
-    //newconf += "device_name=Edge Router" + line;
-    //newconf += "manufacturer=EmergeLabs" + line;
-    //newconf += "model_name=Edge_dev_model" + line;
-    //newconf += "model_number=0" + line;
-    //newconf += "serial_number=DEV_000000" + line;
-    ////http://download.csdn.net/detail/fzel_net/4178287
-    //newconf += "model_url=http://wifi.network/" + line;
-    //newconf += "device_type=6-0050F204-1" + line;
-    //newconf += "friendly_name=Edge" + line;
-    //newconf += "manufacturer_url=http://www.edgerouter.com/" + line;
-    //newconf += "model_description=Edge Router" + line;
-    //newconf += "uuid=87654321-9abc-def0-1234-56789abc0000" + line;
+    newconf += "wps_state=2" + line;
+    newconf += "ap_setup_locked=0" + line;
+    newconf += "config_methods=virtual_push_button physical_push_button" + line;
+    newconf += "pbc_in_m1=1" + line;
+    newconf += "upnp_iface=br0" + line;
+    newconf += "device_name=Edge Router" + line;
+    newconf += "manufacturer=EmergeLabs" + line;
+    newconf += "model_name=Edge One" + line;
+    newconf += "model_number=Late 2015" + line;
+    newconf += "serial_number=000000000" + line;
+    //http://download.csdn.net/detail/fzel_net/4178287
+    newconf += "model_url=http://wifi.network/" + line;
+    newconf += "device_type=6-0050F204-1" + line;
+    newconf += "friendly_name=Edge" + line;
+    newconf += "manufacturer_url=http://www.edgerouter.com/" + line;
+    newconf += "model_description=Development Version - EmergeLabs" + line;
+    newconf += "uuid=87654321-9abc-def0-1234-56789abc0000" + line;
 
+    newconf += "friendly_name=Edge" + line;
 
     //warn("WARNING - HTCAP NOT IMPLEMENTED");
     //[SMPS-STATIC]
 
-    newconf += 'ht_capab=[HT40' + ((conf.Channel < 8) ? '+' : '-') + '][LPDC][DSSS_CCK-40][TX-STBC][RX-STBC1][MAX-AMSDU-7935][SHORT-GI-20][SHORT-GI-40]'
-            + line;
-
     //TODO: Fill HT_CAPAB
     //console.log(newconf);
+    // newconf += "tx_queue_data3_aifs=7" + line;
+    // newconf += "tx_queue_data3_cwmin=15" + line;
+    // newconf += "tx_queue_data3_cwmax=1023" + line;
+    // newconf += "tx_queue_data3_burst=0" + line;
+    // newconf += "tx_queue_data2_aifs=3" + line;
+    // newconf += "tx_queue_data2_cwmin=15" + line;
+    // newconf += "tx_queue_data2_cwmax=63" + line;
+    // newconf += "tx_queue_data2_burst=0" + line;
+    // newconf += "tx_queue_data1_aifs=1" + line;
+    // newconf += "tx_queue_data1_cwmin=7" + line;
+    // newconf += "tx_queue_data1_cwmax=15" + line;
+    // newconf += "tx_queue_data1_burst=3.0" + line;
+    // newconf += "tx_queue_data0_aifs=1" + line;
+    // newconf += "tx_queue_data0_cwmin=3" + line;
+    // newconf += "tx_queue_data0_cwmax=7" + line;
+    // newconf += "tx_queue_data0_burst=1.5" + line;
     return newconf;
 }
 
@@ -290,6 +315,14 @@ export class CtrlInterface extends events.EventEmitter {
         this._cmd("PING", callback);
     };
 
+    public WPS_PUSHBTN = (callback) => {
+        this._cmd("WPS_PBC", callback);
+    };
+
+    public WPS_CANCEL = (callback) => {
+        this._cmd("WPS_CANCEL", callback);
+    };
+    
     private _pingCallback = (err, result) => {
         //swallow - 
     };
