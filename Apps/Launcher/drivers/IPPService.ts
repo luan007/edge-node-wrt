@@ -293,10 +293,10 @@ class IPPService implements IInAppDriver {
                                     var supported = assumption['attributes']['printer.document-format-supported'];
                                     if ((Array.isArray(supported) && supported.indexOf(mime) === -1)
                                         || (typeof supported === 'string' && supported !== mime)) {
-                                        this.__blob2PDF(mime, data, (err, pdfFileName, imgFileName)=> {
+                                        return this.__blob2PDF(mime, data, (err, pdfFileName, imgFileName)=> {
                                             if (err) return console.log(err);
 
-                                            return fs.readFile(pdfFileName, (err2, imgData) => {
+                                            fs.readFile(pdfFileName, (err2, imgData) => {
                                                 if (err2) return console.log(err2);
 
                                                 msg['data'] = imgData;
@@ -309,11 +309,11 @@ class IPPService implements IInAppDriver {
                                                 fs.unlink(imgFileName);
                                             });
                                         });
+                                    } else {
+                                        return printer.execute("Print-Job", msg, this.__printJobThunk((err, res)=> {
+                                            console.log('Print-Job result', res);
+                                        }));
                                     }
-
-                                    printer.execute("Print-Job", msg, this.__printJobThunk((err, res)=> {
-                                        console.log('Print-Job result', res);
-                                    }));
                                 });
                             });
                             stream.on('error', (err)=> {
@@ -337,6 +337,7 @@ class IPPService implements IInAppDriver {
                             if (err) return cb(err);
                             if (mime !== PDF_MIME) {
                                 this.__uri2PDF(params.uri, (err, pdf)=> {
+                                    if(err) return console.log(err);
                                     console.log('PDF total pages ', pdf.numberOfPages);
                                     var bufs = [];
                                     var stream:any = pdf.stream;
