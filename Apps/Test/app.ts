@@ -26,7 +26,7 @@ app.get("/ao", (req, res)=>{
     res.json({a: "LAJI"});
 });
 
-app.get("/\", (req, res: any) => {
+app.get("/", (req, res: any) => {
    var d = resarr.push(res);
    res.on('close', function(){
        resarr[d] = undefined;
