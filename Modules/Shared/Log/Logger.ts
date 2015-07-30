@@ -20,6 +20,13 @@ import hook = require('./leHook');
         ]
     });
 
+    function __MODULE__(global, name: string, sw?: boolean){
+        var logger = GetLogger(name, sw);
+        for(var i in logger){
+            global[i] = logger[i];
+        }
+    }
+
     function GetLogger(moduleName:string, sw?:boolean) {
         moduleName = moduleName.toLowerCase();
         if (sw === undefined) sw = true;
@@ -105,6 +112,7 @@ import hook = require('./leHook');
         }
     }
 
+    global.__MODULE__ = __MODULE__;
     global.GetLogger = GetLogger;
     global.Turn = Turn;
 })();
