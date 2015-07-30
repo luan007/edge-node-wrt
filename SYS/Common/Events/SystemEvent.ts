@@ -1,4 +1,6 @@
-﻿import event = require("events");
+﻿eval(LOG("Common:Events:SystemEvent"));
+
+import event = require("events");
 var _e = new event.EventEmitter();
 
 function _listen(name, cb) {

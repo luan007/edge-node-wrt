@@ -1,4 +1,6 @@
-﻿var level = require("levelup");
+﻿eval(LOG("Common:DB:Registry"));
+
+var level = require("levelup");
 import sub = require("level-subkey");
 //var codec = require("level-subkey/lib/codec");
 var codec = require("level-subkey/src/codec");  // VERSION???

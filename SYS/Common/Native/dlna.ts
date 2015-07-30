@@ -1,1 +1,2 @@
-﻿//TODO: Add MINIDLNA support
+﻿eval(LOG("Common:Native:dlna"));
+//TODO: Add MINIDLNA support

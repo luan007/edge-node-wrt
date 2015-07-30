@@ -1,3 +1,5 @@
+eval(LOG("Common:Conf:Config"));
+
 import events = require('events');
 
 export class Config extends events.EventEmitter {

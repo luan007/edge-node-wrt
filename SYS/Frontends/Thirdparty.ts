@@ -1,3 +1,5 @@
+eval(LOG("Frontends:Thirdparty"));
+
 import UserManager = require("../User/UserManager");
 import DeviceManager = require("../Device/DeviceManager");
 import Storage = require('../DB/Storage');

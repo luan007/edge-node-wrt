@@ -1,4 +1,5 @@
-﻿//this is going to be hot-swapped during runtime-updates
+﻿eval(LOG("Device:Graphd:DB"));
+//this is going to be hot-swapped during runtime-updates
 
 import fs = require('fs');
 var unzip = require("unzip");

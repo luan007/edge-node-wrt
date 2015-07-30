@@ -1,1 +1,1 @@
-﻿
+﻿eval(LOG("Common:Native:time"));

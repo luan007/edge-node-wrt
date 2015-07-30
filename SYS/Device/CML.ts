@@ -1,4 +1,6 @@
-﻿//TODO: Test CML
+﻿eval(LOG("Device:CML"));
+
+//TODO: Test CML
 //CRAP ALERT
 //NOT IN PRODUCTION QUALITY
 

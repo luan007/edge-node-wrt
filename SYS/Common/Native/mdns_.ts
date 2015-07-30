@@ -1,4 +1,5 @@
-﻿/*
+﻿eval(LOG("Common:Native:mdns"));
+/*
 var mdns = require('mdns');
  
 // advertise a http server on port 4321 

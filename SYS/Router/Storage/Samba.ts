@@ -1,3 +1,5 @@
+eval(LOG("Router:Storage:Samba"));
+
 import Samba = require('../../Common/Native/smbd');
 import SmbDaemon = Samba.SmbDaemon;
 import SmbConfig = Samba.SmbConfig;

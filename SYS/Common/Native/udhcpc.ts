@@ -1,3 +1,5 @@
+eval(LOG("Common:Native:UDhcpC"));
+
 import util = require("util");
 import child_process = require("child_process");
 import events = require("events");

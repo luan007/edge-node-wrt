@@ -1,3 +1,5 @@
+eval(LOG("Router:Presentation:Streaming"));
+
 import Airplay = require('../../Common/Native/airplay');
 import AirplayEvents = Airplay.Events;
 import ConfMgr = require('../../Common/Conf/ConfMgr');

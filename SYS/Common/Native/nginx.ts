@@ -1,4 +1,6 @@
-﻿import Process = require("./Process");
+﻿eval(LOG("Common:Native:nginx"));
+
+import Process = require("./Process");
 import RPC = require("../../../Modules/RPC/index");
 import path = require("path");
 import child_process = require("child_process");

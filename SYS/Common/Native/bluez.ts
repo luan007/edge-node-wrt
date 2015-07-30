@@ -1,4 +1,5 @@
-﻿//We need to patch https://github.com/sidorares/node-dbus/blob/master/lib/bus.js
+﻿eval(LOG("Common:Native:bluez"));
+//We need to patch https://github.com/sidorares/node-dbus/blob/master/lib/bus.js
 //line 123
 
 /*

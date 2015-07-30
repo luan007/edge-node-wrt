@@ -1,4 +1,6 @@
-﻿import _device = require('../DB/Models/Device');
+﻿eval(LOG("Device:DeviceManager"));
+
+import _device = require('../DB/Models/Device');
 import deviceData = _device.IDevice;
 import deviceObj = _device.Device;
 var deviceTable = deviceObj.table;

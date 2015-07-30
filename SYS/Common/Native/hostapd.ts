@@ -1,4 +1,6 @@
-﻿//http://ftp.netbsd.org/pub/NetBSD/NetBSD-current/src/external/bsd/wpa/dist/hostapd/README-WPS
+﻿eval(LOG("Common:Native:hostapd"));
+
+//http://ftp.netbsd.org/pub/NetBSD/NetBSD-current/src/external/bsd/wpa/dist/hostapd/README-WPS
 
 //TODO: FIX WIRELSS THROUGHTPUT UNDER WPA CONDITIONS
 

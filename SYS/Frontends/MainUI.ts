@@ -1,4 +1,6 @@
-﻿import HttpProxy = require("./HttpProxy");
+﻿eval(LOG("Frontends:MainUI"));
+
+import HttpProxy = require("./HttpProxy");
 import url = require("url");
 import Registry =  require('../DB/Registry');
 import ConfMgr = require('../Common/Conf/ConfMgr');

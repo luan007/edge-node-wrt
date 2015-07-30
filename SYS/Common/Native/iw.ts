@@ -1,4 +1,5 @@
-﻿/*
+﻿eval(LOG("Common:Native:iw"));
+/*
 
     Watch ->
     /sys/kernel/debug/ieee80211/phy0/netdev:wlan1/stations/28:47:aa:27:16:6c

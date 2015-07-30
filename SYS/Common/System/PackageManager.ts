@@ -1,3 +1,5 @@
+eval(LOG("Common:System:PackageManager"));
+
 import Storage = require('../../DB/Storage');
 import StatMgr = require('../../Common/Stat/StatMgr');
 import http = require('http');

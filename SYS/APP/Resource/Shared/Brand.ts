@@ -1,3 +1,4 @@
+eval(LOG("APP:Resource:Shared:Brand"));
 //BrandDB search utility
 
 //Note, this works based on a fuzzy search bias, so do try / do-not trust.

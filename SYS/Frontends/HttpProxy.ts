@@ -1,4 +1,6 @@
-﻿import net = require('net');
+﻿eval(LOG("Frontends:HttpProxy"));
+
+import net = require('net');
 import fs = require('fs');
 import path = require('path');
 import PermissionLib = require('../API/Permission');

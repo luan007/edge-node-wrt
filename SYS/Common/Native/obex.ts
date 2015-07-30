@@ -1,4 +1,6 @@
-﻿import Process = require("./Process");
+﻿eval(LOG("Common:Native:obex"));
+
+import Process = require("./Process");
 import child_process = require("child_process");
 import events = require("events");
 import fs = require("fs");

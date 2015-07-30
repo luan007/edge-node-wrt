@@ -1,5 +1,6 @@
+eval(LOG("Device:Bus:BTLE"));
+
 import Bus = require("./Bus");
-import Gatttool = require('../../Common/Native/gatttool');
 var _btleBus = new Bus('BTLE');
 
 function _on_device_appear(mac, device) {

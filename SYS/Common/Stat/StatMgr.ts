@@ -1,3 +1,5 @@
+eval(LOG("Common:Stat:StatMgr"));
+
 import events = require('events');
 
 class StatNode extends events.EventEmitter {

@@ -1,3 +1,5 @@
+eval(LOG("Router:Network:Wireless:Wifi"));
+
 import hostapd = require('../../../Common/Native/hostapd');
 import ConfMgr = require('../../../Common/Conf/ConfMgr');
 import _Config = require('../../../Common/Conf/Config');

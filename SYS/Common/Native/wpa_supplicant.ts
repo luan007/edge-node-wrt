@@ -1,4 +1,6 @@
-﻿//TODO: Implement
+﻿eval(LOG("Common:Native:wpa_supplicant"));
+
+//TODO: Implement
 //
 
 // *WPA_Ctrl_Interface* for reading CONNECTED/DISCONNECTED messages

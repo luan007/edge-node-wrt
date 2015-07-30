@@ -1,4 +1,6 @@
-﻿import bluez = require('../../../Common/Native/bluez');
+﻿eval(LOG("Router:Network:Wireless:Bluetooth"));
+
+import bluez = require('../../../Common/Native/bluez');
 import ConfMgr = require('../../../Common/Conf/ConfMgr');
 import _Config = require('../../../Common/Conf/Config');
 import Config = _Config.Config;

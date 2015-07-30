@@ -1,4 +1,6 @@
-﻿import Bus = require('./Bus');
+﻿eval(LOG("Device:Bus:WifiBus"));
+
+import Bus = require('./Bus');
 import StatBiz = require('../../Common/Stat/StatBiz');
 
 var _wifiBus = new Bus('WIFI');

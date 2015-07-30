@@ -1,3 +1,5 @@
+eval(LOG("Common:Runtime:Diagnostic"));
+
 var fs = require('fs');
 var path = require('path');
 var packageManger = require('../System/PackageManager');

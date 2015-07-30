@@ -1,3 +1,5 @@
+eval(LOG("APP:Resource:IO:FIFO"));
+
 import RuntimePool = require('../../RuntimePool');
 import AppManager = require('../../AppManager');
 

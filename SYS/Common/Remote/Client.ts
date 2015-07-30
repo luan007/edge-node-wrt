@@ -1,4 +1,6 @@
-﻿declare var http;
+﻿eval(LOG("Common:Remote:Client"));
+
+declare var http;
 declare var qs;
 
 interface _request {

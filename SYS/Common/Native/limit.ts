@@ -1,4 +1,6 @@
-﻿/*Encap Linux Limit mach here*/
+﻿eval(LOG("Common:Native:limit"));
+
+/*Encap Linux Limit mach here*/
 
 /**
  * http://linux.die.net/man/2/setrlimit

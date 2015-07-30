@@ -1,4 +1,6 @@
-﻿import child_process = require("child_process");
+﻿eval(LOG("Common:Native:ipset"));
+
+import child_process = require("child_process");
 var spawn = child_process.spawn;
 var exec = child_process.exec;
 import events = require("events");

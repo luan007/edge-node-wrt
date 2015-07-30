@@ -1,4 +1,6 @@
-﻿import fs = require('fs');
+﻿eval(LOG("APP:Resource:Ports:Redirector"));
+
+import fs = require('fs');
 import path= require('path');
 import child_process = require('child_process');
 import Tracker = require("./Tracker");

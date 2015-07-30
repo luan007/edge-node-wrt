@@ -1,3 +1,5 @@
+eval(LOG("Frontends:WebEX"));
+
 //for safety sake, let's do a tunnel
 
 import express = require('express');

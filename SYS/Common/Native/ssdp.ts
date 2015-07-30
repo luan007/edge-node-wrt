@@ -1,4 +1,6 @@
-﻿var ssdp = require('node-ssdp');
+﻿eval(LOG("Common:Native:ssdp"));
+
+var ssdp = require('node-ssdp');
 var Server = ssdp.Server;
 import express = require("express");
 import events = require("events");

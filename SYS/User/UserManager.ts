@@ -1,4 +1,6 @@
-﻿//IMPLEMENT LIST USER / ADD USER / REMOVE USER
+﻿eval(LOG("User:UserManager"));
+
+//IMPLEMENT LIST USER / ADD USER / REMOVE USER
 
 /*
  *mostly* copied from last rev (rev_1)

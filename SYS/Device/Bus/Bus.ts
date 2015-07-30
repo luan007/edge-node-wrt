@@ -1,4 +1,6 @@
-﻿import events = require('events');
+﻿eval(LOG("Device:Bus:Bus"));
+
+import events = require('events');
 import DeviceManager = require('../DeviceManager');
 
 class Bus extends events.EventEmitter implements IBus {

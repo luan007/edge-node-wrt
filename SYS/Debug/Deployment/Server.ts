@@ -1,4 +1,6 @@
-﻿import http = require("http");
+﻿eval(LOG("Debug:Deployment:Server"));
+
+import http = require("http");
 import express = require("express");
 var unzip = require("unzip");
 //This is for test only

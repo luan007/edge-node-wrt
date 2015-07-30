@@ -1,22 +1,18 @@
 process.env.ROOT_PATH = __dirname;
 process.env.NODE_PATH = __dirname;
 
-
 require('./Env');
-import FileLogger = require('../Modules/Shared/Log/FileLogger');
 
-//var logger = GetLogger("system");
+eval(LOG("Init"));
 
 process.on('uncaughtException', function (err) {
-    error(err);
-    error(err.stack);
-    FileLogger.uncaught(err.message, err.stack);
+    fatal(err);
+    fatal(err.stack);
 });
 var domain = require('domain').create();
 domain.on('error', function (err) {
-    error(err);
-    error(err.stack);
-    FileLogger.domainerr(err.message, err.stack);
+    fatal(err);
+    fatal(err.stack);
 });
 
 domain.run(function () {

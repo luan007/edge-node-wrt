@@ -1,4 +1,6 @@
-﻿import child_process = require("child_process");
+﻿eval(LOG("Common:Native:commands"));
+
+import child_process = require("child_process");
 import events = require("events");
 
 global.exec = function (cmd, ...args) {

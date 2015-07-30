@@ -1,4 +1,6 @@
-﻿import bluez = require('../../Common/Native/bluez');
+﻿eval(LOG("Device:Bus:BluetoothBus"));
+
+import bluez = require('../../Common/Native/bluez');
 import Bus = require("./Bus");
 import StatBiz = require('../../Common/Stat/StatBiz');
 

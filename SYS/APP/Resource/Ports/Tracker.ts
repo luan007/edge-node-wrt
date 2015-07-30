@@ -1,4 +1,6 @@
-﻿export interface PortStatus {
+﻿eval(LOG("APP:Resource:Ports:Tracker"));
+
+export interface PortStatus {
     Port: string;
     Priority: number;
     Stop: (cb: Callback) => any;

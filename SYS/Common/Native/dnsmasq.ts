@@ -1,4 +1,6 @@
-﻿var unix: any = require("unix-dgram");
+﻿eval(LOG("Common:Native:dnsmasq"));
+
+var unix: any = require("unix-dgram");
 import Process = require("./Process");
 import path = require("path");
 import child_process = require("child_process");

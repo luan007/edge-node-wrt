@@ -1,3 +1,5 @@
+eval(LOG("APP:Resource:AppConfig"));
+
 import ConfMgr = require('../../Common/Conf/ConfMgr');
 
 export function Set(moduleName:string, runtimeId:string, conf:any, cb){
