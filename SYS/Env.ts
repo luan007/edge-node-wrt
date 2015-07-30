@@ -10,7 +10,7 @@ require("./Common/Conf/Global");
 require('../Modules/Shared/use');
 require("../Modules/Shared/Sockets/SockPath");
 require("../Modules/Shared/Log/Prelaunch");
-//require("../Modules/Shared/Log/Logger");
+require("../Modules/Shared/Log/Logger");
 require("./API/FunctionExposer");
 require("./API/EventHub");
 require("./Common/Native/commands");

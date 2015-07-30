@@ -1,4 +1,6 @@
-﻿import rpc = require("../../Modules/RPC/index");
+﻿eval(LOG("API:EventHub"));
+
+import rpc = require("../../Modules/RPC/index");
 import pm = require("./Permission");
 import async = require("async");
 

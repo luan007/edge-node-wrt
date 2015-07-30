@@ -1,4 +1,6 @@
-﻿import net = require("net");
+﻿eval(LOG("API:Server"));
+
+import net = require("net");
 import fs = require("fs");
 import rpc = require("../../Modules/RPC/index");
 import APIManager = require('../../Modules/RPC/API/APIManager');

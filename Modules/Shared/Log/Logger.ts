@@ -20,11 +20,16 @@ import hook = require('./leHook');
         ]
     });
 
-    function __MODULE__(global, name: string, sw?: boolean){
-        var logger = GetLogger(name, sw);
-        for(var i in logger){
-            global[i] = logger[i];
+    function LOG(name: string, sw?: boolean){
+        var d = Math.random();
+        global[d] = GetLogger(name, sw);
+        var scheisse = "global['" + d + "']";
+       	var payload = "";
+        for(var t in global[d]){
+            payload += "var " + t + " = " + scheisse + "[\'" + t + "\'];";
         }
+        payload += "delete " + scheisse + ";";
+        return payload;
     }
 
     function GetLogger(moduleName:string, sw?:boolean) {
@@ -112,7 +117,7 @@ import hook = require('./leHook');
         }
     }
 
-    global.__MODULE__ = __MODULE__;
+    global.LOG = LOG;
     global.GetLogger = GetLogger;
     global.Turn = Turn;
 })();

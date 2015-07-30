@@ -7,3 +7,4 @@ declare function fatal(...args);
 
 declare function GetLogger(moduleName:string, sw?:boolean);
 declare function Turn(moduleName:string, sw?:boolean);
+declare function LOG(moduleName:string, sw?:boolean);

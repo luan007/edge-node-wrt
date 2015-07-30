@@ -1,4 +1,5 @@
 ﻿// This module creates closure for the raw API Manager (adding permission control)
+eval(LOG("API:FunctionExposer"));
 
 import rpc = require("../../Modules/RPC/index");
 import pm = require("./Permission");
@@ -19,7 +20,7 @@ function __API(func,
     //Generates a permission based closure
     var perm = pm.Encode(permission);
 
-    if (global.trace) {
+    if (trace) {
         trace("EXPOSE " + path);
     }
     //func._p = perm;
