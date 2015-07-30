@@ -1,3 +1,5 @@
+eval(LOG("Common:Runtime:Connectivity"));
+
 import net = require('net');
 import dns = require('dns');
 import http = require('http');

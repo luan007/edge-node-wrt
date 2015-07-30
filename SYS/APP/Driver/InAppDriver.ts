@@ -1,4 +1,6 @@
-﻿import _Runtime = require("../Runtime");
+﻿eval(LOG("APP:Driver:InAppDriver"));
+
+import _Runtime = require("../Runtime");
 import Runtime = _Runtime.Runtime;
 import StatBiz = require('../../Common/Stat/StatBiz');
 /*

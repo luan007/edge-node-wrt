@@ -1,4 +1,6 @@
-﻿var rsa:any = require("node-rsa");
+﻿eval(LOG("Common:Crypto:RSA"));
+
+var rsa:any = require("node-rsa");
 var forsake:any = require("forsake");
 import crypto = require('crypto');
 import fs = require("fs");

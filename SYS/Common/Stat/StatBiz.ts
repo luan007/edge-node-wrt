@@ -1,3 +1,5 @@
+eval(LOG("Common:Stat:StatBiz"));
+
 import StatMgr = require('./StatMgr');
 import Util = require("../Misc/Util");
 //export interface IDHCPLease {

@@ -1,3 +1,5 @@
+eval(LOG("Common:IO:fifo"));
+
 //holds all FIFO, releasing them automatically (ideal case)
 
 

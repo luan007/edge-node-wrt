@@ -1,4 +1,6 @@
-﻿import path = require("path");
+﻿eval(LOG("Common:Native:user"));
+
+import path = require("path");
 import child_process = require("child_process");
 import fs = require("fs");
 import net = require("net");

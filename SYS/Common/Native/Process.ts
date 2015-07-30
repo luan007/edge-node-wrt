@@ -1,4 +1,6 @@
-﻿import child_process = require("child_process");
+﻿eval(LOG("Common:Native:Process"));
+
+import child_process = require("child_process");
 import events = require("events");
 var _reg = {}; //name : .. mapping
 //keep track for future use..

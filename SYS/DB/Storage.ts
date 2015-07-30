@@ -1,4 +1,6 @@
-﻿import orm = require("orm");
+﻿eval(LOG("Common:DB:Storage"));
+
+import orm = require("orm");
 import fs = require("fs");
 import path = require("path");
 

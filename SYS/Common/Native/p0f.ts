@@ -1,3 +1,5 @@
+eval(LOG("Common:Native:p0f"));
+
 import util = require("util");
 import net = require("net");
 import child_process = require("child_process");

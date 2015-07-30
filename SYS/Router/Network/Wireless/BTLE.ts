@@ -1,3 +1,5 @@
+eval(LOG("Router:Network:Wireless:BTLE"));
+
 import _noble = require("../../../Common/Native/noble");
 import Noble = _noble.Noble;
 import NobleMessage = _noble.Emitter;

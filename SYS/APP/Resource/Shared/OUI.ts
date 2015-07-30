@@ -1,4 +1,6 @@
-﻿var level;
+﻿eval(LOG("APP:Resource:Shared:OUI"));
+
+var level;
 var db;
 import path = require("path");
 import fs = require("fs");

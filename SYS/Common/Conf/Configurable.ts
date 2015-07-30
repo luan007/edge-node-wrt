@@ -1,3 +1,5 @@
+eval(LOG("Common:Conf:Configurable"));
+
 import ConfMgr = require('./ConfMgr');
 import _Config = require('./Config');
 import Config = _Config.Config;

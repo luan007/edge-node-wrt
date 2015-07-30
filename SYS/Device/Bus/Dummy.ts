@@ -1,4 +1,6 @@
-﻿import Bus = require("./Bus");
+﻿eval(LOG("Device:Bus:Dummy"));
+
+import Bus = require("./Bus");
 
 class Dummy extends Bus {
 

@@ -1,4 +1,6 @@
-﻿/*TODO: This is so broken, total destruction IS needed*/
+﻿eval(LOG("Device:DriverManager"));
+
+/*TODO: This is so broken, total destruction IS needed*/
 import DeviceManager = require('./DeviceManager');
 import DB = require('./Graphd/DB');
 import events = require('events');

@@ -1,3 +1,5 @@
+eval(LOG("Common:Native:noble"));
+
 var child_process = require('child_process');
 var noble:any = require('noble');
 import events = require("events");

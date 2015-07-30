@@ -1,3 +1,5 @@
+eval(LOG("Router:Network:Firewall:Firewall"));
+
 import dns = require('dns');
 import ConfMgr = require('../../../Common/Conf/ConfMgr');
 import _Config = require('../../../Common/Conf/Config');

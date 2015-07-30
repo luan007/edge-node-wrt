@@ -1,3 +1,5 @@
+eval(LOG("APP:AppManager"));
+
 import _Runtime = require("./Runtime");
 import Runtime = _Runtime.Runtime;
 import RuntimePool = require('./RuntimePool');

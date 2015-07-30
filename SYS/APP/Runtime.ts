@@ -1,4 +1,5 @@
-﻿/*Encaps one App*/
+﻿eval(LOG("APP:Runtime"));
+
 import child_process = require('child_process');
 import fs = require('fs');
 import path = require('path');

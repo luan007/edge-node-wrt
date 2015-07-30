@@ -1,4 +1,6 @@
-﻿import _Application = require('../../DB/Models/Application');
+﻿eval(LOG("Debug:FakeData:Generator"));
+
+import _Application = require('../../DB/Models/Application');
 import Application = _Application.Application;
 require('../../Common/Remote/Client');
 

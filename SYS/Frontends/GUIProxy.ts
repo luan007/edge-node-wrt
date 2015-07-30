@@ -1,3 +1,5 @@
+eval(LOG("Frontends:GUIProxy"));
+
 import net = require('net');
 import fs = require('fs');
 import path = require('path');

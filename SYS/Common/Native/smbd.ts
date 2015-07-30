@@ -1,4 +1,6 @@
-﻿import fs = require("fs");
+﻿eval(LOG("Common:Native:smbd"));
+
+import fs = require("fs");
 import child_process = require("child_process");
 import Process = require("./Process");
 var _ = require("underscore");;

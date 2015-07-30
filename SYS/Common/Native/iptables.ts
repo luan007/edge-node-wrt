@@ -1,4 +1,6 @@
-﻿//TODO: Need rework to stay matched-up with recent iptable-updates :p
+﻿eval(LOG("Common:Native:iptables"));
+
+//TODO: Need rework to stay matched-up with recent iptable-updates :p
 
 
 /*

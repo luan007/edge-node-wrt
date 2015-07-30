@@ -1,3 +1,5 @@
+eval(LOG("Frontends:MsgManager"));
+
 import Message = require('../DB/Models/Message');
 import Storage = require('../DB/Storage');
 

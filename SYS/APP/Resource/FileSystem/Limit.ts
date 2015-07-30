@@ -1,4 +1,5 @@
-﻿
+﻿eval(LOG("APP:Resource:FileSystem:Limit"));
+
 export interface IQuotaOption {
     user?: string;
     group?: string;

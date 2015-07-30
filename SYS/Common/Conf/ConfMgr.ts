@@ -1,3 +1,5 @@
+eval(LOG("Common:Conf:ConfMgr"));
+
 import fs = require('fs');
 import path = require('path');
 import events = require('events');

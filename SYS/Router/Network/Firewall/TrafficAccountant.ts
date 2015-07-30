@@ -1,4 +1,6 @@
-﻿import ConfMgr = require('../../../Common/Conf/ConfMgr');
+﻿eval(LOG("Router:Network:Firewall:TrafficAccountant"));
+
+import ConfMgr = require('../../../Common/Conf/ConfMgr');
 import _Config = require('../../../Common/Conf/Config');
 import Config = _Config.Config;
 import _Configurable = require('../../../Common/Conf/Configurable');

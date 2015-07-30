@@ -1,4 +1,6 @@
-﻿import fs = require('fs');
+﻿eval(LOG("Common:Crypto:HashDir"));
+
+import fs = require('fs');
 import crypto = require('crypto');
 import path = require('path');
 

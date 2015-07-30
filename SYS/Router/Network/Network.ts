@@ -1,3 +1,5 @@
+eval(LOG("Router:Network:Network"));
+
 import iproute2 = require('../../Common/Native/iproute2');
 import ssdp = require('../../Common/Native/ssdp');
 import mdns = require('../../Common/Native/mdns_');
