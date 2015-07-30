@@ -26,7 +26,7 @@ app.get("/ao", (req, res)=>{
     res.json({a: "LAJI"});
 });
 
-app.get("/laji", (req, res: any) => {
+app.get("/\", (req, res: any) => {
    var d = resarr.push(res);
    res.on('close', function(){
        resarr[d] = undefined;
@@ -69,7 +69,6 @@ API.Stat.on('set', function(key, v, old, n) {
         }
         console.log(i);
         
-        
         console.log("/Share/Resource/Streaming/Airplay/" + i);
         console.log(fs.readdirSync("/Share/"));
         sock = net.connect("/Share/Resource/Streaming/Airplay/" + i);
@@ -83,7 +82,7 @@ API.Stat.on('set', function(key, v, old, n) {
            
             // output 
             bitRate: 128,
-            outSampleRate: 22050,
+            outSampleRate: 44100 / 2,
             mode: lame.STEREO // STEREO (default), JOINTSTEREO, DUALCHANNEL or MONO 
         });
         console.log("AIR STREAM GET **************");

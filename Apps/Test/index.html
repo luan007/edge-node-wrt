@@ -1,12 +1,245 @@
 <html>
-<head>
-	<title>
-		Airplay Web
-	</title>
+	<head>
+		<title>Edge / Airplay Web</title>
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-title" content="Edge.Wifi">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<meta name="format-detection" content="telephone=yes">
+		<meta name="mobile-web-app-capable" content="yes">
+		<link rel="apple-touch-icon" href="/custom_icon.png">
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"></meta>
+		<style>
+			body {
+			            padding:0;
+			            font-family:Helvetica, Opensans, Arial, sans-serif;
+			            font-weight:lighter;
+			            text-align: center;
+			            color:white;
+			            background: #2fafff;
+			            overflow: hidden;
+			        }
+			        
+			        body > div {
+			            position:absolute;
+			            margin:0;
+			            top:0;
+			            left:0;
+			            bottom:0;
+			            right:0;
+			            height: 100%;
+			            width: 100%;
+			            display:table;
+			            background: rgba(6,116,189,1);
+			            background: -moz-linear-gradient(top, rgba(6,116,189,1) 0%, rgba(36,189,189,1) 100%);
+			            background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(6,116,189,1)), color-stop(100%, rgba(36,189,189,1)));
+			            background: -webkit-linear-gradient(top, rgba(6,116,189,1) 0%, rgba(36,189,189,1) 100%);
+			            background: -o-linear-gradient(top, rgba(6,116,189,1) 0%, rgba(36,189,189,1) 100%);
+			            background: -ms-linear-gradient(top, rgba(6,116,189,1) 0%, rgba(36,189,189,1) 100%);
+			            background: linear-gradient(to bottom, rgba(6,116,189,1) 0%, rgba(36,189,189,1) 100%);
+			            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0674bd', endColorstr='#24bdbd', GradientType=0 );
+			         
+			        }
+			        body > div > div{
+			            display: table-cell;
+			            width: 100%;
+			            vertical-align: middle;
+			        }
+			        h1, h4 {
+			            font-weight:100;
+			            margin: 0;
+			            margin-bottom: 5px;
+			        }
+			        h4{
+			            opacity: 0.3;
+			            margin-bottom: 45px;
+			        }
+			        
+			        input[type='password'], input[type='text'] {
+			            color:white;
+			            font-size: 1.2em;
+			            display: block;
+			            margin: 0 auto;
+			            border: none;
+			            border-radius: 0;
+			            border-bottom: 1px solid rgba(255,255,255,0.1);
+			            background: transparent;
+			            margin-bottom: 10px;
+			            padding-top: 5px;
+			            font-weight: 100;
+			        }
+			        #submit{
+			            border-radius: 500em;
+			            border: 1px solid rgba(255,255,255,0.5);
+			            color:white;
+			            background: transparent;
+			            display: block;
+			            padding: 5px 20px;
+			            font-size: 1.1em;
+			            margin: 35px auto;
+			            font-weight: 100;
+			        }
+			        
+			        form{
+			            text-align: center;
+			        }
+			        
+			        svg {
+			            width: 70px;
+			            height: 70px;
+			            border-radius: 8888em;
+			            padding: 10px;
+			            background: white;
+			            display: block;
+			            margin: 0px auto;
+			            margin-bottom: 30px;
+			            margin-top: 40px;
+			            box-shadow: 0px 1px 2px rgba(0,0,0,0.1);
+			            
+			        }
+			        
+			        
+			        svg > * {
+			            fill: #2fafff;
+			            stroke: #2fafff;
+			            
+			        }
+			        
+			        ::-webkit-input-placeholder { /* WebKit browsers */
+			            color:    rgba(255,255,255,0.3);
+			            font-weight: 100;
+			        }
+			        :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+			            color:    rgba(255,255,255,0.3);
+			            font-weight: 100;
+			        }
+			        ::-moz-placeholder { /* Mozilla Firefox 19+ */
+			            color:     rgba(255,255,255,0.3);
+			            font-weight: 100;
+			        }
+			        :-ms-input-placeholder { /* Internet Explorer 10+ */
+			            color:     rgba(255,255,255,0.3);
+			            font-weight: 100;
+			        }
+			        
+			        
+			        @media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1024px)  {
+			            h4{
+			                margin-bottom: 45px;
+			            }
+			            input[type='password'], input[type='text'] {
+			                /* Remove First */
+			                -webkit-appearance: none;
+			                -moz-appearance: none;
+			                appearance: none;
+			            
+			                display:block;
+			                width: 100%;
+			                font-size: 1.3em;
+			                padding: 10px;
+			                border-bottom: 1px solid rgba(0,0,0,0.1);
+			                margin: 0;
+			                
+			            }
+			            #submit {
+			                /* Remove First */
+			                -webkit-appearance: none;
+			                -moz-appearance: none;
+			                appearance: none;
+			                display:block;
+			                width: 100%;
+			                font-size: 1.3em;
+			                padding: 20px;
+			                border: none;
+			                border-bottom: 1px solid rgba(0,0,0,0.1);
+			                margin: 0;
+			                border-radius:0;
+			            }
+			            svg {
+			                width: 80px;
+			                height: 80px;
+			                border-radius: 8888em;
+			                padding: 10px;
+			                background: white;
+			                display: block;
+			                margin: 0px auto;
+			                margin-bottom: 15px;
+			                margin-top: 20px;
+			            }
+			        }
+					
+					
+					.visualizer{
+						text-align: center;
+						font-size: 0;
+					}
+					
+					.visualizer > div{
+						display:inline-block;
+						width: 1px;
+						margin-right: 3px;
+						background: white;
+						height: 55px;
+					}
+					
+		</style>
+	</head>
 	<body>
-		<audio autoplay="true" controls="controls">
-			<source src="http://wifi.network/Test/laji" type="audio/mp3"/>
-		</audio>
+		<div>
+			<div>
+				<h1>Airplay</h1>
+				<h4>edge router</h1>
+				
+				<audio autoplay='true' controls="controls" style="visibility: hidden;">
+					<source src="http://wifi.network/Airplay/laji" type="audio/mp3" />
+				</audio>
+				<div class="visualizer">
+				</div>
+			</div>
+		</div>
+		
+		<script>
+			var splitter = 50;
+			var v = document.querySelector(".visualizer");
+			for(var i = 0; i < splitter; i++){
+				v.appendChild(document.createElement("div"));
+			}
+			var visualizer = document.querySelectorAll(".visualizer > div");
+			console.log("Loading");
+			var audio = document.getElementsByTagName("audio")[0];
+			var canvas = document.getElementsByTagName("canvas")[0];
+			var audioCtx = new AudioContext();
+			var source = audioCtx.createMediaElementSource(audio);
+			source.connect(audioCtx.destination);
+			var analyser = audioCtx.createAnalyser();
+			source.connect(analyser);
+			console.log("Loaded");
+			analyser.fftSize = 2048;
+			analyser.smoothingTimeConstant = 0.3;
+			var arr = new Uint8Array(analyser.frequencyBinCount);
+			var avgs = new Array(splitter);
+			var p = arr.length / splitter;
+			function Draw(){
+				analyser.getByteFrequencyData(arr);
+				avgs = new Array(splitter);
+				for(var t = 0; t < splitter; t++){
+					avgs[t] = 0;
+				}
+				for(var i = 0; i < arr.length; i++){
+					avgs[Math.floor(splitter - (i / p))] += arr[Math.floor(splitter - (i / p))];
+				}
+				for(var t = 0; t < splitter; t++){
+					avgs[t] = avgs[t] / p;
+					
+					visualizer[t].style.transform = "scale(1, " + avgs[t] / 255 + ")";
+					//visualizer[t].style.background = "rgb(" + Math.floor(avgs[t]) + "," +Math.floor(avgs[t]) + "," + Math.floor(avgs[t])  + ")";
+					visualizer[t].style.opacity = avgs[t] / 255;
+					
+				}
+				requestAnimationFrame(Draw);
+			}
+			Draw();
+			
+		</script>
 	</body>
-</head>
+
 </html>
