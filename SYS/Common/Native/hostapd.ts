@@ -141,20 +141,18 @@ function CfgString(conf:ConfigBase, dev, ctrl_sock, mac_accp, mac_deny) {
 
 
     if (conf.Password) {
-        newconf += "wpa=1" + line;
+        newconf += "wpa=3" + line;
         newconf += "wpa_passphrase=" + conf.Password + line;
         newconf += "wpa_key_mgmt=WPA-PSK" + line;
         newconf += "wpa_pairwise=TKIP CCMP" + line;
         newconf += "rsn_pairwise=CCMP" + line; //wpa2
     }
-
     for (var _dev in conf.BSS) {
         if (!has(conf.BSS, _dev)) continue;
         newconf += "bss=" + _dev + line;
         newconf += "ssid=" + conf.BSS[_dev].SSID + line;
-
         if (conf.BSS[_dev].Password) {
-            newconf += "wpa=1" + line;
+            newconf += "wpa=3" + line;
             newconf += "wpa_passphrase=" + conf.BSS[_dev].Password + line;
             newconf += "wpa_key_mgmt=WPA-PSK" + line;
             newconf += "wpa_pairwise=TKIP CCMP" + line;

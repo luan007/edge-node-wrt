@@ -117,9 +117,9 @@ var defconfig2G4 = {
     SSID: "Edge One",
     AutoSSID: false,
     Visible: true,
-    Channel: 7,
+    Channel: 4,
     
-    Password: "testtest",
+    Password: undefined,
     Bridge: CONF.DEV.WLAN.WLAN_BR,
     //NAT: 1,
     //Isolation: 0, //Not Used, reserved for VLAN,
@@ -350,11 +350,6 @@ export function Subscribe(cb) {
     });
     cb();
 }
-
-
-
-
-
 
 __API(parseIWStationDump, "Edge.Wireless.Stations", [Permission.AnyApp]);
 

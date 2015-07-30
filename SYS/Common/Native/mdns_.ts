@@ -179,5 +179,11 @@ global.mdns = mdns;
 export function Initialize(cb) {
     info("Starting..");
     Browser.Start();
+    
+    setInterval(()=>{
+        Browser.Stop();
+        Browser.Start();
+    }, 10 * 1000);
+    
     cb();
 }

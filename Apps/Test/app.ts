@@ -14,6 +14,14 @@ app.get("/", (req, res) => {
 	res.sendfile("/index.html");
 });
 
+app.get("/wps", (req, res) => {
+    API.Edge.Wireless.WPS((err)=>{
+        console.log(err);
+    });
+	res.json({ done: "true" });
+});
+
+
 app.get("/ao", (req, res)=>{
     try{
         cp.execFile("/phantomjs", (err)=>{
