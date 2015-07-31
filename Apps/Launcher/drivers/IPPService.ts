@@ -294,7 +294,7 @@ class IPPService implements IInAppDriver {
                                         return cb(err);
                                     }
                                     console.log('detected buffer mime', mime);
-                                    var supported = assumption['attributes']['printer.document-format-supported'];
+                                    var supported = assumption['attributes']['printer.ipp']['document-format-supported'];
                                     if ((Array.isArray(supported) && supported.indexOf(mime) === -1)
                                         || (typeof supported === 'string' && supported !== mime)) {
                                         return this.__blob2PDF(mime, data, (err, pdfFileName, imgFileName)=> {

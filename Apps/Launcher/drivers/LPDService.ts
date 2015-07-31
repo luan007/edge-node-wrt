@@ -26,7 +26,9 @@ class LPDService implements IInAppDriver {
             } else {
                 assump['model'] = printer.service.name;
             }
-            assump["printer.printer-kind"] = ["LPD"];
+            assump["printer.lpd"] = {
+                "kind": "LPD"
+            };
 
             return cb(null, {
                 classes: classes,

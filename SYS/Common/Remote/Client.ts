@@ -169,6 +169,12 @@ class _orbit {
         }), cb); //this is a one way trip though
     };
 
+    SyncDevices = (devs, cb)=>{
+        this.Post("Device/sync", Orbit.PKG(undefined, undefined, {
+            devs: devs
+        }), cb); //this is a one way trip though
+    };
+
     Login = (id, pass, deviceid, cb) => {
         this.Post("Ticket", Orbit.PKG(undefined, deviceid, {
             id: id,
