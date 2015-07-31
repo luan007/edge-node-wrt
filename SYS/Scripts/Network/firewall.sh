@@ -84,8 +84,8 @@ iptables -w -t nat -A PREROUTING -j nginx_proxy
 #iptables -w -t nat -A nginx_proxy -p tcp --dport 80 -j REDIRECT --to-ports 3378
 #iptables -w -t nat -A nginx_proxy -p tcp --dport 443 -j REDIRECT --to-ports 3128
 iptables -w -t nat -A nginx_proxy -d 192.168.66.0/24 -j RETURN
-iptables -w -t nat -A nginx_proxy -p tcp --dport 80 -j REDIRECT --to-ports 3378
-iptables -w -t nat -A nginx_proxy -p tcp --dport 443 -j REDIRECT --to-ports 3128
+iptables -w -t nat -A nginx_proxy -p tcp --dport 80 -o $DEV_WAN -j REDIRECT --to-ports 3378
+iptables -w -t nat -A nginx_proxy -p tcp --dport 443 -o $DEV_WAN -j REDIRECT --to-ports 3128
 
 
 iptables -w -t nat -A PREROUTING -j pre_sys

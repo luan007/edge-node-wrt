@@ -50,15 +50,15 @@ class Configuration extends Configurable {
                 if (!split.Process) {
                     split.Start(true);
                 }
-                exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '2', '-p', 'tcp', '--dport', '80', '-j', 'REDIRECT', '--to-ports', '3378');
-                exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '3', '-p', 'tcp', '--dport', '443', '-j', 'REDIRECT', '--to-ports', '3128');
+                exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '2', '-p', 'tcp', '--dport', '80', '-o', CONF.DEV.ETH.DEV_WAN, '-j', 'REDIRECT', '--to-ports', '3378');
+                exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '3', '-p', 'tcp', '--dport', '443', '-o', CONF.DEV.ETH.DEV_WAN, '-j', 'REDIRECT', '--to-ports', '3128');
             }
             else {
                 if (split.Process) {
                     split.Stop(true);
                 }
-                exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '2', '-p', 'tcp', '--dport', '80', '-j', 'RETURN');
-                exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '3', '-p', 'tcp', '--dport', '443', '-j', 'RETURN');
+                exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '2', '-p', 'tcp', '--dport', '80', '-o', CONF.DEV.ETH.DEV_WAN, '-j', 'RETURN');
+                exec(iptables, '-w', '-t', 'nat', '-R', 'nginx_proxy', '3', '-p', 'tcp', '--dport', '443', '-o', CONF.DEV.ETH.DEV_WAN, '-j', 'RETURN');
             }
         }
 

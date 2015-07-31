@@ -87,6 +87,24 @@
         },
         "stateChange": true
       }
+    },
+    "LPD": {
+      "Buses": ["WIFI"],
+      "Interest": {
+        "match": {
+          "bus": {
+            "data.MDNS.printer": { "$exists": true }
+          }
+        },
+        "change": {
+          "delta": {
+            "bus": {
+              "data.Lease": { "$exists": true }
+            }
+          }
+        },
+        "stateChange": true
+      }
     }
   }
 }
