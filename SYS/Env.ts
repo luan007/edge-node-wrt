@@ -1,3 +1,6 @@
+process.env.ROOT_PATH = __dirname;
+process.env.NODE_PATH = __dirname;
+
 global.LOG_VISIBLE = false;
 global.LOG_SEE_FATAL = true;
 global.LOG_SEE_ERROR = true;

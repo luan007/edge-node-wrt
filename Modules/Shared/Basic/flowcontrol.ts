@@ -240,6 +240,7 @@ global.hotswap = function (name, _safe_to_swap_now: (done: Function) => any) {
 
 var _job = {};
 var _task = {};
+var _task_with_cb = {};
 
 /*setInterval*/
 global.setJob = function (name, job, interval, ...args) {
@@ -274,6 +275,58 @@ global.clearTask = function (name) {
     }
     return false;
 };
+
+global.setTaskWithCb = function (name, task: (cb)=>any, timeout, ignoreIfRunning = false) {
+    if(_task_with_cb[name] && _task_with_cb[name].isRunning){
+        if(ignoreIfRunning){
+            return false;
+        } else {
+            return _task_with_cb[name].next = {
+                timeout: timeout,
+                task: task
+            };
+        }
+    }
+    clearTaskWithCb(name);
+    if(!_task_with_cb[name]){
+        _task_with_cb[name] = {
+            isRunning: false,
+            next: undefined,
+            timer: undefined
+        };
+    }
+    
+    
+    var wrapper:any = function(){
+        if(wrapper.guard) return; 
+        wrapper.guard = true;
+        clearTimeout(_task_with_cb[name].timer);
+        var q = _task_with_cb[name].next;
+        _task_with_cb[name] = undefined;
+        if(q){
+            setTaskWithCb(name, q.task, q.timeout, false);
+        }
+        
+    };
+    
+    var task_wrapper = function(cb){
+        _task_with_cb[name].isRunning = true;
+        return task(cb);
+    };
+    
+    _task_with_cb[name].timer = setTimeout(task_wrapper, timeout, wrapper);
+    return name;
+};
+
+global.clearTaskWithCb = function (name) {
+    if(_task_with_cb[name] && !_task_with_cb[name].isRunning){
+        clearTimeout(_task_with_cb[name].timer);
+        _task_with_cb[name] = undefined;
+        return true;
+    }
+    return false;
+};
+
 
 
 global.async = require("async");
