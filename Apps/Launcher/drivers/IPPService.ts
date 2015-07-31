@@ -208,6 +208,7 @@ class IPPService implements IInAppDriver {
                     ((_deviceId) => {
                         var printer = __printers[_deviceId];
                         self.__ippGetJobs(printer.ippUrl, 'completed', (err, jobs) => {
+                            if(err || !jobs) return;
                             if (jobs['job-attributes-tag']) {
                                 __printers[_deviceId]['doneJobs'] = jobs['job-attributes-tag'];
                                 (<any>self).Change(_deviceId, { // EMIT !!
@@ -218,6 +219,7 @@ class IPPService implements IInAppDriver {
                             }
                         });
                         self.__ippGetJobs(printer.ippUrl, 'not-completed', (err, jobs) => {
+                            if(err || !jobs) return;
                             if (jobs['job-attributes-tag']) {
                                 __printers[_deviceId]['queue'] = jobs['job-attributes-tag'];
                                 (<any>self).Change(_deviceId, { // EMIT !!
