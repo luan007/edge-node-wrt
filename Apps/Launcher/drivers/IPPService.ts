@@ -125,18 +125,19 @@ class IPPService implements IInAppDriver {
                         }
                     }
 
-                    var buf = {};
-                    for (var key in printerAttributesTag) { // copying
-                        //assump[k] = printerAttributesTag[key];
-                        buf[key] = printerAttributesTag[key];
-                        //if(typeof printerAttributesTag[key] !== 'string')
-                        //    buf[k]['datatype'] = typeof printerAttributesTag[key];
+                    //var buf = {};
+                    //console.log(printerAttributesTag);
+                    //for (var key in printerAttributesTag) { // copying
+                    //    //assump[k] = printerAttributesTag[key];
+                    //    buf[key] = printerAttributesTag[key];
+                    //    //if(typeof printerAttributesTag[key] !== 'string')
+                    //    //    buf[k]['datatype'] = typeof printerAttributesTag[key];
+                    //
+                    //}
+                    if(Object.keys(printerAttributesTag).length > 0)
+                        assump["printer.ipp"] = printerAttributesTag;
 
-                    }
-                    if(Object.keys(buf).length > 0)
-                        assump["printer.ipp"] = buf;
-
-                    //fs.writeFile('./Data/printer.schema.json', JSON.stringify(buf), (err)=> {
+                    //fs.writeFile('./Data/printer.schema.json', JSON.stringify(res), (err)=> {
                     //    if (err) console.log('write printer schema json err', err);
                     //});
                 }
