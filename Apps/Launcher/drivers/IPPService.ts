@@ -89,6 +89,7 @@ class IPPService implements IInAppDriver {
 
     private __analyzePrinter(dev, cb) {
         var printer = this.__ippPrinter(dev);
+        
         if (printer) {
             printer.execute("Get-Printer-Attributes", null, (err, res) => {
                 if (err) {
@@ -97,9 +98,24 @@ class IPPService implements IInAppDriver {
                 }
                 this.__printerJoin(dev, printer);
 
+                
                 var classes:KVSet = {'printer': ''};
                 var assump:KVSet = {};
                 var actions:KVSet = {};
+                
+                if(dev.bus.data.MDNS.ipp && dev.bus.data.MDNS.ipp.service){
+                    if(dev.bus.data.MDNS.ipp.service.txtRecord.usb_MFG){
+                        assump['vendor'] = dev.bus.data.MDNS.ipp.service.txtRecord.usb_MFG;
+                    }
+                    if(dev.bus.data.MDNS.ipp.service.txtRecord.product){
+                        assump['model'] = dev.bus.data.MDNS.ipp.service.txtRecord.product;
+                    }
+                    if(dev.bus.data.MDNS.ipp.service.txtRecord.ty){
+                        assump['model'] = dev.bus.data.MDNS.ipp.service.txtRecord.ty;
+                    }
+                }
+                
+                
                 var printerAttributesTag = res['printer-attributes-tag'];
                 if (printerAttributesTag) {
                     if (printerAttributesTag['printer-make-and-model']) {

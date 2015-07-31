@@ -2,7 +2,7 @@ eval(LOG("Router:Network:Network"));
 
 import iproute2 = require('../../Common/Native/iproute2');
 import ssdp = require('../../Common/Native/ssdp');
-import mdns = require('../../Common/Native/mdns_');
+import mdns = require('../../Common/Native/mdns');
 import NeighRecord = iproute2.NeighRecord;
 import LinkInterface = iproute2.LinkInterface;
 import ConfMgr = require('../../Common/Conf/ConfMgr');
@@ -275,9 +275,6 @@ export function Initialize(cb) {
             ssdp.Initialize(cb);
         },
         (cb)=> {
-            mdns.Initialize(cb);
-        },
-        (cb)=> {
             P0F.Initialize(cb);
         },
         (cb)=> {
@@ -318,18 +315,18 @@ export function Initialize(cb) {
         //pub.ssdp.Del(IP);
     });
 
-    mdns.Browser.on(mdns.Browser.EVENT_SERVICE_UP, (IP, service)=> {
+    mdns.Emitter.on("serviceUp", (IP, service)=> {
         var mdnsStatus = StatBiz.GetMDNSByIP(IP)
         if (mdnsStatus) {
             pub.mdns[IP].Set(service.type.name, {type: 'UP', service: service});
         }
     });
-    mdns.Browser.on(mdns.Browser.EVENT_SERVICE_DOWN, (IP, service)=> {
-        var mdnsStatus = StatBiz.GetMDNSByIP(IP)
-        if (mdnsStatus) {
-            pub.mdns[IP].set(service.type.name, {type: 'DOWN', service: service});
-        }
-    });
+    // mdns.Browser.on(mdns.Browser.EVENT_SERVICE_DOWN, (IP, service)=> {
+    //     var mdnsStatus = StatBiz.GetMDNSByIP(IP)
+    //     if (mdnsStatus) {
+    //         pub.mdns[IP].Set(service.type.name, {type: 'DOWN', service: service});
+    //     }
+    // });
 
     P0F.P0FInstance.on(P0F.P0FInstance.EVENT_DEVICE, (IP, description)=> {
         pub.p0f.Set(IP, description);
@@ -359,3 +356,6 @@ __API(CheckNameAvailability, 'Network.CheckNameAvailability', [Permission.Networ
 __API(SetDNSHostname, 'Network.SetDNSHostname', [Permission.Network]);
 
 
+SYS_ON(SYS_EVENT_TYPE.LOADED, function(){
+    mdns.Initialize(()=>{});
+});

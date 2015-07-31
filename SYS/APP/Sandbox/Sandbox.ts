@@ -148,6 +148,7 @@ function _jail(cb) {
     require("../../../Modules/Shared/use");
     global.SharedLibs = {};
     try{
+       console.log(path.join(_env.target_dir, 'package.json'));
        var pkgjson = require(path.join(_env.target_dir, 'package.json'));
        console.log(pkgjson);
        var deps = pkgjson.dependencies;

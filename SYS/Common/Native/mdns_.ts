@@ -1,4 +1,4 @@
-﻿eval(LOG("Common:Native:mdns"));
+﻿eval(LOG("Common:Native:mdns_old"));
 /*
 var mdns = require('mdns');
  

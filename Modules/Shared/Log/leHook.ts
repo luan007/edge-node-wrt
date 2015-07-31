@@ -5,7 +5,6 @@ var MAX_LOG_LEN = 30000;
 
 var events = require('events');
 global.LOGHOOK = new events.EventEmitter();
-global.LOG = data;
 
 export function Passthrough(name, stream){
 	console.log("****** HOOKING STREAM - " + name + " ******");

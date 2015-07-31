@@ -12,6 +12,7 @@ var USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/53
 class LPDService implements IInAppDriver {
 
     private __analyzePrinter(dev, cb) {
+        try{
         var printer = dev.bus.data.MDNS['printer'];
         if (printer && printer.type === 'UP' && printer.service.addresses && printer.service.port === 515) {
             var classes:KVSet = {'printer': ''};
@@ -19,13 +20,24 @@ class LPDService implements IInAppDriver {
             var actions:KVSet = {'print': ''};
 
             var printer = dev.bus.data.MDNS['printer'];
-            var parts = printer.service.name.split(' ');
+            var parts = printer.service.fullname.split(' ');
             if (parts.length > 1) {
                 assump['vendor'] = parts[0];
-                assump['model'] = printer.service.name.replace(assump['vendor'] + ' ', '');
+                //assump['model'] = printer.service.fullname.replace(assump['vendor'] + ' ', '');
             } else {
-                assump['model'] = printer.service.name;
+                assump['model'] = printer.service.fullname;
             }
+            
+            if(printer.service.txtRecord.usb_MFG){
+                assump['vendor'] = printer.service.txtRecord.usb_MFG;
+            }
+            if(printer.service.txtRecord.product){
+                assump['model'] = printer.service.txtRecord.product;
+            }
+            if(printer.service.txtRecord.ty){
+                assump['model'] = printer.service.txtRecord.ty;
+            }
+            
             assump["printer.lpd"] = {
                 "kind": "LPD"
             };
@@ -39,6 +51,10 @@ class LPDService implements IInAppDriver {
             });
         } else {
             return cb(new Error("Non-LPD device"));
+        }
+        }catch(e){
+            console.log(e);
+            return cb(e);
         }
     }
 

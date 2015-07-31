@@ -16,7 +16,6 @@ import hook = require('./leHook');
         return;
     }
     
-    hook.Passthrough('stderr', process.stderr);
 
     var log4js:any = require('log4js');
     //log4js.loadAppender('file');

@@ -4,7 +4,7 @@ import hook = require('./leHook');
 (() => {
     var ns:any = {};
     var delimiter = ":";
-
+    
     hook.Passthrough('stderr', process.stderr);
 
     var log4js:any = require('log4js');

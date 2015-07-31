@@ -114,10 +114,6 @@ function minAjax(config) {
 }
 
 
-
-
-
-
 function loaded() {
   window.Loaded = true;
   document.title = "[LOADED]";
@@ -129,8 +125,6 @@ if (document.all) {
 else {
   window.addEventListener('load', loaded, false);//firefox 
 } 
-
-
 
 
 var map = {

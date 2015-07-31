@@ -30,3 +30,4 @@ require("./Common/Runtime/Diagnostic");
 
 Turn("api:functionexposer", true);
 Turn("common:native:hostapd", true);
+Turn("Common:Native:mdns", true);
