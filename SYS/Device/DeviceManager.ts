@@ -279,7 +279,7 @@ export function Config(dev:IDevice, conf:any) {
 
 function _ondriverchange(dev:IDevice, drv:IDriver, assump:IDeviceAssumption) {
     device_updates[dev.id] = 1;
-    db_devices[dev.id].version = db_devices[dev.id].version + 1;
+    devices[dev.id].version = devices[dev.id].version + 1;
     not_saved = true;
 }
 
