@@ -25,5 +25,5 @@ require("./Common/IO/fifo");
 require("./Common/Events/SystemEvent");
 require("./Common/Runtime/Diagnostic");
 
-
 Turn("api:functionexposer", true);
+Turn("common:native:hostapd", true);

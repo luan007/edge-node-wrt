@@ -18,8 +18,7 @@ if (!global.EDGE) {
     });
 }
 else {
-    var OUI = require('./drivers/OUI/OUI');
-    OUI.Initialize(()=> { });
+    console.log("Within Edge..");
     fs.stat("/");
     //Clean Up
     if (fs.existsSync("/Data/sock")) {

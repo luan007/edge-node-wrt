@@ -343,7 +343,7 @@ export class CtrlInterface extends events.EventEmitter {
     private _exec = (cmd, callback) => {
         this._callback_atom = callback;
         var buf = new Buffer(cmd);
-        this._client.send(buf, 0, buf.length, this._loc);
+        this._client.send(buf, 0, buf.length, this.sock_loc);
     }
 
     public Destroy() {
@@ -361,6 +361,7 @@ export class CtrlInterface extends events.EventEmitter {
     private _onrawdata = (buf, rinfo) => {
         var data:string = buf.toString().trim();
         this._result_atom += data;
+        info('--> ', buf.toString());
         if (data.substr(0, 3) === "<3>") {
             if (this._prevevent !== data) {
                 //EVENT
@@ -403,12 +404,12 @@ export class CtrlInterface extends events.EventEmitter {
 
 
     private _guard = () => {
-        if (!this.Connected || this._concheck > 3) {
+        if (!this.Connected || this._concheck > 10) {
             if (this.Connected) {
                 this.emit(CtrlInterface.DISCONNECT);
                 clearInterval(this._gtimer);
                 this._gtimer = setInterval(this._guard, 500);
-                warn("Probe Offline - RECONNECTING...");
+                error("Probe Offline - RECONNECTING...");
                 this.Connected = false;
             }
             this._concheck = 0;
@@ -437,7 +438,7 @@ export class CtrlInterface extends events.EventEmitter {
                 client.send(attach, 0, attach.length, this.sock_loc);
                 this._client = client;
             } catch (e) {
-                warn("Ctrl Error.. ");
+                error("Ctrl Error.. ", e);
             }
 
         } else {
