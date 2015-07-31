@@ -27,7 +27,6 @@ if [ -e /SagittariusA/aquota.user ]; then rm -rf /SagittariusA/aquota.user ; fi
 echo QUOTACHECK.. This may take a while..
 quotacheck -ugcfm /SagittariusA/
 if [ -e /SagittariusA/aquota.group ]; then echo Quota Generated! ; fi
-if [ -e /SagittariusA/aquota.group ]; then echo Quota Generated! ; fi
 
 
 ####users
