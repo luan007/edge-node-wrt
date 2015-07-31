@@ -16,7 +16,6 @@ import _ITicket = require('../DB/Models/Ticket');
 import ITicket = _ITicket.ITicket;
 import Ticket = _ITicket.Ticket;
 import StatBiz = require('../Common/Stat/StatBiz');
-import TokenManager = require('../API/TokenManager');
 
 export var DB_UserList:IDic<IUser> = {};
 export var DB_Ticket:IDic<ITicket> = {};
@@ -91,6 +90,15 @@ export function PinLogin(pin: string,
     return callback(new Error("Wrong Pin"));
 }
 
+function __uploadDevice (devId, cb) {
+    var db_devices = DeviceManager.DB_Devices;
+    if (!has(db_devices, devId)) {
+        process.nextTick(cb.bind(null, new Error("Device not found")));
+    }
+    info('< --------- < Upload to orbit, dev', devId);
+    Orbit.UploadDevice(devId, db_devices[devId].busname, db_devices[devId].hwaddr, db_devices[devId], cb);
+}
+
 export function Login(identity:string,
                       password:string,
                       deviceid:string,
@@ -101,7 +109,7 @@ export function Login(identity:string,
     }), (err, result) => {
         if (err) {
             if (err.code == ErrorCode.DEVICE_NOT_FOUND && !callback["retry"]) {
-                DeviceManager.OrbitSync(deviceid, (err, result) => {
+                __uploadDevice(deviceid, (err, result) => {
                     if (err) {
                         error(err);
                         return callback(err);
@@ -226,6 +234,57 @@ function getUser(userId) {
     return DB_UserList[userId];
 }
 
+export function UpgradeVersion(userid:string, cb){
+    User.table().one({uid:userid}, (err, user)=>{
+        if(err) return cb(err);
+        user.version = user.version + 1;
+        return user.save(cb);
+    });
+}
+
+export function SyncUser(userid:string, cb) {
+    var user = DB_UserList[userid];
+    var pkg = Orbit.PKG(undefined, undefined, JSON.parse(JSON.stringify(user)));
+
+    Orbit.Post('User/sync', pkg, (err, orbitResult)=> {
+        if (err) return cb(err);
+        if (orbitResult.state === 'OK') return cb();
+        if (orbitResult.state === 'DOWN') {
+            if (orbitResult.avatar_diff) {
+                Orbit.Download('User/avatar/download/' + orbitResult.entity.avatar, {uid: user.uid,}, (err, stream)=> {
+                    if (!fs.existsSync(CONF.AVATAR_PATH))
+                        fs.mkdirSync(CONF.AVATAR_PATH);
+
+                    var avatarPath = path.join(CONF.AVATAR_PATH, orbitResult.entity.avatar);
+                    var wstream = fs.createWriteStream(avatarPath);
+                    stream.pipe(wstream);
+                    stream.on('end', ()=> {
+                        user.avatar = orbitResult.entity.avatar;
+                        user.version = orbitResult.entity.version;
+                        user.save();
+                        var oldAvatarPath = path.join(CONF.AVATAR_PATH, user.avatar);
+                        fs.unlink(oldAvatarPath);
+                    });
+                    stream.on('error', console.log);
+                });
+            }
+            return cb();
+        } else if (orbitResult.state === 'UP') {
+            if (orbitResult.avatar_diff) {
+                if (!fs.existsSync(CONF.AVATAR_PATH)) fs.mkdirSync(CONF.AVATAR_PATH);
+                var avatarPath = path.join(CONF.AVATAR_PATH, user.avatar);
+                fs.readFile(avatarPath, (err, avatar_data)=> {
+                    if (err) return cb(err);
+                    Orbit.Post('User/avatar/upload/' + orbitResult.entity.avatar
+                        , Orbit.PKG(undefined, {uid: user.uid, version: user.version, avatar_data: avatar_data})
+                        , cb);
+                });
+            }
+            return cb();
+        }
+    });
+}
+
 export function UserAppear(userid:string,
                            ticket:string,
                            device:string,
@@ -261,9 +320,17 @@ export function UserAppear(userid:string,
                 info("USER " + _u.name.bold + " CREATED");
                 callback(null, usr);
             });
-            Orbit.Download('User/avatar/' + _u.avatar, {}, (err, data)=> {
-                // TODO: store avatar data from orbit
+            Orbit.Download('User/avatar/download/' + _u.avatar, {}, (err, data)=> {
+                if(!fs.existsSync(CONF.AVATAR_PATH))
+                    fs.mkdirSync(CONF.AVATAR_PATH);
+
+                var avatarFileName = path.join(CONF.AVATAR_PATH, _u.avatar);
+                fs.writeFile(avatarFileName, data);
             });
+        });
+    } else {
+        SyncUser(userid, ()=>{
+            console.log("< ======= > USER " + userid + " SYNC was completed.");
         });
     }
     if (!ath) {
@@ -287,45 +354,7 @@ export function UserAppear(userid:string,
 
 }
 
-export function SyncUser(userid:string, devid:string, cb) {//TODO: need testsing
-    var user = DB_UserList[userid];
-    var pkg = Orbit.PKG(undefined, devid, JSON.parse(JSON.stringify(user)));
 
-    Orbit.Post('User/sync', pkg, (err, orbitResult)=> {
-        if (err) return cb(err);
-        if (orbitResult.state === 'OK') return cb();
-        if (orbitResult.state === 'DOWN') {
-            if (orbitResult.avatar_diff) {
-                Orbit.Download('User/avatar/download/' + orbitResult.entity.avatar, {uid:user.uid,}, (err, stream)=> {
-                    var avatarPath = path.join(CONF.AVATAR_PATH, orbitResult.entity.avatar);
-                    var wstream = fs.createWriteStream(avatarPath);
-                    stream.pipe(wstream);
-                    stream.on('end', ()=>{
-                        user.avatar = orbitResult.entity.avatar;
-                        user.version = orbitResult.entity.version;
-                        user.save();
-                        var oldAvatarPath = path.join(CONF.AVATAR_PATH, user.avatar);
-                        fs.unlink(oldAvatarPath);
-                    });
-                    stream.on('error', console.log);
-                });
-            }
-            return cb();
-        } else if (orbitResult.state === 'UP') {
-            if (orbitResult.avatar_diff) {
-                if (!fs.existsSync(CONF.AVATAR_PATH)) fs.mkdirSync(CONF.AVATAR_PATH);
-                var avatarPath = path.join(CONF.AVATAR_PATH, user.avatar);
-                fs.readFile(avatarPath, (err, avatar_data)=> {
-                    if(err) return cb(err);
-                    Orbit.Post('User/avatar/upload/' + orbitResult.entity.avatar
-                        , Orbit.PKG(undefined, devid, { uid:user.uid, version: user.version, avatar_data: avatar_data })
-                        , cb);
-                });
-            }
-            return cb();
-        }
-    });
-}
 
 export function LoadFromDB() {
     trace("Load Users");

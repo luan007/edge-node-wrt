@@ -19,7 +19,8 @@ export class Device {
     config: string = "";
     ownership: string = "";
     thirdparty: string = "";
-    
+    version:number = 0;     // incremental ==> += 1
+
     static table(): orm.Typed.TypedModel<IDevice> {
         if (!Table) {
             Table = <any>store.DefineTable("Device", Device, { id: ["uid"] });

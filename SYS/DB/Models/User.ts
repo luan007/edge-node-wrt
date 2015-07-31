@@ -11,7 +11,7 @@ export class User {
     name: string = "";
     //data: KVSet = {};
     data: string = "";
-    version: number = 0;    // unix timestamp / new Date().getTime()
+    version: number = 0;    // incremental ==> += 1
     avatar:string = "";     // uuid
     lastSeen: Date = new Date();
     thirdparty: string = "";

@@ -18,6 +18,7 @@ var hwaddr_map:IDic<KVSet> = {}; // <Bus<HWAddr>>
 var device_updates:KVSet = {};
 
 export var DB_Devices = db_devices;
+export var Device_Updates = device_updates;
 
 export var Events = new events.EventEmitter();
 
@@ -275,18 +276,7 @@ export function Config(dev:IDevice, conf:any) {
 
 function _ondriverchange(dev:IDevice, drv:IDriver, assump:IDeviceAssumption) {
     device_updates[dev.id] = 1;
-    //TODO: Check if we really need this ***NEED TEST***
-    //if (assump) {
-    //    //if (assump.driverId === 'App_DriverApp:P0F') {
-    //    //    console.log('4.5  _ondriverchange  <<< ==========', assump);
-    //    //}
-    //
-    //
-    //    if (!devices[dev.id].assumptions) devices[dev.id].assumptions = {};
-    //    delta_add_return_changes(devices[dev.id].assumptions[drv.id()], assump, true);
-    //
-    //    //devices[dev.id].assumptions[drv.id()] = assump;
-    //}
+    db_devices[dev.id].version = db_devices[dev.id].version + 1;
     not_saved = true;
 }
 
@@ -313,8 +303,45 @@ function _OnDrop(bus:IBusData) {
     } else {
         warn("DEVICE NOT FOUND");
     }
+}
 
+export function SyncDevice(cb) {
+    var devs = JSON.parse(JSON.stringify(db_devices));
+    Orbit.SyncDevices(devs, (err, orbitResult)=> {
+        if (err) return cb(err);
+        if (orbitResult.result && orbitResult.result.length > 0) {
+            var jobs = [];
+            for (var i = 0, len = orbitResult.result.length; i < len; i++) {
+                ((i)=> {
+                    jobs.push((cb)=> {
+                        var fresh = orbitResult.result[i];
+                        db_devices[fresh.devId].version = fresh.entity.version;
+                        db_devices[fresh.devId].assumptions = fresh.entity.assumptions;
+                        db_devices[fresh.devId].busdata = fresh.entity.busdata;
+                        db_devices[fresh.devId].config = fresh.entity.config;
+                        db_devices[fresh.devId].ownership = fresh.entity.ownership;
+                        db_devices[fresh.devId].thirdparty = fresh.entity.thirdparty;
+                        db_devices[fresh.devId].save(()=>{ return cb(); });
+                    });
+                })(i);
+            }
+            async.series(jobs, cb);
+        }
+        else
+            return cb();
+    });
+}
 
+function OrbitSyncDevice() {
+    UntilPingSuccess((err) => {
+        if (!err) {
+            SyncDevice((err)=> {
+                if (err) error(err);
+                else console.log("device Orbit SYNC was completed.", Object.keys(db_devices).length);
+                setTask('OrbitDeviceSYNC', OrbitSyncDevice, CONF.DEVICE_SYNC_INTERVAL);
+            });
+        }
+    });
 }
 
 export function Initialize(cb) {
@@ -324,6 +351,7 @@ export function Initialize(cb) {
         setJob("DEVDB", _patrolThread, CONF.DEVICE_SAVE_INTERVAL);
         DriverManager.Events.on("change", _ondriverchange);
         info("UP");
+        setTask('OrbitDeviceSYNC', OrbitSyncDevice, CONF.DEVICE_SYNC_INTERVAL);
         cb();
     });
 }
@@ -362,15 +390,6 @@ export function GetDevIdByHWAddr(mac):string {
         }
     }
     return undefined;
-}
-
-//this method is about to be removed
-export function OrbitSync(devId, cb) {
-    if (!has(db_devices, devId)) {
-        process.nextTick(cb.bind(null, new Error("Device not found")));
-    }
-    info('==========<<< SYNC to orbit, dev', devId);
-    Orbit.UploadDevice(devId, db_devices[devId].busname, db_devices[devId].hwaddr, db_devices[devId], cb);
 }
 
 export function List(ops:{
@@ -435,8 +454,8 @@ export function SetOwnership(devId, ownership) {
     }
 }
 
-function GetCurrentDevice(cb){
-    if(this.deviceid) {
+function GetCurrentDevice(cb) {
+    if (this.deviceid) {
         var device = Get(this.deviceid);
         if (device)
             return cb(undefined, cookdev(device));
@@ -444,31 +463,31 @@ function GetCurrentDevice(cb){
     return cb(new Error('no such device'));
 }
 
-function cooklist(dev_s){
-    if(!dev_s) return dev_s;
+function cooklist(dev_s) {
+    if (!dev_s) return dev_s;
     var t = {};
-    
-    for(var i in dev_s){
+
+    for (var i in dev_s) {
         t[i] = cookdev(dev_s[i]);
     }
     return t;
 }
 
 
-function cookdev(dev){
-    if(!dev) return;
+function cookdev(dev) {
+    if (!dev) return;
     var q = JSON.parse(JSON.stringify(dev));
-    for(var drv in q.assumptions) {
+    for (var drv in q.assumptions) {
         var a = q.assumptions[drv];
-        if(!a.valid) continue;
-        for(var key in a) {
-            if(key === "driverId") continue;
-            if(!q[key]){
+        if (!a.valid) continue;
+        for (var key in a) {
+            if (key === "driverId") continue;
+            if (!q[key]) {
                 q[key] = {};
             }
             var subkey = a[key];
-            for(var k in subkey){
-                if(!q[key][k]){
+            for (var k in subkey) {
+                if (!q[key][k]) {
                     q[key][k] = {};
                 }
                 q[key][k][drv] = subkey[k];
@@ -478,7 +497,6 @@ function cookdev(dev){
     }
     return q;
 }
-
 
 
 __EVENT("Device.down", [Permission.DeviceAccess]);
