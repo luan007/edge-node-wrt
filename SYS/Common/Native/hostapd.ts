@@ -367,8 +367,13 @@ export class CtrlInterface extends events.EventEmitter {
                 var d = data.substr(3).split(' ');
                 if(d.length > 1){
                     this._prevevent = data;
-                    console.log('_________________ hostapd data', data);
+                    info('hostapd data', data);
                     this.emit(CtrlInterface.EVENT, d[0], d[1].toLowerCase());
+                }
+                else if(d.length > 0){
+                    this._prevevent = data;
+                    info('hostapd data', data);
+                    this.emit(CtrlInterface.EVENT, d[0]);
                 }
             }
         }
@@ -418,15 +423,16 @@ export class CtrlInterface extends events.EventEmitter {
             delete this._client;
             //try to (re)establish connection
             try {
-                var unix:any = require("unix-dgram");
+                var unix = require("unix-dgram");
                 var attach = new Buffer('ATTACH');
-                var client:any = unix.createSocket('unix_dgram', this._onrawdata);
+                var client = unix.createSocket('unix_dgram', this._onrawdata);
                 //clean up a bit
                 if (fs.existsSync(this._loc)) {
                     fs.unlinkSync(this._loc);
                 }
                 client.bind(this._loc);
-                client.on('error', () => { /*swallow*/
+                client.on('error', (e) => { /*swallow*/
+                    error("HOSTAPD_ERROR:" + e);
                 });
                 client.send(attach, 0, attach.length, this.sock_loc);
                 this._client = client;

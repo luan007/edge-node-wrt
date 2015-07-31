@@ -1,3 +1,6 @@
+global.LOG_VISIBLE = false;
+global.LOG_SEE_FATAL = true;
+global.LOG_SEE_ERROR = true;
 global.path = require("path");
 global.http = require("http");
 global.fs = require("fs");
@@ -21,3 +24,6 @@ require("./Common/Crypto/RSA");
 require("./Common/IO/fifo");
 require("./Common/Events/SystemEvent");
 require("./Common/Runtime/Diagnostic");
+
+
+Turn("api:functionexposer", true);

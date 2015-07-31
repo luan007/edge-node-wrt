@@ -101,7 +101,7 @@ domain.run(function () {
             }
         })(i);
     }
-
+    
     cleanups.push((cb) => {
         ClearDiagnostic();
         ClearRuntimePID();

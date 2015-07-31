@@ -13,6 +13,7 @@ interface _Function_With_Permission_Token extends Function {
     _p: any[];
 }
 
+
 function __API(func,
                path:string,
                permission?:Permission[],

@@ -34,8 +34,9 @@ import hook = require('./leHook');
 
     function GetLogger(moduleName:string, sw?:boolean) {
         moduleName = moduleName.toLowerCase();
-        if (sw === undefined) sw = true;
-        Turn(moduleName, sw);
+        if (sw === undefined) sw = !!global.LOG_VISIBLE;
+        
+        Turn(moduleName, sw, true);
 
         var logger:any = {};
 
@@ -56,7 +57,7 @@ import hook = require('./leHook');
         };
 
         logger.fatal = (...args) => {
-            if (__isOn(moduleName)) {
+            if (__isOn(moduleName) || global.LOG_SEE_FATAL) {
                 var logger = log4js.getLogger(moduleName);
                 logger.fatal.apply(logger, args);
                 hook.DoLog('fatal', args.toString());
@@ -74,7 +75,7 @@ import hook = require('./leHook');
         };
 
         logger.error = (...args) => {
-            if (__isOn(moduleName)) {
+            if (__isOn(moduleName) || global.LOG_SEE_ERROR) {
                 var logger = log4js.getLogger(moduleName);
                 logger.error.apply(logger, args);
 
@@ -106,14 +107,18 @@ import hook = require('./leHook');
         return true;
     }
 
-    function Turn(moduleName:string, sw?:boolean) {
+    function Turn(moduleName:string, sw: boolean, pretend?) {
         var nodes = moduleName.toLowerCase().split(delimiter);
         var cur = ns;
         for (var i = 0, len = nodes.length; i < len; i++) {
             var n = nodes[i];
             if (!cur[n]) cur[n] = {};
             cur = cur[n];
-            if (i === len - 1) cur.sw = !!sw;
+            if (i === len - 1) {
+                if (!pretend || cur.sw === undefined) {
+                    cur.sw = sw;
+                }
+            }
         }
     }
 
