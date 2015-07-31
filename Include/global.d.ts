@@ -68,6 +68,7 @@ interface IDevice {
     state: number;
     time: Date;
     owner: string;
+    version: number;
 }
 
 interface IDeviceAssumption {
