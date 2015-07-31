@@ -133,6 +133,10 @@ function _update_driver_data(drv:IDriver, dev:IDevice, assump:IDeviceAssumption,
     if (!drv || !drv.status() || !dev || !Drivers[drv.id()]) return;
     _assumption_check(assump, (err) => {
         if (err) {
+            DB.GraphdUpdateTask((err)=>{
+                if(err) return error(err);
+                return trace("graphd SYNC DONE.");
+            }, 0);
             return console.log(err.message['red']);
 
         } else {

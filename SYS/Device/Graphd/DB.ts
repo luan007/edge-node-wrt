@@ -256,14 +256,20 @@ function GetGraphdVersion(callback:Callback) {
     });
 }
 
-function CheckGraphdUpdate() {
+function CheckGraphdUpdate(taskCB) {
     UntilPingSuccess((err) => {
         if (!err) {
             GetGraphdVersion((err, numericDate)=> {
-                if (err) return error(err);
+                if (err) {
+                    error(err);
+                    return taskCB(err);
+                }
 
                 Graphd.table().one({name: 'graphd'}, (err, graphd)=> {
-                    if (err) return error(err);
+                    if (err) {
+                        error(err);
+                        return taskCB(err);
+                    }
 
                     var needDownload = false;
                     if (!graphd) {
@@ -286,19 +292,24 @@ function CheckGraphdUpdate() {
                             });
                         });
                     }
-                    jobs.push((jobCB)=> {
-                        setTask('GraphdChecking', CheckGraphdUpdate, CONF.GRAPHD_CHECK_INTERVAL);
-                        jobCB();
-                    })
-                    async.series(jobs, ()=> {
+                    async.series(jobs, ()=>{
+                        taskCB();
+                        GraphdUpdateTask(()=>{ });
                     });
                 });
             });
         }
         else {
-            setTask('GraphdChecking', CheckGraphdUpdate, CONF.GRAPHD_CHECK_INTERVAL);
+            GraphdUpdateTask(taskCB);
         }
     });
+}
+
+export function GraphdUpdateTask(cb, time?:number){
+    setTaskWithCb('GraphdChecking', ()=>{
+        CheckGraphdUpdate(cb);
+    }, time ? time : CONF.GRAPHD_CHECK_INTERVAL, true);
+    cb();
 }
 
 export function Initialize(cb) {
@@ -320,7 +331,7 @@ export function Initialize(cb) {
             console.log('ping Orbit success: ', res);
             DownloadGraphd((err2)=> {
                 if (err2) {
-                    return CheckGraphdUpdate();
+                    return CheckGraphdUpdate(()=>{});
                 }
 
                 pub.Set('graphd', {
@@ -330,7 +341,7 @@ export function Initialize(cb) {
             });
         });
     }
-    setTask('GraphdChecking', CheckGraphdUpdate, CONF.GRAPHD_CHECK_INTERVAL);
+    GraphdUpdateTask(()=>{ });
     cb();
 }
 

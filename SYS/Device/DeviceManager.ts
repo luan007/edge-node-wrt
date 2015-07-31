@@ -47,7 +47,8 @@ function LoadFromDB(callback:Callback) {
                         id: dev.uid,
                         //state: dev.state,
                         state: 0,
-                        time: dev.time
+                        time: dev.time,
+                        version: dev.version
                     };
                     total++;
                     devices[dev.uid] = d;
@@ -100,6 +101,7 @@ function SaveToDB(callback:Callback) {
                 devtmp.assumptions = JSON.stringify(dev.assumptions);
                 devtmp.uid = dev.id;
                 devtmp.config = JSON.stringify(dev.config);
+                devtmp.version = dev.version;
                 (function (id, devtmp) { // closure
                     jobs.push((cb) => {
                         trace("CREATE DBENTRY " + id);
@@ -137,6 +139,7 @@ function SaveToDB(callback:Callback) {
                                 dbDev.state = devInMemory.state;
                                 dbDev.assumptions = JSON.stringify(devInMemory.assumptions);
                                 dbDev.config = JSON.stringify(devInMemory.config);
+                                dbDev.version = devInMemory.version;
                                 dbDev.save({}, (err) => {
 
                                     if (!err) {
