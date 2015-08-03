@@ -315,7 +315,7 @@ function StartRuntime(app_uid) {
             exec.bind(null, "chown", "-R", runtime.RuntimeId, AppManager.GetAppDataLn(runtime.App.uid)),
             exec.bind(null, "chmod", "-R", "0755", AppManager.GetAppDataLn(runtime.App.uid)), //TODO: FIX THIS CHMOD 711 -> 701
             exec.bind(null, "chmod", "-R", "0755", path.join(AppManager.GetAppRootPath(runtime.App.uid), 'Share')), //TODO: FIX THIS CHMOD 711 -> 701
-            exec.bind(null, "chmod", "-R", "0766", path.join(AppManager.GetAppRootPath(runtime.App.uid), 'Share/Resource/Assets')) //TODO: FIX THIS CHMOD 711 -> 701
+            exec.bind(null, "chmod", "-R", "0777", path.join(AppManager.GetAppRootPath(runtime.App.uid), 'Share/Resource/Assets')) //TODO: FIX THIS CHMOD 711 -> 701
         ], (e, r) => {
             if (e) {
                 error(e);
