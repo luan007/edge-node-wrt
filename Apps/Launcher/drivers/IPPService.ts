@@ -179,7 +179,7 @@ class IPPService implements IInAppDriver {
         for (var i = 0, len = urls.length; i < len; i++) {
             ((i)=> {
                 var baseName = this.__iconFilename(urls[i], dev);
-                var fileName = path.join('/Share/Resource', baseName);
+                var fileName = path.join('/Share/Resource/Assets', baseName);
                 if (!fs.existsSync(fileName)) {
                     jobs.push((stepCb)=> {
                         request(urls[i]).pipe(fs.createWriteStream(fileName))
