@@ -63,7 +63,7 @@ declare function clearJob(name);
 declare function setTask(name, job, timeout, ...args);
 declare function clearTask(name);
 
-declare function setTaskWithCb(name, task: (cb)=>any, timeout, ignoreIfRunning?);
+declare function setTaskWithCb(name, task: (cb)=>any, timeout, realCb: Function, ignoreIfRunning?);
 declare function clearTaskWithCb(name);
 
 declare function emitterizeCb(_this: any, job, ...args);

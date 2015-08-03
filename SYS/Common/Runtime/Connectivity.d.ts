@@ -1,1 +1,1 @@
-declare function UntilPingSuccess(callback:Callback);
+declare function UntilPingSuccess(callback:(err, result)=>any);

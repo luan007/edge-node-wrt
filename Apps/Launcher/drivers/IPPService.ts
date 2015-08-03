@@ -156,6 +156,9 @@ class IPPService implements IInAppDriver {
                 }
 
                 async.series(jobs, ()=> {
+                    
+                    console.log(assump);
+                    
                     return cb(null, {
                         classes: classes,
                         actions: actions,
@@ -192,6 +195,9 @@ class IPPService implements IInAppDriver {
                                 stepCb();
                             });
                     });
+                } else if (!assump['images'] || assump['images'].indexOf(baseName) < 0){
+                     assump['images'] = assump['images'] || [];
+                     assump['images'].push(baseName);
                 }
             })(i);
         }

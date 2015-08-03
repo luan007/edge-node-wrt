@@ -8,8 +8,8 @@ import StatBiz = require('../Common/Stat/StatBiz');
 
 import RuntimePool = require('../APP/RuntimePool');
 
-var Drivers:IDic<IDriver> = {};
-var Drivers_BusMapping:IDic<IDic<IDriver>> = {};
+var Drivers: IDic<IDriver> = {};
+var Drivers_BusMapping: IDic<IDic<IDriver>> = {};
 var InterestCache = {};
 
 export var Events = new events.EventEmitter();
@@ -21,7 +21,31 @@ export function InvalidateDrvInterest(drvId) {
     delete InterestCache[drvId];
 }
 
-export function LoadDriver(drv:IDriver, cb) {
+export function ForceProbe(drv: IDriver) {
+    var devs = DeviceManager.Devices();
+    var buses = drv.bus();
+    for (var q in devs) {
+        if (buses.indexOf(devs[q].bus.name) > -1 && devs[q].state > 0) {
+            _notify_driver(drv, devs[q], {
+                depth: 1,
+                root: drv.id(),
+                parent: undefined
+            }, undefined, undefined, undefined, undefined, true); //fixing 'slow resp driver' prob
+        }
+    }
+}
+
+export function ForceProbeAll() {
+    setTask("FORCEPROBE", ()=>{
+        trace("Force Probing...");
+        var drvs = Drivers;
+        for(var i in drvs){
+            ForceProbe(drvs[i]);
+        }
+    }, 1000);
+}
+
+export function LoadDriver(drv: IDriver, cb) {
     if (drv /* && !has(Drivers, drv.id())*/) {
         var reload = false;
         if (!has(Drivers, drv.id())) {
@@ -52,16 +76,9 @@ export function LoadDriver(drv:IDriver, cb) {
             } else {
                 __EMIT("Driver.up", drv.id());
             }
-            var devs = DeviceManager.Devices();
-            for (var q in devs) {
-                if (buses.indexOf(devs[q].bus.name) > -1 && devs[q].state > 0) {
-                    _notify_driver(drv, devs[q], {
-                        depth: 1,
-                        root: drv.id(),
-                        parent: undefined
-                    }, undefined, undefined, undefined, undefined, true); //fixing 'slow resp driver' prob
-                }
-            }
+            
+            ForceProbe(drv);
+
             cb(err);
         });
     }
@@ -73,15 +90,15 @@ interface _tracker {
     root?: string;
 }
 
-function _sanity_check(ver, dev:IDevice, drv:IDriver, err = false) {
+function _sanity_check(ver, dev: IDevice, drv: IDriver, err = false) {
     return drv.status() && dev.time.getTime() - ver == 0 && !err;
 }
 
-function _assumption_check(delta:IDeviceAssumption, callback:Callback) {
+function _assumption_check(delta: IDeviceAssumption, callback: Callback) {
     if (delta) {
         var jobs = [];
-        jobs.push((cb)=> { // check for class
-            DB.QueryType(0, (err, classes)=> {
+        jobs.push((cb) => { // check for class
+            DB.QueryType(0, (err, classes) => {
                 if (err) return cb(err);
                 else {
                     for (var klass in delta.classes) { // key only
@@ -93,8 +110,8 @@ function _assumption_check(delta:IDeviceAssumption, callback:Callback) {
                 }
             });
         });
-        jobs.push((cb)=> { // check for action
-            DB.QueryType(2, (err, actions)=> {
+        jobs.push((cb) => { // check for action
+            DB.QueryType(2, (err, actions) => {
                 if (err) return cb(err);
                 else {
                     for (var action in delta.actions) { // key only
@@ -105,8 +122,8 @@ function _assumption_check(delta:IDeviceAssumption, callback:Callback) {
                 }
             });
         });
-        jobs.push((cb)=> { // check for attribute
-            DB.QueryType(1, (err, attributes)=> {
+        jobs.push((cb) => { // check for attribute
+            DB.QueryType(1, (err, attributes) => {
                 if (err) return cb(err);
                 else {
                     for (var attr in delta.attributes) { // verify k & v both
@@ -129,18 +146,18 @@ function _assumption_check(delta:IDeviceAssumption, callback:Callback) {
     }
 }
 
-function _update_driver_data(drv:IDriver, dev:IDevice, assump:IDeviceAssumption, tracker:_tracker) {
+function _update_driver_data(drv: IDriver, dev: IDevice, assump: IDeviceAssumption, tracker: _tracker) {
     if (!drv || !drv.status() || !dev || !Drivers[drv.id()]) return;
     _assumption_check(assump, (err) => {
         if (err) {
-            DB.GraphdUpdateTask((err)=>{
-                if(err) return error(err);
+            DB.GraphdUpdateTask((err) => {
+                if (err) return error(err);
                 return trace("graphd SYNC DONE.");
-            }, 0);
+            }, 1000);
             return console.log(err.message['red']);
 
         } else {
-            var real:IDeviceAssumption = <any>{};
+            var real: IDeviceAssumption = <any>{};
             var changed = false;
 
             for (var i in assump) {
@@ -219,14 +236,14 @@ function _update_driver_data(drv:IDriver, dev:IDevice, assump:IDeviceAssumption,
     });
 }
 
-export function DriverActiveUpdate(drv:IDriver, dev:IDevice, assump:IDeviceAssumption) {
+export function DriverActiveUpdate(drv: IDriver, dev: IDevice, assump: IDeviceAssumption) {
     _update_driver_data(drv, dev, assump, {
         depth: 1, root: drv.id()
     });
 }
 
 
-function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDeviceAssumption, deltaBus:IBusData, deltaConf:KVSet, deltaOwn, stateChange?) {
+function _notify_driver(driver: IDriver, dev: IDevice, tracker: _tracker, delta: IDeviceAssumption, deltaBus: IBusData, deltaConf: KVSet, deltaOwn, stateChange?) {
     process.nextTick(() => {
 
         var drvId = driver.id();
@@ -255,7 +272,7 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
                     config: deltaConf,
                     ownership: deltaOwn
                 }, <any>must((err, data) => {
-                    if(err){
+                    if (err) {
                         error(err);
                         error(err.stack);
                     }
@@ -283,7 +300,7 @@ function _notify_driver(driver:IDriver, dev:IDevice, tracker:_tracker, delta:IDe
 }
 
 //TODO: Finish Driver Interest
-function _is_interested_in(drv:IDriver, dev:IDevice, currentStage, tracker:_tracker, d_assump, d_bus, d_conf, d_ownership, stateChange?) {
+function _is_interested_in(drv: IDriver, dev: IDevice, currentStage, tracker: _tracker, d_assump, d_bus, d_conf, d_ownership, stateChange?) {
     var interested = drv.interest();
 
     if (interested.otherDriver == false && tracker && tracker.parent) return 0;
@@ -349,7 +366,7 @@ function _is_interested_in(drv:IDriver, dev:IDevice, currentStage, tracker:_trac
     return 1;
 }
 
-export function DeviceChange(dev:IDevice, tracker:_tracker, assump:IDeviceAssumption, busDelta:IBusData, config:KVSet, ownership, stateChange?) {
+export function DeviceChange(dev: IDevice, tracker: _tracker, assump: IDeviceAssumption, busDelta: IBusData, config: KVSet, ownership, stateChange?) {
 
     if (stateChange) {
         fatal("Device Online --- " + dev.bus.name + " [" + dev.bus.hwaddr + "] ");
@@ -396,14 +413,14 @@ export function DeviceChange(dev:IDevice, tracker:_tracker, assump:IDeviceAssump
 
 }
 
-export function DeviceDrop(dev:IDevice, busDelta?) {
+export function DeviceDrop(dev: IDevice, busDelta?) {
     var version = dev.time;
     fatal("Drop - " + dev.bus.name + " [" + dev.bus.hwaddr + "] " + (dev.state ? " UP" : " DOWN"));
     for (var i in dev.assumptions) {
         if (!has(dev.assumptions, i) || !dev.assumptions[i].valid || !Drivers[i] || !Drivers[i].status() || !Drivers_BusMapping[dev.bus.name][i]) {
             continue;
         }
-        (function (i) {
+        (function(i) {
             var drv = Drivers[i];
             process.nextTick(() => {
                 try {
@@ -428,15 +445,15 @@ export function DeviceDrop(dev:IDevice, busDelta?) {
     }
 }
 
-export function DriverInvoke(driverId, deviceId, actionId, params:KVSet, cb) {
+export function DriverInvoke(driverId, deviceId, actionId, params: KVSet, cb) {
     //TODO: add invoking user info
     // plus:  params['user']
     
-    if(!Drivers[driverId]) return cb(new Error("Driver does not exist, or not available"));
-    if(!DeviceManager.Devices()[deviceId]) return cb(new Error("Device does not exist"));
-    
-    
-    DB.QueryType(2, (err, actions)=> {
+    if (!Drivers[driverId]) return cb(new Error("Driver does not exist, or not available"));
+    if (!DeviceManager.Devices()[deviceId]) return cb(new Error("Device does not exist"));
+
+
+    DB.QueryType(2, (err, actions) => {
         if (err) return cb(err);
         else {
             if (!actions.hasOwnProperty(actionId))
@@ -499,7 +516,20 @@ export function Initialize(cb) {
     cb();
 }
 
-function __driverChangeDevice(inAppDrvId, deviceId, assump:IDeviceAssumption, cb) {
+export function Subscribe(cb) {
+    var sub = StatMgr.Sub(SECTION.GRAPHD);
+    sub.graphd.on('set', (oldValue, newValue) => {
+        if (!newValue || !oldValue) {
+            return;
+        }
+        if (oldValue.Status !== "running" && newValue.Status === "running") {
+            ForceProbeAll();
+        }
+    });
+    cb();
+}
+
+function __driverChangeDevice(inAppDrvId, deviceId, assump: IDeviceAssumption, cb) {
     var appUid = RuntimePool.GetCallingRuntime(this).App.uid;
     var drvId = "App_" + appUid + ":" + inAppDrvId;
     var driver = Drivers[drvId];
@@ -511,7 +541,7 @@ function __driverChangeDevice(inAppDrvId, deviceId, assump:IDeviceAssumption, cb
 }
 
 
-export function GetDriverDesc(driver: IDriver){
+export function GetDriverDesc(driver: IDriver) {
     var drv = {
         name: driver.name(),
         status: driver.status(),
@@ -520,7 +550,7 @@ export function GetDriverDesc(driver: IDriver){
         id: driver.id(),
         type: driver["Runtime"] ? "App" : "System"
     };
-    if(driver["Runtime"]){
+    if (driver["Runtime"]) {
         drv["app"] = RuntimePool.GetSnapshot(driver["Runtime"])
     }
     return drv;
@@ -528,16 +558,16 @@ export function GetDriverDesc(driver: IDriver){
 
 function GetDriverDescription(ids, cb) {
     //Forms description for driver
-    if(!ids) return cb(new Error('DriverId is missing'));
-    if(!Array.isArray(ids)){
+    if (!ids) return cb(new Error('DriverId is missing'));
+    if (!Array.isArray(ids)) {
         ids = [ids];
     }
     var result = {};
-    for(var i = 0; i < ids.length; i++){
+    for (var i = 0; i < ids.length; i++) {
         var cur = ids[i];
         result[cur] = undefined;
         var drv = Drivers[cur];
-        if(drv){
+        if (drv) {
             result[cur] = GetDriverDesc(drv);
         }
     }

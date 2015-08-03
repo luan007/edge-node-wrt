@@ -276,14 +276,19 @@ global.clearTask = function (name) {
     return false;
 };
 
-global.setTaskWithCb = function (name, task: (cb)=>any, timeout, ignoreIfRunning = false) {
+global.setTaskWithCb = function (name, task: (cb)=>any, timeout, realCb = (err, result?) => {}, ignoreIfRunning = false) {
     if(_task_with_cb[name] && _task_with_cb[name].isRunning){
         if(ignoreIfRunning){
+            realCb(new Error("Task is Running"));
             return false;
         } else {
+            if(_task_with_cb[name].next){
+                return _task_with_cb[name].next.realCb(new Error("Task has been replaced"));
+            }
             return _task_with_cb[name].next = {
                 timeout: timeout,
-                task: task
+                task: task,
+                realCb: realCb
             };
         }
     }
@@ -291,14 +296,15 @@ global.setTaskWithCb = function (name, task: (cb)=>any, timeout, ignoreIfRunning
     if(!_task_with_cb[name]){
         _task_with_cb[name] = {
             isRunning: false,
+            realCb: realCb,
             next: undefined,
             timer: undefined
         };
     }
     
-    
     var wrapper:any = function(){
         if(wrapper.guard) return; 
+        realCb.apply(this, arguments);
         wrapper.guard = true;
         clearTimeout(_task_with_cb[name].timer);
         var q = _task_with_cb[name].next;
@@ -306,7 +312,6 @@ global.setTaskWithCb = function (name, task: (cb)=>any, timeout, ignoreIfRunning
         if(q){
             setTaskWithCb(name, q.task, q.timeout, false);
         }
-        
     };
     
     var task_wrapper = function(cb){
@@ -321,6 +326,10 @@ global.setTaskWithCb = function (name, task: (cb)=>any, timeout, ignoreIfRunning
 global.clearTaskWithCb = function (name) {
     if(_task_with_cb[name] && !_task_with_cb[name].isRunning){
         clearTimeout(_task_with_cb[name].timer);
+        _task_with_cb[name].realCb(new Error("Task has been Canceled"));
+        if(_task_with_cb[name].next && _task_with_cb[name].next.realCb){
+            _task_with_cb[name].next.realCb(new Error("Task has been Canceled"));
+        }
         _task_with_cb[name] = undefined;
         return true;
     }
