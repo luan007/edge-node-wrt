@@ -93,14 +93,15 @@ export function RWPersist(owner, data?, cb?) {
         return Persist.Table.one({
             uid: owner
         }, (err, result)=>{
-            if(err) return cb(err);
-            return JSON.parse(result.data);
+            if(err || !result) return cb(err);
+            trace(result.data);
+            return cb(undefined, JSON.parse(result.data));
         });
     } else {
         Persist.Table.one({
             uid: owner
         }, (err, d)=>{
-            if(err) {
+            if(err || !d) {
                 var p = new Persist.Persist();
                 p.uid = owner;
                 p.data = JSON.stringify(data);
