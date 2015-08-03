@@ -9,6 +9,7 @@ var PDF_MIME = 'application/pdf';
 var DATA_TMP_DIR = '/Data/tmp';
 var USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36';
 var __printers:IDic<any> = {};  // deviceId1: {ippUrl, jobs} / deviceId2 : {ippUrl, jobs}
+var async = require('async');
 
 class IPPService implements IInAppDriver {
     private __ippUrl(dev:IDevice) {
@@ -69,16 +70,16 @@ class IPPService implements IInAppDriver {
     private __blob2PDF(mime, data, cb) {
         if (mime === 'image/png' || mime === 'image/jpeg' || mime === 'image/gif') { //exception
             var imgFileName = path.join(DATA_TMP_DIR, UUIDstr());
-            fs.writeFile(imgFileName, data, (err)=>{
-                if(err) return cb(err);
+            fs.writeFile(imgFileName, data, (err)=> {
+                if (err) return cb(err);
                 var pdfFileName = path.join(DATA_TMP_DIR, UUIDstr());
                 var opts = {
                     size: 'legal',
                     layout: 'portrait'
                 };
                 var slide = new PDFImagePack(opts);
-                slide.output([imgFileName], pdfFileName, (err2)=>{
-                    if(err2) return cb(err2);
+                slide.output([imgFileName], pdfFileName, (err2)=> {
+                    if (err2) return cb(err2);
                     return cb(undefined, pdfFileName, imgFileName);
                 });
             });
@@ -89,7 +90,7 @@ class IPPService implements IInAppDriver {
 
     private __analyzePrinter(dev, cb) {
         var printer = this.__ippPrinter(dev);
-        
+
         if (printer) {
             printer.execute("Get-Printer-Attributes", null, (err, res) => {
                 if (err) {
@@ -98,24 +99,24 @@ class IPPService implements IInAppDriver {
                 }
                 this.__printerJoin(dev, printer);
 
-                
+
                 var classes:KVSet = {'printer': ''};
                 var assump:KVSet = {};
                 var actions:KVSet = {};
-                
-                if(dev.bus.data.MDNS.ipp && dev.bus.data.MDNS.ipp.service){
-                    if(dev.bus.data.MDNS.ipp.service.txtRecord.usb_MFG){
+
+                if (dev.bus.data.MDNS.ipp && dev.bus.data.MDNS.ipp.service) {
+                    if (dev.bus.data.MDNS.ipp.service.txtRecord.usb_MFG) {
                         assump['vendor'] = dev.bus.data.MDNS.ipp.service.txtRecord.usb_MFG;
                     }
-                    if(dev.bus.data.MDNS.ipp.service.txtRecord.product){
+                    if (dev.bus.data.MDNS.ipp.service.txtRecord.product) {
                         assump['model'] = dev.bus.data.MDNS.ipp.service.txtRecord.product;
                     }
-                    if(dev.bus.data.MDNS.ipp.service.txtRecord.ty){
+                    if (dev.bus.data.MDNS.ipp.service.txtRecord.ty) {
                         assump['model'] = dev.bus.data.MDNS.ipp.service.txtRecord.ty;
                     }
                 }
-                
-                
+
+                var jobs = [];
                 var printerAttributesTag = res['printer-attributes-tag'];
                 if (printerAttributesTag) {
                     if (printerAttributesTag['printer-make-and-model']) {
@@ -141,34 +142,59 @@ class IPPService implements IInAppDriver {
                         }
                     }
 
-                    //var buf = {};
-                    //console.log(printerAttributesTag);
-                    //for (var key in printerAttributesTag) { // copying
-                    //    //assump[k] = printerAttributesTag[key];
-                    //    buf[key] = printerAttributesTag[key];
-                    //    //if(typeof printerAttributesTag[key] !== 'string')
-                    //    //    buf[k]['datatype'] = typeof printerAttributesTag[key];
-                    //
-                    //}
-                    if(Object.keys(printerAttributesTag).length > 0)
-                        assump["printer.ipp"] = printerAttributesTag;
+                    if (printerAttributesTag['printer-icons']) {
+                        jobs.push((stepCb)=> {
+                            this.__downloadIcons(printerAttributesTag['printer-icons'], dev, stepCb);
+                        });
+                    }
 
-                    //fs.writeFile('./Data/printer.schema.json', JSON.stringify(res), (err)=> {
-                    //    if (err) console.log('write printer schema json err', err);
-                    //});
+                    if (Object.keys(printerAttributesTag).length > 0)
+                        jobs.push((stepCb)=> {
+                            assump["printer.ipp"] = printerAttributesTag;
+                            stepCb();
+                        });
                 }
 
-                return cb(null, {
-                    classes: classes,
-                    actions: actions,
-                    aux: {},
-                    attributes: assump,
-                    valid: true
+                async.series(jobs, ()=> {
+                    return cb(null, {
+                        classes: classes,
+                        actions: actions,
+                        aux: {},
+                        attributes: assump,
+                        valid: true
+                    });
                 });
             });
         } else { // should not happen :)
             return cb(new Error('unknown device'));
         }
+    }
+
+    private __iconFilename(url, dev) {
+        return dev.id +  '_ipp_' + url.split('/').pop();
+    }
+
+    private __downloadIcons(urls, dev, cb) {
+        var jobs = [];
+        for (var i = 0, len = urls.length; i < len; i++) {
+            ((i)=> {
+                var baseName = this.__iconFilename(urls[i], dev);
+                var fileName = path.join('/Share/Resource', baseName);
+                if (!fs.existsSync(fileName)) {
+                    jobs.push((stepCb)=> {
+                        request(urls[i]).pipe(fs.createWriteStream(fileName))
+                            .on('error', (err)=> {
+                                console.log(err);
+                            })
+                            .on('close', ()=> {
+                                urls[i] = baseName;
+                                stepCb();
+                            });
+                    });
+                }
+            })(i);
+        }
+        async.series(jobs, cb);
     }
 
     private __printerJoin(dev, printer) {
@@ -208,7 +234,7 @@ class IPPService implements IInAppDriver {
                     ((_deviceId) => {
                         var printer = __printers[_deviceId];
                         self.__ippGetJobs(printer.ippUrl, 'completed', (err, jobs) => {
-                            if(err || !jobs) return;
+                            if (err || !jobs) return;
                             if (jobs['job-attributes-tag']) {
                                 __printers[_deviceId]['doneJobs'] = jobs['job-attributes-tag'];
                                 (<any>self).Change(_deviceId, { // EMIT !!
@@ -219,7 +245,7 @@ class IPPService implements IInAppDriver {
                             }
                         });
                         self.__ippGetJobs(printer.ippUrl, 'not-completed', (err, jobs) => {
-                            if(err || !jobs) return;
+                            if (err || !jobs) return;
                             if (jobs['job-attributes-tag']) {
                                 __printers[_deviceId]['queue'] = jobs['job-attributes-tag'];
                                 (<any>self).Change(_deviceId, { // EMIT !!
@@ -359,7 +385,7 @@ class IPPService implements IInAppDriver {
                             if (err) return cb(err);
                             if (mime !== PDF_MIME) {
                                 this.__uri2PDF(params.uri, (err, pdf)=> {
-                                    if(err) return console.log(err);
+                                    if (err) return console.log(err);
                                     console.log('PDF total pages ', pdf.numberOfPages);
                                     var bufs = [];
                                     var stream:any = pdf.stream;
