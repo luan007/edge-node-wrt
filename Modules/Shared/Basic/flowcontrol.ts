@@ -310,7 +310,7 @@ global.setTaskWithCb = function (name, task: (cb)=>any, timeout, realCb = (err, 
         var q = _task_with_cb[name].next;
         _task_with_cb[name] = undefined;
         if(q){
-            setTaskWithCb(name, q.task, q.timeout, false);
+            setTaskWithCb(name, q.task, q.timeout, q.realCb, false);
         }
     };
     
