@@ -306,10 +306,9 @@ function CheckGraphdUpdate(taskCB) {
 }
 
 export function GraphdUpdateTask(cb, time?:number){
-    setTaskWithCb('GraphdChecking', ()=>{
-        CheckGraphdUpdate(cb);
-    }, time ? time : CONF.GRAPHD_CHECK_INTERVAL, true);
-    cb();
+    setTaskWithCb('GraphdChecking', (stepCb)=>{
+        CheckGraphdUpdate(stepCb);
+    }, time ? time : CONF.GRAPHD_CHECK_INTERVAL, cb, true);
 }
 
 export function Initialize(cb) {
