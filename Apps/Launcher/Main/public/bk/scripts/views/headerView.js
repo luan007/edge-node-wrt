@@ -1,1 +1,0 @@
-define(["jquery","underscore","backbone","handlebars","text!templates/header.html"],function(e,t,n,r,i){return n.View.extend({el:"#Header",initialize:function(){this.render()},render:function(){var e=r.compile(i);this.$el.html(e(this.model.toJSON()))}})});

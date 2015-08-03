@@ -1,0 +1,304 @@
+@import "variables";
+
+body {
+  overflow: hidden;
+}
+
+.home-bg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  overflow: hidden;
+  background-color: @move-bg-black;
+  .inner {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    img {
+      display: block;
+      opacity: 0;
+      transform-origin: left top;
+    }
+  }
+}
+
+.home-mask {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background: #000;
+  opacity: 0.3;
+}
+
+.welcome-page {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  .content {
+    position: absolute;
+    display: table;
+    height: 100%;
+    width: 100%;
+    .center {
+      display: table-cell;
+      vertical-align: middle;
+      text-align: center;
+      z-index: 910;
+      h1 {
+        text-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        letter-spacing: -1px;
+        font-size: 60px;
+        font-weight: 600;
+        margin: 0;
+        color: rgba(255, 255, 255, 1);
+      }
+      p {
+        font-weight: 300;
+        text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+        margin-top: 15px;
+        font-size: 18px;
+        color: rgba(255, 255, 255, 0.9);
+      }
+    }
+    .app-btn {
+      position: absolute;
+      bottom: 9%;
+      height: 86px;
+      width: 86px;
+      left: 50%;
+      margin-left: -43px;
+      border-radius: 50%;
+      text-align: center;
+      cursor: pointer;
+      .layer {
+        overflow: hidden;
+      }
+      .alldots,
+      .alldots.norm {
+        opacity: 0.9;
+      }
+      .layer,
+      .decborder {
+        border-radius: 50%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: block;
+      }
+      .shine.lit {
+        background: rgba(255, 255, 255, 0);
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.1),
+        0 0 3px rgba(255, 255, 255, 0.2),
+        0 0 0 1px rgba(255, 255, 255, 0.7);
+      }
+      .shine.lit_full {
+        background: rgba(0, 0, 0, 0.2);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.9),
+        0 0 3px rgba(255, 255, 255, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 1);
+      }
+      .shine,
+      .shine.norm {
+        background: rgba(255, 255, 255, 0);
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0),
+        0 0 3px rgba(255, 255, 255, 0),
+        0 0 0 1px rgba(160, 160, 160, 0);
+      }
+      .shine {
+        top: 5%;
+        left: 5%;
+        right: 5%;
+        bottom: 5%;
+      }
+      .decborder {
+        background: rgba(255, 255, 255, 0.4);
+        transform: scale(0);
+        opacity: 0;
+      }
+      .dot {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: block;
+        transform: scale(0.21);
+      }
+      .dots-a {
+        left: -18%;
+        right: 18%;
+      }
+      .dots-c {
+        left: 18%;
+        right: -18%;
+      }
+      .tagline {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        line-height: 85px;
+        opacity: 0;
+        transform: scale(0.5);
+        color: @base-blue;
+      }
+    }
+  }
+
+  .aside {
+    position: absolute;
+    left: 0;
+    right: 0;
+  }
+
+  .footer {
+    border: none;
+    background-color: transparent;
+    .power-by {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+    }
+  }
+
+  .widget-list {
+    .widget {
+      position: absolute;
+      right: 50px;
+      z-index: 990;
+      .icon {
+        background: rgba(255, 255, 255, 0);
+        transition: all ease 0.5s;
+        vertical-align: middle;
+        display: inline-block;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        margin-left: 5px;
+        text-align: center;
+        border: 2px solid rgba(255, 255, 255, 0);
+        img {
+          max-width: 100%;
+        }
+        i {
+          display: inline-block;
+          margin-top: 12px;
+          font-size: 25px;
+          width: 30px;
+          height: 30px;
+        }
+      }
+      .title {
+        transform: scale(0.9) translateX(12px);
+        transition: all ease 0.8s;
+        letter-spacing: 0.5px;
+        opacity: 0;
+        vertical-align: middle;
+        display: inline-block;
+        color: #fff;
+        text-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+        font-weight: bold;
+        font-size: 16px;
+        i {
+          margin-left: 5px;
+        }
+      }
+      .badge {
+        position: absolute;
+        top: 0;
+        right: -10px;
+        //border-radius: 50%;
+        padding: 5px;
+        line-height: 10px;
+        font-size: 10px;
+        font-style: normal;
+        background: @base-red;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+      }
+      &:hover {
+        .icon {
+          transition: all ease 0.3s;
+          transform: scale(1.1);
+          background: rgba(255, 255, 255, 0.4);
+        }
+        .title {
+          transition: all ease 0.6s;
+          color: #ffffff;
+          opacity: 1;
+          transform: scale(1) translateX(0);
+        }
+      }
+    }
+    .widget-user {
+      top: 50px;
+    }
+    .widget-wifi {
+      top: 123px;
+      .icon {
+        img {
+          height: 44px;
+          width: 27px;
+        }
+      }
+      .title {
+        position: relative;
+        font-size: 1em;
+        border-radius: 3px;
+        padding: 4px 6px;
+        background: rgba(0, 0, 0, 0.4);
+        right: 2px;
+        transform: scale(0.9) translateX(12px);
+        opacity: 0;
+        letter-spacing: 0.5px;
+        font-weight: 200;
+        &:after {
+          content: '';
+          position: absolute;
+          right: -3px;
+          top: 50%;
+          margin-top: -3px;
+          border-left: 3px solid rgba(0, 0, 0, 0.4);
+          border-top: 3px solid transparent;
+          border-bottom: 3px solid transparent;
+        }
+        b {
+          transition: all ease 0.8s;
+          letter-spacing: 0.5px;
+        }
+      }
+    }
+    .widget-app {
+      top: 200px;
+      .icon {
+        svg, img {
+          margin-top: 12px;
+          height: 23px;
+          width: 23px;
+          fill: #fff;
+        }
+        &:hover {
+          svg > path {
+            fill: @base-blue;
+          }
+        }
+      }
+    }
+  }
+}
+
+@import "user";
+
+@import "apps";

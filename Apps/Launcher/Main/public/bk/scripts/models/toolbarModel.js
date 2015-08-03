@@ -1,1 +1,0 @@
-define(["underscore","backbone"],function(e,t){return t.Model.extend({defaults:{toolbar:[{toolbarIcon:"fa fa-trash-o",toolbarName:"Delete"},{toolbarIcon:"fa fa-laptop",toolbarName:"AirPlay"},{toolbarIcon:"fa fa-print",toolbarName:"Print"},{toolbarIcon:"fa fa-download",toolbarName:"Download"},{toolbarIcon:"fa fa-lock",toolbarName:"Privacy"}]}})});

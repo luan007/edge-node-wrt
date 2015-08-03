@@ -6,13 +6,15 @@ module.exports = function (grunt) {
     //DO MODIFY THESE!
     
     var remote_target = "/remote";
-    var local_target = "/tmp/edge_build";
+    //var local_target = "/edge/buildroot-new/overlay";
+    var local_target = "/tmp/edge-build";
     var sysroot = "/ramdisk";
     var approot = "/storage";
     
     var _syslocal = path.join(local_target, sysroot);
     var _applocal = path.join(local_target, approot);
     function initGrunt(enable_remote){
+        
         grunt.initConfig({
             watch: {
                 systs: {
@@ -36,6 +38,18 @@ module.exports = function (grunt) {
                         'Apps/**/*.ts'
                     ],
                     tasks: ['ts:app', 'sync'],
+                    options: {
+                        spawn: false
+                    }
+                }
+                
+                ,less: {
+                    files: [
+                        //'Modules/**/*.ts',
+                        //'typings/**/*.ts',
+                        'Apps/**/*.less'
+                    ],
+                    tasks: ['less:work', 'sync'],
                     options: {
                         spawn: false
                     }
@@ -97,6 +111,19 @@ module.exports = function (grunt) {
                         preserveConstEnums: true
                     }
                 }
+            }, less: {
+                work: {
+                    options:{
+                        paths: ["Modules/Global/assets/css/"]
+                    },
+                    files: [{
+                        expand: true,
+                        cwd: "Apps/",
+                        src: "**/*.less",
+                        dest: "Apps/",
+                        ext: ".css"
+                    }]
+                }
             }
         })
     }
@@ -106,6 +133,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-sync');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks("grunt-ts");
+    grunt.loadNpmTasks("grunt-contrib-less");
     //grunt.registerTask("build", ['sync', 'ts']);
     //grunt.registerTask("samba", "samba deployment", function () {
     //    grunt.task.run('debug');
@@ -113,7 +141,7 @@ module.exports = function (grunt) {
     //grunt.registerTask("deploy", "deploy", function () {
     //    grunt.task.run('debug');
     //});
-    grunt.registerTask("_run", ['ts', 'sync', 'watch']);
+    grunt.registerTask("_run", ['ts', 'less', 'sync', 'watch']);
     grunt.registerTask("local", "Deploy to local staging dir", function(){
         initGrunt(false);
         grunt.task.run('_run');

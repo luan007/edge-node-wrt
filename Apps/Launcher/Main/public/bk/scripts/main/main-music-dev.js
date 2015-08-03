@@ -1,1 +1,0 @@
-require(["jquery","underscore","backbone","routers/music/musicRouter"],function(e,t,n,r){new r,n.history.start()});

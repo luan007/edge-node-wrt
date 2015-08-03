@@ -1,1 +1,0 @@
-define(["underscore","backbone"],function(e,t){return t.Model.extend({defaults:{photoList:[{photoType:"",photoImg:"",photoAlt:"",photoName:"",photoTypeIcon:""}],groupTitle:""}})});
