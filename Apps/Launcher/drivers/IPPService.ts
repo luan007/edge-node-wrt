@@ -144,7 +144,7 @@ class IPPService implements IInAppDriver {
 
                     if (printerAttributesTag['printer-icons']) {
                         jobs.push((stepCb)=> {
-                            this.__downloadIcons(printerAttributesTag['printer-icons'], dev, stepCb);
+                            this.__downloadIcons(printerAttributesTag['printer-icons'], dev, assump, stepCb);
                         });
                     }
 
@@ -174,7 +174,7 @@ class IPPService implements IInAppDriver {
         return dev.id +  '_ipp_' + url.split('/').pop();
     }
 
-    private __downloadIcons(urls, dev, cb) {
+    private __downloadIcons(urls, dev, assump, cb) {
         var jobs = [];
         for (var i = 0, len = urls.length; i < len; i++) {
             ((i)=> {
@@ -187,7 +187,8 @@ class IPPService implements IInAppDriver {
                                 console.log(err);
                             })
                             .on('close', ()=> {
-                                urls[i] = baseName;
+                                assump['images'] = assump['images'] || [];
+                                assump['images'].push(baseName);
                                 stepCb();
                             });
                     });
