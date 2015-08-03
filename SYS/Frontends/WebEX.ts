@@ -61,7 +61,7 @@ app.post("*", (req, res) => {
 					result: result
 				});
 			}
-		}, 30000));
+		}, 20000));
 		//extract referer
 		var mockRPC = {
 			rpc: { remote: 0 },

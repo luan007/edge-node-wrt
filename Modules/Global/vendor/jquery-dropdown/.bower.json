@@ -1,0 +1,21 @@
+{
+  "name": "jquery-jq-dropdown",
+  "version": "2.0.1",
+  "main": [
+    "./jquery.dropdown.less",
+    "./jquery.dropdown.js"
+  ],
+  "dependencies": {
+    "jquery": ">=1.8.0"
+  },
+  "homepage": "https://github.com/claviska/jquery-dropdown",
+  "_release": "2.0.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "2.0.1",
+    "commit": "c138315117f6e7391e025ae213ad666d9e7bbfef"
+  },
+  "_source": "git://github.com/claviska/jquery-dropdown.git",
+  "_target": "~2.0.0",
+  "_originalSource": "jquery-dropdown"
+}

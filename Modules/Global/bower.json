@@ -1,0 +1,17 @@
+{
+  "name": "Edge",
+  "version": "1.0.0",
+  "dependencies": {
+    "requirejs": "~2.1.19",
+    "requirejs-text": "~2.0.14",
+    "backbone": "~1.2.1",
+    "underscore": "~1.8.3",
+    "bootstrap": "~3.3.5",
+    "jquery": "~2.1.4",
+    "jquery-dropdown": "~2.0.0",
+    "font-awesome": "^4.3.0",
+    "gsap": "^1.17.0",
+    "dragdealer": "^0.9.8",
+    "handlebars": "~3.0.3"
+  }
+}

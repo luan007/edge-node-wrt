@@ -130,8 +130,11 @@ else {
 var map = {
   baidumap: /map.baidu.com/i,
   youku: /v.youku.com/i,
+  weibo: /weibo.com/i,
   baidusearch: /baidu.com/i
 };
+
+
 
 window.args = function(arr){
   var a = {};
