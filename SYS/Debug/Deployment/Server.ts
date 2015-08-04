@@ -32,7 +32,6 @@ app.get('/', function (req, res) {
     var bluetooths = <any>StatMgr.Get(SECTION.BLUETOOTH).ValueOf();
     var traffic = <any>StatMgr.Get(SECTION.TRAFFIC).ValueOf();
     var btle = <any>StatMgr.Get(SECTION.BTLE).ValueOf();
-    //var modules = <any>StatMgr.Get(SECTION.LOADER).ValueOf();
 
     AppManager.GetInstalledApps((err, result) => {
         RuntimePool.GetPooledApps((err, pool) => {
@@ -46,7 +45,6 @@ app.get('/', function (req, res) {
                 Bluetooth: bluetooths,
                 Traffic: traffic,
                 BTLE: btle
-                //, Modules: modules
             });
         });
     });
