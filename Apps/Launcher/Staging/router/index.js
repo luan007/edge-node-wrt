@@ -39,7 +39,7 @@ route.post("/", function (req, res) {
 });
 
 route.get("/", function (req, res) {
-    res.render("index");
+    res.render("index", {css: global.css});
 });
 
 

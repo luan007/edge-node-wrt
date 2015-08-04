@@ -28,7 +28,7 @@ ifconfig $WLAN_BR down
 brctl delbr $WLAN_BR
 brctl addbr $WLAN_BR
 ifconfig $WLAN_BR up
-
+echo "0" > /sys/devices/virtual/net/$WLAN_BR/bridge/multicast_snooping
 # TODO: relay & scan
 #iw phy phy0 interface add test0 type managed
 #fconfig test0 up

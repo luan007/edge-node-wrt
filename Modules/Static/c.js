@@ -126,14 +126,12 @@ else {
   window.addEventListener('load', loaded, false);//firefox 
 } 
 
-
 var map = {
   baidumap: /map.baidu.com/i,
   youku: /v.youku.com/i,
-  weibo: /weibo.com/i,
+  weibo: /(weibo.com|weibo.cn)/i,
   baidusearch: /baidu.com/i
 };
-
 
 
 window.args = function(arr){

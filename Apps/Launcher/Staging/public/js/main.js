@@ -45,7 +45,6 @@ function loadPerspectBg(bg_selector) {
 	if (!img) {
 		return;
 	}
-
 	if (!img.naturalWidth) {
 		$img.load(function () {
 			loadPerspectBg(bg_selector);

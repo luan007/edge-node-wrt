@@ -9,11 +9,20 @@ var key = UUIDstr(), app = express();
 app.use(favicon('/favico.ico'));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "/public")));
+
+
+global.css = [
+    "bootstrap.min.css",
+    "auxico.css",
+    "common.css",
+    "entypo.css",
+    "font-awesome.min.css"
+];
+
 
 app.use("/", require("./router/index"));
 app.use("/landscape", require("./router/landscape"));

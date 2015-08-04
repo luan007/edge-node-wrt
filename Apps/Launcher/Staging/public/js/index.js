@@ -9,7 +9,6 @@ define([
 
 		$(".load-mask").addClass("loaded");
 
-
 		setTimeout(function () {
 			$(".load-mask").remove();
 		}, 1000);
@@ -196,8 +195,6 @@ define([
 			$appListBack = $appList.find('.list-back');
 
 		var $welPage = $('.welcome-page');
-
-		var tl = new TimelineLite();
 
 		// open app list
 		$appBtn.click(function () {

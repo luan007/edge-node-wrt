@@ -17,6 +17,7 @@ import AppManager = require('./AppManager');
 import Limit =  require('./Resource/FileSystem/Limit');
 import APIManager = require("../../Modules/RPC/API/APIManager");
 
+
 var pub = StatMgr.Pub(SECTION.RUNTIME, {
     apps: {}
 });
@@ -68,7 +69,11 @@ function ConnectionHandler(credential:{ uid; pid; gid; }, socket:net.Socket, cal
 export function LoadApplication(app_uid:string, callback:PCallback<string>) {
     var appPath = path.join(CONF.APP_BASE_PATH, app_uid);
     AppManager.SetAppsRoot_Upward(appPath);
-
+    
+    console.log("DONE 0744");
+    
+    fs.chmodSync("/storage", '0755');
+    
     if (!app_uid) return callback(new Error("Invalid Parameter"));
     if (_pool[app_uid] && !_pool[app_uid].IsRunning()) {
         trace("App is loaded, Starting " + app_uid);

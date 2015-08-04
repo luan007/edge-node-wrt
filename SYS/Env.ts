@@ -32,3 +32,6 @@ Turn("api:functionexposer", true);
 Turn("common:native:hostapd", true);
 Turn("Common:Native:mdns", true);
 Turn("Frontends:Thirdparty", true);
+Turn("APP:Runtime", true);
+Turn("APP:RuntimePool", true);
+

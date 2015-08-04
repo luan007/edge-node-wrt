@@ -7,6 +7,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>EmergeLab - landscape</title>
   <link rel="shortcut icon" href="favicon.ico">
+  
+  <% for (var i = 0; i < css.length; i++) { %>
+     <link rel="stylesheet" href="//global.wifi.network/assets/css/<%= css[i]%>" />
+  <% } %>
+    
   <script src="//global.wifi.network/assets/js/before.js"></script>
   <link rel="stylesheet" href="/css/landscape.css" />
   
