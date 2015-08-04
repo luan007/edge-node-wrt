@@ -56,5 +56,93 @@
             <% } %>
         </ul>
     </div>
+
+    <div style="margin-left:30px; margin-top:40px;">
+        <b>networks</b>
+        <ul>
+            <% for(var i in networks) { %>
+            <li>
+                <pre><%-JSON.stringify(networks[i], undefined, 4)%></pre>
+            </li>
+            <% } %>
+        </ul>
+    </div>
+
+    <div style="margin-left:30px; margin-top:40px;">
+        <b>wlan2g</b>
+        <ul>
+            <% for(var i in wlan2g) { %>
+            <li>
+                <pre><%-JSON.stringify(wlan2g[i], undefined, 4)%></pre>
+            </li>
+            <% } %>
+        </ul>
+    </div>
+
+    <div style="margin-left:30px; margin-top:40px;">
+        <b>wlan5g</b>
+        <ul>
+            <% for(var i in wlan5g) { %>
+            <li>
+                <pre><%-JSON.stringify(wlan5g[i], undefined, 4)%></pre>
+            </li>
+            <% } %>
+        </ul>
+    </div>
+
+    <div style="margin-left:30px; margin-top:40px;">
+        <b>bluetooths</b>
+        <ul>
+            <% for(var i in bluetooths) { %>
+            <li>
+                <pre><%-JSON.stringify(bluetooths[i], undefined, 4)%></pre>
+            </li>
+            <% } %>
+        </ul>
+    </div>
+
+    <div style="margin-left:30px; margin-top:40px;">
+        <b>firewall</b>
+        <ul>
+            <% for(var i in firewall) { %>
+            <li>
+                <pre><%-JSON.stringify(firewall[i], undefined, 4)%></pre>
+            </li>
+            <% } %>
+        </ul>
+    </div>
+
+    <div style="margin-left:30px; margin-top:40px;">
+        <b>traffic</b>
+        <ul>
+            <% for(var i in traffic) { %>
+            <li>
+                <pre><%-JSON.stringify(traffic[i], undefined, 4)%></pre>
+            </li>
+            <% } %>
+        </ul>
+    </div>
+
+    <div style="margin-left:30px; margin-top:40px;">
+        <b>streaming</b>
+        <ul>
+            <% for(var i in streaming) { %>
+            <li>
+                <pre><%-JSON.stringify(streaming[i], undefined, 4)%></pre>
+            </li>
+            <% } %>
+        </ul>
+    </div>
+
+    <div style="margin-left:30px; margin-top:40px;">
+        <b>btle</b>
+        <ul>
+            <% for(var i in btle) { %>
+            <li>
+                <pre><%-JSON.stringify(btle[i], undefined, 4)%></pre>
+            </li>
+            <% } %>
+        </ul>
+    </div>
 </body>
 </html>
