@@ -62,6 +62,7 @@
         <ul>
             <% for(var i in Networks) { %>
             <li>
+                <h3><%- i %></h3>
                 <pre><%-JSON.stringify(Networks[i], undefined, 4)%></pre>
             </li>
             <% } %>
@@ -73,6 +74,7 @@
         <ul>
             <% for(var i in Wlan2g) { %>
             <li>
+                <h3><%- i %></h3>
                 <pre><%-JSON.stringify(Wlan2g[i], undefined, 4)%></pre>
             </li>
             <% } %>
@@ -84,6 +86,7 @@
         <ul>
             <% for(var i in Wlan5g) { %>
             <li>
+                <h3><%- i %></h3>
                 <pre><%-JSON.stringify(Wlan5g[i], undefined, 4)%></pre>
             </li>
             <% } %>
@@ -95,6 +98,7 @@
         <ul>
             <% for(var i in Bluetooth) { %>
             <li>
+                <h3><%- i %></h3>
                 <pre><%-JSON.stringify(Bluetooth[i], undefined, 4)%></pre>
             </li>
             <% } %>
@@ -106,6 +110,7 @@
         <ul>
             <% for(var i in Traffic) { %>
             <li>
+                <h3><%- i %></h3>
                 <pre><%-JSON.stringify(Traffic[i], undefined, 4)%></pre>
             </li>
             <% } %>
@@ -117,6 +122,7 @@
         <ul>
             <% for(var i in BTLE) { %>
             <li>
+                <h3><%- i %></h3>
                 <pre><%-JSON.stringify(BTLE[i], undefined, 4)%></pre>
             </li>
             <% } %>
