@@ -32,7 +32,7 @@ app.get('/', function (req, res) {
     var bluetooths = <any>StatMgr.Get(SECTION.BLUETOOTH).ValueOf();
     var traffic = <any>StatMgr.Get(SECTION.TRAFFIC).ValueOf();
     var btle = <any>StatMgr.Get(SECTION.BTLE).ValueOf();
-    var modules = <any>StatMgr.Get(SECTION.LOADER).ValueOf();
+    //var modules = <any>StatMgr.Get(SECTION.LOADER).ValueOf();
 
     AppManager.GetInstalledApps((err, result) => {
         RuntimePool.GetPooledApps((err, pool) => {
@@ -45,8 +45,8 @@ app.get('/', function (req, res) {
                 Wlan5g: wlan5g,
                 Bluetooth: bluetooths,
                 Traffic: traffic,
-                BTLE: btle,
-                Modules: modules
+                BTLE: btle
+                //, Modules: modules
             });
         });
     });
