@@ -5,8 +5,8 @@
   left: 0;
   bottom: 0;
   color: #fff;
-  background-color: #242424;
-  visibility: hidden;
+  background-color: transparent;
+  display: none;
 }
 .user-page .user-panel {
   position: absolute;

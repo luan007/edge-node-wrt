@@ -1,3 +1,7 @@
+i.fa {
+  margin: 0 5px;
+}
+
 @font-face {
   font-family: 'Helvetica Neue';
   src: url('../fonts/HelveticaNeueLight_gdi.eot');

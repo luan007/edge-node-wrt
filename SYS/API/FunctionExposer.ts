@@ -13,6 +13,7 @@ interface _Function_With_Permission_Token extends Function {
     _p: any[];
 }
 
+var callNUM = 0;
 
 function __API(func,
                path:string,
@@ -31,10 +32,18 @@ function __API(func,
     //}
 
     var shell = function (...params) {
-        if (CONF.IS_DEBUG && CONF.RPC_FUNC_LOG) {
-            trace("* " + path);
-        }
         var args = [].slice.call(arguments);
+        if (CONF.IS_DEBUG && CONF.RPC_FUNC_LOG) {
+            var tracer = callNUM++;
+            trace(" [*] " + tracer + " " + path);
+            if(args[args.length - 1] instanceof Function){
+                var a = args[args.length - 1];
+                args[args.length - 1] = function() {
+                    trace(" [R] " + tracer + " " + JSON.stringify([].slice.call(arguments)));
+                    a.apply(this, arguments);
+                }
+            }
+        }
         var rpc = (<rpc.RPCEndpoint>this.rpc);
         var sender = this.sender = rpc["remote"]; //from RPC call
         if (!pm.Check(pm.GetPermission(sender), shell['_p'])) {

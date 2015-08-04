@@ -8,4 +8,6 @@ if [ -e /node_modules/sqlite3/lib/binding/node-v11-linux-ia32  ]; then
     mv /node_modules/sqlite3/lib/binding/node-v11-linux-ia32 /node_modules/sqlite3/lib/binding/node-v11-linux-arm
 fi
 chmod 755 /ramdisk
+chmod 755 /storage
+chmod 755 /storage/Resource
 chmod 755 -R /ramdisk/Modules/*

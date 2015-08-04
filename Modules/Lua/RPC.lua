@@ -34,13 +34,15 @@ function RawRPC(wait_for_resp, sock, target, params)
 		return nil, err
 	end
 	if wait_for_resp then
+	
+		sock:settimeout(0)
 		local resRecv, err = _recv(sock) --recive
-		if err then 
-			return nil, err
-		end
 		local ok, err = sock:setkeepalive(0)
 	    if not ok then
 			ngx.log(ngx.ERR,"failed to set reusable: ", err)
+			return nil, err
+		end
+		if err then 
 			return nil, err
 		end
 		local recvJson = cjson.decode(resRecv)
