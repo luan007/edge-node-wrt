@@ -129,11 +129,15 @@ class Configuration extends Configurable {
         if (dhcp_reboot) {
             //console.log('^______________^ dhcp_reboot');
             dnsmasq.Start(true);
-            jobs.push(dnsmasq.StabilityCheck);
+            if(SYS_LOADED){
+                jobs.push(dnsmasq.StabilityCheck);
+            }
         } else if (dhcp_hotplug) {
             //console.log('^______________^ dhcp_hotplug');
             jobs.push(dnsmasq.ApplyChange);
-            jobs.push(dnsmasq.StabilityCheck);
+            if(SYS_LOADED){
+                jobs.push(dnsmasq.StabilityCheck);
+            }
         }
 
         if (Object.keys(network).length) {

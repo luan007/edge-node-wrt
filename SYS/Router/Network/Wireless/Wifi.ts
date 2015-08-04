@@ -105,7 +105,7 @@ class Configuration extends Configurable {
         else if (this.ConfigHandler.Get()['Power']) {
             //apply
             this.hostapdInstance.Start(true);
-
+            if(!SYS_LOADED) { return cb (); }
             this.hostapdInstance.StabilityCheck(cb);
         }
     };

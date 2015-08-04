@@ -21,12 +21,18 @@ umount -l -f /SagittariusA/
 mount -o remount,rw,usrquota,grpquota /
 #mount -o noexec,nodev,nosuid,rw,usrquota,grpquota /dev/sda1 /SagittariusA/
 mount -o noexec,nodev,nosuid,rw,usrquota,grpquota /dev/mmcblk0p1 /SagittariusA/
-if [ -e /SagittariusA/aquota.group ]; then rm -rf  /SagittariusA/aquota.group ; fi
-if [ -e /SagittariusA/aquota.user ]; then rm -rf /SagittariusA/aquota.user ; fi
 
-echo QUOTACHECK.. This may take a while..
-quotacheck -ugcfm /SagittariusA/
-if [ -e /SagittariusA/aquota.group ]; then echo Quota Generated! ; fi
+if [ ! -e /SagittariusA/aquota.group ]
+then 
+
+	echo QUOTACHECK.. This may take a while..
+	quotacheck -ugcfm /SagittariusA/
+	if [ -e /SagittariusA/aquota.group ]; then echo Quota Generated! ; fi
+
+fi
+
+#if [ -e /SagittariusA/aquota.group ]; then rm -rf  /SagittariusA/aquota.group ; fi
+#if [ -e /SagittariusA/aquota.user ]; then rm -rf /SagittariusA/aquota.user ; fi
 
 
 ####users

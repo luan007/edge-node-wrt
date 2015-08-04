@@ -39,6 +39,7 @@ function filterhost(host)
 		(host == "baidu.com" ) or 
 		(host == "map.baidu.com" ) or 
 		(host == "m.weibo.com" ) or 
+		(host == "m.weibo.cn" ) or 
 		(host == "weibo.com" ) or 
 		(host == "weibo.cn" ) or 
 		(host == "www.weibo.com" ) or 

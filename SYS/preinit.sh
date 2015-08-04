@@ -8,7 +8,7 @@ chmod +x Scripts/Network/traffic.sh
 
 . Scripts/Network/firewall.sh
 
-sleep 1
+#sleep 1
 
 . Scripts/Network/wireless.sh
 

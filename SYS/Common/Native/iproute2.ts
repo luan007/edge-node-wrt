@@ -501,7 +501,7 @@ export class NeighRecord {
     Dev: string; //: IDev
     Mac: string; //: IMacAddr
     NUD: NUDState;
-
+    raw: string;
     public static IsAlive (record: NeighRecord) {
         return (record.NUD & NeighRecord.MASK_ALIVE) > 0;
     }
@@ -518,7 +518,7 @@ export class NeighRecord {
 
         //192.168.222.2 dev eth0 lladdr 00:50:56:f9:a8:1b REACHABLE
         var l = line.toLowerCase().split(' ');
-        if (l.length < 4)
+        if (l.length < 4 || l[0] === "dev")
             return undefined;
         else {
             var nei = new NeighRecord();
@@ -526,11 +526,14 @@ export class NeighRecord {
             return nei;
         }
     }
+    
+
 
     public static Apply(record: NeighRecord, line: string) {
 
         //192.168.222.2 dev eth0 lladdr 00:50:56:f9:a8:1b REACHABLE
         var l = line.toLowerCase().split(' ');
+        record.raw = line;
         if (l.length < 4)
             return undefined;
         else {

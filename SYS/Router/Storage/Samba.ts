@@ -51,6 +51,7 @@ class Configuration extends Configurable {
             var conf = ConfMgr.Get(SECTION.NETWORK);
             smbInstance.SetIP(conf.RouterIP);
             smbInstance.Start(true);
+            if(!SYS_LOADED) { return cb (); }
             smbInstance.StabilityCheck(cb);
         }
         else {
