@@ -68,23 +68,27 @@ class IPPService implements IInAppDriver {
     }
 
     private __blob2PDF(mime, data, cb) {
-        if (mime === 'image/png' || mime === 'image/jpeg' || mime === 'image/gif') { //exception
-            var imgFileName = path.join(DATA_TMP_DIR, UUIDstr());
-            fs.writeFile(imgFileName, data, (err)=> {
-                if (err) return cb(err);
-                var pdfFileName = path.join(DATA_TMP_DIR, UUIDstr());
-                var opts = {
-                    size: 'legal',
-                    layout: 'portrait'
-                };
-                var slide = new PDFImagePack(opts);
-                slide.output([imgFileName], pdfFileName, (err2)=> {
-                    if (err2) return cb(err2);
-                    return cb(undefined, pdfFileName, imgFileName);
+        try {
+            if (mime === 'image/png' || mime === 'image/jpeg') { //exception
+                var imgFileName = path.join(DATA_TMP_DIR, UUIDstr());
+                fs.writeFile(imgFileName, data, (err)=> {
+                    if (err) return cb(err);
+                    var pdfFileName = path.join(DATA_TMP_DIR, UUIDstr());
+                    var opts = {
+                        size: 'legal',
+                        layout: 'portrait'
+                    };
+                    var slide = new PDFImagePack(opts);
+                    slide.output([imgFileName], pdfFileName, (err2)=> {
+                        if (err2) return cb(err2);
+                        return cb(undefined, pdfFileName, imgFileName);
+                    });
                 });
-            });
-        } else {
-            return cb(new Error('unsupported mime type: ' + mime));
+            } else {
+                return cb(new Error('unsupported mime type: ' + mime));
+            }
+        }catch(err) {
+            return cb(err);
         }
     }
 
