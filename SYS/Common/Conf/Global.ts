@@ -177,6 +177,7 @@ class _global_section {
     GRAPHD = "GRAPHD";
     CONNECTIVITY = "CONNECTIVITY";
     BTLE = "BTLE";
+    LOADER = "LOADER";
 }
 
 var CONF = new _sys_global_conf();

@@ -1,5 +1,3 @@
-
-
 require('./Env');
 
 eval(LOG("Init"));
@@ -15,14 +13,18 @@ domain.on('error', function (err) {
 });
 
 domain.run(function () {
+    var pub = StatMgr.Pub(SECTION.LOADER, {
+        modules: {}
+    });
+
     var modules = [
-        {path: './Common/Runtime/Connectivity'} ,
+        {path: './Common/Runtime/Connectivity', name: 'Connectivity'},
         {path: './DB/Storage', name: 'Storage'}
         , {path: './DB/Registry', name: 'Registry'}
         , {path: './Device/Graphd/DB', name: 'Graphd'}
         , {path: './Device/Bus/WifiBus', name: 'WifiBus'}
         , {path: './Device/Bus/BluetoothBus', name: 'BluetoothBus'}
-        , {path: './Device/Bus/BTLE'}
+        , {path: './Device/Bus/BTLE', name: "BTLEBus"}
         , {path: './Device/DeviceManager', name: 'DeviceManager'}
         , {path: './Device/DriverManager', name: 'DriverManager'}
         , {path: './Router/Network/Network', name: 'Network'}
@@ -30,28 +32,28 @@ domain.run(function () {
         , {path: './Router/Network/Firewall/TrafficAccountant', name: 'TrafficAccountant'}
         , {path: './Router/Network/Wireless/Wifi', name: 'Hostapd'}
         , {path: './Router/Network/Wireless/Bluetooth', name: 'Bluetooth'}
-        , {path: './Router/Network/Wireless/BTLE'}
+        , {path: './Router/Network/Wireless/BTLE', name: "BTLE"}
         , {path: './Router/Storage/Samba', name: 'Samba'}
         , {path: './Router/Storage/Obex', name: 'Obex'}
         , {path: './Router/Presentation/Streaming', name: 'Streaming'}
         , {path: './API/Server', name: 'APIServer'}
-        , {path: './API/TokenManager'}
+        , {path: './API/TokenManager', name: 'TokenManager'}
         , {path: './Frontends/MainUI', name: 'MainUI'}
         , {path: './Frontends/GUIProxy', name: 'GUIProxy'}
         , {path: './Frontends/HttpProxy', name: 'HttpProxy'}
-        , {path: './Frontends/WebEX'}
-        , {path: './Frontends/Thirdparty'}
-        , {path: './Frontends/MsgManager'}
+        , {path: './Frontends/WebEX', name: 'WebEX'}
+        , {path: './Frontends/Thirdparty', name: 'Thirdparty'}
+        , {path: './Frontends/MsgManager', name: 'MsgManager'}
         , {path: './APP/RuntimePool', name: 'RuntimePool'}
-        , {path: './APP/Resource/Shared/OUI'}
-        , {path: './APP/Resource/Shared/Brand'}
-        , {path: './APP/Resource/IO/FIFO'}
-        , {path: './APP/Resource/FileSystem/Limit'}
-        , {path: './APP/Resource/Ports/Redirector'}
-        , {path: './APP/Resource/Ports/Tracker'}
-        , {path: './APP/Resource/AppConfig'}
-        , {path: './Debug/FakeData/Generator'}
-        , {path: './Debug/Deployment/Server'}
+        , {path: './APP/Resource/Shared/OUI', name: 'OUI'}
+        , {path: './APP/Resource/Shared/Brand', name: 'Brand'}
+        , {path: './APP/Resource/IO/FIFO', name: 'FIFO'}
+        , {path: './APP/Resource/FileSystem/Limit', name: 'Limit'}
+        , {path: './APP/Resource/Ports/Redirector', name: 'Redirector'}
+        , {path: './APP/Resource/Ports/Tracker', name: 'Tracker'}
+        , {path: './APP/Resource/AppConfig', name: 'AppConfig'}
+        , {path: './Debug/FakeData/Generator', name: 'Generator'}
+        , {path: './Debug/Deployment/Server', name: 'Server'}
         //, {path: './Router/Network/Firewall/__Test'}
         //, {path: './Device/Graphd/__Test'}
         //, {path: './Device/__Test'}
@@ -79,6 +81,7 @@ domain.run(function () {
             }
             if (m.Initialize) {
                 initializes.push((cb) => {
+                    var start:any = new Date();
                     m.Initialize(() => {
                         if (m.Diagnose && name) {
                             m.Diagnose((err, status)=> {
@@ -94,13 +97,19 @@ domain.run(function () {
                                 ReportModuleSuccess(name);
                             });
                         }
+                        if (name) {
+                            var now:any = new Date();
+                            var totalSeconds = (now - start) / 1000;
+                            pub.modules.Set(name, totalSeconds);
+                            console.log('[' + name +  '] total seconds:'['magentaBG'].bold, totalSeconds);
+                        }
                         cb();
                     });
                 });
             }
         })(i);
     }
-    
+
     cleanups.push((cb) => {
         ClearDiagnostic();
         ClearRuntimePID();

@@ -128,5 +128,17 @@
             <% } %>
         </ul>
     </div>
+
+    <div style="margin-left:30px; margin-top:40px;">
+        <b>modules</b>
+        <ul>
+            <% for(var i in Modules) { %>
+            <li>
+                <h3><%- i %></h3>
+                <pre><%-JSON.stringify(Modules[i], undefined, 4)%></pre>
+            </li>
+            <% } %>
+        </ul>
+    </div>
 </body>
 </html>
