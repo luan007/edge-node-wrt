@@ -30,9 +30,7 @@ app.get('/', function (req, res) {
     var wlan2g = <any>StatMgr.Get(SECTION.WLAN2G).ValueOf();
     var wlan5g = <any>StatMgr.Get(SECTION.WLAN5G).ValueOf();
     var bluetooths = <any>StatMgr.Get(SECTION.BLUETOOTH).ValueOf();
-    var firewall = <any>StatMgr.Get(SECTION.FIREWALL).ValueOf();
     var traffic = <any>StatMgr.Get(SECTION.TRAFFIC).ValueOf();
-    var streaming = <any>StatMgr.Get(SECTION.STREAMING).ValueOf();
     var btle = <any>StatMgr.Get(SECTION.BTLE).ValueOf();
 
     AppManager.GetInstalledApps((err, result) => {
@@ -45,9 +43,7 @@ app.get('/', function (req, res) {
                 Wlan2g : wlan2g,
                 Wlan5g: wlan5g,
                 Bluetooth: bluetooths,
-                Firewall : firewall,
                 Traffic: traffic,
-                Streaming: streaming,
                 BTLE: btle
             });
         });

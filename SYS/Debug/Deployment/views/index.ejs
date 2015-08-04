@@ -102,33 +102,11 @@
     </div>
 
     <div style="margin-left:30px; margin-top:40px;">
-        <b>firewall</b>
-        <ul>
-            <% for(var i in firewall) { %>
-            <li>
-                <pre><%-JSON.stringify(firewall[i], undefined, 4)%></pre>
-            </li>
-            <% } %>
-        </ul>
-    </div>
-
-    <div style="margin-left:30px; margin-top:40px;">
         <b>traffic</b>
         <ul>
             <% for(var i in traffic) { %>
             <li>
                 <pre><%-JSON.stringify(traffic[i], undefined, 4)%></pre>
-            </li>
-            <% } %>
-        </ul>
-    </div>
-
-    <div style="margin-left:30px; margin-top:40px;">
-        <b>streaming</b>
-        <ul>
-            <% for(var i in streaming) { %>
-            <li>
-                <pre><%-JSON.stringify(streaming[i], undefined, 4)%></pre>
             </li>
             <% } %>
         </ul>
