@@ -33,6 +33,7 @@ function padding(src)
 end
 
 
+
 function filterhost(host)
 	if  (host == "www.baidu.com" ) or 
 		(host == "m.baidu.com" ) or 
