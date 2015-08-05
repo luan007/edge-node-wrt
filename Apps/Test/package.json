@@ -9,17 +9,5 @@
   },
   "dependencies": {
     "express": "*"
-    // "ejs": "*",
-    // "levelup": "*",
-    // //"leveldown": "*",
-    // "levelup-sync": "*",
-    // "leveldown-sync": "*",
-    // "level-subkey": "*",
-    // "level-queryengine": "*",
-    // "linebyline": "*",
-    // "ua-parser-js" : "*",
-    // "ipp": "*",
-    // "mmmagic": "*",
-    // "request": "*"
   }
 }

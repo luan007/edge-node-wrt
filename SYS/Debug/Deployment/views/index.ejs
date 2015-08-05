@@ -8,7 +8,7 @@
             font-weight: lighter;
         }
         * {
-            font-family: "helvetica neue", "Microsoft Yahei", "sans-serif"; 
+            font-family: "helvetica neue", "Microsoft Yahei", "sans-serif";
         }
     </style>
     <title>AO</title>
@@ -28,7 +28,7 @@
                 <div><%= Pooled[i].App.uid %> &nbsp;&nbsp; <a href="/unload/<%= Pooled[i].App.uid %>">Unload</a></div>
                 <div><%= JSON.stringify(Pooled[i].Status, null, " ") %></div>
                 <br />
-                
+
             </li>
             <% } %>
         </ul>
@@ -128,5 +128,19 @@
             <% } %>
         </ul>
     </div>
+
+    <% if(locals.Modules) { %>
+    <div style="margin-left:30px; margin-top:40px;">
+        <b>Startup</b>
+        <ul>
+            <% for(var i in Modules) { %>
+            <li>
+                <h3><%- i %></h3>
+                <pre><%-JSON.stringify(Modules[i], undefined, 4)%></pre>
+            </li>
+            <% } %>
+        </ul>
+    </div>
+    <% } %>
 </body>
 </html>
