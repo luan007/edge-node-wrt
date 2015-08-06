@@ -98,6 +98,7 @@ export class PPPoEDaemon extends Process {
 
     Stop(restart:boolean = false) {
         this.RemoveEvents();
+        super.Stop(restart);
     }
 
     Apply = (forever:boolean = true) => { //as helper method

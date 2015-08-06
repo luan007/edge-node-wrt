@@ -24,6 +24,11 @@ var dnsmasq = new Dnsmasq.dnsmasq();
 var ssdpDirectories:ssdp.SimpleUPNPRecord[] = [{}];
 var ssdpServices = [];
 
+var pppd:PPPoEDaemon = null;
+var udhcpc = new UDhcpC();
+
+var confNetwork:Configuration = null;
+
 var pub = StatMgr.Pub(SECTION.NETWORK, {
     leases: {},
     arp: {},
@@ -129,13 +134,13 @@ class Configuration extends Configurable {
         if (dhcp_reboot) {
             //console.log('^______________^ dhcp_reboot');
             dnsmasq.Start(true);
-            if(SYS_LOADED){
+            if (SYS_LOADED) {
                 jobs.push(dnsmasq.StabilityCheck);
             }
         } else if (dhcp_hotplug) {
             //console.log('^______________^ dhcp_hotplug');
             jobs.push(dnsmasq.ApplyChange);
-            if(SYS_LOADED){
+            if (SYS_LOADED) {
                 jobs.push(dnsmasq.StabilityCheck);
             }
         }
@@ -198,7 +203,7 @@ var defaultConfig = {
 };
 
 export function Initialize(cb) {
-    var confNetwork = new Configuration(SECTION.NETWORK, defaultConfig);
+    confNetwork = new Configuration(SECTION.NETWORK, defaultConfig);
 
     async.series([
         (cb)=> {
@@ -208,14 +213,14 @@ export function Initialize(cb) {
             }
             if (conf.WAN && conf.WAN.Scheme === WANScheme.PPPD && conf.WAN.PPPDOptions) {
                 var options = conf.WAN.PPPDOptions;
-                var pppd = new PPPoEDaemon(options.PPPD_ACCOUNT, options.PPPD_PASSWD, options.PPPD_NUMBER);
+                pppd = new PPPoEDaemon(options.PPPD_ACCOUNT, options.PPPD_PASSWD, options.PPPD_NUMBER);
                 pppd.Start(true);
-                pppd.StabilityCheck((err)=> {
-                    if (err) error(err);
-                    cb();
-                });
+                cb();
+                //pppd.StabilityCheck((err)=> {
+                //    if (err) error(err);
+                //    cb();
+                //});
             } else if (conf.WAN.Scheme === WANScheme.UDHCPC) {
-                var udhcpc = new UDhcpC();
                 udhcpc.Start(true);
                 cb();
             }
@@ -234,19 +239,19 @@ export function Initialize(cb) {
                     pub.arp.Del(neighRecord.Mac);
                 });
 
-                iproute2.Link.on(iproute2.Link.EVENT_RECORD_NEW, (dev, link:LinkInterface)=>{
+                iproute2.Link.on(iproute2.Link.EVENT_RECORD_NEW, (dev, link:LinkInterface)=> {
                     pub.link.Set(dev, link);
                 });
 
-                iproute2.Link.on(iproute2.Link.EVENT_RECORD_CHANGE, (dev, link:LinkInterface)=>{
+                iproute2.Link.on(iproute2.Link.EVENT_RECORD_CHANGE, (dev, link:LinkInterface)=> {
                     pub.link.Set(dev, link);
                 });
 
-                iproute2.Link.on(iproute2.Link.EVENT_RECORD_DEL, (dev, link:LinkInterface)=>{
+                iproute2.Link.on(iproute2.Link.EVENT_RECORD_DEL, (dev, link:LinkInterface)=> {
                     pub.link.Del(dev);
                 });
 
-                iproute2.Addr.on(iproute2.Addr.EVENT_RECORD_NEW, (id, index)=>{
+                iproute2.Addr.on(iproute2.Addr.EVENT_RECORD_NEW, (id, index)=> {
                     pub.addr.Set(id, iproute2.Addr.Interfaces[id]);
                 });
 
@@ -255,19 +260,19 @@ export function Initialize(cb) {
                 });
 
 
-                iproute2.Link.Load(()=>{
+                iproute2.Link.Load(()=> {
                     //TODO: Check for records that might be 'missed out' upon boot
-                    for(var i in iproute2.Link.Interfaces){
+                    for (var i in iproute2.Link.Interfaces) {
                         pub.link.Set(i, iproute2.Link.Interfaces[i]);
                     }
                 });
-                iproute2.Neigh.Load(()=>{
-                    for(var i in iproute2.Neigh.MacList){
+                iproute2.Neigh.Load(()=> {
+                    for (var i in iproute2.Neigh.MacList) {
                         pub.arp.Set(i, iproute2.Neigh.MacList[i]);
                     }
                 });
-                iproute2.Addr.Load(()=>{
-                    for(var i in iproute2.Addr.Interfaces){
+                iproute2.Addr.Load(()=> {
+                    for (var i in iproute2.Addr.Interfaces) {
                         pub.addr.Set(i, iproute2.Addr.Interfaces[i]);
                     }
                 });
@@ -356,10 +361,43 @@ function SetDNSHostname(hostnames, cb) {
     AppConfig.Set(SECTION.NETWORK, appUid, {Hosts: hostnames}, cb);
 }
 
+function SetUdhcpc(cb) {
+    if (pppd && pppd.Process) {
+        pppd.Stop(false);
+    }
+    var conf = confNetwork.Get();
+    conf.WAN.Scheme = WANScheme.UDHCPC;
+    ConfMgr.Set(SECTION.NETWORK, conf);
+    ConfMgr.Commit();
+    udhcpc.Start(true);
+    cb();
+}
+
+function SetPPPD(account, passwd, pppNumber, cb) {
+    if (udhcpc && udhcpc.Process) {
+        udhcpc.Stop(false);
+    }
+    var conf = confNetwork.Get();
+    conf.WAN.Scheme = WANScheme.PPPD;
+    conf.PPPDOptions = {
+        PPPD_ACCOUNT: account,
+        PPPD_PASSWD: passwd,
+        PPPD_NUMBER: pppNumber
+    };
+    ConfMgr.Set(SECTION.NETWORK, conf);
+    ConfMgr.Commit();
+    pppd = new PPPoEDaemon(conf.PPPDOptions.PPPD_ACCOUNT, conf.PPPDOptions.PPPD_PASSWD, conf.PPPDOptions.PPPD_NUMBER);
+    pppd.Start(true);
+    cb();
+}
+
 __API(CheckNameAvailability, 'Network.CheckNameAvailability', [Permission.Network]);
 __API(SetDNSHostname, 'Network.SetDNSHostname', [Permission.Network]);
 
+__API(SetUdhcpc, "Network.SetUdhcpc", [Permission.Network]);
+__API(SetPPPD, "Network.SetPPPD", [Permission.Network]);
 
-SYS_ON(SYS_EVENT_TYPE.LOADED, function(){
-    mdns.Initialize(()=>{});
+SYS_ON(SYS_EVENT_TYPE.LOADED, function () {
+    mdns.Initialize(()=> {
+    });
 });
