@@ -234,9 +234,10 @@ function getUser(userId) {
     return DB_UserList[userId];
 }
 
-export function UpgradeVersion(userid:string, cb){
+export function UpdateAvatar(userid:string, avatar:string, cb){
     User.table().one({uid:userid}, (err, user)=>{
         if(err) return cb(err);
+        user.avatar = avatar;
         user.version = user.version + 1;
         return user.save(cb);
     });
@@ -531,6 +532,7 @@ __API(withCb(List), "User.List", [Permission.UserAccess]);
 __API(withCb(All), "User.All", [Permission.UserAccess]);
 __API(withCb(GetUser), "User.Get", [Permission.UserAccess]);
 __API(withCb(GetState), "User.GetState", [Permission.UserAccess]);
+__API(UpdateAvatar, "User.UpdateAvatar", [Permission.UserAccess]);
 
 __API(GetCurrentUser, "User.GetCurrent", [Permission.UserAccess], true);
 
