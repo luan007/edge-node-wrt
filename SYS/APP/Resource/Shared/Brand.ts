@@ -40,8 +40,7 @@ export function Brand_Search(brand:string, callback) {
             console.log(q);
             done(undefined, q);
         }
-        done();
-        return "";
+        return done();
     });
 }
 
