@@ -14,18 +14,20 @@ var BASE_PATH = path.join(CONF.RESOURCE_STORE_DIR, '/Symbol');
 var brands = {};
 //scan through dirs
 export function ReloadCache(cb) {
-    hotswap("BRAND_DB", (cb) => {
+    hotswap("BRAND_DB", (jobCB) => {
         try{
             var dirs = fs.readdirSync(BASE_PATH);
             for(var i = 0; i < dirs.length; i++){
-                if(fs.statSync(path.join(BASE_PATH,  dirs[i])).isDirectory) {
+                if(fs.statSync(path.join(BASE_PATH,  dirs[i])).isDirectory()) {
                     brands[i] = fs.readdirSync(path.join(BASE_PATH, dirs[i]));
                 }
             }
+            jobCB();
             cb();
         } catch(e){
             error("Failed to refresh BrandDB Cache ! ");
             error(e);
+            jobCB(e);
             cb(e);
         }
     });
@@ -36,7 +38,9 @@ export function Brand_Search(brand:string, callback) {
         for(var i in brands) {
             var q = Fuzzy.match(i, brand, {});
             console.log(q);
+            done(undefined, q);
         }
+        done();
         return "";
     });
 }
