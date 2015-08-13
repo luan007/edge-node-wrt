@@ -243,6 +243,15 @@ export function UpdateAvatar(userid:string, avatar:string, cb){
     });
 }
 
+export function UpdateData(userid:string, data, cb){
+    User.table().one({uid:userid}, (err, user)=>{
+        if(err) return cb(err);
+        user.data = data;
+        user.version = user.version + 1;
+        return user.save(cb);
+    });
+}
+
 export function SyncUser(userid:string, cb) {
     var user = DB_UserList[userid];
     var pkg = Orbit.PKG(undefined, undefined, JSON.parse(JSON.stringify(user)));
@@ -533,6 +542,7 @@ __API(withCb(All), "User.All", [Permission.UserAccess]);
 __API(withCb(GetUser), "User.Get", [Permission.UserAccess]);
 __API(withCb(GetState), "User.GetState", [Permission.UserAccess]);
 __API(UpdateAvatar, "User.UpdateAvatar", [Permission.UserAccess]);
+__API(UpdateData, "User.UpdateData", [Permission.UserAccess]);
 
 __API(GetCurrentUser, "User.GetCurrent", [Permission.UserAccess], true);
 
