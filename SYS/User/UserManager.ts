@@ -246,7 +246,7 @@ export function UpdateAvatar(userid:string, avatar:string, cb){
 export function UpdateData(userid:string, data, cb){
     User.table().one({uid:userid}, (err, user)=>{
         if(err) return cb(err);
-        user.data = data;
+        user.data = JSON.stringify(data);
         user.version = user.version + 1;
         return user.save(cb);
     });
