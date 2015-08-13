@@ -19,7 +19,7 @@ export function ReloadCache(cb) {
             var dirs = fs.readdirSync(BASE_PATH);
             for(var i = 0; i < dirs.length; i++){
                 if(fs.statSync(path.join(BASE_PATH,  dirs[i])).isDirectory()) {
-                    brands[i] = fs.readdirSync(path.join(BASE_PATH, dirs[i]));
+                    brands[dirs[i]] = fs.readdirSync(path.join(BASE_PATH, dirs[i]));
                 }
             }
             jobCB();
@@ -35,12 +35,21 @@ export function ReloadCache(cb) {
 
 export function Brand_Search(brand:string, callback) {
     hotswapSafe("BRAND_DB", callback, (done) => {
-        for(var i in brands) {
+        var top = 0;
+        var cur = undefined;
+        for (var i in brands) {
             var q = Fuzzy.match(i, brand, {});
-            console.log(q);
-            done(undefined, q);
+            if(q) {
+                q = Array.isArray(q) ? q : [q];
+                for(var t = 0; t < q.length; t++){
+                    if(q[t].score > top){
+                        top = q[t].score;
+                        cur = i;
+                    }
+                }
+            }
         }
-        return done();
+        done(undefined, cur);
     });
 }
 
