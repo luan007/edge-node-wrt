@@ -1,6 +1,7 @@
 ﻿eval(LOG("Router:Network:Wireless:Bluetooth"));
 
 import bluez = require('../../../Common/Native/bluez');
+import ofonod = require('../../../Common/Native/ofonod');
 import ConfMgr = require('../../../Common/Conf/ConfMgr');
 import _Config = require('../../../Common/Conf/Config');
 import Config = _Config.Config;
@@ -8,9 +9,11 @@ import _Configurable = require('../../../Common/Conf/Configurable');
 import Configurable = _Configurable.Configurable;
 
 export var BluezInstance = new bluez.Bluez();
+export var OfonoInstance = new ofonod.Ofonod();
 
 var pub = StatMgr.Pub(SECTION.BLUETOOTH, {
     devices: {},
+    ofonod: {},
     nearby: {},
     status: {}
 });
@@ -100,6 +103,15 @@ var defaultConfig = {
 export function Initialize(cb) {
     var configBluez = new Configuration(SECTION.BLUETOOTH, defaultConfig);
     configBluez.Initialize(cb);
+    
+    OfonoInstance.Start(true);
+
+    OfonoInstance.on("change", (mac, data, path) => {
+        pub.ofonod.Set(mac, {
+            path: path,
+            data: data   
+        });
+    });
 
     BluezInstance.on('Created', (addr)=> {
         var dev = BluezInstance.Get(addr);
@@ -144,3 +156,7 @@ export function Diagnose(callback:Callback) {
         });
     }, 2000);
 }
+
+__API(OfonoInstance.HangupAll, "Edge.HFP.Hangup");
+__API(OfonoInstance.AnwserCall, "Edge.HFP.AnwserCall");
+__API(OfonoInstance.Dial, "Edge.HFP.Dial");

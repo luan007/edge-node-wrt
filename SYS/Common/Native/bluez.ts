@@ -217,7 +217,7 @@ export class Bluez extends Process {
     };
 
     _update_property = (addr, dev) => {
-        //trace("Update Property - " + addr);
+        trace("Update Property - " + addr);
         dev.GetProperties((err, props) => {
             if (err) return;
             props = dbus_magic(props);
@@ -244,7 +244,7 @@ export class Bluez extends Process {
                 dev.on("PropertyChanged",(id, data) => {
                     data = dbus_magic(data);
                     if (this._dev_cache[addr].Properties) {
-                        //trace("Property Changed!! - " + id + ":" + data);
+                        trace("Property Changed!! - " + id + ":" + data);
                         this._dev_cache[addr].Properties.PropertyStamp = Date.now();
                         this._dev_cache[addr].Properties[id] = data;
                         this.emit("Changed", addr);
@@ -284,7 +284,7 @@ export class Bluez extends Process {
 
     _dev_disap = (obj_path) => {
         var addr = obj_path.substring(obj_path.length - 17).replace(/_/g, ":").toLowerCase();
-        //trace("Disappear - " + addr);
+        trace("Disappear - " + addr);
         if (this._dev_cache[addr]) {
             this._dev_cache[addr].Properties.Alive = false;
             this.emit("Lost", addr);
@@ -293,7 +293,7 @@ export class Bluez extends Process {
 
     _release_dev = (obj_path) => {
         var addr = obj_path.substring(obj_path.length - 17).replace(/_/g, ":").toLowerCase();
-        //fatal("Release - " + addr);
+        fatal("Release - " + addr);
         if (this._dev_cache[addr]) {
             this.emit("Removed", addr, this._dev_cache[addr]);
             //this._dev_cache[addr] = undefined;
@@ -337,8 +337,8 @@ export class Bluez extends Process {
                             adapter.on("DeviceFound", this._dev_found.bind(null, adapter));
                             adapter.on("DeviceDisappeared", this._dev_disap);
                             adapter.on("DeviceRemoved", this._release_dev);
-                            var curState = 1;
-                            //adapter.on("PropertyChanged",(name, value) => {
+                            // var curState = 1;
+                            // adapter.on("PropertyChanged",(name, value) => {
                             //    var value = dbus_magic(value);
                             //    if (name === "Discovering" && !value) {
                             //        if (curState) {
@@ -358,8 +358,8 @@ export class Bluez extends Process {
                             //    } else if (name === "Discovering" && value) {
                             //        info("Discovery Started...");
                             //    }
-                            //});
-                            //adapter.StartDiscovery();
+                            // });
+                            adapter.StartDiscovery();
                             info("Start Discovery");
                             this.emit("dbus_Started");
                             return cb();
@@ -386,14 +386,18 @@ export class Bluez extends Process {
     Start(forever: boolean = true) {
 
         var jobs = [
+            (cb) => { exec("hciconfig  " + this.GenericIface + " " + ("down"), ignore_err(cb)); },
             (cb) => { exec("hciconfig  " + this.GenericIface + " " + (this.GenericPower ? "up" : "down"), ignore_err(cb)); },
             (cb) => { exec("hciconfig  " + this.GenericIface + " name " + this.GenericName, ignore_err(cb)); },
+            (cb) => { exec("hciconfig  " + this.GenericIface + " " + ("down"), ignore_err(cb)); },
+            (cb) => { exec("hciconfig  " + this.GenericIface + " " + (this.GenericPower ? "up" : "down"), ignore_err(cb)); },
             (cb) => { exec("hciconfig  " + this.GenericIface + " " + this.GenericScan, ignore_err(cb)); },
             (cb) => { exec("hciconfig  " + this.GenericIface + " inqparms 10:2048", ignore_err(cb)); },
             (cb) => { exec("hciconfig  " + this.GenericIface + " pageparms 20:1024", ignore_err(cb)); },
             (cb) => { exec("sdptool -i " + this.GenericIface + " add --channel=9 OPUSH", ignore_err(cb)); },
-            (cb) => { exec("hciconfig  " + this.GenericIface + " class 0x950300", ignore_err(cb)); },
-            (cb) => { exec("hciconfig  " + this.GenericIface + " noleadv", ignore_err(cb)); },
+            //(cb) => { exec("hciconfig  " + this.GenericIface + " class 0x950300", ignore_err(cb)); },
+            (cb) => { exec("hciconfig  " + this.GenericIface + " class 0x600500", ignore_err(cb)); },
+            //(cb) => { exec("hciconfig  " + this.GenericIface + " noleadv", ignore_err(cb)); },
             (cb) => { exec("hciconfig  " + this.AudioIface + " " + (this.AudioPower ? "up" : "down"), ignore_err(cb)); },
             (cb) => { exec("hciconfig  " + this.AudioIface + " name " + this.AudioName, ignore_err(cb)); },
             (cb) => { exec("hciconfig  " + this.AudioIface + " " + this.AudioScan, ignore_err(cb)); },

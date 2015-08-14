@@ -114,7 +114,7 @@ class Configuration extends Configurable {
 
 var defconfig2G4 = {
     Power: true,
-    SSID: "Edge Two",
+    SSID: "Edge One",
     AutoSSID: false,
     Visible: true,
     Channel: 4,

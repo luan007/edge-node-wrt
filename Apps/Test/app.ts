@@ -21,6 +21,12 @@ app.get("/wps", (req, res) => {
 	res.json({ done: "true" });
 });
 
+
+app.get("/call", (req, res) => {
+    API.Edge.HFP.Dial('/hfp/001A7DDA7113_649ABED01D9F', '15210691899', 'default', console.log);
+	res.json({ done: "true" });
+});
+
 app.get("/ao", (req, res)=>{
     try{
         cp.execFile("/phantomjs", (err)=>{

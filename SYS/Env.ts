@@ -34,4 +34,5 @@ Turn("Common:Native:mdns", true);
 Turn("Frontends:Thirdparty", true);
 Turn("APP:Runtime", true);
 Turn("APP:RuntimePool", true);
-
+// Turn("Common:Native:bluez", true);
+Turn("Common:Native:ofonod", true);
