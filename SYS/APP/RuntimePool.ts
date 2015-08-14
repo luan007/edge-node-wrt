@@ -69,11 +69,11 @@ function ConnectionHandler(credential:{ uid; pid; gid; }, socket:net.Socket, cal
 export function LoadApplication(app_uid:string, callback:PCallback<string>) {
     var appPath = path.join(CONF.APP_BASE_PATH, app_uid);
     AppManager.SetAppsRoot_Upward(appPath);
-    
+
     console.log("DONE 0744");
-    
+
     fs.chmodSync("/storage", '0755');
-    
+
     if (!app_uid) return callback(new Error("Invalid Parameter"));
     if (_pool[app_uid] && !_pool[app_uid].IsRunning()) {
         trace("App is loaded, Starting " + app_uid);
@@ -264,7 +264,6 @@ function quata_usage(runtimeId, cb) {
 
 
 //TODO: add shared directory support
-
 
 
 function StartRuntime(app_uid) {
@@ -486,7 +485,7 @@ function _SetupReverseAPI(api, callback) {
 
         //Adding Interface to BridgeDevice
 
-        exec('brctl', 'addif', 'VETH', 'host_' + runtime.GetPID(), ()=>{
+        exec('brctl', 'addif', 'VETH', 'host_' + runtime.GetPID(), ()=> {
             var perm = runtime.Manifest.permission;
             PermissionLib.SetPermission(SenderId(this), <any>perm);
             info("Permission set! " + runtime.App.name.bold);
@@ -507,26 +506,28 @@ function _SetupReverseAPI(api, callback) {
 }
 
 //TODO: need to test
-function _QueryIntentions(intention: IIntention, cb) {
+function _QueryIntentions(intention:IIntention, cb) {
     var keys = Object.keys(_pool);
     var jobs = [];
     var results = [];
     for (var i = 0; i < keys.length; i++) {
-        var runtime:Runtime = _pool[keys[i]];
-        if(runtime.Status().State === RuntimeStatusEnum.Launched) {
-            ((i) => {
+        ((i) => {
+            var runtime:Runtime = _pool[keys[i]];
+            if (runtime.Status().State === RuntimeStatusEnum.Launched) {
                 jobs.push(function (cb) {
-                    runtime[i].QueryIntention(intention, (err, result) => {
-                        if(err) error(err);
-                        if(!err && result)
+                    runtime.QueryIntention(intention, (err, result:IIntentionResponse) => {
+                        if (err) error(err);
+                        if (!err && result) {
+                            result.appid = runtime.App.uid;
                             results.push(result);
+                        }
                         return cb();
                     });
                 });
-            })(i);
-        }
+            }
+        })(i);
     }
-    async.series(jobs, ()=>{
+    async.series(jobs, ()=> {
         cb(undefined, results);
     });
 }

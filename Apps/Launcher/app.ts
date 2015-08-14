@@ -10,11 +10,15 @@ if (!global.EDGE) {
     global.async = require("async");
     console.log("Debug Env");
     async.series([
-        (cb) => { require("./Auth/server").Initialize(9999, cb); },
-        (cb) => { require("./Main_Staging/server").Initialize(8080, cb); }
-    ],(err) => {
-             console.log("Launcher is up @ " +
-                    9999 + " ~ " + 8888);
+        (cb) => {
+            require("./Auth/server").Initialize(9999, cb);
+        },
+        (cb) => {
+            require("./Main_Staging/server").Initialize(8080, cb);
+        }
+    ], (err) => {
+        console.log("Launcher is up @ " +
+            9999 + " ~ " + 8888);
     });
 }
 else {
@@ -22,7 +26,7 @@ else {
     fs.stat("/");
     //Clean Up
     if (fs.existsSync("/Data/sock")) {
-        var stat: fs.Stats;
+        var stat:fs.Stats;
         var old = fs.readdirSync("/Data/sock");
         for (var i = 0; i < old.length; i++) {
             try {
@@ -31,7 +35,8 @@ else {
                 console.log(e);
             }
         }
-        if ((stat = fs.statSync("/Data/sock")).isDirectory()) { }
+        if ((stat = fs.statSync("/Data/sock")).isDirectory()) {
+        }
         else {
             fs.unlinkSync("/Data/sock");
             fs.mkdirSync("/Data/sock");
@@ -43,21 +48,39 @@ else {
     var MainPort = "sock/" + UUIDstr();
     var AuthPort = "sock/" + UUIDstr();
     async.series([
-        (cb) => { require("./Auth/server").Initialize("/Data/" + AuthPort, cb); },
-        (cb) => { require("./Staging/server").Initialize("/Data/" + MainPort, cb); }
-    ],(err) => {
-            console.log("Settingup Launcher's port");
-            API.Launcher.SetupPort(MainPort, AuthPort,(err, result) => {
-                if (err) console.log(err);
-                console.log("Launcher is up @ " +
-                    MainPort + " ~ " + AuthPort);
-            });
+        (cb) => {
+            require("./Auth/server").Initialize("/Data/" + AuthPort, cb);
+        },
+        (cb) => {
+            require("./Staging/server").Initialize("/Data/" + MainPort, cb);
+        }
+    ], (err) => {
+        console.log("Settingup Launcher's port");
+        API.Launcher.SetupPort(MainPort, AuthPort, (err, result) => {
+            if (err) console.log(err);
+            console.log("Launcher is up @ " +
+                MainPort + " ~ " + AuthPort);
         });
+    });
 
 }
 
-global.QueryIntentions = function(intention: IIntention, cb: PCallback<IIntentionResponse>){
-
+global.QueryIntentions = function (intention:IIntention, cb:PCallback<IIntentionResponse>) {
+    if (intention) {
+        //blablabla ...
+        var response = {
+            results: [
+                {
+                    icon: 'http://global.wifi.network/icons/printer.png',
+                    tip: 'print',
+                    action: 'http://wifi.network/printer/#1'
+                }
+            ]
+        };
+        return cb(undefined, response);
+    } else {
+        return cb(new Error("Who are you?"));
+    }
 }
 
 // setTimeout(()=> {

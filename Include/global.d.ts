@@ -180,9 +180,8 @@ interface IIntention {
 }
 
 interface IIntentionResponse {
-    appid:string;
-    obj: IIntentionObject,
     results: Array<IIntentionResult>;
+    appid?:string;
 }
 
 interface IIntentionResult {
