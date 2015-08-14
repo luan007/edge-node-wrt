@@ -181,6 +181,7 @@ interface IIntention {
 
 interface IIntentionResponse {
     results: Array<IIntentionResult>;
+    obj: IIntentionObject;
     appid?:string;
 }
 

@@ -65,19 +65,24 @@ else {
 
 }
 
-global.QueryIntentions = function (intention:IIntention, cb:PCallback<IIntentionResponse>) {
+global.QueryIntentions = function (intention:IIntention, cb:PCallback<Array<IIntentionResponse>>) {
     if (intention) {
         //blablabla ...
-        var response = {
-            results: [
-                {
-                    icon: 'http://global.wifi.network/icons/printer.png',
-                    tip: 'print',
-                    action: 'http://wifi.network/printer/#1'
-                }
-            ]
-        };
-        return cb(undefined, response);
+        var responses = [];
+        for(var i = 0, len = intention.objs.length; i < len; i++){
+            var res = {
+                obj: intention.objs[i],
+                results: [
+                    {
+                        icon: 'http://global.wifi.network/icons/printer.png',
+                        tip: 'print',
+                        action: 'http://wifi.network/printer/#1'
+                    }
+                ]
+            };
+            responses.push(res);
+        }
+        return cb(undefined, responses);
     } else {
         return cb(new Error("Who are you?"));
     }

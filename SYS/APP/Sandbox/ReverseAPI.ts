@@ -74,7 +74,7 @@ function DriverInvoke(driverid, dev:IDevice, actionId, params, cb) {
     global.Drivers[driverid].invoke(dev, actionId, params, cb);
 }
 
-function QueryIntentions(intention: IIntention, cb: PCallback<IIntentionResponse>) {
+function QueryIntentions(intention: IIntention, cb: PCallback<Array<IIntentionResponse>>) {
     if (!global.QueryIntentions) {
         return cb(new Error("[QueryIntentions] Does Not Support Query Intentions."));
     }
