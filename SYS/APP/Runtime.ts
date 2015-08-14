@@ -155,6 +155,8 @@ export class Runtime extends events.EventEmitter {
             StabilityRating: 1,
             State: RuntimeStatusEnum.Ready,
             IsLauncher: this.Manifest.is_system ? true : false,
+            SupportFile: this.Manifest.support_file ? true : false,
+            Intention: this.Manifest.intention ? true : false,
             AppUrl: this.Manifest.url,
             AppName: this.Manifest.name,
             MainSock: this._mainsock,
@@ -449,6 +451,14 @@ export class Runtime extends events.EventEmitter {
     IsRunning = () => {
         return this._status.State === RuntimeStatusEnum.Launched;
     };
+
+    QueryIntention = (intention: IIntention, cb) => {
+        if(!this.Manifest.intention)
+            return cb(new Error(this.App.uid + " : does not support intention."));
+        if(intention.fileName && !this.Manifest.support_file)
+            return cb(new Error(this.App.uid + " : does not support file."));
+        return this.API.QueryIntentions(intention, cb);
+    }
 
     private _stateMachine(state){
         this._status.State = state;

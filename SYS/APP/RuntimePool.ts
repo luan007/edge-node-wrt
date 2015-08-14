@@ -187,9 +187,6 @@ function _check(target_dir, api_salt, sig, cb) {
         var salt = <any>new Buffer(api_salt, "hex");
         var hash = HashDir(target_dir, salt);
         var snapshot = salt.toString("hex") + hash.toString("hex");
-        //fatal('[[[ ========= snapshot [[[ ', snapshot);
-        //fatal('[[[ ========= api_salt [[[ ', api_salt);
-        //fatal('[[[ ========= sig [[[ ', sig);
         return cb(undefined, RSA_Verify("Router", sig, snapshot));
     } catch (e) {
         return cb(e, false);
@@ -509,42 +506,30 @@ function _SetupReverseAPI(api, callback) {
 
 }
 
-//function revokeEmitter() {
-//    if (emitter) {
-//        emitter.removeAllListeners();
-//        emitter = undefined;
-//    }
-//}
-//
-//export function Diagnose(callback:Callback) {
-//    emitter.on('total', (total)=> {
-//        if (total === 0) {
-//            revokeEmitter();
-//            return callback(null, true);
-//        }
-//
-//        var launched = 0;
-//
-//        emitter.on('launched', (app_uid) => {
-//            console.log('app_uid', app_uid);
-//            launched += 1;
-//            if (launched === total) {
-//                revokeEmitter();
-//                console.log('runtime pool was launched.');
-//                return callback(null, true);
-//            }
-//        });
-//
-//        setTask('launch_apps_check', ()=> {
-//            if (launched !== total) {
-//                console.log('Launch apps timeout.'['redBG'].bold, launched, '/', total);
-//                revokeEmitter();
-//                return callback(null, true);
-//            }
-//        }, 5 * 60 * 1000);
-//    });
-//}
-
+//TODO: need to test
+function _QueryIntentions(intention: IIntention, cb) {
+    var keys = Object.keys(_pool);
+    var jobs = [];
+    var results = [];
+    for (var i = 0; i < keys.length; i++) {
+        var runtime:Runtime = _pool[keys[i]];
+        if(runtime.Status().State === RuntimeStatusEnum.Launched) {
+            ((i) => {
+                jobs.push(function (cb) {
+                    runtime[i].QueryIntention(intention, (err, result) => {
+                        if(err) error(err);
+                        if(!err && result)
+                            results.push(result);
+                        return cb();
+                    });
+                });
+            })(i);
+        }
+    }
+    async.series(jobs, ()=>{
+        cb(undefined, results);
+    });
+}
 
 (__API(_SetupReverseAPI, "Sandbox.SetupReverseAPI", [Permission.AppPreLaunch]));
 (__API(_GetQuota, "IO.Quota.Stat", [Permission.AnyApp, Permission.IO]));
@@ -554,3 +539,4 @@ function _SetupReverseAPI(api, callback) {
 (__API(SetQuota, "App.Manager.SetQuota", [Permission.System]));
 (__API(LoadApplication, "App.Manager.Load", [Permission.System]));
 (__API(GetPooledApps, "App.Manager.List", [Permission.AppCrossTalk]));
+(__API(_QueryIntentions, "App.QueryIntentions", [Permission.AppCrossTalk]));

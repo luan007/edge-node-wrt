@@ -3,6 +3,8 @@
   "url": "Launcher",
   "permission": [1],
   "is_system:": 1,
+  "intention": 1,
+  "support_file": 0,
   "drivers": {
     "NameService": {
       "Buses": ["WIFI"],

@@ -56,6 +56,9 @@ else {
 
 }
 
+global.QueryIntentions = function(intention: IIntention, cb: PCallback<IIntentionResponse>){
+
+}
 
 // setTimeout(()=> {
 //     console.log('_____________>> [1]');

@@ -167,3 +167,26 @@ interface IDescriptor {
     level: number;
     datatype?:string;
 }
+
+interface IIntentionObject{
+    id:string;
+    type:string;
+}
+
+interface IIntention {
+    objs: Array<IIntentionObject>;
+    fileName?: string;
+    mime?:string;
+}
+
+interface IIntentionResponse {
+    appid:string;
+    obj: IIntentionObject,
+    results: Array<IIntentionResult>;
+}
+
+interface IIntentionResult {
+    icon:string;
+    tip:string;
+    action:string;
+}

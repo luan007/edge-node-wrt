@@ -48,6 +48,8 @@ declare module local {
             WebExSock?:string;
             RuntimeId:string;
             Permission?: number[];
+            Intention?:boolean;
+            SupportFile?:boolean;
         }
 
 
@@ -59,6 +61,8 @@ declare module local {
                 Buses: string[];
                 Interest: IDriverInterest;
             }>;
+            intention:boolean;
+            support_file:boolean;
             is_system?:boolean;
         }
 

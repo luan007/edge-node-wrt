@@ -139,23 +139,25 @@ __USE EVENTS INSTEAD__
 
 ###Application
 
--> API.Application.Quota
+-> API.App.Manager.GetQuota
 
--> API.Application.RaiseQuota
+-> API.App.Manager.SetQuota
 
--> API.Application.List
+-> API.App.Manager.Load
 
--> API.Application.Settings.Set
+-> API.App.Manager.List
 
--> API.Application.Settings.Get
+-> API.App.Settings.Get
 
--> API.Application.Settings.List
+-> API.App.Settings.List
 
--> API.Application.RegisterBlock
+-> API.App.RegisterBlock
 
--> API.Application.RemoveBlock
+-> API.App.RemoveBlock
 
--> API.Application.RenderBlock
+-> API.App.RenderBlock
+
+-> API.App.QueryIntentions
 
 ###Action
 
@@ -224,6 +226,10 @@ __USE EVENTS INSTEAD__
 -> API.User.Preference.Get
 
 -> API.User.Preference.Set
+
+-> API.User.UpdateAvatar
+
+-> API.User.UpdateData
 
 ###Device
 

@@ -74,6 +74,12 @@ function DriverInvoke(driverid, dev:IDevice, actionId, params, cb) {
     global.Drivers[driverid].invoke(dev, actionId, params, cb);
 }
 
+function QueryIntentions(intention: IIntention, cb: PCallback<IIntentionResponse>) {
+    if (!global.QueryIntentions) {
+        return cb(new Error("[QueryIntentions] Does Not Support Query Intentions."));
+    }
+    global.QueryIntentions(intention, cb);
+}
 
 export function GenerateReverseAPI(r:rpc.RPCEndpoint):any {
     /*Create Reverse API*/
@@ -85,6 +91,7 @@ export function GenerateReverseAPI(r:rpc.RPCEndpoint):any {
     rpc.APIManager.RegisterFunction(DriverAttach, "Driver.Attach");
     rpc.APIManager.RegisterFunction(DriverDetach, "Driver.Detach");
     rpc.APIManager.RegisterFunction(DriverInvoke, "Driver.Invoke");
+    rpc.APIManager.RegisterFunction(QueryIntentions, "QueryIntentions");
     rpc.APIManager.ServeAPI(r);
     return rpc.APIManager.ToJSON();
 }
