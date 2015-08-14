@@ -487,6 +487,16 @@ export function DriverInvoke(driverId, deviceId, actionId, params: KVSet, cb) {
                         return cb(new Error('Mutex argument expected: 1, but actual: ' + exists.join(',')));
                 }
             }
+            if (args.optional && args.optional.length > 0) {
+                for (var i = 0, len = args.optional.length; i < len; i++) {
+                    for (var k in args.optional[i]) { // {}
+                        if (params.hasOwnProperty(k)) {
+                            if (args.optional[k] && args.optional[k].datatype && args.optional[k].datatype !== typeof params[k])
+                                return cb(new Error('Illegal argument type: ' + k));
+                        }
+                    }
+                }
+            }
 
             var dev = DeviceManager.Devices()[deviceId];
             return Drivers[driverId].invoke(dev, actionId, params, cb);
