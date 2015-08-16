@@ -5,6 +5,7 @@ var path = require('path');
 class _sys_global_conf {
     LOADED = false; // don't touch
     IS_DEBUG = true;
+    ALLOW_UNSAFE_DEVICE_INVOKATION = true;
     ALWAYS_REBUILD_OUI = false;
     INTERACTIVE_DEBUG = true;
     IPTABLES_GUARD_LOG = false;

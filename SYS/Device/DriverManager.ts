@@ -454,6 +454,14 @@ export function DriverInvoke(driverId, deviceId, actionId, params: KVSet, cb) {
     if (!Drivers[driverId]) return cb(new Error("Driver does not exist, or not available"));
     if (!DeviceManager.Devices()[deviceId]) return cb(new Error("Device does not exist"));
 
+    if (!DeviceManager.Devices()[deviceId].status) {
+        if(CONF.ALLOW_UNSAFE_DEVICE_INVOKATION){
+            warn("Device is offline, this might be a dangerous call to remote drivers ! ALLOW_UNSAFE_DEVICE_INVOKATION = true");
+        } else {
+            return cb(new Error("Target Device does not seem online"));
+        }
+    }
+
     if (!DeviceManager.Devices()[deviceId].assumptions[driverId] || 
         !DeviceManager.Devices()[deviceId].assumptions[driverId].valid) return cb(new Error("Driver Assumption is not valid"));
 

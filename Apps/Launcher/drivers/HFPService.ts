@@ -58,7 +58,25 @@ var HFPService: IInAppDriver = {
     },
 
     invoke: (dev, actionId, params, cb) => {
-        return cb();
+        
+        switch(actionId){
+            case "dial":
+                
+            break;
+            
+            case "hangup":
+                
+            break;
+            
+            case "pickup":
+                
+            break;
+            
+            default:
+                return cb(new Error(actionId + " is unknown"));
+            break;
+        }
+        
     }
 
 }
