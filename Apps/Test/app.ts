@@ -23,8 +23,11 @@ app.get("/wps", (req, res) => {
 
 
 app.get("/call", (req, res) => {
-    API.Edge.HFP.Dial('/hfp/001A7DDA7113_649ABED01D9F', '15210691899', 'default', console.log);
-	res.json({ done: "true" });
+    API.Driver.Invoke("App_Launcher:HFP", "40231ea469e64fa1b5262d96ccaed235", "dial", {
+        phoneNo: "15210691899"
+    }, (err, result)=>{
+        res.json({ err: err, result: result });
+    });
 });
 
 app.get("/ao", (req, res)=>{

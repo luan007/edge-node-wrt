@@ -456,7 +456,7 @@ export function DriverInvoke(driverId, deviceId, actionId, params: KVSet, cb) {
 
     if (!DeviceManager.Devices()[deviceId].state) {
         if(CONF.ALLOW_UNSAFE_DEVICE_INVOKATION){
-            warn("Device is offline, this might be a dangerous call to remote drivers ! ALLOW_UNSAFE_DEVICE_INVOKATION = true");
+            error("Device is offline, this might be a dangerous call to remote drivers ! ALLOW_UNSAFE_DEVICE_INVOKATION = true");
         } else {
             return cb(new Error("Target Device does not seem online"));
         }
@@ -472,6 +472,7 @@ export function DriverInvoke(driverId, deviceId, actionId, params: KVSet, cb) {
         ))
         return cb(new Error("Driver Assumption does not contain action"));
 
+    console.log("PHASE A PASSED");
 
     DB.QueryType(2, (err, actions) => {
         if (err) return cb(err);

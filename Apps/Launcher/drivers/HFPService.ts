@@ -58,6 +58,7 @@ var HFPService: IInAppDriver = {
     },
 
     invoke: (dev, actionId, params, cb) => {
+        console.log("Entering Invokation Logic");
         if(!dev.bus.data.HFP || !dev.bus.data.HFP.Path) {
             return cb(new Error("HFP Error - data path not found"));
         }

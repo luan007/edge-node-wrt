@@ -130,7 +130,9 @@ var map = {
   baidumap: /map.baidu.com/i,
   youku: /v.youku.com/i,
   weibo: /(weibo.com|weibo.cn)/i,
-  baidusearch: /baidu.com/i
+  taobao: /(h5.taobao.com|m.taobao.com)/i,
+  baidusearch: /baidu.com/i,
+  outlook: /outlook.office365.com/i
 };
 
 

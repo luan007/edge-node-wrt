@@ -48,6 +48,10 @@ function filterhost(host)
 		(host == "youku.com" ) or 
 		(host == "m.youku.com" ) or 
 		(host == "v.youku.com" ) or 
+		(host == "m.taobao.com" ) or 
+		(host == "taobao.com" ) or 
+		(host == "h5.taobao.com" ) or
+		(host == "outlook.office365.com" ) or 
 		(host == "github.com" ) 
 		then
 		return true
