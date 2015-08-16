@@ -23,6 +23,7 @@ domain.run(function () {
         , {path: './DB/Registry', name: 'Registry'}
         , {path: './Device/Graphd/DB', name: 'Graphd'}
         , {path: './Device/Bus/WifiBus', name: 'WifiBus'}
+        , {path: './Device/Bus/Dummy', name: 'DummyBus'}
         , {path: './Device/Bus/BluetoothBus', name: 'BluetoothBus'}
         , {path: './Device/Bus/BTLE', name: "BTLEBus"}
         , {path: './Device/DeviceManager', name: 'DeviceManager'}

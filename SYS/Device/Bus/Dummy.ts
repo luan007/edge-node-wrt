@@ -1,27 +1,18 @@
-﻿eval(LOG("Device:Bus:Dummy"));
+﻿eval(LOG("Device:Bus:BluetoothBus"));
 
 import Bus = require("./Bus");
 
-class Dummy extends Bus {
+var dummy = new Bus('DUMMY');
 
-    name = ():string => {
-        return "Dummy";
-    };
-
-    start = (cb) => {
-        cb();
-        setInterval(() => {
-            this.DeviceUp("00:00:00:11:22:33",  {
-                    val: Math.random()
-                }
-            );
-        }, 2000);
-    };
-
-    stop = (cb) => {
-        cb();
-    };
-
-}
-
-export = Dummy;
+SYS_ON(SYS_EVENT_TYPE.LOADED, ()=>{
+    setTimeout(function(){
+        console.log("RUNNING TEST, GENERATING NEW DUMMY DEVICE");
+        dummy.DeviceUp("00:00:00:00:00:00", { /*Nothing*/ });
+    }, 5000);
+    setTimeout(function(){
+        console.log("RUNNING TEST #2, GENERATING DATA");
+        dummy.DeviceUp("00:00:00:00:00:00", { 
+            SettleTime: Date.now()
+        });
+    }, 5000);
+});
