@@ -205,7 +205,7 @@ export class Ofonod extends Process {
 
 	AnwserCall = (path, cb) => {
 		this.bus.getInterface("org.ofono", path, "org.ofono.VoiceCall", (err, conn) => {
-			if(err) return cb(err);
+			if(err || !conn) return cb(err ? err : new Error("Failed to retrieve the dbus-object of VoiceCall"));
 			conn.Anwser(cb);
 		});
 	};
@@ -242,6 +242,7 @@ export class Ofonod extends Process {
 			if(!this._dev_cache[path].Calls) this._dev_cache[path].Calls = {};
 			this._dev_cache[path].Calls[id] = call;
 		    this.bus.getInterface("org.ofono", id, "org.ofono.VoiceCall", (err, conn) => {
+				if(err || !conn) return warn("Failed to connect to VoiceCall dbus-obj ERROR: " + err.message);
 				trace("Call : " + id);
 				trace(conn);
 				if(!this._sub_cache[path]) return;
@@ -285,7 +286,7 @@ export class Ofonod extends Process {
 			if(this._sub_cache[path][ifaces[q]]) continue; //skip
 			((_iface)=>{
 		        this.bus.getInterface("org.ofono", path, _iface, (err, conn) => {
-					if(err || !this._sub_cache[path]) return;
+					if(err || !this._sub_cache[path] || !conn) return;
 					var leName = _iface.replace("org.ofono.", ""); //"VoiceCallManager"
 					this._sub_cache[path][leName] = conn;
 					conn.GetProperties((err, result)=>{
@@ -316,6 +317,7 @@ export class Ofonod extends Process {
 		if(!this._dev_cache[path]){
 			//WOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
 	        this.bus.getInterface("org.ofono", path, "org.ofono.Modem", (err, conn) => {
+				if(err || !conn) return;
 				this._emitter_cache.push(conn);
 				this._sub_cache[path] = {};
 				conn.GetProperties((err, result)=>{
@@ -346,7 +348,7 @@ export class Ofonod extends Process {
         this.bus = dbus.systemBus({ socket: "/var/run/dbus/system_bus_socket" });
         
         this.bus.getInterface("org.ofono", "/", "org.ofono.Manager", (err, conn) => {
-            if (err) { return cb(err); }
+            if (err || !conn) { return cb(err ? err : new Error("Fail to retrieve dbus connection")); }
             conn.GetModems((err, modems) => {
                 if (err) { return cb(err); } 
                 this._dev_cache = {};

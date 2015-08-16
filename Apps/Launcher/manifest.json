@@ -72,6 +72,25 @@
         "stateChange": true
       }
     },
+    "HFP": {
+      "Buses": ["BLUETOOTH"],
+      "Interest": {
+        "match": {
+          "bus": {
+            "data.HFP": { "$exists": true }
+          }
+        },
+        "change": {
+          "delta": {
+            "bus": {
+              "data.HFP": { "$exists": true }
+            }
+          }
+        },
+        "stateChange": true
+      }
+      
+    },
     "Yeelight": {
       "Buses": ["BTLE"],
       "Interest": {

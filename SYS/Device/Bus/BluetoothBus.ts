@@ -19,12 +19,16 @@ function _on_device_disappear(mac) {
     }, CONF.BLUETOOTH_DROPWAIT);
 }
 
-function _on_device_appear(mac, data) {
+function _on_device_appear(mac, data, state_change = false) {
     //this can be called multiple times, thus differs from wifi
     if (!mac) return warn(" Invalid MAC - Skipped ");
     mac = mac.toLowerCase();
     clearTask("BLUETOOTH_DROP_" + mac);
-    _bluetoothBus.DeviceUp(mac, data, true);
+    _bluetoothBus.DeviceUp(mac, data, state_change && !_mac_list[mac]); //brand-new!
+    if(state_change){
+        _mac_list[mac] = 1;
+    }
+    
     // one second
     setTask("BLUETOOTH_LIFE_" + mac, () => {
         warn("Force Dropping " + mac + " - MAXTIME PASSED");
@@ -46,15 +50,13 @@ export function Subscribe(cb) {
             drop_all();
         }
     });
-
     sub.ofonod.on('set', (mac, oldo, newo) => {
         _on_device_appear(mac, {
             HFP: newo.data //this is a stub
         });
     });
-
     sub.nearby.on('set', (mac, oldTime, lastTime) => {//Found
-        _on_device_appear(mac, lastTime);
+        _on_device_appear(mac, lastTime, true);
     });
     sub.nearby.on('del', (mac, oldTime) => {//Lost
         _on_device_disappear(mac);
