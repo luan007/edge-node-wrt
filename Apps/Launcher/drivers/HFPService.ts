@@ -58,18 +58,28 @@ var HFPService: IInAppDriver = {
     },
 
     invoke: (dev, actionId, params, cb) => {
-        
+        if(!dev.bus.data.HFP || !dev.bus.data.HFP.Path) {
+            return cb(new Error("HFP Error - data path not found"));
+        }
+        var pth = dev.bus.data.HFP.Path;
         switch(actionId){
             case "dial":
-                
+                API.Edge.HFP.Dial(pth, params.phoneNo, 'default', cb);
             break;
             
             case "hangup":
-                
+                API.Edge.HFP.HangupAll(pth, cb);
             break;
             
             case "pickup":
-                
+                var calls = dev.bus.data.HFP;
+                if(!calls) return cb(new Error("Nothing to pickup!"));
+                for(var i in calls){
+                    if(calls[i].State === "incoming"){
+                        return API.Edge.HFP.AnwserCall(i, cb)
+                    }
+                }
+                return cb(new Error("Nothing to pickup!"));
             break;
             
             default:

@@ -15,7 +15,7 @@ global.Drivers = {
     IPP: IPPService.Instance,
     Yeelight: YeelightService.Instance,
     HFP: hfpService,
-    LPD: LPDService.Instance
+    LPD: LPDService.Instance,
     BT: BluetoothBaseService
 };
 
