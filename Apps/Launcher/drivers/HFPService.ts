@@ -7,10 +7,11 @@ function _think(dev: IDevice, cb){
             'mobile': "" //might be incorrect
         },
         actions: {
-            
         },
         aux: {},
-        attributes: assump,
+        attributes: {
+            
+        },
         valid: true
     };
     

@@ -41,7 +41,8 @@ class YeelightService implements IInAppDriver {
                 classes: classes,
                 actions: actions,
                 aux: {},
-                attributes: assump,
+                //attributes: assump, //yeelight's attributes are not working
+                attributes: {},
                 valid: true
             });
         }

@@ -452,11 +452,21 @@ export function DriverInvoke(driverId, deviceId, actionId, params: KVSet, cb) {
     if (!Drivers[driverId]) return cb(new Error("Driver does not exist, or not available"));
     if (!DeviceManager.Devices()[deviceId]) return cb(new Error("Device does not exist"));
 
+    if (!DeviceManager.Devices()[deviceId].assumptions[driverId] || 
+        !DeviceManager.Devices()[deviceId].assumptions[driverId].valid) return cb(new Error("Driver Assumption is not valid"));
+
+    if (! (DeviceManager.Devices()[deviceId].assumptions[driverId].hasOwnProperty(actionId)
+        || DeviceManager.Devices()[deviceId].assumptions[driverId][actionId] === null
+        || DeviceManager.Devices()[deviceId].assumptions[driverId][actionId] === undefined
+        || DeviceManager.Devices()[deviceId].assumptions[driverId][actionId] === 0
+        ))
+        return cb(new Error("Driver Assumption does not contain action"));
+
 
     DB.QueryType(2, (err, actions) => {
         if (err) return cb(err);
         else {
-            if (!actions.hasOwnProperty(actionId) || actions[actionId] === 0 || actions[actionId] === false || actions[actionId] === undefined || actions[actionId] === null)
+            if (!actions.hasOwnProperty(actionId))
                 return cb(new Error('Illegal action assumption: ' + actionId));
 
             //check arguments
