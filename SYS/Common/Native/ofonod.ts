@@ -196,7 +196,6 @@ export class Ofonod extends Process {
 
 	private bus;
 
-
 	HangupAll = (path, cb) => {
 		if(!(this._sub_cache[path] && this._sub_cache[path].VoiceCallManager)){
 			return cb(new Error("Service or Device not Found on " + path));
@@ -231,6 +230,7 @@ export class Ofonod extends Process {
 		info(coolName + " - Changed..");
 		info(this._dev_cache[path]);
 		coolName = coolName.toLowerCase();
+		this._dev_cache[path].Path = path; //traceback pointer..
 		this.emit('change', coolName, this._dev_cache[path], path);
 	};
 	

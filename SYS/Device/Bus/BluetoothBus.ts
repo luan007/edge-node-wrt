@@ -48,7 +48,9 @@ export function Subscribe(cb) {
     });
 
     sub.ofonod.on('set', (mac, oldo, newo) => {
-        
+        _on_device_appear(mac, {
+            HFP: newo.data //this is a stub
+        });
     });
 
     sub.nearby.on('set', (mac, oldTime, lastTime) => {//Found

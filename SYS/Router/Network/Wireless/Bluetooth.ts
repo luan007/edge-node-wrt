@@ -157,6 +157,8 @@ export function Diagnose(callback:Callback) {
     }, 2000);
 }
 
+
+
 __API(OfonoInstance.HangupAll, "Edge.HFP.Hangup");
 __API(OfonoInstance.AnwserCall, "Edge.HFP.AnwserCall");
 __API(OfonoInstance.Dial, "Edge.HFP.Dial");
