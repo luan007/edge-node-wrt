@@ -246,6 +246,8 @@ export function DriverActiveUpdate(drv: IDriver, dev: IDevice, assump: IDeviceAs
 function _notify_driver(driver: IDriver, dev: IDevice, tracker: _tracker, delta: IDeviceAssumption, deltaBus: IBusData, deltaConf: KVSet, deltaOwn, stateChange?) {
     process.nextTick(() => {
 
+        if(!driver.bus() || !driver.bus().indexOf(dev.bus.name) ) return; //WHO DA FOCK?
+
         var drvId = driver.id();
         var version = dev.time.getTime();
         var myAssump = dev.assumptions[drvId];
