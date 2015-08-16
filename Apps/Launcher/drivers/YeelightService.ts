@@ -49,18 +49,15 @@ class YeelightService implements IInAppDriver {
     }
 
     match(dev:IDevice, delta:IDriverDetla, cb:Callback) {
-        console.log("--------------- Yeelight match Called");
         var matched = dev.bus.data.name && dev.bus.data.name.indexOf("Yeelight ") > -1;
         return cb(undefined, matched);
     }
 
     attach(dev:IDevice, delta:IDriverDetla, matchResult:any, cb:PCallback<IDeviceAssumption>) {
-        console.log("--------------- Yeelight attach Called");
         this.__analyzeLight(dev, cb);
     }
 
     change(dev:IDevice, delta:IDriverDetla, cb:PCallback<IDeviceAssumption>) {
-        console.log("--------------- Yeelight change Called");
         this.__analyzeLight(dev, cb);
     }
 

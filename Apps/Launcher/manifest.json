@@ -31,7 +31,7 @@
       }
     },
     "OUI": {
-      "Buses": ["WIFI"],
+      "Buses": ["WIFI", "BTLE", "BLUETOOTH"],
       "Interest": {
         "match": true,
         "stateChange": true

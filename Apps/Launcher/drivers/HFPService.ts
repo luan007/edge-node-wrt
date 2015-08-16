@@ -1,25 +1,41 @@
+function _think(dev: IDevice, cb){
+    if(!(dev.data.HFP.Interfaces && dev.data.HFP.Interfaces.length > 0)) return cb(undefined, undefined); //give up on this
+    if(!(!dev.data.HFP.Online)) return cb(undefined, { valid: false }); //invalidate myself
+    
+    var assump = {
+        classes: {
+            'mobile': "" //might be incorrect
+        },
+        actions: {
+            
+        },
+        aux: {},
+        attributes: assump,
+        valid: true
+    };
+    
+    cb(undefined, assump);
+}
+
 var HFPService: IInAppDriver = {
 
     match: (dev: IDevice, delta, cb: Callback) => {
-        //IpAddress is required
-        console.log("HFP Service is being Called");
-        return cb(undefined, false);
+        return cb(undefined, dev.data.HFP.Interfaces && dev.data.HFP.Interfaces.length > 0);
     },
 
     attach: (dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) => {
-        cb(undefined, undefined);
+        _think(dev, cb);
     },
 
     change: (dev: IDevice, delta: IDriverDetla, cb: PCallback<IDeviceAssumption>) => {
-        cb(undefined, undefined);        
+        _think(dev, cb);
     },
 
     detach: (dev: IDevice, delta, cb: PCallback<IDeviceAssumption>) => {
-        return cb(undefined, { valid: true });
+        return cb(undefined, { valid: false });
     },
 
     load: (cb: Callback) => {
-        //Core.Router.Network.dnsmasq.Hosts[this._key] = this._name_cache; //no clash
         return cb(undefined, true);
     },
 

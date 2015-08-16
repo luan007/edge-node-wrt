@@ -456,7 +456,7 @@ export function DriverInvoke(driverId, deviceId, actionId, params: KVSet, cb) {
     DB.QueryType(2, (err, actions) => {
         if (err) return cb(err);
         else {
-            if (!actions.hasOwnProperty(actionId))
+            if (!actions.hasOwnProperty(actionId) || !actions[actionId])
                 return cb(new Error('Illegal action assumption: ' + actionId));
 
             //check arguments
