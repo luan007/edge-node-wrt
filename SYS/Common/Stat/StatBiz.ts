@@ -40,16 +40,16 @@ export function GetIPByMac(mac:string) {
     return null;
 }
 
-export function GetBluetoothPropertiesByMac(mac:string) {
-    var bluetoothStatues = <any>StatMgr.Get(SECTION.BLUETOOTH).ValueOf();
-    //console.log('GetBluetoothPropertiesByMac bluetoothStatues', require('util').inspect(bluetoothStatues));
-    if (bluetoothStatues && bluetoothStatues.devices) {
-        if (bluetoothStatues.devices.hasOwnProperty(mac)) {
-            return bluetoothStatues.devices[mac];
-        }
-    }
-    return null;
-}
+// export function GetBluetoothPropertiesByMac(mac:string) {
+//     var bluetoothStatues = <any>StatMgr.Get(SECTION.BLUETOOTH).ValueOf();
+//     //console.log('GetBluetoothPropertiesByMac bluetoothStatues', require('util').inspect(bluetoothStatues));
+//     if (bluetoothStatues && bluetoothStatues.devices) {
+//         if (bluetoothStatues.devices.hasOwnProperty(mac)) {
+//             return bluetoothStatues.devices[mac];
+//         }
+//     }
+//     return null;
+// }
 
 export function GetMDNSByIP(IP:string) {
     var networkStatues = <any>StatMgr.Get(SECTION.NETWORK).ValueOf();

@@ -19,26 +19,12 @@ function _on_device_disappear(mac) {
     }, CONF.BLUETOOTH_DROPWAIT);
 }
 
-function _on_device_appear(mac) {
+function _on_device_appear(mac, data) {
     //this can be called multiple times, thus differs from wifi
     if (!mac) return warn(" Invalid MAC - Skipped ");
     mac = mac.toLowerCase();
     clearTask("BLUETOOTH_DROP_" + mac);
-    if (_mac_list[mac]) {
-        //emm possible RSSI change
-        _bluetoothBus.DeviceUp(mac,
-            StatBiz.GetBluetoothPropertiesByMac(mac) //expand properties
-        );
-    } else {
-        var baseProperty = StatBiz.GetBluetoothPropertiesByMac(mac);
-        baseProperty.ble = {};
-        _mac_list[mac] = 1;
-        //Register All handlers?
-        _bluetoothBus.DeviceUp(mac,
-            baseProperty //expand properties
-        );
-    }
-
+    _bluetoothBus.DeviceUp(mac, data, true);
     // one second
     setTask("BLUETOOTH_LIFE_" + mac, () => {
         warn("Force Dropping " + mac + " - MAXTIME PASSED");
@@ -61,13 +47,16 @@ export function Subscribe(cb) {
         }
     });
 
-    sub.nearby.on('set', (mac, oldTime, lastTime)=> {//Found
-        _on_device_appear(mac);
+    sub.ofonod.on('set', (mac, oldo, newo) => {
+        
+    });
+
+    sub.nearby.on('set', (mac, oldTime, lastTime) => {//Found
+        _on_device_appear(mac, lastTime);
     });
     sub.nearby.on('del', (mac, oldTime) => {//Lost
         _on_device_disappear(mac);
     });
-
     cb();
 }
 
