@@ -4,6 +4,7 @@ import oui = require('./drivers/OUIService');
 import p0fService = require('./drivers/P0FService');
 import hfpService = require('./drivers/HFPService');
 import IPPService = require('./drivers/IPPService');
+import BluetoothBaseService = require('./drivers/BluetoothBaseService');
 import nameService = require('./drivers/NameService');
 import YeelightService = require('./drivers/YeelightService');
 import LPDService = require("./drivers/LPDService");
@@ -15,5 +16,6 @@ global.Drivers = {
     Yeelight: YeelightService.Instance,
     HFP: hfpService,
     LPD: LPDService.Instance
+    BT: BluetoothBaseService
 };
 

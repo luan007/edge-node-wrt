@@ -37,6 +37,14 @@
         "stateChange": true
       }
     },
+    "BT": {
+      "Buses": ["BTLE", "BLUETOOTH"],
+      "Interest": {
+        "match": true,
+        "change": true,
+        "stateChange": true
+      }
+    },
     "P0F": {
       "Buses": ["WIFI"],
       "Interest": {

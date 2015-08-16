@@ -1,9 +1,9 @@
 function _think(dev: IDevice, cb){
-    if(!(dev.data.HFP.Interfaces && dev.data.HFP.Interfaces.length > 0)) return cb(undefined, undefined); //give up on this
-    if(!dev.data.HFP.Online || dev.data.HFP.Type !== "hfp" ) return cb(undefined, { valid: false }); //invalidate myself
+    if(!(dev.bus.data.HFP.Interfaces && dev.bus.data.HFP.Interfaces.length > 0)) return cb(undefined, undefined); //give up on this
+    if(!dev.bus.data.HFP.Online || dev.bus.data.HFP.Type !== "hfp" ) return cb(undefined, { valid: false }); //invalidate myself
     
     var attr = <any>{};
-    var HFP = dev.data.HFP;
+    var HFP = dev.bus.data.HFP;
     
     if(HFP.Name) attr.name = HFP.Name;
     if(HFP.Calls) attr["mobile.calls"] = HFP.Calls;
@@ -27,14 +27,14 @@ function _think(dev: IDevice, cb){
         attributes: attr,
         valid: true
     };
-    
     cb(undefined, assump);
 }
 
 var HFPService: IInAppDriver = {
 
+
     match: (dev: IDevice, delta, cb: Callback) => {
-        return cb(undefined, dev.data.HFP.Type === "hfp" && dev.data.HFP.Interfaces && dev.data.HFP.Interfaces.length > 0);
+        return cb(undefined, dev.bus.data.HFP.Interfaces && dev.bus.data.HFP.Interfaces.length > 0);
     },
 
     attach: (dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) => {
