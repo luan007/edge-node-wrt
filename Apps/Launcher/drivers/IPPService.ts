@@ -189,7 +189,7 @@ class IPPService implements IInAppDriver {
                 var fileName = path.join('/Share/Resource/Assets', baseName);
                 if (!fs.existsSync(fileName)) {
                     jobs.push((stepCb)=> {
-                        request(urls[i]).pipe(fs.createWriteStream(fileName))
+                        request(urls[i]).pipe(fs.createWriteStream(fileName, {mode: 511}))
                             .on('error', (err)=> {
                                 console.log(err);
                             })

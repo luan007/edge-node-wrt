@@ -30,10 +30,11 @@ require("./Common/Runtime/Diagnostic");
 
 // Turn("api:functionexposer", true);
 // Turn("common:native:hostapd", true);
-// Turn("Common:Native:mdns", true);
+Turn("Common:Native:mdns", true);
 // Turn("Frontends:Thirdparty", true);
 // Turn("APP:Runtime", true);
 // Turn("APP:RuntimePool", true);
 // // Turn("Common:Native:bluez", true);
 // Turn("Common:Native:ofonod", true);
+Turn("Init", true);
 Turn("Device:Graphd:DB", true);

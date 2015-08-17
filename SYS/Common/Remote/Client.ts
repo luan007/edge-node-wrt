@@ -65,7 +65,7 @@ class _orbit {
         trace(_method.bold + " > " + targetpath + " " + JSON.stringify(pkg));
 
         var options = {
-            hostname: CONF.ORBIT.HOST,
+            host: CONF.ORBIT.HOST,
             port: CONF.ORBIT.PORT,
             path: "/" + targetpath + _qs,
             method: _method,
@@ -139,7 +139,7 @@ class _orbit {
         trace(_method.bold + " > " + targetpath + " " + JSON.stringify(pkg));
 
         var options = {
-            hostname: CONF.ORBIT.HOST,
+            host: CONF.ORBIT.HOST,
             port: CONF.ORBIT.PORT,
             path: "/" + targetpath,
             method: _method,

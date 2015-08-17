@@ -128,3 +128,9 @@ domain.run(function () {
         }
     });
 });
+
+
+SYS_ON(SYS_EVENT_TYPE.ERROR, (err)=>{
+    error("***********************SYSTEM ERROR*********************");
+    error(err);
+});

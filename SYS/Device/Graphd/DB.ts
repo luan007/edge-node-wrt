@@ -252,6 +252,7 @@ function DownloadGraphd(cb:Callback) {
 function GetGraphdVersion(callback:Callback) {
     Orbit.Get('Packages/graphd/version', {}, (err, orbitResult) => {
         if (err) return callback(err);
+        trace("Orbit Version : " + orbitResult.numericDate); 
         return callback(undefined, orbitResult.numericDate);
     });
 }
@@ -278,7 +279,12 @@ function CheckGraphdUpdate(taskCB) {
                     } else if (Number(graphd.numericDate) < Number(numericDate)) {
                         console.log('current graphd was stale'['greenBG'].bold, graphd.numericDate, 'Orbit ver:', numericDate);
                         needDownload = true;
+                    } else if (!(fs.existsSync(CONF.GRAPHD_LOCATION) && fs.readdirSync(CONF.GRAPHD_LOCATION).length > 0)) {
+                        needDownload = true;
+                    } else if (!DB) {
+                        needDownload = true;
                     }
+                    
 
                     var jobs = [];
                     if (needDownload) {
@@ -346,7 +352,7 @@ export function Initialize(cb) {
                 if (err2) {
                     return CheckGraphdUpdate(()=>{});
                 }
-
+                
                 pub.Set('graphd', {
                     State: 'running'
                 });
