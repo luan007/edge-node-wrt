@@ -18,6 +18,7 @@
     "grunt-zip": "*",
     "grunt-http-upload": "*",
     "grunt-http": "*",
-    "grunt-shell-spawn": "*"
+    "grunt-shell-spawn": "*",
+    "grunt-contrib-less": "*"
   }
 }
