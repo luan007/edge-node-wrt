@@ -14,6 +14,7 @@ var levelQuery:any = require('level-queryengine'),
     jsonqueryEngine:any = require('jsonquery-engine'),
     levelup:any = require('levelup');
 
+var ERR_DB_IS_NOT_INITIALIZED = "DB is not Initialized :(";
 
 /*
  * To make this swappable, a queue is needed for every op
@@ -278,6 +279,10 @@ function CheckGraphdUpdate(taskCB) {
                     } else if (Number(graphd.numericDate) < Number(numericDate)) {
                         console.log('current graphd was stale'['greenBG'].bold, graphd.numericDate, 'Orbit ver:', numericDate);
                         needDownload = true;
+                    } else if (!(fs.existsSync(CONF.GRAPHD_LOCATION) && fs.readdirSync(CONF.GRAPHD_LOCATION).length > 0)) {
+                        needDownload = true;
+                    } else if (!DB) {
+                        needDownload = true;
                     }
 
                     var jobs = [];
@@ -365,7 +370,10 @@ export function Diagnose(callback:Callback) {
 
 export function Find(query:any, callback:PCallback<IDescriptor[]>) {
     hotswapSafe(HOTSWAP_NAME, callback, (done:PCallback<IDescriptor[]>) => {
-        if (!DB) return done(new Error("DB is not Initialized :("));
+        if (!DB) {
+            GraphdUpdateTask(()=>{ });
+            return done(new Error());
+        }
         var results = [];
         DB.query(query).on("error", (e) => {
             done(e);
@@ -377,28 +385,13 @@ export function Find(query:any, callback:PCallback<IDescriptor[]>) {
     });
 }
 
-export function QueryStream(query:any, callback:PCallback<NodeJS.ReadableStream>) {
-    hotswapSafe(HOTSWAP_NAME, () => {
-    }, (done) => {
-        if (!DB) {
-            var err = new Error("DB is not Initialized :(");
-            callback(err);
-            return done(err);
-        }
-        var stream = DB.query(query);
-        stream.on("error", (e) => {
-            done(e);
-        }).on("end", () => {
-            done();
-        });
-        callback(undefined, stream);
-    });
-}
-
 export function QueryType($type:number, callback:PCallback<IDic<IDescriptor>>) {
     var query = {$and: [{type: $type}]};
     hotswapSafe(HOTSWAP_NAME, callback, (done:PCallback<IDic<IDescriptor>>) => {
-        if (!DB) return done(new Error("DB is not Initialized :("));
+        if (!DB) {
+            GraphdUpdateTask(()=>{ });
+            return done(new Error(ERR_DB_IS_NOT_INITIALIZED));
+        }
         var results:IDic<IDescriptor> = {};
         DB.query(query).on("error", (e) => {
             done(e);
@@ -471,7 +464,10 @@ export function ChildrenChain(id_or_obj:any, filter, max_depth, callback:PCallba
 
 export function Get<T extends IDescriptor>(id, callback:PCallback <T>) {
     hotswapSafe(HOTSWAP_NAME, callback, (done:PCallback<T>) => {
-        if (!DB) return done(new Error("DB is not Initialized :("));
+        if (!DB) {
+            GraphdUpdateTask(()=>{ });
+            return done(new Error(ERR_DB_IS_NOT_INITIALIZED));
+        }
         DB.get(id, done);
     });
 }
