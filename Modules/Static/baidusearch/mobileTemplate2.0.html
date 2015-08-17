@@ -1,0 +1,90 @@
+<div class="_M_container" style="opacity:1">
+
+    <div class="_M_item">
+        <input id="printer_ID" type="text" style="display:none" value="" />
+        <input id="printer_driver" type="text" style="display:none" value="" />
+        <div class="_M_title">
+            <a href="#"><span>Edge</span>附近的<em>打印机</em> </a>
+        </div>
+        <hr>
+        <div class="_M_main">
+            <div class="_M_left">
+                <div class="_M_left_content">
+
+                    <img id="printer_mainImg" src="" alt="" onload="crap.DownImageWidth(this,80,0,0)">
+                </div>
+            </div>
+            <div class="_M_right">
+                <div class="_M_right_top" data-printer="addfile">
+                    <P id="printer_name" class="_M_left_title">HP LED PDF</P>
+
+                </div>
+                <div class="_M_content">
+                    <div class="_M_fun1">
+                        <div class="_M_top">
+                            <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+                                <rect width="3px" height="25px" style="fill:rgb(0,123,255);" />
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+                                <rect width="3px" height="15px" style="fill:rgb(255,102,153);" />
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+                                <rect width="3px" height="5px" style="fill:rgb(255,255,102);" />
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+                                <rect width="3px" height="20px" style="fill:rgb(0,0,0);" />
+                            </svg>
+                        </div>
+                        <div class="_M_bottom">
+                            <span class="glyphicon glyphicon-tint"></span>
+                        </div>
+                    </div>
+                    <div class="_M_fun2">
+                        <div class="_M_top">
+                            <span id="print_times">3</span>
+                        </div>
+                        <div class="_M_bottom">
+                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 96 120" x="0px" y="0px" style="width:20px;height:20px">
+                                <path d="M79.872 76c-0.348 0-0.7-0.084-1.020-0.28l-8.916-5.304-8.916 5.304c-0.948 0.576-2.176 0.252-2.748-0.696-0.564-0.948-0.252-2.176 0.7-2.744l9.932-5.916c0.632-0.376 1.416-0.376 2.052 0l9.932 5.916c0.948 0.564 1.26 1.788 0.696 2.744-0.364 0.628-1.028 0.976-1.712 0.976z"
+                                      fill="#000000" />
+                                <path d="M70 94c-1.1 0-2-0.9-2-2v-24c0-1.1 0.9-2 2-2s2 0.9 2 2v24c0 1.1-0.9 2-2 2z" fill="#000000" />
+                                <path d="M52 96h-38c-1.104 0-2-0.9-2-2v-69.672c0-0.492 0.18-0.964 0.508-1.332l20-22.328c0.38-0.424 0.92-0.668 1.492-0.668h48c1.1 0 2 0.896 2 2v58c0 1.1-0.9 2-2 2s-2-0.9-2-2v-56h-45.104l-18.896 21.092v66.908h36c1.1 0 2 0.9 2 2s-0.9 2-2 2z" fill="#000000"
+                                        />
+                                <path d="M34 28h-18c-1.104 0-2-0.896-2-2s0.896-2 2-2h16v-20c0-1.104 0.896-2 2-2s2 0.896 2 2v22c0 1.104-0.896 2-2 2z" fill="#000000" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="_M_dropzone">
+            <form class="upload" id="form_1" action="/upload" method="post">
+                <div class="printer_btn">
+                    <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="43px" height="43px" viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve">
+								<polyline fill="#fff" stroke="#fff" stroke-width="0.9091" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="
+	65.219,76.795 26.346,76.795 26.346,16.711 53.599,16.711 70.042,33.156 70.045,56.085 " />
+								<g>
+									<polyline fill="#fff" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="
+		76.279,68.108 70.042,61.158 63.808,68.105 	" />
+									<g>
+										<line fill="#fff" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="70.045" y1="61.496" x2="70.045" y2="76.951" />
+									</g>
+								</g>
+							</svg>
+                    <span class="printer_action">打印</span>
+                </div>
+                <input class="upload_file" type="file" name="fileName" id="fileName" />
+                <progress id="uploadprogress" min="0" max="100" value="0">0</progress>
+                <div class="file_detail">
+                    <p id="file_detail_name">11111</p>
+                    <p id="file_detail_size">232323</p>
+                </div>
+                <div class="let_print"><span>开始打印</span></div>
+                <input type="submit" value="tijiao" />
+            </form>
+        </div>
+        <div class="_M_footer">
+            Powered by Emerge
+        </div>
+    </div>
+</div>

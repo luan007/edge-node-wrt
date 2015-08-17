@@ -1,0 +1,61 @@
+﻿<div style="opacity:0;transition: all 0.5s ease-in-out;text-align:left;border:1px solid #ececec;border-radius:0;overflow:hidden;background:#eee" id="M_container">
+    <div class="_M_item" style="background-color:#fff;border:solid 1px #e1e1e1;border-radius:2px; margin:5px; ">
+        <input id="printer_ID" type="text" style="display:none" value="" data-printer=""><input id="printer_driver" type="text" style="display:none" value="" data-printer="">
+        <div style="border-bottom:1px solid #efefef;padding-bottom:5px;margin-top:5px">
+            <span style="font-size:1.2em;opacity:1;font-weight:lighter;padding:5px;color:#777">edge附近的<i style="color:#C00">打印机</i></span>
+        </div>
+        <div class="printer_list">
+            <div class="printer_dragzone" style="position:relative">
+                <div style="width:100%;table-layout:fixed;margin-top:10px;border-bottom:1px solid #eee;display:table">
+                    <div style="display:table-cell;vertical-align:middle;padding:10px 15px;width:50px;text-align:center">
+                        <img id="printer_mainImg" src="http://192.168.66.16/ipp/images/printer.png" alt="" style="width:100%">
+                    </div>
+                    <div style="display:table-cell;width:150px;padding:10px 15px;overflow:hidden">
+                        <h3 id="printer_model" style="font-size:1.5em;text-overflow:ellipsis;display:block;white-space:nowrap;overflow:hidden;margin:0;color:#444;font-weight:400;margin-bottom:0"></h3>
+                        <div style="margin-top:5px;margin-bottom:10px">
+                            <span id="printer_name" style="font-size:15px;color:#aaa;vertical-align:middle;"></span>
+                        </div>
+                        <div style="width:100%">
+                            <div id="color_box" style="width:21%;display:table-cell;letter-spacing:0;font-size:0;padding:2px;border:1px solid #E2E2E2">
+                                <!--<div style="height:25px;width:5px;border:1px solid rgba(255,255,255,1);overflow:hidden;background:#0ff;display:inline-block;margin-right:1px" class="M_current">-->
+                                    <!--<div style="height:25px;width:10px;background:rgba(255,255,255,.8)">-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                                <!--<div style="height:25px;width:5px;border:1px solid #FFF;overflow:hidden;background:#f0f;display:inline-block;margin-right:1px" class="M_current">-->
+                                    <!--<div style="height:24.5px;width:10px;background:rgba(255,255,255,.8)">-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                                <!--<div style="height:25px;width:5px;border:1px solid #FFF;overflow:hidden;background:#Ff0;display:inline-block;margin-right:1px" class="M_current">-->
+                                    <!--<div style="height:25px;width:10px;background:rgba(255,255,255,.811765)">-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                                <!--<div style="height:25px;width:5px;border:1px solid #FFF;overflow:hidden;background:#000;display:inline-block" class="M_current">-->
+                                    <!--<div style="height:5.25px;width:10px;background:rgba(255,255,255,.8)">-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            </div>
+                            <div style="width:130px;display:table-cell;line-height:25px;vertical-align:middle;padding-left:20px;font-size:1em">
+                                <div style="position:relative;border-radius:5px;border:1px solid #ddd;padding:3px;width:100%;text-align:center;background:#F7F7F7;cursor:pointer">
+                                    <form class="upload" id="form_1" action="/upload" method="post">
+                                        <div class="printer_btn">
+                                            <span class="printer_action">打印</span>
+                                        </div>
+                                        <input class="upload_file" type="file" name="fileName" id="fileName" style="position:absolute;top:0;width:100%;left:0;height:30px;opacity:0;display:block;z-index:1000"><input type="submit" value="tijiao" style="display:none">
+                                        <iframe id="tmp_downloadhelper_iframe" style="display:none">
+                                        </iframe>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="position:absolute;left:0;right:0;top:0;bottom:0;background:rgba(0,0,0,.8);border-radius:3px;color:#fff;vertical-align:middle;text-align:center;display:none" id="loading">
+                    <h1 style="font-weight:lighter;font-size:25px;margin-top:26px;margin-bottom:0"><i class="fa fa-2x fa-spinner fa-spin" style=""></i></h1>
+                </div>
+            </div>
+        </div>
+        <div>
+            <span style="font-size:.7em;opacity:.4;font-weight:lighter;display:block;line-height:21px;margin-left:10px">powered by <b>Edge</b></span>
+        </div>
+    </div>
+</div>

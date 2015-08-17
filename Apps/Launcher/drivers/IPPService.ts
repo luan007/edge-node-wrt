@@ -314,6 +314,7 @@ class IPPService implements IInAppDriver {
 
         if (assumption['actions'] && assumption['actions'].hasOwnProperty(actionId)) {
             var printer = this.__ippPrinter(dev);
+            console.log("PRINTER CREATED *************");
             if (printer) {
                 this.__printerJoin(dev, printer);
 

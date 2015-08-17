@@ -10,7 +10,26 @@ var events = require("events");
 
 var LISTEN_PORT = "br0";
 
+var jobQueue = [];
+
 export var Emitter = new events.EventEmitter();
+
+var running = false;
+
+function roll(){
+	if(jobQueue.length && !running){
+		running = true;
+		
+		var job = function(){
+			trace("Job Began");
+			async.series(jobQueue, ()=>{
+				trace("Job Done");
+				setTimeout(job, 10000); //NEXT
+			});
+		};
+		job();
+	}
+}
 
 export function Initialize(cb) {
 	
@@ -33,10 +52,13 @@ export function Initialize(cb) {
 			worker.on("ready", function(){
 				info("Worker " + _type + " READY ");
 				worker.discover();
-				setInterval(function(){
+				
+				jobQueue.push(function(cb){
 					worker.discover(); 
 					trace("WORKER - " + _type);
-				}, 15000);
+					setTimeout(cb, 2000);
+				});
+				
 			});
 		}
 		
@@ -44,10 +66,12 @@ export function Initialize(cb) {
 		main.on("ready", function(){
 			trace("MDNS IS READY");
 			main.discover();
-			setInterval(function(){
+			jobQueue.push(function(cb){
 				main.discover();
-				trace("PROBING MAIN");
-			}, 15000);
+				trace("Main Hop");
+				setTimeout(cb, 2000);
+			});
+			roll();
 		});
 		
 		

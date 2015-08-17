@@ -1,0 +1,65 @@
+$M-width:375px;
+$M-imgheight: $M-width / 15 * 11;
+$M-boxheight: $M-width / 15 * 16;
+$M-captionheight: $M-boxheight / 3;
+@media only screen and (max-width: 420px) {
+
+    .box-item {
+        height: $M-boxheight;
+        box-shadow: 0 0 2px rgba(0,0,0,0.8);
+        -webkit-box-shadow: 0 0 2px rgba(0,0,0,0.8);
+    }
+    .box-img {
+        position: relative;
+        width: $M-width *0.955;
+        height: $M-imgheight;
+        background-color: #f9f9f9;
+        .main {
+            position: absolute;
+            top: $M-imgheight / 4;
+            left: 50%;
+            margin-left: - $M-width / 4;
+            width: $M-width / 2;
+            height: $M-imgheight / 4 * 2.3;
+        }
+        .name {
+            padding-top: $M-imgheight* 0.85;
+            text-align: center;
+        }
+        .icon {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+        }
+    }
+    .caption {
+        display: -webkit-flex;
+        display: flex;
+        height: $M-captionheight / 2;
+        div{
+            height:  $M-captionheight / 2;
+            width:$M-width / 3;
+            text-align: center;    }
+    }
+    .thumbnail {
+        height: $M-boxheight;
+        padding: 0px;
+        transition: all 0.5s ease-in-out;
+        -webkit-appearance: none;
+        &:hover {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+            margin-top: -3px;
+        }
+    }
+    .fun {
+        width: $M-width;
+        height: $M-captionheight;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+    }
+    .func {
+        display: -webkit-flex;
+        display: flex;
+        margin: 10px;
+    }
+
+}

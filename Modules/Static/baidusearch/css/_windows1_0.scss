@@ -1,0 +1,63 @@
+$width: 238px;
+$imgheight: $width / 15 * 11;
+$boxheight: $width / 15 * 16;
+$captionheight: $boxheight / 3;
+@media only screen and (min-width: 1000px) {
+    .box {
+        width: 810px;
+    }
+    .box-item {
+        height: $boxheight;
+    }
+    .box-img {
+        position: relative;
+        width: $width;
+        height: $imgheight;
+        background-color: #f9f9f9;
+        .main {
+            position: absolute;
+            top: $imgheight / 4;
+            left: 50%;
+            margin-left: - $width / 4;
+            width: $width / 2;
+            height: $imgheight / 4 * 2.3;
+        }
+        .name {
+            padding-top: $imgheight* 0.85;
+            text-align: center;
+        }
+        .icon {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+        }
+    }
+    .caption {
+        display: -webkit-flex;
+        display: flex;
+        height: $M-captionheight / 2;
+        div{
+            height:  $M-captionheight / 2;
+            width:$M-width / 3;
+            text-align: center;    }
+    }
+    .thumbnail {
+        height: $boxheight;
+        padding: 0px;
+        transition: all 0.5s ease-in-out;
+        -webkit-appearance: none;
+        &:hover {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+            margin-top: -3px;
+        }
+    }
+    .fun {
+        width: $width * 1.3;
+        height: $captionheight;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+    }
+    .func {
+        display: flex;
+        margin: 10px;
+    }
+}

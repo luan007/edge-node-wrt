@@ -7,6 +7,9 @@ if [ -e /node_modules/sqlite3/lib/binding/node-v11-linux-ia32  ]; then
     #rm -rf /node_modules/sqlite3/lib/binding/node-v11-linux-arm
     mv /node_modules/sqlite3/lib/binding/node-v11-linux-ia32 /node_modules/sqlite3/lib/binding/node-v11-linux-arm
 fi
+mkdir /Data
+mkdir /Data/App
+mkdir /User
 chmod 755 /ramdisk
 chmod 755 /storage
 chmod 755 /storage/Resource

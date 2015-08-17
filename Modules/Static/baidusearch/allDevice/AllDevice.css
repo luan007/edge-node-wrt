@@ -1,0 +1,171 @@
+			.device_container * {
+				margin: 0;
+				padding: 0;
+			}
+			@media only screen and (min-width: 375px) and (max-width: 600px) {
+				.box_container {
+					display: table-cell;
+					padding:0 5px;
+				}
+				.box {
+					display: inline-block;
+					width: 49.23%;
+					margin-top: 10px;
+				}
+				.box > div {
+					border: solid 1px #eee;
+					display: inline-block;
+					margin: 0 5px;
+
+				}
+
+				.footer {
+					position: relative;
+					display: flex;
+					display: -webkit-flex;
+					margin: 20px auto;
+					justify-content: center;
+					color: #111;
+				}
+				.foot_info {
+					font-size: 11px;
+					color: #ccc;
+					position: absolute;
+					bottom: 3px;
+					right: 5px;
+				}
+			}
+			
+			@media only screen and (max-width: 374px) {
+				.device_container {
+					padding: 0 0 10px 0;
+				}
+				.box_container>div {
+					margin: 0;
+					flex: 1;
+				}
+				.box svg {
+					width: 100%;
+					height: 100%;
+				}
+				.box>div {
+					border: solid 1px #eee;
+				}
+				.box_container svg {
+					display: block;
+					margin: 0px auto;
+				}
+			}
+			@media only screen and (min-width: 600px) {
+				.total {
+					margin: 0px 15px;
+				}
+				.box_container {
+					margin: 10px 0;
+					display: flex;
+					display: -webkit-flex;
+				}
+				.box {
+					margin-left: 5px;
+					flex: 1;
+				}
+				.box:nth-child(4) {
+					margin-right: 5px;
+				}
+				.box > div {
+					border: solid 2px #E0E0E0;
+				}
+				.box:hover div {
+					margin-top: -2px;
+					;
+					box-shadow: 0px 0px 1px 5px rgba(111, 111, 111, 0.1);
+					border-color: rgb(141, 211, 255);
+				}
+				.foot_info {
+					font-size: 12px;
+					color: #ccc;
+					position: absolute;
+					bottom: 5px;
+					right: 10px;
+				}
+				.footer {
+					position: relative;
+					display: flex;
+					display: -webkit-flex;
+					justify-content: center;
+					color: #111;
+				}
+			}
+
+
+			.box > div svg {
+				fill: #000;
+				height: 100%;
+				width: 100%;
+				display: block;
+				margin: 0px auto;
+				margin-bottom: -10px;
+			}
+			.light {
+				display: inline-block;
+				width: 15px;
+				height: 15px;
+				background: greenyellow;
+				margin-right: 10px;
+				border-radius: 15px;
+				position: relative;
+				top: 3px;
+			}
+			.light span {
+				display: inline-block;
+				width: 11px;
+				height: 11px;
+				background: green;
+				opacity: 0.5;
+				position: absolute;
+				top: 2px;
+				left: 2px;
+				border-radius: 11px;
+			}
+			.device_container {
+				position: relative;
+			}
+			.box:hover > div svg {
+				fill: rgb(141, 211, 255);
+			}
+			.box:hover .device_name {
+				color: rgb(141, 211, 255);
+			}
+			.device_name {
+				color: #000;
+				text-align: center;
+				padding: 0px 6px;
+				margin: 0px;
+			}
+			.info {
+				text-align: center;
+				margin: 10px auto;
+				font-size: 13px;
+			}
+			.button {
+				cursor: pointer;
+				margin: 0px auto;
+				display: inline-block;
+				border: solid 2px #eee;
+				padding: 8px 45px;
+				border-radius: 5px;
+			}
+			.button:hover {
+				border-color: rgb(141, 211, 255);
+				color: rgb(141, 211, 255);
+			}
+			.button:focus {
+				background-color: rgb(141, 211, 255);
+				color: white;
+			}
+			.title_box {
+				margin: 0px 15px;
+			}
+			.total {
+				margin: 0px 15px
+			}
