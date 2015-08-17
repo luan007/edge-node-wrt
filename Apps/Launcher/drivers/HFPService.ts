@@ -1,5 +1,5 @@
 function _think(dev: IDevice, cb){
-    if(!(dev.bus.data.HFP.Interfaces && dev.bus.data.HFP.Interfaces.length > 0)) return cb(undefined, undefined); //give up on this
+    if(!(dev.bus.data.HFP && dev.bus.data.HFP.Interfaces && dev.bus.data.HFP.Interfaces.length > 0)) return cb(undefined, undefined); //give up on this
     if(!dev.bus.data.HFP.Online || dev.bus.data.HFP.Type !== "hfp" ) return cb(undefined, { valid: false }); //invalidate myself
     
     var attr = <any>{};
@@ -34,7 +34,7 @@ var HFPService: IInAppDriver = {
 
 
     match: (dev: IDevice, delta, cb: Callback) => {
-        return cb(undefined, dev.bus.data.HFP.Interfaces && dev.bus.data.HFP.Interfaces.length > 0);
+        return cb(undefined, dev.bus.data.HFP && dev.bus.data.HFP.Interfaces && dev.bus.data.HFP.Interfaces.length > 0);
     },
 
     attach: (dev: IDevice, delta, matchResult: any, cb: PCallback<IDeviceAssumption>) => {
