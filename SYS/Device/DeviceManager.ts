@@ -101,7 +101,6 @@ function SaveToDB(callback:Callback) {
                 devtmp.assumptions = JSON.stringify(dev.assumptions);
                 devtmp.uid = dev.id;
                 devtmp.config = JSON.stringify(dev.config);
-                devtmp.version = dev.version;
                 (function (id, devtmp) { // closure
                     jobs.push((cb) => {
                         trace("CREATE DBENTRY " + id);
@@ -140,6 +139,7 @@ function SaveToDB(callback:Callback) {
                                 dbDev.assumptions = JSON.stringify(devInMemory.assumptions);
                                 dbDev.config = JSON.stringify(devInMemory.config);
                                 dbDev.version = devInMemory.version;
+                                //console.log("UPDATE --------- version", devInMemory.version);
                                 dbDev.save({}, (err) => {
 
                                     if (!err) {
@@ -309,11 +309,19 @@ function _OnDrop(bus:IBusData) {
 }
 
 export function SyncDevice(cb) {
-    var devs = JSON.parse(JSON.stringify(db_devices));
+    //trace("Starting Sync Devices...");
+    var devs:any = [];
+    for (var k in db_devices) {
+        if (db_devices[k].version > db_devices[k].orbitVersion) {
+            devs.push(db_devices[k]);
+        }
+    }
+    var devs = JSON.parse(JSON.stringify(devs));
     Orbit.SyncDevices(devs, (err, orbitResult)=> {
+        //trace("...... Orbit response", err, orbitResult);
         if (err) return cb(err);
+        var jobs = [];
         if (orbitResult.result && orbitResult.result.length > 0) {
-            var jobs = [];
             for (var i = 0, len = orbitResult.result.length; i < len; i++) {
                 ((i)=> {
                     jobs.push((cb)=> {
@@ -324,14 +332,30 @@ export function SyncDevice(cb) {
                         db_devices[fresh.devId].config = fresh.entity.config;
                         db_devices[fresh.devId].ownership = fresh.entity.ownership;
                         db_devices[fresh.devId].thirdparty = fresh.entity.thirdparty;
-                        db_devices[fresh.devId].save(()=>{ return cb(); });
+                        db_devices[fresh.devId].save(()=> {
+                            return cb();
+                        });
                     });
                 })(i);
             }
-            async.series(jobs, cb);
         }
-        else
-            return cb();
+        //trace("..... Devs", devs.length);
+        for (var i = 0, len = devs.length; i < len; i++) {
+            ((i)=> {
+                //trace("--- update dev orbitVersion", devs[i].uid);
+                jobs.push((cb)=> {
+                    var devId = devs[i].uid;
+                    if (db_devices[devId]) {
+                        db_devices[devId].orbitVersion = db_devices[devId].version;
+                        db_devices[devId].save(()=> {
+                            return cb();
+                        });
+                    } else return cb();
+                });
+            })(i);
+        }
+        //trace("..... Jobs", jobs.length);
+        async.series(jobs, cb);
     });
 }
 

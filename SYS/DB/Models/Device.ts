@@ -19,7 +19,8 @@ export class Device {
     config: string = "";
     ownership: string = "";
     thirdparty: string = "";
-    version:number = 0;     // incremental ==> += 1
+    version:number = 1;     // incremental ==> += 1
+    orbitVersion:number = 0;     // incremental ==> += 1
 
     static table(): orm.Typed.TypedModel<IDevice> {
         if (!Table) {
