@@ -185,10 +185,12 @@ function init() {
     "name": "renderer",
     "content": "webkit"
   }));
-  window.isPC ? head.appendChild($$("meta", {
+  (!window.isPC) ? head.appendChild($$("meta", {
     "name": "viewport",
-    "content": "width=device-width, user-scalable=0, initial-scale=1.0, maximum-scale=1.0, minimum-scale= 1.0"
+    "content": "width=device-width, user-scalable=false, initial-scale=1.0, maximum-scale=1.0, minimum-scale= 1.0"
   })) : void 0;
+  
+  
   
   head.appendChild($$("link", {
     "href": "//a.wi.fi/shared/fonts/font-awesome.css",
