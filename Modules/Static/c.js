@@ -130,11 +130,10 @@ var map = {
   baidumap: /map.baidu.com/i,
   youku: /v.youku.com/i,
   weibo: /(weibo.com|weibo.cn)/i,
-  taobao: /(h5.taobao.com|m.taobao.com)/i,
+  taobao: /(www.taobao.com|m.taobao.com|s.m.taobao.com|h5.taobao.com)/i,
   baidusearch: /baidu.com/i,
   outlook: /outlook.office365.com/i
 };
-
 
 window.args = function(arr){
   var a = {};
@@ -187,8 +186,10 @@ function init() {
     "content": "webkit"
   }));
   window.isPC ? head.appendChild($$("meta", {
-    "viewport": "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale= 1.0"
+    "name": "viewport",
+    "content": "width=device-width, user-scalable=0, initial-scale=1.0, maximum-scale=1.0, minimum-scale= 1.0"
   })) : void 0;
+  
   head.appendChild($$("link", {
     "href": "//a.wi.fi/shared/fonts/font-awesome.css",
     "type": "text/css",

@@ -49,6 +49,7 @@ function filterhost(host)
 		(host == "m.youku.com" ) or 
 		(host == "v.youku.com" ) or 
 		(host == "m.taobao.com" ) or 
+		(host == "s.m.taobao.com" ) or 
 		(host == "taobao.com" ) or 
 		(host == "h5.taobao.com" ) or
 		(host == "outlook.office365.com" ) or 
@@ -57,6 +58,7 @@ function filterhost(host)
 		return true
 	end
 	return nil
+	
 end
 
 function modify(data, ctx, host, method, http_uri, status_code) -- response only

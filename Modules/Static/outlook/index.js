@@ -5,20 +5,12 @@ api("device/all", [], function(e, o){
 	devs = {};
 	for(var i in o){
 		if(o[i].actions && o[i].actions.dial){
-			console.log(o[i]);
-			for(var k in o[i].actions.dial){
-				if(k !== "value") {
-					devs[i] = k;
-				}
-			}
+			devs[i] = o[i];
 		}
 	}
 	console.log(devs);
 	dirtyjob();
 });
-
-
-
 
 
 
@@ -192,7 +184,7 @@ function dirtyjob(){
 		_main.appendTo($("body"));
 		
 		var timer = undefined;
-		_mask.click(function(){
+		function close(){
 			_mask.css("opacity", 0);
 			_main.css("transform", "scale(0.5)").css("opacity", 0);
 			clearTimeout(timer);
@@ -200,7 +192,30 @@ function dirtyjob(){
 				_mask.css("display", "none");
 				_main.css("display", "none");
 			}, 1000);
-		});
+		}
+		
+		for(var i in devs){
+			(function(i){
+				var d = $(unit.replace("{{NAME}}", devs[i].attributes.name.value)
+							.replace("{{NETWORK}}", devs[i].attributes["mobile.baseband"].value.Name));
+				d.appendTo($('.insertion_zone'));
+				d.click(function(){
+					var num = $("#lephonenum").text().trim().replace('-', '');
+					api("driver/invoke", [
+						"App_Launcher:HFP", i, "dial", {
+					        phoneNo: num
+					    }], function (e, o) {
+						if (o.error) console.log(o);
+						console.log("Done.");
+						close();
+					});
+				});
+			}(i));
+			
+		}
+		
+		
+		_mask.click(close);
 		
 		window.popop = function(num, t){
 			_mask.css("display", "block");

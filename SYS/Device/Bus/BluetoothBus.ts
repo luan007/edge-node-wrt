@@ -10,12 +10,24 @@ import StatBiz = require('../../Common/Stat/StatBiz');
 var _bluetoothBus = new Bus('BLUETOOTH');
 var _mac_list = {};
 
+function add_service(mac, name){
+    if(!_mac_list[mac]) _mac_list[mac] = {};
+    _mac_list[mac][name] = 1;
+}
+function del_service(mac, name){
+    if(!_mac_list[mac]) _mac_list[mac] = {};
+    var prev = Object.keys(_mac_list[mac]).length;
+    delete _mac_list[mac][name];
+    if(prev > 0 && Object.keys(_mac_list[mac]).length == 0){
+        _bluetoothBus.DeviceDrop(mac);
+    }
+}
+
 function _on_device_disappear(mac) {
     //might be some sort of minor probs..
     mac = mac.toLowerCase();
     setTask("BLUETOOTH_DROP_" + mac, () => {
-        _bluetoothBus.DeviceDrop(mac);
-        _mac_list[mac] = undefined;
+        del_service(mac, 'BEACON');
     }, CONF.BLUETOOTH_DROPWAIT);
 }
 
@@ -25,15 +37,12 @@ function _on_device_appear(mac, data, state_change = false) {
     mac = mac.toLowerCase();
     clearTask("BLUETOOTH_DROP_" + mac);
     _bluetoothBus.DeviceUp(mac, data, state_change && !_mac_list[mac]); //brand-new!
-    if(state_change){
-        _mac_list[mac] = 1;
-    }
-    
-    // one second
-    setTask("BLUETOOTH_LIFE_" + mac, () => {
-        warn("Force Dropping " + mac + " - MAXTIME PASSED");
-        _on_device_disappear(mac);
-    }, CONF.BLUETOOTH_MAXLIFE);
+    add_service(mac, 'BEACON');
+    // // one second
+    // setTask("BLUETOOTH_LIFE_" + mac, () => {
+    //     warn("Force Dropping " + mac + " - MAXTIME PASSED");
+    //     _on_device_disappear(mac);
+    // }, CONF.BLUETOOTH_MAXLIFE);
 }
 
 function drop_all() {
@@ -51,9 +60,14 @@ export function Subscribe(cb) {
         }
     });
     sub.ofonod.on('set', (mac, oldo, newo) => {
-        _on_device_appear(mac, {
+        _bluetoothBus.DeviceUp(mac, {
             HFP: newo.data //this is a stub
         }, newo.data ? !!newo.data.Online : false);
+        if(newo.data.Online){
+            add_service(mac, 'HFP');
+        }else {
+            del_service(mac, 'HFP');
+        }
     });
     sub.nearby.on('set', (mac, oldTime, lastTime) => {//Found
         _on_device_appear(mac, lastTime, true);
