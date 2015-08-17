@@ -311,6 +311,20 @@ export function GraphdUpdateTask(cb, time?:number){
     }, time ? time : CONF.GRAPHD_CHECK_INTERVAL, cb, true);
 }
 
+export function Subscribe(cb) {
+    var sub = StatMgr.Sub(SECTION.GRAPHD);
+    sub.on('set', (graphd, oldValue, Status) => {
+        if(Status.State) {
+            if(Status.Error)
+                console.log('DB status:'['redBG'].bold, graphd, Status.Error);
+            else
+                console.log('DB status:'['greenBG'].bold, graphd, Status.State);
+        }
+    });
+
+    cb();
+}
+
 export function Initialize(cb) {
     if (fs.existsSync(CONF.GRAPHD_LOCATION) && fs.readdirSync(CONF.GRAPHD_LOCATION).length > 0) {
         console.log("Initializing DeltaV"['greenBG'].bold);
