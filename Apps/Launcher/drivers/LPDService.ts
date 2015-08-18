@@ -14,7 +14,7 @@ class LPDService implements IInAppDriver {
     private __analyzePrinter(dev, cb) {
         try{
         var printer = dev.bus.data.MDNS['printer'];
-        if (printer && printer.type === 'UP' && printer.service.addresses && printer.service.port === 515) {
+        if (printer && printer.type === 'UP' && dev.bus.data.Lease.Address && printer.service.port === 515) {
             var classes:KVSet = {'printer': ''};
             var assump:KVSet = {};
             var actions:KVSet = {'print': ''};
@@ -108,7 +108,7 @@ class LPDService implements IInAppDriver {
         var printer = dev.bus.data.MDNS['printer'];
         if (printer) {
             console.log("--------------- LPD printer match Called");
-            var matched = printer.type === 'UP' && printer.service.addresses && printer.service.port === 515;
+            var matched = printer.type === 'UP' && dev.bus.data.Lease.Hostname && printer.service.port === 515;
             return cb(undefined, matched);
         }
         return cb(undefined, false);
@@ -144,7 +144,7 @@ class LPDService implements IInAppDriver {
             return cb(new Error("Printer has not online."));
 
         console.log('LPD action invoke', 'params:', JSON.stringify(params));
-        var host = printer.service.addresses;
+        var host = dev.bus.data.Lease.Address;
 
         if (assumption['actions'] && assumption['actions'].hasOwnProperty(actionId)) {
             if (actionId === 'print') {
@@ -175,6 +175,8 @@ class LPDService implements IInAppDriver {
 
                                         fs.readFile(pdfFileName, (err2, imgData) => {
                                             if (err2) return console.log(err2);
+
+                                            console.log('blob 2 PDF...', pdfFileName);
 
                                             lpd.sendLPDJob({host:host, controlFile: meta, dataFile:imgData}, (err3)=>{
                                                 if(err3) return console.log(err3);
