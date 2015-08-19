@@ -26,6 +26,15 @@ function _enqueue(name, data) {
 function _dump_queue(cb) {
     fs.writeFile(dumpPath, JSON.stringify(Queue), cb);
 }
+function _recover_queue() {
+    if (fs.existsSync(dumpPath)) {
+        try{
+            var data = fs.readFileSync(dumpPath);
+            Queue = JSON.parse(data);
+            fs.unlinkSync(dumpPath);
+        } catch(err) { console.log("some errors occured when recover JSON", err.message); }
+    }
+}
 function _handle_error(error, cb){
     console.log(error.message.red);
     console.log(error.stack.toString().red);
@@ -74,13 +83,7 @@ function Initialize() {
     if (fs.existsSync(sockPath))
         fs.unlinkSync(sockPath);
 
-    if (fs.existsSync(dumpPath)) {
-        try{
-            var data = fs.readFileSync(dumpPath);
-            Queue = JSON.parse(data);
-            fs.unlinkSync(dumpPath);
-        } catch(err) { console.log("some errors occured when recover JSON", err.message); }
-    }
+    _recover_queue();
 
     var server = net.createServer({
         allowHalfOpen: false,
