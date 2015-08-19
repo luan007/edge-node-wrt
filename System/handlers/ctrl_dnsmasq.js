@@ -1,4 +1,4 @@
-conf="/ramdisk/System/externals/configs/dnsmasq.conf"
+var conf="/ramdisk/System/externals/configs/dnsmasq.conf"
 
 function Config(opts) {
 
