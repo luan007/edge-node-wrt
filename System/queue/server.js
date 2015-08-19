@@ -3,6 +3,7 @@ var fs = require("fs");
 var path = require("path");
 var net = require("net");
 var sockPath = "/tmp/fdsock/light_queue.sock";
+var dumpPath = "/tmp/fdsock/light_queue.dump"
 
 var Queue = {};
 var ACTION = {};
@@ -15,11 +16,20 @@ function _ensure_queue(name){
 }
 function _dequeue(name) {
     _ensure_queue(name);
-    return Queue[name].shift();
+    if(Queue[name].length) return Queue[name].shift();
+    return {};
 }
 function _enqueue(name, data) {
     _ensure_queue(name);
     return Queue[name].push(data);
+}
+function _dump_queue(cb) {
+    fs.writeFile(dumpPath, JSON.stringify(Queue), cb);
+}
+function _handle_error(error, cb){
+    console.log(error.message.red);
+    console.log(error.stack.toString().red);
+    _dump_queue(cb);
 }
 
 // { action: "", name: "", data: "" }
@@ -32,16 +42,21 @@ function _on_data(socket) {
                 if (json.action === ACTION.GET) {
                     var data = _dequeue(json.name)
                     socket.write(JSON.stringify(data));
+                    console.log("CURRENT".green, Queue);
                 } else if (json.action === ACTION.SET) {
                     _enqueue(json.name, json.data);
                     socket.write("OK.");
+                    console.log("CURRENT".green, Queue);
                 }
+                else{
+                    throw new Error("unsupported action: " + json.action);
+                }
+            } else {
+                throw new Error("unknown request: " + json);
             }
-            throw new Error("unknown request: " + json);
         } catch (err) {
-            console.log(err.message.red);
-            console.log(err.stack.toString().red);
-            socket.end("please transfer JSON data.");
+            _handle_error(err);
+            socket.end(err.message);
         }
     };
 }
@@ -59,6 +74,14 @@ function Initialize() {
     if (fs.existsSync(sockPath))
         fs.unlinkSync(sockPath);
 
+    if (fs.existsSync(dumpPath)) {
+        try{
+            var data = fs.readFileSync(dumpPath);
+            Queue = JSON.parse(data);
+            fs.unlinkSync(dumpPath);
+        } catch(err) { console.log("some errors occured when recover JSON", err.message); }
+    }
+
     var server = net.createServer({
         allowHalfOpen: false,
         pauseOnConnect: false
@@ -67,6 +90,16 @@ function Initialize() {
     server.listen(sockPath);
 }
 
-Initialize();
+process.on('uncaughtException', function (err) {
+    _handle_error(err);
+});
+var domain = require('domain').create();
+domain.on('error', function (err) {
+    _handle_error(err);
+});
+
+domain.run(function () {
+    Initialize();
+});
 
 
