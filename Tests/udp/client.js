@@ -8,8 +8,9 @@ client.on("listening", function(){
     client.setMulticastTTL(128);
 });
 
-client.on("message", function(message, remote){
-    console.log(message.toString(), remote);
+client.on("message", function(message, rinfo){
+    var json = JSON.parse(message.toString());
+    console.log(json.type, json.message, rinfo);
 });
 
 client.bind(port, localhost);

@@ -44,4 +44,6 @@ _Storage/
 Gruntfile.js
 tscommand-*.tmp.txt
 
+*.sock
+
 secret.json

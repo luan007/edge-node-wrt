@@ -13,8 +13,12 @@ var messages = [
 ];
 
 function broadcast() {
-    var message = new Buffer(messages[Math.floor(Math.random() * messages.length)]);
-    server.send(message, 0, message.length, port, localhost);
+    var message = messages[Math.floor(Math.random() * messages.length)];
+    var json = new Buffer(JSON.stringify({ message:message, type:"crap"}));
+    server.send(json, 0, json.length, port, localhost, function(){
+        server.close();
+    });
 }
 
-setInterval(broadcast, 2000);
+//setInterval(broadcast, 2000);
+broadcast();
