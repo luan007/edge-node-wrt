@@ -9,6 +9,7 @@ var Queue = {};
 var ACTION = {};
 ACTION.GET = "GET";
 ACTION.SET = "SET";
+ACTION.DRAIN = "DRAIN";
 
 function _ensure_queue(name){
     if(!Queue[name] || !Array.isArray(Queue[name]))
@@ -22,6 +23,10 @@ function _dequeue(name) {
 function _enqueue(name, data) {
     _ensure_queue(name);
     return Queue[name].push(data);
+}
+function _drain(name) {
+    _ensure_queue(name);
+    return Queue[name].splice(0, Queue[name].length);
 }
 function _dump_queue(cb) {
     fs.writeFile(dumpPath, JSON.stringify(Queue), cb);
@@ -55,6 +60,10 @@ function _on_data(socket) {
                 } else if (json.action === ACTION.SET) {
                     _enqueue(json.name, json.data);
                     socket.write("OK.");
+                    console.log("CURRENT".green, Queue);
+                } else if(json.action === ACTION.DRAIN) {
+                    var data = _drain(json.name);
+                    socket.write(JSON.stringify(data));
                     console.log("CURRENT".green, Queue);
                 }
                 else{

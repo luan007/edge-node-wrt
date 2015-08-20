@@ -16,6 +16,13 @@ function _get_data(name, client) {
     json.data = {};
     client.write(JSON.stringify(json));
 }
+function _drain_data(name, client) {
+    var json = {};
+    json.action = "DRAIN";
+    json.name = name;
+    json.data = {};
+    client.write(JSON.stringify(json));
+}
 
 function _new_socket(_callback_handler) {
     var client = new net.Socket();
@@ -45,3 +52,11 @@ module.exports.Get = function(name, cb) {
         _get_data(name, client);
     });
 };
+
+module.exports.Drain = function(name, cb) {
+    var client = _new_socket(cb);
+    client.connect(sockPath, function() {
+        console.log("I'm connected.");
+        _drain_data(name, client);
+    });
+}
