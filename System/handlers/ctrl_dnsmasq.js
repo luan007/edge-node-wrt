@@ -89,4 +89,11 @@ function Cfg2Arg(cfg) {
     return arrLst;
 }
 
+function Initialize(cb) {
+    Config(function() {
+       cb();
+    });
+}
+
 module.exports.Config = Config;
+module.exports.Initialize = Initialize;

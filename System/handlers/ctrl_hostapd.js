@@ -1,30 +1,76 @@
-var conf="/ramdisk/System/externals/configs/hostapd.conf"
+var conf_2g = "/ramdisk/System/externals/configs/hostapd_2g.conf";
+var conf_5g = "/ramdisk/System/externals/configs/hostapd_5g.conf";
 
-function Config(cb) {
-    (function (ACL_TYPE) {
-        ACL_TYPE[ACL_TYPE["ACCEPT_UNLESS_DENY"] = 0] = "ACCEPT_UNLESS_DENY";
-        ACL_TYPE[ACL_TYPE["DENY_UNLESS_ACCEPT"] = 1] = "DENY_UNLESS_ACCEPT";
-    })(exports.ACL_TYPE || (exports.ACL_TYPE = {}));
-    var ACL_TYPE = exports.ACL_TYPE;
-    (function (_80211_BASE) {
-        _80211_BASE[_80211_BASE["B"] = -1] = "B";
-        _80211_BASE[_80211_BASE["G"] = 0] = "G";
-        _80211_BASE[_80211_BASE["N"] = 1] = "N";
-        _80211_BASE[_80211_BASE["A"] = 2] = "A";
-    })(exports._80211_BASE || (exports._80211_BASE = {}));
-    var _80211_BASE = exports._80211_BASE;
-    (function (RX_SPATIALSTREAM) {
-        RX_SPATIALSTREAM[RX_SPATIALSTREAM["NONE"] = 0] = "NONE";
-        RX_SPATIALSTREAM[RX_SPATIALSTREAM["SINGLE"] = 1] = "SINGLE";
-        RX_SPATIALSTREAM[RX_SPATIALSTREAM["DUAL"] = 2] = "DUAL";
-        RX_SPATIALSTREAM[RX_SPATIALSTREAM["TRIPLE"] = 3] = "TRIPLE";
-    })(exports.RX_SPATIALSTREAM || (exports.RX_SPATIALSTREAM = {}));
-    var RX_SPATIALSTREAM = exports.RX_SPATIALSTREAM;
-    (function (TX_SPATIALSTREAM) {
-        TX_SPATIALSTREAM[TX_SPATIALSTREAM["NONE"] = 0] = "NONE";
-        TX_SPATIALSTREAM[TX_SPATIALSTREAM["SINGLE"] = 1] = "SINGLE";
-    })(exports.TX_SPATIALSTREAM || (exports.TX_SPATIALSTREAM = {}));
-    var TX_SPATIALSTREAM = exports.TX_SPATIALSTREAM;
+(function (ACL_TYPE) {
+    ACL_TYPE[ACL_TYPE["ACCEPT_UNLESS_DENY"] = 0] = "ACCEPT_UNLESS_DENY";
+    ACL_TYPE[ACL_TYPE["DENY_UNLESS_ACCEPT"] = 1] = "DENY_UNLESS_ACCEPT";
+})(exports.ACL_TYPE || (exports.ACL_TYPE = {}));
+var ACL_TYPE = exports.ACL_TYPE;
+(function (_80211_BASE) {
+    _80211_BASE[_80211_BASE["B"] = -1] = "B";
+    _80211_BASE[_80211_BASE["G"] = 0] = "G";
+    _80211_BASE[_80211_BASE["N"] = 1] = "N";
+    _80211_BASE[_80211_BASE["A"] = 2] = "A";
+})(exports._80211_BASE || (exports._80211_BASE = {}));
+var _80211_BASE = exports._80211_BASE;
+(function (RX_SPATIALSTREAM) {
+    RX_SPATIALSTREAM[RX_SPATIALSTREAM["NONE"] = 0] = "NONE";
+    RX_SPATIALSTREAM[RX_SPATIALSTREAM["SINGLE"] = 1] = "SINGLE";
+    RX_SPATIALSTREAM[RX_SPATIALSTREAM["DUAL"] = 2] = "DUAL";
+    RX_SPATIALSTREAM[RX_SPATIALSTREAM["TRIPLE"] = 3] = "TRIPLE";
+})(exports.RX_SPATIALSTREAM || (exports.RX_SPATIALSTREAM = {}));
+var RX_SPATIALSTREAM = exports.RX_SPATIALSTREAM;
+(function (TX_SPATIALSTREAM) {
+    TX_SPATIALSTREAM[TX_SPATIALSTREAM["NONE"] = 0] = "NONE";
+    TX_SPATIALSTREAM[TX_SPATIALSTREAM["SINGLE"] = 1] = "SINGLE";
+})(exports.TX_SPATIALSTREAM || (exports.TX_SPATIALSTREAM = {}));
+var TX_SPATIALSTREAM = exports.TX_SPATIALSTREAM;
+
+function Config2G(cb) {
+    var cfg2g = {
+        Power: true,
+        SSID: "Edge One",
+        AutoSSID: false,
+        Visible: true,
+        Channel: 4,
+        Password: undefined,
+        Bridge: "ap1",
+        Aux: { //GuestWifi
+            "0": {
+                Power: false,
+                SSID: undefined,
+                Password: undefined,
+                Visible: false
+            }
+        }
+    };
+    var cfgString = Cfg2String(GetConfig(cfg2g));
+    fs.writeFile(conf_2g, cfgString, cb);
+}
+
+function Config5G(cb) {
+    var cfg5g = {
+        Power: false,
+        SSID: "edge_zhuihaode_5",
+        AutoSSID: false,
+        Visible: true,
+        Channel: 36,
+        Password: undefined,
+        Bridge: "ap0",
+        Aux: { //GuestWifi
+            "0": {
+                Power: false,
+                SSID: undefined,
+                Password: undefined,
+                Visible: false
+            }
+        }
+    };
+    var cfgString = Cfg2String(GetConfig(cfg5g));
+    fs.writeFile(conf_5g, cfgString, cb);
+}
+
+function GetConfig(cfg) {
     var conf = (function () {
         function ConfigBase() {
             this.Auto_SSID = true;
@@ -52,14 +98,38 @@ function Config(cb) {
         return ConfigBase;
     })();
 
-    fs.writeFile(conf, Cfg2String(conf), cb);
+    if (has(cfg, "Bridge")) {
+        conf.Bridge = cfg.Bridge;
+    }
+    if (has(cfg, "SSID")) {
+        conf.SSID = cfg.SSID;
+    }
+    if (has(cfg, "AutoSSID")) {
+        if (cfg.AutoSSID) {
+            conf.SSID = "Networkname"; //override :p
+        } else {
+            conf.SSID = cfg.SSID ? cfg.SSID : "SSID"; //override :p
+        }
+    }
+    if (has(cfg, "Visible")) {
+        conf.BroadcastSSID = cfg.Visible;
+    }
+    if (has(cfg, "Password")) {
+        conf.Password = cfg.Password;
+    }
+    if (has(cfg, "Channel")) {
+        conf.Channel = cfg.Channel;
+    }
+
+    return conf;
+    //fs.writeFile(conf, Cfg2String(conf), cb);
 }
 
 function Cfg2String(conf) {
     var newconf = "";
     var line = "\n";
     newconf += "interface=" + conf.Dev + line;
-    if (conf.Bridge){
+    if (conf.Bridge) {
         newconf += "bridge=" + conf.Bridge + line;
     }
     if (conf.Logger) {
@@ -105,7 +175,7 @@ function Cfg2String(conf) {
 
     newconf += "macaddr_acl=" + conf.MacAddressControl + line;
 
-    newconf += "ctrl_interface=/tmp/fdsock/hostapd_aps/"  + line;
+    newconf += "ctrl_interface=/tmp/fdsock/hostapd_aps/" + line;
     newconf += "ctrl_interface_group=0" + line;
 
 
@@ -158,4 +228,17 @@ function Cfg2String(conf) {
     return newconf;
 }
 
-module.exports.Config = Config;
+function Initialize(cb) {
+    async.series([
+        function(cb){
+            Config2G(function(){ cb(); });
+        },
+        function(cb){
+            Config5G(function(){ cb(); });
+        }
+    ], function(){ cb(); });
+}
+
+module.exports.Config2G = Config2G;
+module.exports.Config5G = Config5G;
+module.exports.Initialize = Initialize;
