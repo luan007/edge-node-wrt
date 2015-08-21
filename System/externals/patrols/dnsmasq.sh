@@ -9,7 +9,6 @@ start(){
 	dnsmasq $args
 }
 
-start
 while [ $conftime -gt 0 ]
 do
 	modtime=`stat -c %Y $conf`

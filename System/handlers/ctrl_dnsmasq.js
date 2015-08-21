@@ -1,8 +1,10 @@
-var conf="/ramdisk/System/externals/configs/dnsmasq.conf"
+var conf = "/ramdisk/System/externals/configs/dnsmasq.conf"
+var LeaseDB = {};
 
 function Config(cb) {
     var cfg = {};
-    cfg.Listen_Address = "192.168.66.1";
+    var routerIP = "192.168.66.1";
+    cfg.Listen_Address = routerIP;
     cfg.Expand_Hosts = true;
     cfg.Stop_DNS_Rebind = true;
     cfg.Sequential_Ip = true;
@@ -11,6 +13,11 @@ function Config(cb) {
         Begin: ip.cidr_num(cfg.Listen_Address, 24).replace(/\.0/g, ".10"),
         End: ip.cidr_num(cfg.Listen_Address, 24).replace(/\.0/g, ".230")
     };
+    cfg.Addresss = {};
+    cfg.Addresss[".wi.fi"] = routerIP;
+    cfg.Addresss[".wifi.network"] = routerIP;
+    cfg.Addresss[".ed.ge"] = routerIP;
+    cfg.Addresss[".wifi"] =  routerIP;
 
     var cfgString = Cfg2Arg(cfg).join("\n");
     fs.writeFile(conf, cfgString, cb);
@@ -89,11 +96,60 @@ function Cfg2Arg(cfg) {
     return arrLst;
 }
 
-function Initialize(cb) {
-    Config(function() {
-       cb();
+function Fetch(cb) {
+    var client = require("../queue/client");
+    client.Drain("DNSMASQ", function (buf) {
+        var leases = JSON.parse(buf.toString());
+        for (var i in leases) {
+            var lease = leases[i].Lease;
+            lease.Mac = lease.Mac.toLowerCase();
+            switch (data.Action) {
+                case "add":
+                    console.log("Adding " + lease.Hostname + " " + lease.Address);
+                    LeaseDB[lease.Mac] = lease;
+                    break;
+                case "old":
+                    if (!_.isEqual(lease, LeaseDB[lease.Mac])) {
+                        console.log("Changing " + lease.Hostname + " " + lease.Address);
+                        LeaseDB[lease.Mac] = lease;
+                    }
+                    break;
+                case "del":
+                    console.log("Deleting " + lease.Hostname + " " + lease.Address);
+                    delete LeaseDB[lease.Mac];
+                    break;
+            }
+        }
+        return cb(undefined, LeaseDB);
+    });
+}
+
+function Start(cb) {
+    fs.readFile(conf, function (err, buf) {
+        if (err) return cb(err);
+        var args = buf.toString().trim("\n").split("\n");
+
+        var jobs = [];
+        jobs.push(function(cb){
+            exec("killall", "dnsmasq", function () { cb(); });
+        });
+        jobs.push(function(cb){
+            exec("ifconfig", "br0", "192.168.66.1", function () { cb(); });
+        });
+
+        async.series(jobs, function() {
+            var ps = child_process.spawn("dnsmasq", args, {detached: true});
+            ps.stdout.on('data', function (data) {
+                console.log(data.toString().cyan);
+            });
+            ps.stderr.on('data', function (data) {
+                console.log('ps stderr: ' + data.toString().red);
+            });
+            cb();
+        });
     });
 }
 
 module.exports.Config = Config;
-module.exports.Initialize = Initialize;
+module.exports.Start = Start;
+module.exports.Fetch = Fetch;

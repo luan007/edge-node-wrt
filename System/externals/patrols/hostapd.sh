@@ -8,7 +8,6 @@ start(){
 	hostapd $conf
 }
 
-start
 while [ $conftime -gt 0 ]
 do
 	modtime=`stat -c %Y $conf`

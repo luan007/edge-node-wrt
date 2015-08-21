@@ -1,5 +1,7 @@
 var conf_2g = "/ramdisk/System/externals/configs/hostapd_2g.conf";
 var conf_5g = "/ramdisk/System/externals/configs/hostapd_5g.conf";
+var sock = "/tmp/fdsock/hostapd_aps/";
+var stations = {};
 
 (function (ACL_TYPE) {
     ACL_TYPE[ACL_TYPE["ACCEPT_UNLESS_DENY"] = 0] = "ACCEPT_UNLESS_DENY";
@@ -29,12 +31,12 @@ var TX_SPATIALSTREAM = exports.TX_SPATIALSTREAM;
 function Config2G(cb) {
     var cfg2g = {
         Power: true,
-        SSID: "Edge One",
+        SSID: "Edge Exp",
         AutoSSID: false,
         Visible: true,
         Channel: 4,
         Password: undefined,
-        Bridge: "ap1",
+        Bridge: "br0",
         Aux: { //GuestWifi
             "0": {
                 Power: false,
@@ -44,19 +46,20 @@ function Config2G(cb) {
             }
         }
     };
-    var cfgString = Cfg2String(GetConfig(cfg2g));
+    var cfgString = Cfg2String(GetConfig("ap1", cfg2g));
+    console.log(cfgString);
     fs.writeFile(conf_2g, cfgString, cb);
 }
 
 function Config5G(cb) {
     var cfg5g = {
         Power: false,
-        SSID: "edge_zhuihaode_5",
+        SSID: "Edge Exp 5G",
         AutoSSID: false,
         Visible: true,
         Channel: 36,
         Password: undefined,
-        Bridge: "ap0",
+        Bridge: "br0",
         Aux: { //GuestWifi
             "0": {
                 Power: false,
@@ -66,12 +69,13 @@ function Config5G(cb) {
             }
         }
     };
-    var cfgString = Cfg2String(GetConfig(cfg5g));
+    var cfgString = Cfg2String(GetConfig("ap0", cfg5g));
+
     fs.writeFile(conf_5g, cfgString, cb);
 }
 
-function GetConfig(cfg) {
-    var conf = (function () {
+function GetConfig(int, cfg) {
+    var Config = (function () {
         function ConfigBase() {
             this.Auto_SSID = true;
             this.Logger = {
@@ -80,6 +84,7 @@ function GetConfig(cfg) {
                 StdOut: -1,
                 StdOut_level: 2
             };
+            this.Dev = int;
             this.Base = _80211_BASE.N;
             this.Channel = 1;
             this.MaxStations = 255;
@@ -92,12 +97,14 @@ function GetConfig(cfg) {
                 RX_STBC: RX_SPATIALSTREAM.SINGLE
             };
             this.BroadcastSSID = true;
-            this.Password = "";
+            this.Password = undefined;
             this.BSS = {};
         }
+
         return ConfigBase;
     })();
 
+    var conf = new Config();
     if (has(cfg, "Bridge")) {
         conf.Bridge = cfg.Bridge;
     }
@@ -228,17 +235,63 @@ function Cfg2String(conf) {
     return newconf;
 }
 
-function Initialize(cb) {
-    async.series([
-        function(cb){
-            Config2G(function(){ cb(); });
-        },
-        function(cb){
-            Config5G(function(){ cb(); });
+function _is_MAC(str) {
+    return /[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}/gmi.test(str);
+}
+function _parse(sta, cb) {
+    var line = "\n";
+    var arr = sta.trim(line).split(line);
+    var cur = undefined;
+    var stage = {};
+    for (var i in arr) {
+        var row = arr[i];
+        if (_is_MAC(row)) {
+            if (!stations[row]) {
+                console.log("NEW: ", row);
+            }
+            cur = {};
+            stage[row] = cur;
+        } else {
+            var parts = row.split("=");
+            cur[parts[0]] = parts[1];
         }
-    ], function(){ cb(); });
+    }
+    for (var k in stations) {
+        if (!stage[k]) {
+            console.log("DEL: ", k);
+        }
+    }
+    stations = stage;
+    return cb(undefined, stations);
+}
+
+function Fetch(int, cb) {
+    exec("hostapd_cli", "-p", sock, "-i", int, "all_sta", function (err, sta) {
+        if (err) return cb(err);
+        _parse(sta, cb);
+    });
+}
+
+function _start_thunk(int) {
+    return function (cb) {
+        var conf = (int === "ap0" ? conf_5g : conf_2g);
+        //if (!fs.existsSync(sock))
+        //    fs.mkdirSync(sock);
+        exec("killall", "hostapd", function () {
+            var ps = child_process.spawn("hostapd", [conf], {detached: true, stdio: 'pipe'});
+            ps.stdout.on('data', function (data) {
+               console.log(data.toString().cyan);
+            });
+            ps.stderr.on('data', function (data) {
+                console.log('ps stderr: ' + data.toString().red);
+            });
+            cb();
+        });
+    }
 }
 
 module.exports.Config2G = Config2G;
 module.exports.Config5G = Config5G;
-module.exports.Initialize = Initialize;
+module.exports.Fetch = Fetch;
+module.exports.Start2G = _start_thunk("ap1");
+module.exports.Start5G = _start_thunk("ap0");
