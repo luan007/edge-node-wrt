@@ -41,5 +41,14 @@ domain.run(function () {
 
     async.series(jobs, function() {
         console.log("ALL LOADED...".green);
+        //var client = require("./queue/client");
+        setInterval(function(){
+            ctrl_hostapd.Fetch("ap1", function(err, data){
+                //if(data) console.log("HOSTAPD".blue, data);
+            });
+            //client.Drain("dnsmasq", function(data) {
+            //    console.log("DNSMASQ LEASE: ".blue, data.toString());
+            //});
+        }, 2000);
     })
 });

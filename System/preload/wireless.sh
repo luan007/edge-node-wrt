@@ -23,3 +23,10 @@ echo "0" > /sys/devices/virtual/net/br0/bridge/multicast_snooping
 # TODO: relay & scan
 #iw phy phy0 interface add test0 type managed
 #fconfig test0 up
+
+ifconfig VETH down
+brctl delbr VETH
+brctl addbr VETH
+
+#virtual bridge
+ifconfig VETH 172.16.0.1

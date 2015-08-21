@@ -8,7 +8,7 @@ function Config(cb) {
     cfg.Expand_Hosts = true;
     cfg.Stop_DNS_Rebind = true;
     cfg.Sequential_Ip = true;
-    cfg.Domain = "edge";
+    cfg.Domain = "edge_exp";
     cfg.DHCPRange = {
         Begin: ip.cidr_num(cfg.Listen_Address, 24).replace(/\.0/g, ".10"),
         End: ip.cidr_num(cfg.Listen_Address, 24).replace(/\.0/g, ".230")
@@ -18,6 +18,7 @@ function Config(cb) {
     cfg.Addresss[".wifi.network"] = routerIP;
     cfg.Addresss[".ed.ge"] = routerIP;
     cfg.Addresss[".wifi"] =  routerIP;
+    cfg.Cache_Size = 4096;
 
     var cfgString = Cfg2Arg(cfg).join("\n");
     fs.writeFile(conf, cfgString, cb);

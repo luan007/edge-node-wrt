@@ -251,7 +251,7 @@ function _parse(sta, cb) {
             }
             cur = {};
             stage[row] = cur;
-        } else {
+        } else if(row.trim() !== "") {
             var parts = row.split("=");
             cur[parts[0]] = parts[1];
         }

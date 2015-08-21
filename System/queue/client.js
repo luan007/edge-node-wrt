@@ -32,7 +32,7 @@ function _new_socket(_callback_handler) {
         client.end();
     });
     client.on('end', function () {
-        console.log("I'm disconnected");
+        //console.log("I'm disconnected");
     });
     return client;
 }
@@ -40,7 +40,7 @@ function _new_socket(_callback_handler) {
 module.exports.Set = function(name, data, cb) {
     var client = _new_socket(cb);
     client.connect(sockPath, function() {
-        console.log("I'm connected.");
+        //console.log("I'm connected.");
         _set_data(name, data, client);
     });
 };
@@ -48,7 +48,7 @@ module.exports.Set = function(name, data, cb) {
 module.exports.Get = function(name, cb) {
     var client = _new_socket(cb);
     client.connect(sockPath, function() {
-        console.log("I'm connected.");
+        //console.log("I'm connected.");
         _get_data(name, client);
     });
 };
@@ -56,7 +56,7 @@ module.exports.Get = function(name, cb) {
 module.exports.Drain = function(name, cb) {
     var client = _new_socket(cb);
     client.connect(sockPath, function() {
-        console.log("I'm connected.");
+        //console.log("I'm connected.");
         _drain_data(name, client);
     });
 }
