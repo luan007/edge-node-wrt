@@ -100,27 +100,29 @@ function Cfg2Arg(cfg) {
 function Fetch(cb) {
     var client = require("../queue/client");
     client.Drain("DNSMASQ", function (buf) {
-        var leases = JSON.parse(buf);
-        if(Array.isArray(leases) && leases.length > 0) {
-            for (var i in leases) {
-                var lease = leases[i].Lease;
-                var action = leases[i].Action;
-                lease.Mac = lease.Mac.toLowerCase();
-                switch (action) {
-                    case "add":
-                        console.log("Adding " + lease.Hostname + " " + lease.Address);
-                        LeaseDB[lease.Mac] = lease;
-                        break;
-                    case "old":
-                        if (!_.isEqual(lease, LeaseDB[lease.Mac])) {
-                            console.log("Changing " + lease.Hostname + " " + lease.Address);
+        if(buf) {
+            var leases = JSON.parse(buf);
+            if (Array.isArray(leases) && leases.length > 0) {
+                for (var i in leases) {
+                    var lease = leases[i].Lease;
+                    var action = leases[i].Action;
+                    lease.Mac = lease.Mac.toLowerCase();
+                    switch (action) {
+                        case "add":
+                            console.log("Adding " + lease.Hostname + " " + lease.Address);
                             LeaseDB[lease.Mac] = lease;
-                        }
-                        break;
-                    case "del":
-                        console.log("Deleting " + lease.Hostname + " " + lease.Address);
-                        delete LeaseDB[lease.Mac];
-                        break;
+                            break;
+                        case "old":
+                            if (!_.isEqual(lease, LeaseDB[lease.Mac])) {
+                                console.log("Changing " + lease.Hostname + " " + lease.Address);
+                                LeaseDB[lease.Mac] = lease;
+                            }
+                            break;
+                        case "del":
+                            console.log("Deleting " + lease.Hostname + " " + lease.Address);
+                            delete LeaseDB[lease.Mac];
+                            break;
+                    }
                 }
             }
         }
@@ -138,7 +140,7 @@ function Start(cb) {
             exec("killall", "dnsmasq", function () { cb(); });
         });
         jobs.push(function(cb){
-            exec("ifconfig", "br0", "192.168.66.1", function () { cb(); });
+            exec("ifconfig", "br0", "192.168.88.1", function () { cb(); });
         });
 
         async.series(jobs, function() {

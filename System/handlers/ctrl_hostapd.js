@@ -281,7 +281,7 @@ function _start_thunk(int) {
         exec("killall", "hostapd", function () {
             var ps = child_process.spawn("hostapd", [conf], {detached: true, stdio: 'pipe'});
             ps.stdout.on('data', function (data) {
-                //console.log(data.toString().cyan);
+                console.log(data.toString().cyan);
             });
             ps.stderr.on('data', function (data) {
                 console.log('ps stderr: ' + data.toString().red);
