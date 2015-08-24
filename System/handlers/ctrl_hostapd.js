@@ -2,6 +2,7 @@ var conf_2g = "/ramdisk/System/externals/configs/hostapd_2g.conf";
 var conf_5g = "/ramdisk/System/externals/configs/hostapd_5g.conf";
 var sock = "/tmp/fdsock/hostapd_aps/";
 var stations = {};
+var uuid = require("uuid");
 
 (function (ACL_TYPE) {
     ACL_TYPE[ACL_TYPE["ACCEPT_UNLESS_DENY"] = 0] = "ACCEPT_UNLESS_DENY";
@@ -228,9 +229,9 @@ function Cfg2String(conf) {
     newconf += "friendly_name=Edge" + line;
     newconf += "manufacturer_url=http://www.edgerouter.com/" + line;
     newconf += "model_description=Development Version - EmergeLabs" + line;
-    newconf += "uuid=87654321-9abc-def0-1234-56789abc0000" + line;
+    newconf += "uuid=" + uuid.v4() + line;
 
-    newconf += "friendly_name=Edge" + line;
+    newconf += "friendly_name=EdgeExp" + line;
 
     return newconf;
 }
@@ -251,7 +252,7 @@ function _parse(sta, cb) {
             }
             cur = {};
             stage[row] = cur;
-        } else if(row.trim() !== "") {
+        } else if (row.trim() !== "") {
             var parts = row.split("=");
             cur[parts[0]] = parts[1];
         }
@@ -280,7 +281,7 @@ function _start_thunk(int) {
         exec("killall", "hostapd", function () {
             var ps = child_process.spawn("hostapd", [conf], {detached: true, stdio: 'pipe'});
             ps.stdout.on('data', function (data) {
-               console.log(data.toString().cyan);
+                //console.log(data.toString().cyan);
             });
             ps.stderr.on('data', function (data) {
                 console.log('ps stderr: ' + data.toString().red);

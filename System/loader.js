@@ -43,12 +43,13 @@ domain.run(function () {
         console.log("ALL LOADED...".green);
         //var client = require("./queue/client");
         setInterval(function(){
-            ctrl_hostapd.Fetch("ap1", function(err, data){
-                //if(data) console.log("HOSTAPD".blue, data);
-            });
-            //client.Drain("dnsmasq", function(data) {
-            //    console.log("DNSMASQ LEASE: ".blue, data.toString());
+            //ctrl_hostapd.Fetch("ap1", function(err, data){
+            //    //if(data) console.log("HOSTAPD".blue, data);
             //});
+            ctrl_dnsmasq.Fetch(function(err, leases) {
+                if(leases)
+                    console.log("DNSMASQ LEASE: ".blue, JSON.stringify(leases));
+            });
         }, 2000);
     })
 });

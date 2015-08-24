@@ -100,25 +100,28 @@ function Cfg2Arg(cfg) {
 function Fetch(cb) {
     var client = require("../queue/client");
     client.Drain("DNSMASQ", function (buf) {
-        var leases = JSON.parse(buf.toString());
-        for (var i in leases) {
-            var lease = leases[i].Lease;
-            lease.Mac = lease.Mac.toLowerCase();
-            switch (data.Action) {
-                case "add":
-                    console.log("Adding " + lease.Hostname + " " + lease.Address);
-                    LeaseDB[lease.Mac] = lease;
-                    break;
-                case "old":
-                    if (!_.isEqual(lease, LeaseDB[lease.Mac])) {
-                        console.log("Changing " + lease.Hostname + " " + lease.Address);
+        var leases = JSON.parse(buf);
+        if(Array.isArray(leases) && leases.length > 0) {
+            for (var i in leases) {
+                var lease = leases[i].Lease;
+                var action = leases[i].Action;
+                lease.Mac = lease.Mac.toLowerCase();
+                switch (action) {
+                    case "add":
+                        console.log("Adding " + lease.Hostname + " " + lease.Address);
                         LeaseDB[lease.Mac] = lease;
-                    }
-                    break;
-                case "del":
-                    console.log("Deleting " + lease.Hostname + " " + lease.Address);
-                    delete LeaseDB[lease.Mac];
-                    break;
+                        break;
+                    case "old":
+                        if (!_.isEqual(lease, LeaseDB[lease.Mac])) {
+                            console.log("Changing " + lease.Hostname + " " + lease.Address);
+                            LeaseDB[lease.Mac] = lease;
+                        }
+                        break;
+                    case "del":
+                        console.log("Deleting " + lease.Hostname + " " + lease.Address);
+                        delete LeaseDB[lease.Mac];
+                        break;
+                }
             }
         }
         return cb(undefined, LeaseDB);

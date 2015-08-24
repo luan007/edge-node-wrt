@@ -28,11 +28,16 @@ function _new_socket(_callback_handler) {
     var client = new net.Socket();
     client.on('data', function (data) {
         //console.log('Server Response: ', data.toString());
-        _callback_handler(data.toString());
+        _callback_handler(data);
         client.end();
     });
     client.on('end', function () {
         //console.log("I'm disconnected");
+    });
+    client.on('error', function(err) {
+        _callback_handler();
+        client.end();
+        console.log(err.message.red);
     });
     return client;
 }
