@@ -19,18 +19,21 @@ export class SectionHandler {
     constructor(private key:string) {
     }
 
-    Write(row:string, val?:string) {
+    Write(row:string, val?:any) {
         this._cache[row] = (val ? row + "=" + val : row);
     }
 
-    Flush() {
+    Flush(cb) {
         var realpath = _get_real_path(this.key);
-        var content = [];
+        var content = "";
         for(var k in this._cache) {
             content += this._cache[k] + "\n";
         }
-        fs.writeFile(realpath, content, ()=> {
+        //console.log(realpath.blue, content);
+        fs.writeFile(realpath, content, (err)=> {
+            if(err) console.log(err.message["red"]);
             this._cache = {};
+            cb();
         });
     }
 }
