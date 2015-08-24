@@ -28,7 +28,7 @@ function _new_socket(_callback_handler) {
     var client = new net.Socket();
     client.on('data', function (data) {
         //console.log('Server Response: ', data.toString());
-        _callback_handler(data);
+        _callback_handler(new Buffer(JSON.stringify(data)));
         client.end();
     });
     client.on('end', function () {

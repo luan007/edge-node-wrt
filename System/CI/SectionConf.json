@@ -1,0 +1,11 @@
+{
+  "network/dnsmasq": {
+    "path": "/ramdisk/System/configs/dnsmasq.conf"
+  },
+  "network/wireless/2g": {
+    "path": "/ramdisk/System/configs/hostapd_2g.conf"
+  },
+  "network/wireless/5g": {
+    "path": "/ramdisk/System/configs/hostapd_5g.conf"
+  }
+}
