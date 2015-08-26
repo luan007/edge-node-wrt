@@ -2,9 +2,9 @@ var Section = require("../CI/Section");
 
 export function Config(cb) {
     var handler = Section.GetSection(SECTION_CONST.NETWORK_DNSMASQ);
-    handler.Write("-k");
+    //handler.Write("-k");
     //handler.Write("--dhcp-script", "/ramdisk/System/Configs/Scripts/dnsmasq_send.sh");
-    handler.Write("--dhcp-option", "44,6");
+    //handler.Write("--dhcp-option", "44,6");
     handler.Write("--dhcp-option", "6," + SECTION_CONST.NETWORK_ADDRESS);
     handler.Write("--listen-address", SECTION_CONST.NETWORK_ADDRESS + ",127.0.0.1");
     handler.Write("--expand-hosts");
@@ -17,9 +17,11 @@ export function Config(cb) {
     handler.Write("--address", "/.wifi.network/" + SECTION_CONST.NETWORK_ADDRESS);
     handler.Write("--address", "/.ed.ge/" + SECTION_CONST.NETWORK_ADDRESS);
     handler.Write("--address", "/.wifi/" + SECTION_CONST.NETWORK_ADDRESS);
-    handler.Write("--addn-hosts", "/ramdisk/System/Configs/Miscs/dnsmasq_dhcp_hostsfile.conf");
-    handler.Write("--dhcp-hostsfile", "/ramdisk/System/Configs/Miscs/dnsmasq_addn_hosts.conf");
-    handler.Write("--servers-file", "/ramdisk/System/Configs/Miscs/dnsmasq_server_file.conf");
+    //handler.Write("--addn-hosts", "/ramdisk/System/Configs/Miscs/dnsmasq_dhcp_hostsfile.conf");
+    //handler.Write("--dhcp-hostsfile", "/ramdisk/System/Configs/Miscs/dnsmasq_addn_hosts.conf");
+    //handler.Write("--servers-file", "/ramdisk/System/Configs/Miscs/dnsmasq_server_file.conf");
+    handler.Write("--server", "8.8.8.8");
+    handler.Write("--server", "4.4.4.4");
 
     handler.Flush(cb);
 }

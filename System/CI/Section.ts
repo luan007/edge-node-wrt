@@ -5,14 +5,16 @@ export class SectionHandler {
     }
 
     Write(row:string, val?:any) {
-        this._cache[row] = (val ? row + "=" + val : row);
+        this._cache[row] = this._cache[row] || [];
+        this._cache[row].push(val !== undefined ? row + "=" + val : row);
     }
 
     Flush(cb) {
         var realpath = global.ConfigRealPath(this.key);
         var content = "";
         for(var k in this._cache) {
-            content += this._cache[k] + "\n";
+            for(var i in this._cache[k])
+                content += this._cache[k][i] + "\n";
         }
         //console.log(realpath.blue, content);
         fs.writeFile(realpath, content, (err)=> {
