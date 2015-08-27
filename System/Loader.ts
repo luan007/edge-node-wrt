@@ -29,6 +29,10 @@ domain.run(function () {
     jobs.push(function(cb){
         Dnsmasq.GenerateConfig(cb);
     });
+    jobs.push(function(cb){
+        Dnsmasq.Listen();
+        cb();
+    });
 
     async.series(jobs, function() {
         console.log("ALL LOADED...".green);
@@ -38,7 +42,7 @@ domain.run(function () {
                 if(res === false) {
                     Dnsmasq.Start();
                 } else {
-                    Dnsmasq.Fetch(errHandler);
+                    //Dnsmasq.Fetch(errHandler);
                 }
             });
 

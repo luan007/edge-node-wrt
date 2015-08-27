@@ -57,7 +57,7 @@ function start(conf) {
 function isAlive(conf) {
     return function(cb) {
         utils.QueryProcess(cmd + " " + conf, function (err, res) {
-           return cb(undefined, (res && res.length));
+           return cb(undefined, !!(res && res.length));
         });
     };
 }
