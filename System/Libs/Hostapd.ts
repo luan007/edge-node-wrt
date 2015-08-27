@@ -1,8 +1,68 @@
-var Section = require("../CI/Section");
-var uuid = require("uuid");
+var fs = require("fs");
+var path = require("path");
 var child_process = require("child_process");
+var async = require("async");
+var utils = require("./Utils");
+var Section = require("../CI/Section");
 
-export function Config2G(cb) {
+var cmd = "hostapd";
+export var Config2G = "/ramdisk/System/Configs/hostapd_2g.conf";
+export var Config5G = "/ramdisk/System/Configs/hostapd_5g.conf";
+
+function run(conf, cb){
+    var ps = child_process.spawn(cmd, [conf]);
+    ps.stdout.on('hostapd data:', function (data) {
+        console.log(data.toString().cyan);
+    });
+    ps.stderr.on('hostapd stderr:', function (data) {
+        console.log('ps stderr: ' + data.toString().red);
+    });
+    cb();
+}
+function kill(pid, cb) {
+    child_process.exec("kill -9 " + pid, function(error, stdout, stderr) {
+        console.log("killed ".red, pid, error, stdout, stderr);
+        cb();
+    });
+}
+
+export function FileChanged(conf) {
+    return function(curr, prev) {
+        if (curr.mtime !== prev.mtime) {
+            console.log(conf, 'has been changed. curr mtime is: ',
+                curr.mtime, 'prev mtime was: ' + prev.mtime);
+
+            start(conf)();
+        }
+    };
+}
+
+function start(conf) {
+    return function() {
+        utils.QueryProcess(cmd + " " + conf, function (err, res) {
+            var jobs = [];
+            if (res && res.length)
+                jobs.push(function (cb) {
+                    kill(res[0].pid, cb);
+                });
+            jobs.push(function (cb) {
+                run(conf, cb);
+            });
+            async.series(jobs, function () {
+            });
+        });
+    };
+}
+
+function isAlive(conf) {
+    return function(cb) {
+        utils.QueryProcess(cmd + " " + conf, function (err, res) {
+           return cb(undefined, (res && res.length));
+        });
+    };
+}
+
+export function GenerateConfig2G(cb) {
     var handler = Section.GetSection(SECTION_CONST.NETWORK_WIRELESS_2G);
     handler.Write("interface", "ap1");
     handler.Write("bridge", "br0");
@@ -48,7 +108,7 @@ export function Config2G(cb) {
     handler.Flush(cb);
 }
 
-export function Config5G(cb) {
+export function GenerateConfig5G(cb) {
     var handler = Section.GetSection(SECTION_CONST.NETWORK_WIRELESS_5G);
     handler.Write("interface", "ap0");
     handler.Write("bridge", "br0");
@@ -125,32 +185,20 @@ function _parse(sta, cb) {
 }
 
 var stations = {};
-export function Fetch(int, cb) {
-    exec("hostapd_cli", "-p", SECTION_CONST.HOSTAPD_SOCK_FOLDER, "-i", int, "all_sta", function (err, sta) {
-        if (err) return cb(err);
-        _parse(sta, cb);
-    });
-}
-
-function _start_thunk(int) {
-    return function (cb) {
-
-        var conf = (int === "ap0"
-            ? global.ConfigRealPath(SECTION_CONST.NETWORK_WIRELESS_5G)
-            : global.ConfigRealPath(SECTION_CONST.NETWORK_WIRELESS_2G));
-        //if (!fs.existsSync(sock))
-        //    fs.mkdirSync(sock);
-        exec("killall", "hostapd", function () {
-            var ps = child_process.spawn("hostapd", [conf], {detached: true, stdio: 'pipe'});
-            ps.stdout.on('data', function (data) {
-                console.log(data.toString().cyan);
-            });
-            ps.stderr.on('data', function (data) {
-                console.log('ps stderr: ' + data.toString().red);
-            });
-            cb();
+function fetch(int) {
+    return function(cb) {
+        return exec("hostapd_cli", "-p", SECTION_CONST.HOSTAPD_SOCK_FOLDER, "-i", int, "all_sta", function (err, sta) {
+            if (err) return cb(err);
+            _parse(sta, cb);
         });
-    }
+    };
 }
-module.exports.Start2G = _start_thunk("ap1");
-module.exports.Start5G = _start_thunk("ap0");
+
+export var Start2G = start(Config2G);
+export var Start2G = start(Config5G);
+export var IsAlive2G = isAlive(Config2G);
+export var IsAlive5G = isAlive(Config5G);
+export var Fetch2G = fetch(SECTION_CONST.DEV.WLAN.DEV_2G);
+export var Fetch5G = fetch(SECTION_CONST.DEV.WLAN.DEV_5G);
+
+

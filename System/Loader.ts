@@ -1,5 +1,6 @@
 require("../SYS/Env");
 require("./CI/SectionConst");
+var child_process = require("child_process");
 
 process.on('uncaughtException', function (err) {
     fatal(err);
@@ -11,27 +12,43 @@ domain.on('error', function (err) {
     fatal(err.stack);
 });
 
-domain.run(function () {
-    var Udhcpc = require("./Handlers/Udhcpc");
-    var Dnsmasq = require("./Handlers/Dnsmasq");
-    var Hostapd = require("./Handlers/Hostapd");
+var errHandler = function(err) { if(err) console.log(err.red); };
 
+domain.run(function () {
     var jobs = [];
+    var Udhcpc = require("./Libs/Udhcpc");
+    var Dnsmasq = require("./Libs/Dnsmasq");
+    var Hostapd = require("./Libs/Hostapd");
 
     jobs.push(function(cb){
         Udhcpc.Start(cb);
     });
     jobs.push(function(cb){
-        Hostapd.Config2G(cb);
+        Hostapd.GenerateConfig2G(cb);
     });
-    //jobs.push(function(cb){
-    //    Hostapd.Config5G(cb);
-    //});
     jobs.push(function(cb){
-        Dnsmasq.Config(cb);
+        Dnsmasq.GenerateConfig(cb);
     });
 
     async.series(jobs, function() {
         console.log("ALL LOADED...".green);
+
+        setInterval(function() {
+            Dnsmasq.IsAlive(function(err, res) {
+                if(res === false) {
+                    Dnsmasq.Start();
+                } else {
+                    Dnsmasq.Fetch(errHandler);
+                }
+            });
+
+            Hostapd.IsAlive2G(function(err, res){
+                if(res === false) {
+                    Hostapd.Start2G();
+                } else {
+                    Hostapd.Fetch2G(errHandler);
+                }
+            });
+        }, 1000);
     });
 });

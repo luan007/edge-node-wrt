@@ -4,8 +4,9 @@
 . ./Preload/wireless.sh
 . ./Preload/set_mac.sh
 
-#. ./Patrols/dnsmasq.sh
-#. ./Patrols/hostapd_2g.sh
+killall node
+
+node ./Patrols/ConfigMonitor.js &
 
 node ./Loader
 
