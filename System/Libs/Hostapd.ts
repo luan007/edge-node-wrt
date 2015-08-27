@@ -187,7 +187,8 @@ function _parse(sta, cb) {
 var stations = {};
 function fetch(int) {
     return function(cb) {
-        return exec("hostapd_cli", "-p", SECTION_CONST.HOSTAPD_SOCK_FOLDER, "-i", int, "all_sta", function (err, sta) {
+        var ps = child_process.execFile("hostapd_cli", ["-p", SECTION_CONST.HOSTAPD_SOCK_FOLDER, "-i", int, "all_sta"], function (err, sta) {
+            ps.kill("SIGTERM");
             if (err) return cb(err);
             _parse(sta, cb);
         });
@@ -195,7 +196,7 @@ function fetch(int) {
 }
 
 export var Start2G = start(Config2G);
-export var Start2G = start(Config5G);
+export var Start5G = start(Config5G);
 export var IsAlive2G = isAlive(Config2G);
 export var IsAlive5G = isAlive(Config5G);
 export var Fetch2G = fetch(SECTION_CONST.DEV.WLAN.DEV_2G);

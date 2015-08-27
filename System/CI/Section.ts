@@ -1,3 +1,5 @@
+var fs = require("fs");
+
 export class SectionHandler {
     private _cache = {};
 

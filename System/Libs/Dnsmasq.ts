@@ -51,15 +51,11 @@ export function FileChanged(curr, prev) {
 
 export function Start() {
     utils.QueryProcess(cmd, function (err, res){
-        if(err){
-            return console.log(err);
-        } else {
-            var jobs = [];
-            if(res)
-                jobs.push(function(cb){kill(cb);});
-            jobs.push(function(cb){run(cb);});
-            async.series(jobs, function(){});
-        }
+        var jobs = [];
+        if(res)
+            jobs.push(function(cb){kill(cb);});
+        jobs.push(function(cb){run(cb);});
+        async.series(jobs, function(){});
     });
 }
 export function IsAlive(cb) {

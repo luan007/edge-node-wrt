@@ -29,7 +29,7 @@ class _section_const {
 var SECTION_CONST = new _section_const();
 global.SECTION_CONST = SECTION_CONST;
 
-
+var fs = require("fs");
 var _section_conf_path = "/ramdisk/System/CI/SectionConf.json";
 var _section_conf = {};
 function _load_section_conf() {
