@@ -188,7 +188,7 @@ var stations = {};
 function fetch(int) {
     return function(cb) {
         var ps = child_process.execFile("hostapd_cli", ["-p", SECTION_CONST.HOSTAPD_SOCK_FOLDER, "-i", int, "all_sta"], function (err, sta) {
-            ps.kill("SIGTERM");
+            ps.kill();
             if (err) return cb(err);
             _parse(sta, cb);
         });

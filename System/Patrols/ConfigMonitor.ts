@@ -20,9 +20,9 @@ var dnsmasq = require("../Libs/Dnsmasq");
 //    watch(hostapd.Config2G, hostapd.Start2G);
 //    watch(hostapd.Config5G, hostapd.Start5G);
 //    watch(dnsmasq.Config, dnsmasq.Start);
-//}, 1000);
+//}, 2000);
 
 fs.watchFile(hostapd.Config2G, hostapd.FileChanged(hostapd.Config2G));
-//fs.watchFile(hostapd.Config5G, hostapd.FileChanged(hostapd.Config5G));
-
+////fs.watchFile(hostapd.Config5G, hostapd.FileChanged(hostapd.Config5G));
+//
 fs.watchFile(dnsmasq.Config, dnsmasq.FileChanged);

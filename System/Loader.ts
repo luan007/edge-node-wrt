@@ -29,20 +29,26 @@ domain.run(function () {
     jobs.push(function(cb){
         Dnsmasq.GenerateConfig(cb);
     });
-    jobs.push(function(cb){
-        Dnsmasq.Listen();
-        cb();
-    });
+    //jobs.push(function(cb){
+    //    Dnsmasq.Listen();
+    //    cb();
+    //});
 
     async.series(jobs, function() {
         console.log("ALL LOADED...".green);
 
         setInterval(function() {
+            Udhcpc.IsAlive(function(err, res) {
+                if(res === false) {
+                    Udhcpc.Start(function(){});
+                }
+            });
+
             Dnsmasq.IsAlive(function(err, res) {
                 if(res === false) {
                     Dnsmasq.Start();
                 } else {
-                    //Dnsmasq.Fetch(errHandler);
+                    Dnsmasq.Fetch(errHandler);
                 }
             });
 

@@ -68,7 +68,7 @@ export function IsAlive(cb) {
 export function GenerateConfig(cb) {
     var handler = Section.GetSection(SECTION_CONST.NETWORK_DNSMASQ);
     //handler.Write("-k");
-    handler.Write("--dhcp-script", "/ramdisk/System/Configs/Scripts/dnsmasq_send.sh");
+    //handler.Write("--dhcp-script", "/ramdisk/System/Configs/Scripts/dnsmasq_send.sh");
     //handler.Write("--dhcp-option", "44,6");
     handler.Write("--dhcp-option", "6," + SECTION_CONST.NETWORK_ADDRESS);
     handler.Write("--listen-address", SECTION_CONST.NETWORK_ADDRESS + ",127.0.0.1");
@@ -127,37 +127,37 @@ export function Fetch(cb) {
     });
 }
 
-var leaseDB = {};
-function _onrawdata(buf, rinfo) {
-    var data = JSON.parse(buf.toString());
-    var lease = data.Lease;
-    lease.Mac = lease.Mac.toLowerCase();
-    switch (data.Action) {
-        case "add":
-            console.log("Adding " + lease.Hostname + " " + lease.Address);
-            leaseDB[lease.Mac] = lease;
-            break;
-        case "old":
-            if (!_.isEqual(lease, leaseDB[lease.Mac])) {
-                console.log("Changing " + lease.Hostname + " " + lease.Address);
-                leaseDB[lease.Mac] = lease;
-            }
-            break;
-        case "del":
-            console.log("Deleting " + lease.Hostname + " " + lease.Address);
-            delete leaseDB[lease.Mac];
-            break;
-    }
-};
-
-export function Listen() {
-    var sock = "/tmp/fdsock/light_queue.sock";
-    if(fs.existsSync(sock))
-        fs.unlinkSync(sock);
-    var client = unix.createSocket('unix_dgram', _onrawdata);
-    client.bind(sock);
-    fs.chmodSync(sock, 777);
-    client.on('error', function (err) {
-        console.log("DNSMASQ ERROR".red, err);
-    });
-}
+//var leaseDB = {};
+//function _onrawdata(buf, rinfo) {
+//    var data = JSON.parse(buf.toString());
+//    var lease = data.Lease;
+//    lease.Mac = lease.Mac.toLowerCase();
+//    switch (data.Action) {
+//        case "add":
+//            console.log("Adding " + lease.Hostname + " " + lease.Address);
+//            leaseDB[lease.Mac] = lease;
+//            break;
+//        case "old":
+//            if (!_.isEqual(lease, leaseDB[lease.Mac])) {
+//                console.log("Changing " + lease.Hostname + " " + lease.Address);
+//                leaseDB[lease.Mac] = lease;
+//            }
+//            break;
+//        case "del":
+//            console.log("Deleting " + lease.Hostname + " " + lease.Address);
+//            delete leaseDB[lease.Mac];
+//            break;
+//    }
+//};
+//
+//export function Listen() {
+//    var sock = "/tmp/fdsock/light_queue.sock";
+//    if(fs.existsSync(sock))
+//        fs.unlinkSync(sock);
+//    var client = unix.createSocket('unix_dgram', _onrawdata);
+//    client.bind(sock);
+//    fs.chmodSync(sock, 777);
+//    client.on('error', function (err) {
+//        console.log("DNSMASQ ERROR".red, err);
+//    });
+//}
