@@ -2,8 +2,8 @@ require("../CI/SectionConst");
 
 var fs = require("fs");
 var path = require("path");
-var hostapd = require("../Libs/Hostapd");
-var dnsmasq = require("../Libs/Dnsmasq");
+var hostapd = require("../Libs/Network/Hostapd");
+var dnsmasq = require("../Libs/Network/Dnsmasq");
 
 //var trackers = {};
 //

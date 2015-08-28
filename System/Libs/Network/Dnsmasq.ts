@@ -2,8 +2,8 @@ var fs = require("fs");
 var path = require("path");
 var child_process = require("child_process");
 var async = require("async");
-var utils = require("./Utils");
-var Section = require("../CI/Section");
+var utils = require("../Tools/Utils");
+var Section = require("../../CI/Section");
 var unix = require("unix-dgram");
 
 var cmd = "dnsmasq";
@@ -111,20 +111,27 @@ export function Fetch(cb) {
                 };
                 if (!leases[lease.mac]) {
                     console.log("NEW: ", lease);
-                } else if(new Date().getTime() > leases[lease.mac].expires) {
-                    console.log("STALE: ", lease);
+                    Agency.Trigger(SECTION_CONST.AGENT.DNSMASQ, SECTION_CONST.AGENT.EVENTS.NEW, lease.mac, lease);
                 }
+                //else if(new Date().getTime() > leases[lease.mac].expires) {
+                //    console.log("STALE: ", lease);
+                //}
                 staging[lease.mac] = lease;
             }
         }
         for (var k in leases) {
             if (!staging[k]) {
+                Agency.Trigger(SECTION_CONST.AGENT.DNSMASQ, SECTION_CONST.AGENT.EVENTS.DEL, k, leases[k]);
                 console.log("DEL: ", k);
             }
         }
         leases = staging;
         return cb(undefined, leases);
     });
+}
+
+export function GetLease(mac) {
+    return leases[mac];
 }
 
 //var leaseDB = {};

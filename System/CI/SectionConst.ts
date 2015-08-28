@@ -24,6 +24,37 @@ class _section_const {
             DEV_WAN: process.env.DEV_WAN || "eth2"
         }
     };
+
+    AGENT = {
+        DNSMASQ : "DNSMASQ",
+        HOSTAPD : "HOSTAPD",
+        EVENTS: {
+            NEW: "NEW",
+            DEL: "DEL",
+            CHANGE: "CHANGE"
+        }
+    };
+
+    SECTION = {
+        NETWORK: 'NETWORK',
+        WLAN5G: 'WLAN5G',
+        WLAN2G: 'WLAN2G',
+        BLUETOOTH: 'BLUETOOTH',
+        BTLE: "BTLE",
+        FIREWALL: "FIREWALL",
+        TRAFFIC: "TRAFFIC",
+        STREAMING: 'STREAMING',
+        DEVICE: 'DEVICE',
+        USER: 'USER',
+        SAMBA: 'SAMBA',
+        OBEX: 'OBEX',
+        RUNTIME: 'RUNTIME',
+        APP: "APP",
+        PKG: "PKG",
+        GRAPHD: "GRAPHD",
+        CONNECTIVITY: "CONNECTIVITY",
+        LOADER: "LOADER"
+    };
 }
 
 var SECTION_CONST = new _section_const();

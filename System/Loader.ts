@@ -1,25 +1,29 @@
-require("../SYS/Env");
-require("./CI/SectionConst");
+require("./Env");
+
 var child_process = require("child_process");
 
 process.on('uncaughtException', function (err) {
-    fatal(err);
-    fatal(err.stack);
+    console.log(err);
+    console.log(err.stack);
 });
 var domain = require('domain').create();
 domain.on('error', function (err) {
-    fatal(err);
-    fatal(err.stack);
+    console.log(err);
+    console.log(err.stack);
 });
 
 var errHandler = function(err) { if(err) console.log(err.red); };
 
 domain.run(function () {
     var jobs = [];
-    var Udhcpc = require("./Libs/Udhcpc");
-    var Dnsmasq = require("./Libs/Dnsmasq");
-    var Hostapd = require("./Libs/Hostapd");
 
+    jobs.push(function(cb){//Register ALL
+        Agency.Register(SECTION_CONST.AGENT.DNSMASQ, SECTION_CONST.AGENT.EVENTS.NEW, WifiBus.OnLease);
+        Agency.Register(SECTION_CONST.AGENT.DNSMASQ, SECTION_CONST.AGENT.EVENTS.DEL, WifiBus.DropLease);
+        Agency.Register(SECTION_CONST.AGENT.HOSTAPD, SECTION_CONST.AGENT.EVENTS.NEW, WifiBus.OnStation);
+        Agency.Register(SECTION_CONST.AGENT.HOSTAPD, SECTION_CONST.AGENT.EVENTS.DEL, WifiBus.DropStation);
+        cb();
+    });
     jobs.push(function(cb){
         Udhcpc.Start(cb);
     });
@@ -29,10 +33,6 @@ domain.run(function () {
     jobs.push(function(cb){
         Dnsmasq.GenerateConfig(cb);
     });
-    //jobs.push(function(cb){
-    //    Dnsmasq.Listen();
-    //    cb();
-    //});
 
     async.series(jobs, function() {
         console.log("ALL LOADED...".green);

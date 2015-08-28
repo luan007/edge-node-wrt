@@ -2,8 +2,8 @@ var fs = require("fs");
 var path = require("path");
 var child_process = require("child_process");
 var async = require("async");
-var utils = require("./Utils");
-var Section = require("../CI/Section");
+var utils = require("../Tools/Utils");
+var Section = require("../../CI/Section");
 
 var cmd = "hostapd";
 export var Config2G = "/ramdisk/System/Configs/hostapd_2g.conf";
@@ -157,42 +157,53 @@ export function GenerateConfig5G(cb) {
 function _is_MAC(str) {
     return /[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}/gmi.test(str);
 }
-function _parse(sta, cb) {
+
+var stations = { };
+function _parse(sta, int, cb) {
+    var band = (int === SECTION_CONST.DEV.WLAN.DEV_2G ? SECTION_CONST.SECTION.WLAN2G : SECTION_CONST.SECTION.WLAN5G);
     var line = "\n";
     var arr = sta.trim(line).split(line);
     var cur = undefined;
-    var stage = {};
+    var staging = {};
     for (var i in arr) {
         var row = arr[i];
         if (_is_MAC(row)) {
-            if (!stations[row]) {
-                console.log("NEW: ", row);
-            }
             cur = {};
-            stage[row] = cur;
+            cur["band"] = band; // distinguish
+            staging[row] = cur;
         } else if (row.trim() !== "") {
             var parts = row.split("=");
             cur[parts[0]] = parts[1];
         }
     }
-    for (var k in stations) {
-        if (!stage[k]) {
-            console.log("DEL: ", k);
+    for (var mac in staging) {
+        if (!stations[mac]) {
+            console.log("NEW: ", mac);
+            Agency.Trigger(SECTION_CONST.AGENT.HOSTAPD, SECTION_CONST.AGENT.EVENTS.NEW, row, staging[mac]);
         }
     }
-    stations = stage;
+    for (var k in stations) {
+        if (!staging[k]) {
+            console.log("DEL: ", k);
+            Agency.Trigger(SECTION_CONST.AGENT.HOSTAPD, SECTION_CONST.AGENT.EVENTS.NEW, k, stations[k]);
+        }
+    }
+    stations = staging;
     return cb(undefined, stations);
 }
 
-var stations = {};
 function fetch(int) {
     return function(cb) {
         var ps = child_process.execFile("hostapd_cli", ["-p", SECTION_CONST.HOSTAPD_SOCK_FOLDER, "-i", int, "all_sta"], function (err, sta) {
             ps.kill();
             if (err) return cb(err);
-            _parse(sta, cb);
+            _parse(sta, int, cb);
         });
     };
+}
+
+export function GetStation(mac) {
+    return stations[mac];
 }
 
 export var Start2G = start(Config2G);
@@ -201,5 +212,6 @@ export var IsAlive2G = isAlive(Config2G);
 export var IsAlive5G = isAlive(Config5G);
 export var Fetch2G = fetch(SECTION_CONST.DEV.WLAN.DEV_2G);
 export var Fetch5G = fetch(SECTION_CONST.DEV.WLAN.DEV_5G);
+
 
 
