@@ -10,11 +10,12 @@ global.async = require("async");
 global._ = require("underscore");
 require("colors");
 require("../Modules/Shared/use");
+require("./Libs/Tools/Commands");
+require("./CI/SectionConst");
 
-
-global.Config = require("./Configuration/Config");
-//global.Utils = require("./Libs/Tools/Utils");
-//global.Dnsmasq = require("./Libs/Network/Dnsmasq");
-//global.Hostapd = require("./Libs/Network/Hostapd");
-//global.Udhcpc = require("./Libs/Network/Udhcpc");
-//global.WifiBus = require("./Device/Bus/WifiBus");
+global.Agency = require("./Libs/Tools/Agency");
+global.Utils = require("./Libs/Tools/Utils");
+global.Dnsmasq = require("./Libs/Network/Dnsmasq");
+global.Hostapd = require("./Libs/Network/Hostapd");
+global.Udhcpc = require("./Libs/Network/Udhcpc");
+global.WifiBus = require("./Device/Bus/WifiBus");
