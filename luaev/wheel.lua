@@ -14,12 +14,7 @@ local ev = require 'ev'
 local posix = require "posix"
 local signal = require "posix.signal"
 local LOOP = ev.Loop.default
-
-if(DEBUG) then 
-    local debug = print
-    else 
-    debug = function() end
-end
+local debug = require('dbg')('libwheel')
 
 
 -- 
@@ -56,10 +51,12 @@ end
 ]]--
 function _clear(o)
     if registry[o] then
+        debug('clear', 'event', o)
         registry[o]:stop(registry[o]._loop)
         registry[o] = nil
         return 1
     else
+        debug('clear', 'event not found', o)
         return -1
     end 
 end
@@ -76,11 +73,12 @@ spawn = function(program, ...)
     local read, write = posix.pipe()
     local cpid = posix.fork()
     if cpid == 0 then --inside child process
-        debug('forked # ready to transform')
+        debug('[CLIENT] forked lua for', program, ...)
 		assert(0 == posix.dup2(read,0)) --redirect everything
 		assert(1 == posix.dup2(write,1)) --redirect this too
         posix.execp(program, ...) --replace my exec target
     else 
+        debug('[MASTER] forked pid=' .. cpid)
         pidmap[#pidmap + 1] = cpid
         return {stdout=read, stdin=write, pid=cpid}
     end
@@ -142,6 +140,7 @@ terminate = function()
         debug('killing', pidmap[i])
         posix.kill(pidmap[i])
     end
+    debug('terminating')
     LOOP:unloop() 
     os.exit()
 end
@@ -152,10 +151,19 @@ end
     @fn     : callback function() - called when the event loop is ready
 ]]--
 bootstrap = function(fn)
-    if fn then 
-        nextTick(fn)
-    end
-    LOOP:loop()
+    debug('register sigterm_sigint')
+        stat = ev.Signal.new(sigint_or_term, signal.SIGTERM)
+        stat:start(LOOP)
+        stat = ev.Signal.new(sigint_or_term, signal.SIGINT)
+        stat:start(LOOP)
+    debug('register bootstrap function')
+        if fn then 
+            nextTick(fn)
+        end
+    debug('main loop')
+        LOOP:loop()
+        --SHOULD STOP HERE :)
+        terminate()
 end 
 
 function sigint_or_term()
@@ -329,10 +337,4 @@ onData = function(fileid, fn, once, loop)
     end, once, loop)
     return d
 end
-
-stat = ev.Signal.new(sigint_or_term, signal.SIGTERM)
-stat:start(LOOP)
-stat = ev.Signal.new(sigint_or_term, signal.SIGINT)
-stat:start(LOOP)
-
 

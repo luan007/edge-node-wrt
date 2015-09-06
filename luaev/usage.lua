@@ -5,8 +5,6 @@ local posix = require 'posix'
 
 bootstrap(function()
 	
-	print 'bootstrap in eventloop'
-	
 	onChildSignal(function(pid, state) 
 		print ('child', pid, inspect(state))	
 	end)
