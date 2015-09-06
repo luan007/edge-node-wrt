@@ -31,6 +31,5 @@ bootstrap(function()
 		end)
 	end, 5000)
 	
-	
 end)
 
