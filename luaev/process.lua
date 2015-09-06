@@ -6,8 +6,8 @@ local posix = require "posix"
 local args = nil
 local thread = nil
 
-function cleanup()
-    posix.kill(thread.pid, 9)
+function cleanup(signal)
+    posix.kill(thread.pid, signal or 9)
     thread = nil
 end
 
@@ -32,9 +32,9 @@ function scope.start(...)
     end
 end
 
-function scope.kill()
+function scope.kill(signal)
     if thread ~= nil then
-        cleanup()
+        cleanup(signal)
     end
 end
 
