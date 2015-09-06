@@ -111,7 +111,7 @@ function daemon.kill(key, signal)
     local obj = map[key]
     if(not obj or not obj.pid) then return end
     signal = signal and signal or 15
-    debug('killing ', key, obj.pid)
+    debug('kill using signal ', signal, key, obj.pid)
     posix.kill(obj.pid, signal)
 end
 

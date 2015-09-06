@@ -28,10 +28,6 @@ local registry = {}
 local pidmap = {}
 
 millis = function()
-    return (os.time() - time) / 1000
-end 
-
-micros = function()
     return (os.time() - time)
 end 
 
