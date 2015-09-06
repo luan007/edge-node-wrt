@@ -23,7 +23,7 @@ local LOOP = ev.Loop.default
 -- 
 
 local registry = {}
-
+local pidmap = {}
 
 function _once(fn, arr, id)
     return function(loop, now, rev)
@@ -64,6 +64,22 @@ clearStat       = _clear
 clearTimeout    = _clear
 clearInterval   = _clear
 
+
+spawn = function(program, ...)
+    local read, write = posix.pipe()
+    local cpid = posix.fork()
+    if cpid == 0 then --inside child process
+        print('forked # ready to transform')
+		assert(0 == posix.dup2(read,0)) --redirect everything
+		assert(1 == posix.dup2(write,1)) --redirect this too
+        assert(posix.execp(program, ...)) --replace my exec target
+    else 
+        pidmap[#pidmap + 1] = cpid
+        return {stdout=read, stdin=write, pid=cpid}
+    end
+end
+
+
 --[[
     defer call onto next event-loop (idle)
     @fn     : callback => function()
@@ -88,7 +104,6 @@ setTimeout = function(fn, t, loop)
     fn = _timer_closure(fn, #registry + 1)
     registry[#registry + 1] = ev.Timer.new(_once(fn, _timeouts, #registry + 1), t)
     registry[#registry]._loop = loop
-    registry[#registry]:priority(ev.MAXPRI) -- this ensures your event triggers first    
     registry[#registry]:start(loop)
     return #registry
 end
@@ -107,7 +122,6 @@ setInterval = function(fn, t, loop)
     fn = _timer_closure(fn, #registry + 1)
     registry[#registry + 1] = ev.Timer.new(fn, t, t)
     registry[#registry]._loop = loop
-    registry[#registry]:priority(ev.MAXPRI) -- this ensures your event triggers first    
     registry[#registry]:start(loop)
     return #registry
 end
@@ -116,7 +130,13 @@ end
     terminate ev-driven lua process
 ]]--
 terminate = function()
+    --not enough, let us kill everything..
+    for i = 1,#pidmap do
+        print('killing', pidmap[i])
+        posix.kill(pidmap[i])
+    end
     LOOP:unloop() 
+    os.exit()
 end
 
 --[[
@@ -150,13 +170,13 @@ onStatChange = function(path, fn, once, loop)
     registry[_id] = ev.Stat.new(
         once == nil and 
             function(loop, stat, ev)
-                fn(path, stat.getdata())
+                fn(path, stat:getdata())
             end 
         or 
             function(loop, stat, ev)
                 stat:stop(loop)
                 registry[_id] = nil
-                fn(path, stat.getdata())
+                fn(path, stat:getdata())
             end 
         , path)
     registry[_id]._loop = loop
@@ -281,8 +301,9 @@ onData = function(fileid, fn, once, loop)
         [fileid] = { events = { IN = true } }
     }
     
-    local d = onReadable(fileid, function()
-        while posix.poll(fdmock, 0) == 1 do 
+    d = onReadable(fileid, function()
+        print(fileid, 'readable')
+        while fdmock and posix.poll(fdmock, 0) == 1 do 
             --this is bad, we should move fdmock outside the function, for better concurrent throughtput
 			for fd in pairs(fdmock) do
 				if fdmock[fd].revents.IN then
@@ -294,7 +315,7 @@ onData = function(fileid, fn, once, loop)
 					fdmock[fd] = nil
                     fdmock = nil
                     clearHandle(d)
-					if not next(fdmock) then return end
+					if not (fdmock and next(fdmock)) then return end
 				end
 			end
 		end

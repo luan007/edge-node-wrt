@@ -2,7 +2,7 @@ require 'wheel'
 local inspect = require 'inspect'
 local posix = require 'posix'
 
---
+
 bootstrap(function()
 	
 	print 'bootstrap in eventloop'
@@ -11,21 +11,24 @@ bootstrap(function()
 		print ('child', pid, inspect(state))	
 	end)
 	
-	local stdout1 = io.popen('node test')
-	local stdout2 = io.popen('node test2')
+	local node = spawn('node')
+	print(node.pid)
 	
-	onData(stdout1, function(t)
-		print("test:", t)
-	end)
-	onData(stdout2, function(t)
-		print("test2:", t)
-	end)
+	setTimeout(function() 
+		print('kill node #', node.pid)
+		posix.kill(node.pid)	
+	end, 3000)
 	
 	local timer = setInterval(function()
-		print '.5sec'
+		print('0.5 s')
 	end, 500)
 	
 	setTimeout(function()
+		local process = spawn('ping', '127.0.0.1')
+		print(process.pid)
+		onData(process.stdout, function(t)
+			print('ping', t)
+		end)
 	end, 5000)
 	
 	
