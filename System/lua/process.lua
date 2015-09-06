@@ -3,37 +3,39 @@ scope = {}
 require "wheel"
 local inspect = require "inspect"
 local posix = require "posix"
-
-local cmd = "dnsmasq"
-local conf = "/etc/dnsmasq.conf"
-local status = "/etc/dnsmasq.status"
+local args = nil
 local thread = nil
 
-function daemonize()
-	local e = onChildSignal(function(pid, state)
-		print("state:", inspect(state))
-		if state.exited == true then
-			print("dead, restarting...")
-			posix.kill(thread.pid, 9)
-			thread = nil
-			removeListener(e)
-			scope.start()
-		end
-	end, thread.pid)
+function cleanup()
+    posix.kill(thread.pid, 9)
+    thread = nil
 end
 
-function scope.start()
-	if thread == nil then
-		thread = spawn(cmd, "-C", conf, "-k")
-		daemonize()
-	end
+function daemonize()
+    local e = onChildSignal(function(pid, state)
+        print("state:", inspect(state))
+        if state.exited == true then
+            print("dead, restarting...")
+            if thread ~= nil then cleanup() end
+            removeListener(e)
+            scope.start(unpack(args))
+        end
+    end, thread.pid)
+end
+
+function scope.start(...)
+    if thread == nil then
+        args = {...}
+        print(inspect(args))
+        thread = spawn(unpack(args))
+        daemonize()
+    end
 end
 
 function scope.kill()
-	if thread ~= nil then 
-		posix.kill(thread.pid, 9) 
-		thread = nil
-	end
+    if thread ~= nil then
+        cleanup()
+    end
 end
 
 scope.conf = conf
