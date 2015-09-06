@@ -15,7 +15,7 @@ local posix = require "posix"
 local signal = require "posix.signal"
 local LOOP = ev.Loop.default
 local debug = require('dbg')('libwheel')
-
+local time = os.time()
 
 -- 
 -- local file = io.popen('node test.js')
@@ -26,6 +26,18 @@ local debug = require('dbg')('libwheel')
 
 local registry = {}
 local pidmap = {}
+
+millis = function()
+    return (os.time() - time) / 1000
+end 
+
+micros = function()
+    return (os.time() - time)
+end 
+
+ostime = function()
+    return os.time()
+end 
 
 function _once(fn, arr, id)
     return function(loop, now, rev)
@@ -79,11 +91,10 @@ spawn = function(program, ...)
         posix.execp(program, ...) --replace my exec target
     else 
         debug('[MASTER] forked pid=' .. cpid)
-        pidmap[#pidmap + 1] = cpid
+        pidmap[cpid] = 1
         return {stdout=read, stdin=write, pid=cpid}
     end
 end
-
 
 --[[
     defer call onto next event-loop (idle)
@@ -136,9 +147,9 @@ end
 ]]--
 terminate = function()
     --not enough, let us kill everything..
-    for i = 1,#pidmap do
-        debug('killing', pidmap[i])
-        posix.kill(pidmap[i])
+    for k,v in next,pidmap do
+        debug('killing running child', k)
+        posix.kill(k)
     end
     debug('terminating')
     LOOP:unloop() 
@@ -160,6 +171,14 @@ bootstrap = function(fn)
         if fn then 
             nextTick(fn)
         end
+    debug('register spawn cleanup function')
+        
+        onChildSignal(function(pid, state) 
+            if state.exited == true then
+                pidmap[pid] = nil
+            end
+        end)
+
     debug('main loop')
         LOOP:loop()
         --SHOULD STOP HERE :)

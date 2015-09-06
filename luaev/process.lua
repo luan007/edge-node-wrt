@@ -1,43 +1,120 @@
-scope = {}
+daemon = {}
 
 require "wheel"
 local inspect = require "inspect"
 local posix = require "posix"
 local args = nil
 local thread = nil
+local debug = require('dbg')('process')
 
-function cleanup(signal)
-    posix.kill(thread.pid, signal or 9)
-    thread = nil
-end
 
-function daemonize()
-    local e = onChildSignal(function(pid, state)
-        print("state:", inspect(state))
-        if state.exited == true then
-            print("dead, restarting...")
-            if thread ~= nil then cleanup() end
-            removeListener(e)
-            scope.start(unpack(args))
-        end
-    end, thread.pid)
-end
+map = {
+    --[[
+     
+    ['hostapd']: {
+        pid     = 1358
+        args    = {...}
+        state   = 'exit'
+        started = millis()
+        stated  = millis()
+        intent  = 'daemon'
+    }
+    
+    --]]
+} --tiny manager, key, cmd params
 
-function scope.start(...)
-    if thread == nil then
-        args = {...}
-        print(inspect(args))
-        thread = spawn(unpack(args))
-        daemonize()
+--this does not need to be released
+--as this thing is a catch-all
+onChildSignal(function(pid, state) 
+    -- catch all
+    
+    if state.exited == false then
+        return
+    end
+    
+    for k, v in next, map do
+        if map[k].pid == pid then
+            map[k].state = 'exit'
+            map[k].pid = nil
+            map[k].stdout = nil
+            map[k].stdin = nil
+            debug('*'.. k .. '* STOPPED', 
+                  map[k].pid, 
+                  'intented - ' .. map[k].intent)
+            return daemon.takeAction(k)
+        end 
+    end
+    
+end)
+
+function daemon.takeAction(key)
+    if(key == nil or map[key] == nil) then return end
+    local p = map[key]
+    
+    if(map[key].error) then return end
+    debug('taking action', key, inspect(map[key]))
+    
+    if(p.intent == 'run' and map[key].state == 'exit') then
+        local ps = spawn(unpack(map[key].args))
+        if(ps == nil) then 
+            map[key].error = 1
+            return debug ('spawn error', key, inspect(map[key]))
+        end 
+        p.pid = ps.pid
+        p.stdout = ps.stdout
+        p.stdin = ps.stdin
+        p.state = 'run'
+        return p.pid
+    elseif(p.intent == 'exit' and map[key].state == 'run') then
+        daemon.kill(key)
+        return p.pid
     end
 end
 
-function scope.kill(signal)
-    if thread ~= nil then
-        cleanup(signal)
-    end
+function daemon.setArg(key, ...)
+    local obj = map[key]
+    
+    debug('set arg', '['..key..']', inspect({...}))
+    if(not obj or ... == nil) then return end
+    map[key].args = {...}
+    return 1
 end
 
-scope.conf = conf
-return scope
+function daemon.start(key, ...)
+    local obj = map[key]
+    if (not obj) and (... ~= nil) then 
+    map[key] = {
+        name = key,
+        state = 'exit',
+        pid = nil,
+        intent = 'run'
+    } 
+        debug('New process to be created', inspect(map[key]))
+    elseif not obj then 
+        debug('WARNING - ', key, ' is being ignored because of empty arg @ very begining')
+        return -1
+    end
+    if (... ~= nil) then
+        --let's setup this thing..
+        daemon.setArg(key, ...)
+    end
+    daemon.takeAction(key)
+end
 
+function daemon.stop(key)
+    local obj = map[key]
+    if(obj) then map[key].intent = 'exit' end
+    daemon.takeAction(key)
+end
+
+function daemon.kill(key, signal)
+    local obj = map[key]
+    if(not obj or not obj.pid) then return end
+    signal = signal and signal or 15
+    debug('killing ', key, obj.pid)
+    posix.kill(obj.pid, signal)
+end
+
+daemon.map = map
+
+return daemon
