@@ -27,7 +27,7 @@ local time = os.time()
 local registry = {}
 local pidmap = {}
 
-millis = function()
+time = function()
     return (os.time() - time)
 end 
 

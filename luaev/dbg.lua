@@ -19,7 +19,7 @@ local function logger_factory(name)
 		return emptyfunc
 	else 
 		return function(...)
-			   		print((os.time() - t) / 1000 .. ' [' .. name .. ']',  ...)
+			   		print(os.date("%H:%M:%S", os.time() - t) .. ' [' .. name .. ']',  ...)
 			   end
 	end
 end
