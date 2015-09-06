@@ -10,11 +10,18 @@
 
 --]]
 
-
 local ev = require 'ev'
 local posix = require "posix"
 local signal = require "posix.signal"
 local LOOP = ev.Loop.default
+
+if(DEBUG) then 
+    local debug = print
+    else 
+    debug = function() end
+end
+
+
 -- 
 -- local file = io.popen('node test.js')
 -- print(type(file))
@@ -69,10 +76,10 @@ spawn = function(program, ...)
     local read, write = posix.pipe()
     local cpid = posix.fork()
     if cpid == 0 then --inside child process
-        print('forked # ready to transform')
+        debug('forked # ready to transform')
 		assert(0 == posix.dup2(read,0)) --redirect everything
 		assert(1 == posix.dup2(write,1)) --redirect this too
-        assert(posix.execp(program, ...)) --replace my exec target
+        posix.execp(program, ...) --replace my exec target
     else 
         pidmap[#pidmap + 1] = cpid
         return {stdout=read, stdin=write, pid=cpid}
@@ -132,7 +139,7 @@ end
 terminate = function()
     --not enough, let us kill everything..
     for i = 1,#pidmap do
-        print('killing', pidmap[i])
+        debug('killing', pidmap[i])
         posix.kill(pidmap[i])
     end
     LOOP:unloop() 
@@ -302,7 +309,7 @@ onData = function(fileid, fn, once, loop)
     }
     
     d = onReadable(fileid, function()
-        print(fileid, 'readable')
+        debug(fileid, 'readable')
         while fdmock and posix.poll(fdmock, 0) == 1 do 
             --this is bad, we should move fdmock outside the function, for better concurrent throughtput
 			for fd in pairs(fdmock) do
