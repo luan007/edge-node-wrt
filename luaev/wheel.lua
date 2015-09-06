@@ -41,6 +41,7 @@ function _once(fn, arr, id)
         if arr and id then 
             arr[id] = nil
         end 
+		collectgarbage('collect') -- cuz u did it once, let's treasure it..
         fn()
     end
 end

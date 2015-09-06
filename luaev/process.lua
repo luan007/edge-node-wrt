@@ -36,11 +36,16 @@ onChildSignal(function(pid, state)
         if map[k].pid == pid then
             map[k].state = 'exit'
             map[k].pid = nil
+            if(map[k].stdout) then
+                posix.close(map[k].stdout) end
+            if(map[k].stdin) then 
+                posix.close(map[k].stdin) end
             map[k].stdout = nil
             map[k].stdin = nil
             debug('*'.. k .. '* STOPPED', 
                   map[k].pid, 
                   'intented - ' .. map[k].intent)
+            collectgarbage('collect')
             return daemon.takeAction(k)
         end 
     end
