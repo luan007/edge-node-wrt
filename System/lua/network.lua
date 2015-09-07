@@ -38,7 +38,7 @@ end
 function write_lines(path, array)
     local f = io.open(path, "w+")
     for _, v in pairs(array) do
-        f.write(v, "\n")
+        f:write(v, "\n")
     end
     f:close()
 end
@@ -96,10 +96,15 @@ bootstrap(function()
             , config.domain)
         print(content)
         write_file(dnsmasq_conf, content)
-        daemon:restart()
+        daemon:restart() --SIGKILL
     end)
 
     onStatChange(sighup_conf, function(p, t)
-        print(inspect(t))
+        print(p, "changed")
+        local config = cjson.decode(read_file(sighup_conf))
+        write_lines(addn_hosts, config.addn_hosts)
+        write_lines(dhcp_hosts, config.dhcp_hosts)
+        write_lines(servers_file, config.servers_file)
+        daemon:restart(1) --SIGHUP
     end)
 end)

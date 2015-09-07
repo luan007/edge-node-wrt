@@ -7,6 +7,7 @@ local posix = require "posix"
 
 function daemon:start(...)
     if self.thread == nil then
+        print("start executed.")
         if not self.first then self.first = false end
         self.args = {...}
         self.thread = spawn(unpack(self.args))
@@ -16,9 +17,10 @@ function daemon:start(...)
 end
 
 function daemon:daemonize()
+    print("daemonize executed.")
     local e = onChildSignal(function(pid, state)
         print("state:", inspect(state))
-        if state.exited == true then
+        if state.exited == true or state.signaled == true then
             print("dead, restarting...")
             self:kill()
             removeListener(e)
@@ -27,14 +29,18 @@ function daemon:daemonize()
     end, self.thread.pid)
 end
 
-function daemon:cleanup(signal)
+function daemon:clean(signal)
+    print("clean executed.")
     posix.kill(self.thread.pid, signal or 9)
-    self.thread = nil
+    if signal ~= 1 then
+        self.thread = nil
+    end
 end
 
 function daemon:kill(signal)
+    print("kill singal received: ", signal or 9)
     if self.thread ~= nil then
-        self:cleanup(signal)
+        self:clean(signal)
     end
 end
 
