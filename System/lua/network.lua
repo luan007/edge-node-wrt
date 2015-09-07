@@ -20,7 +20,7 @@ local status_conf = "/etc/dnsmasq.status.json"
 local sighup_conf = "/etc/dnsmasq.sighup.json"
 
 function start_pppd(account, pwd, number)
-    local eci = spawn("lua", "eci.lua", "ppp_conf")
+    local eci = spawn("lua", "eci.lua", "ppp_conf", account, pwd, number)
     posix.wait(eci.pid)
     local pppd = process.new()
     pppd:start("pppd", "plugin", "/usr/lib/pppd/2.4.7/rp-pppoe.so", "name", account, "unit", number, "noipdefault", "defaultroute", "mtu", "1492", "mru", "1492", "lock", "ipv6", "usepeerdns", "nodetach")
