@@ -1,43 +1,49 @@
-scope = {}
+module = {}
+local daemon = {}
 
 require "wheel"
 local inspect = require "inspect"
 local posix = require "posix"
-local args = nil
-local thread = nil
 
-function cleanup(signal)
-    posix.kill(thread.pid, signal or 9)
-    thread = nil
+function daemon:start(...)
+    print(...)
+    if self.thread == nil then
+        self.args = {...}
+        print(inspect(self.args))
+        self.thread = spawn(unpack(self.args))
+        self:daemonize()
+    end
 end
 
-function daemonize()
+function daemon:daemonize()
     local e = onChildSignal(function(pid, state)
         print("state:", inspect(state))
         if state.exited == true then
             print("dead, restarting...")
-            if thread ~= nil then cleanup() end
+            if self.thread ~= nil then self:cleanup() end
             removeListener(e)
-            scope.start(unpack(args))
+            self:start(unpack(self.args))
         end
-    end, thread.pid)
+    end, self.thread.pid)
 end
 
-function scope.start(...)
-    if thread == nil then
-        args = {...}
-        print(inspect(args))
-        thread = spawn(unpack(args))
-        daemonize()
+function daemon:cleanup(signal)
+    posix.kill(self.thread.pid, signal or 9)
+    self.thread = nil
+end
+
+function daemon:kill(signal)
+    if self.thread ~= nil then
+        self:cleanup(signal)
     end
 end
 
-function scope.kill(signal)
-    if thread ~= nil then
-        cleanup(signal)
-    end
+function module.new()
+    local instance = {}
+    setmetatable(instance, {
+        __index = daemon
+    })
+    return instance
 end
 
-scope.conf = conf
-return scope
-
+return module

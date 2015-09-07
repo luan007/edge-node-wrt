@@ -10,10 +10,11 @@ local status = "/etc/dnsmasq.status.json"
 local dict = "/etc/dnsmasq.dict.json"
 
 bootstrap(function()
+    local dnsmasq = process.new()
 
     onStatChange(conf, function(p, t)
         print("stat:", inspect(t))
-        process.start(cmd, "-C", conf, "-k")
+        dnsmasq.start(cmd, "-C", conf, "-k")
     end)
 
 

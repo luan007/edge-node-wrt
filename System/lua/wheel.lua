@@ -14,13 +14,8 @@ local ev = require 'ev'
 local posix = require "posix"
 local signal = require "posix.signal"
 local LOOP = ev.Loop.default
-
-if(DEBUG) then
-    local debug = print
-else
-    debug = function() end
-end
-
+local debug = require('dbg')('libwheel')
+local time = os.time()
 
 -- 
 -- local file = io.popen('node test.js')
@@ -32,12 +27,21 @@ end
 local registry = {}
 local pidmap = {}
 
+time = function()
+    return (os.time() - time)
+end
+
+ostime = function()
+    return os.time()
+end
+
 function _once(fn, arr, id)
     return function(loop, now, rev)
         now:stop(loop)
         if arr and id then
             arr[id] = nil
         end
+        collectgarbage('collect') -- cuz u did it once, let's treasure it..
         fn()
     end
 end
@@ -56,10 +60,12 @@ end
 ]]--
 function _clear(o)
     if registry[o] then
+        debug('clear', 'event', o)
         registry[o]:stop(registry[o]._loop)
         registry[o] = nil
         return 1
     else
+        debug('clear', 'event not found', o)
         return -1
     end
 end
@@ -76,16 +82,16 @@ spawn = function(program, ...)
     local read, write = posix.pipe()
     local cpid = posix.fork()
     if cpid == 0 then --inside child process
-    debug('forked # ready to transform')
+    debug('[CLIENT] forked lua for', program, ...)
     assert(0 == posix.dup2(read,0)) --redirect everything
     assert(1 == posix.dup2(write,1)) --redirect this too
     posix.execp(program, ...) --replace my exec target
     else
-        pidmap[#pidmap + 1] = cpid
+        debug('[MASTER] forked pid=' .. cpid)
+        pidmap[cpid] = 1
         return {stdout=read, stdin=write, pid=cpid}
     end
 end
-
 
 --[[
     defer call onto next event-loop (idle)
@@ -138,10 +144,11 @@ end
 ]]--
 terminate = function()
     --not enough, let us kill everything..
-    for i = 1,#pidmap do
-        debug('killing', pidmap[i])
-        posix.kill(pidmap[i])
+    for k,v in next,pidmap do
+        debug('killing running child', k)
+        posix.kill(k)
     end
+    debug('terminating')
     LOOP:unloop()
     os.exit()
 end
@@ -152,10 +159,27 @@ end
     @fn     : callback function() - called when the event loop is ready
 ]]--
 bootstrap = function(fn)
+    debug('register sigterm_sigint')
+    stat = ev.Signal.new(sigint_or_term, signal.SIGTERM)
+    stat:start(LOOP)
+    stat = ev.Signal.new(sigint_or_term, signal.SIGINT)
+    stat:start(LOOP)
+    debug('register bootstrap function')
     if fn then
         nextTick(fn)
     end
+    debug('register spawn cleanup function')
+
+    onChildSignal(function(pid, state)
+        if state.exited == true then
+            pidmap[pid] = nil
+        end
+    end)
+
+    debug('main loop')
     LOOP:loop()
+    --SHOULD STOP HERE :)
+    terminate()
 end
 
 function sigint_or_term()
@@ -329,9 +353,3 @@ onData = function(fileid, fn, once, loop)
     end, once, loop)
     return d
 end
-
-stat = ev.Signal.new(sigint_or_term, signal.SIGTERM)
-stat:start(LOOP)
-stat = ev.Signal.new(sigint_or_term, signal.SIGINT)
-stat:start(LOOP)
-
