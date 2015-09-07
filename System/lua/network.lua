@@ -11,9 +11,6 @@ local inspect = require "inspect"
 local process = require "process"
 local cjson = require "cjson"
 
-local ppp_secrets = "/etc/ppp/pap-secrets"
-local chap_secrets = "/etc/ppp/chap-secrets"
-
 local cmd = "dnsmasq"
 local dnsmasq_conf = "/etc/dnsmasq.conf"
 local status_conf = "/etc/dnsmasq.status.json"

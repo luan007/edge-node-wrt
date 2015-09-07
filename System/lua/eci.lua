@@ -7,6 +7,8 @@ local sighup_conf	= "/etc/dnsmasq.sighup.json"
 local addn_hosts	= "/etc/dnsmasq.addn.hosts.conf"
 local dhcp_hosts	= "/etc/dnsmasq.dhcp.hostsfile.conf"
 local servers_file	= "/etc/dnsmasq.server.file.conf"
+local ppp_secrets = "/etc/ppp/pap-secrets"
+local chap_secrets = "/etc/ppp/chap-secrets"
 
 function read_file(path)
 	local f = io.open(path, "rb")
