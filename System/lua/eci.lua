@@ -1,4 +1,4 @@
----	arg[2]: eth0 | username
+---	arg[2]: username
 ---	arg[3]: userpwd
 ---	arg[4]: number
 
