@@ -6,11 +6,11 @@ local inspect = require "inspect"
 local posix = require "posix"
 
 function daemon:start(...)
-    print(...)
     if self.thread == nil then
+        if not self.first then self.first = false end
         self.args = {...}
-        print(inspect(self.args))
         self.thread = spawn(unpack(self.args))
+        print(inspect(self.args), "pid:", self.thread.pid)
         self:daemonize()
     end
 end
@@ -20,7 +20,7 @@ function daemon:daemonize()
         print("state:", inspect(state))
         if state.exited == true then
             print("dead, restarting...")
-            if self.thread ~= nil then self:cleanup() end
+            self:kill()
             removeListener(e)
             self:start(unpack(self.args))
         end
@@ -36,6 +36,12 @@ function daemon:kill(signal)
     if self.thread ~= nil then
         self:cleanup(signal)
     end
+end
+
+daemon.restart = daemon.kill
+
+function daemon:running()
+    return self.first ~= nil
 end
 
 function module.new()
