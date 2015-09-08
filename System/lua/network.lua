@@ -17,10 +17,11 @@ local status_conf = "/etc/dnsmasq.status.json"
 local sighup_conf = "/etc/dnsmasq.sighup.json"
 
 function start_pppd(account, pwd, number)
-    local eci = spawn("lua", "eci.lua", "ppp_conf", account, pwd, number)
+    local config = cjson.decode(read_file(status_conf))
+    local eci = spawn("lua", "eci.lua", "ppp_conf")
     posix.wait(eci.pid)
     local pppd = process.new()
-    pppd:start("pppd", "plugin", "/usr/lib/pppd/2.4.7/rp-pppoe.so", "name", account, "unit", number, "noipdefault", "defaultroute", "mtu", "1492", "mru", "1492", "lock", "ipv6", "usepeerdns", "nodetach")
+    pppd:start("pppd", "plugin", "/usr/lib/pppd/2.4.7/rp-pppoe.so", "name", config.wan.ppp.account, "unit", config.wan.ppp.number, "noipdefault", "defaultroute", "mtu", "1492", "mru", "1492", "lock", "ipv6", "usepeerdns", "nodetach")
     return pppd
 end
 
@@ -48,6 +49,10 @@ bootstrap(function()
     onStatChange(status_conf, function(p, t)
         local eci = spawn("lua", "eci.lua", "dnsmasq_status")
         posix.wait(eci.pid)
+        --daemon:restart() --SIGKILL
+    end)
+
+    onStatChange(dnsmasq_conf, function(p, t)
         daemon:restart() --SIGKILL
     end)
 
