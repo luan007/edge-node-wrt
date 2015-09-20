@@ -131,10 +131,10 @@ function _patrolThread() {
     });
 }
 
-export function Initialize(cb) {
-    setJob("ConnectivityPatrol", _patrolThread, CONF.CONNECTIVITY_CHECK_INTERVAL);
-    cb();
-}
+//export function Initialize(cb) {
+//    setJob("ConnectivityPatrol", _patrolThread, CONF.CONNECTIVITY_CHECK_INTERVAL);
+//    cb();
+//}
 
 global.UntilPingSuccess = function (callback:Callback) {
     var wrapper = untilNoError((cb) => {
