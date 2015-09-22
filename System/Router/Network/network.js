@@ -17,7 +17,7 @@ jobs.push(function (cb) {
         try {
             var json = JSON.parse(res.toString());
             if (json.success === true) {
-                if (json.result.scheme === "uchcpc") {
+                if (json.result.scheme === "udhcpc") {
                     udhcpc = new Daemon("udhcpc", ['-i', json.result.up_interface, '-f']);
                     udhcpc.start();
                 } else {
@@ -42,8 +42,6 @@ jobs.push(function (cb) {
 });
 
 module.exports.Initialize = function (cb) {
-    console.log("nint")
-
     async.series(jobs, function (err) {
         if (err) console.log(err)
         cb();
