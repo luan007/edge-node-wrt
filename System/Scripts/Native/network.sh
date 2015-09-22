@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 sig=$1
-cmd="dnsmasq"
+cmd="dnsmasq -k"
 
 pid()
 {
