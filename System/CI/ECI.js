@@ -114,11 +114,11 @@ if (command === "get") {
     for (var k in sourceConfs[entry]) {
         var val = sourceConfs[entry][k];
 
-        if (entry === __NETWORK) {
+        if (entry === __NETWORK) { //** NETWORK
             translator = require("./network");
             translator.translate(k, val, targetConfs[__DNSMASQ]);
             tbw[__DNSMASQ] = tbw[__DNSMASQ] || "";
-        } else if (entry === __WIFI) {
+        } else if (entry === __WIFI) { //** WIRELESS
             translator = require("./wlan");
             if (k === "wlan2g") {
                 translator.translate(val, targetConfs[__HOSTAPD2G]);
@@ -127,7 +127,7 @@ if (command === "get") {
                 translator.translate(val, targetConfs[__HOSTAPD5G]);
                 tbw[__HOSTAPD5G] = tbw[__HOSTAPD5G] || "";
             }
-        } else if(entry == __HOSTS) {
+        } else if(entry == __HOSTS) { //** HOSTS
             translator = require("./hosts");
             translator.translate(k, val, targetConfs[__HOSTS]);
         }

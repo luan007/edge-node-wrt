@@ -1,0 +1,16 @@
+{
+  "routerip" : "192.168.88.1",
+  "dhcp_range": {
+    "start": "192.168.88.10",
+    "end": "192.168.88.230"
+  },
+  "domain": "edge",
+  "wan": {
+    "scheme": "uchcpc",
+    "ppp": {
+      "account": "",
+      "passwd": "",
+      "number": 0
+    }
+  }
+}

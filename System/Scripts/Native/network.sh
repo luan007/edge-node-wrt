@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env ash
 
 sig=$1
 cmd="dnsmasq -k"

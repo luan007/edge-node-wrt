@@ -23,3 +23,6 @@ echo "0" > /sys/devices/virtual/net/$WLAN_BR/bridge/multicast_snooping
 # TODO: relay & scan
 #iw phy phy0 interface add test0 type managed
 #fconfig test0 up
+
+ifconfig ap0 hw ether 00:16:3e:00:00:08
+ifconfig ap1 hw ether 00:16:3e:00:00:09
