@@ -21,8 +21,6 @@ jobs.push(function (cb) {
                     udhcpc = new Daemon("udhcpc", ['-i', json.result.up_interface, '-f']);
                     udhcpc.start();
                 } else {
-                    //var secrets = json.result.ppp.account + "\t*\t" + json.result.ppp.passwd;
-                    //fs.writeFileSync("/etc/ppp/pap-secrets", secrets, "\w");
                     pppd = new Daemon("pppd", ['unit', json.result.ppp.number, "plugin", "/usr/lib/pppd/2.4.7/rp-pppoe.so", "nodetach"]);
                     pppd.start();
                 }

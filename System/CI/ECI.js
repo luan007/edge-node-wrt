@@ -72,9 +72,13 @@ function readEntry(ename) {
 function writeConf(cname) {
     var buf = "";
     for (var row in targetConfs[cname]) {
-        targetConfs[cname][row].forEach(function (c) {
-            buf += c + "\n";
-        });
+        var o = targetConfs[cname][row];
+        if(Array.isArray(o))
+            o.forEach(function (c) {
+                buf += c + "\n";
+            });
+        else
+            buf += o.toString() + "\n";
     }
     fs.writeFileSync(confs[cname], buf);
 }

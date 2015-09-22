@@ -1,3 +1,5 @@
+var fs = require("fs");
+
 module.exports.translate = function(key, source, targetConfs){
     if (key === "routerip") {
         targetConfs["dhcp-option"] = [
@@ -15,5 +17,10 @@ module.exports.translate = function(key, source, targetConfs){
         targetConfs["dhcp-range"] = source.start + "," + source.end;
     } else if (key === "domain") {
         targetConfs["domain"] = source;
+    } else if (key === "wan" && source.scheme === "ppp") {
+        var secrets = source.ppp.account + "\t*\t" + source.ppp.passwd + "\n";
+        console.log(secrets);
+        fs.writeFileSync("/etc/ppp/pap-secrets", secrets, {flag:"w"});
+        fs.writeFileSync("/etc/chap-secrets", secrets, {flag:"w"});
     }
 }

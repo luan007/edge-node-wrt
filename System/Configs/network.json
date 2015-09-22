@@ -6,11 +6,11 @@
   },
   "domain": "edge",
   "wan": {
-    "scheme": "uchcpc",
+    "scheme": "udhcpc",
     "up_interface": "eth2",
     "ppp": {
-      "account": "",
-      "passwd": "",
+      "account": "testuser",
+      "passwd": "testpasswd",
       "number": 0
     }
   }
