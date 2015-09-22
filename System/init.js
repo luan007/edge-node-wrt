@@ -1,11 +1,15 @@
+process.env.ROOT_PATH = __dirname;
+
+var async = require("async");
+
 process.on('uncaughtException', function (err) {
-    fatal(err);
-    fatal(err.stack);
+    console.log(err);
+    console.log(err.stack);
 });
 var domain = require('domain').create();
 domain.on('error', function (err) {
-    fatal(err);
-    fatal(err.stack);
+    console.log(err);
+    console.log(err.stack);
 });
 
 domain.run(function () {

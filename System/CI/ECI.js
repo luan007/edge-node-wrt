@@ -54,7 +54,7 @@ function readConfig(cname) {
     var conf = confs[cname];
     var delimiter = "=";
     var line = "\n";
-    var rows = fs.readFileSync(conf).split(line);
+    var rows = fs.readFileSync(conf).toString().split(line);
 
     rows.forEach(function (row) {
         var parts = row.split(delimiter);
@@ -67,7 +67,7 @@ function readConfig(cname) {
 var sourceConfs = {};
 function readEntry(ename) {
     var conf = entries[ename];
-    sourceConfs[ename] = JSON.parse(fs.readFileSync(conf));
+    sourceConfs[ename] = JSON.parse(fs.readFileSync(conf).toString());
 }
 function writeConf(cname) {
     var buf = "";
@@ -96,6 +96,7 @@ readEntry(entry);
 if (command === "get") {
 
     var key = process.argv[4];
+
     if (sourceConfs[entry][key]) {
         res.success = true;
         res.result = sourceConfs[entry][key];
