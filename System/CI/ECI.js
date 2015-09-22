@@ -23,20 +23,30 @@ if (process.argv.length < 4) {
 }
 var entry = process.argv[2];
 var command = process.argv[3];
-var key = process.argv[4];
-
+var __DNSMASQ = "dnsmasq";
+var __HOSTAPD2G = "hostapd2g";
+var __HOSTAPD5G = "hostapd5g";
+var __HOSTS = "hosts";
 var confs = {};
-confs["dnsmasq"]    = "/etc/dnsmasq.conf";
-confs["hostapd2g"]  = "/etc/hostapd_2g.conf";
-confs["hostapd5g"]  = "/etc/hostapd_5g.conf";
+confs[__DNSMASQ] = "/etc/dnsmasq.conf";
+confs[__HOSTAPD2G] = "/etc/hostapd_2g.conf";
+confs[__HOSTAPD5G] = "/etc/hostapd_5g.conf";
+confs[__HOSTS] = "/ramdisk/System/Configs/hostapd_addn_hosts.conf";
+
+var __NETWORK = "network";
+var __WIFI = "wifi";
+var __FIREWALL = "firewall";
+var __SYSTEM = "system";
+var __TIME = "time";
+var __SSH = "ssh";
 var entries = {};
-entries["network"]  = "/etc/network.json";
-entries["wifi"]     = "/etc/wifi.json";
-entries["dhcp"]     = "/etc/dhcp.json";
-entries["firewall"] = "/etc/firewall.json";
-entries["system"]   = "/etc/system.json";
-entries["time"]     = "/etc/time.json";
-entries["ssh"]      = "/etc/ssh.json";
+entries[__NETWORK] = "/etc/network.json";
+entries[__WIFI] = "/etc/wifi.json";
+entries[__FIREWALL] = "/etc/firewall.json";
+entries[__SYSTEM] = "/etc/system.json";
+entries[__TIME] = "/etc/time.json";
+entries[__SSH] = "/etc/ssh.json";
+entries[__HOSTS] = "/etc/hosts.json";
 
 var targetConfs = {};
 function readConfig(cname) {
@@ -55,59 +65,75 @@ function readConfig(cname) {
     });
 }
 var sourceConfs = {};
-function readEntry(entry) {
-    sourceConfs[entry] = sourceConfs[entry] || {};
-    var delimiter = "=";
-    var conf = entries[entry];
-    var line = "\n";
-    var rows = fs.readFileSync(conf).split(line);
-
-    rows.forEach(function (row) {
-        var parts = row.split(delimiter);
-        var row = parts[0];
-        var val = parts[1];
-        sourceConfs[entry][row] = val;
-    });
+function readEntry(ename) {
+    var conf = entries[ename];
+    sourceConfs[ename] = JSON.parse(fs.readFileSync(conf));
+}
+function writeConf(cname) {
+    var buf = "";
+    for (var row in targetConfs[cname]) {
+        targetConfs[cname][row].forEach(function (c) {
+            buf += c + "\n";
+        });
+    }
+    fs.writeFileSync(confs[cname], buf);
 }
 
 if (!entries.hasOwnProperty(entry)) {
     res.result = "illegal entry";
     return output(res);
-} else if (entry === "network") {
-    readEntry("network");
-    readConfig("dnsmasq");
-} else if (entry === "wifi") {
-    readEntry("wifi");
-    readConfig("hostapd2g");
-    readConfig("hostapd5g");
+} else if (entry === __NETWORK) {
+    readConfig(__DNSMASQ);
+} else if (entry === __WIFI) {
+    readConfig(__HOSTAPD2G);
+    readConfig(__HOSTAPD5G);
+} else if (entry === __HOSTS) {
+    readConfig(__HOSTS);
 }
+readEntry(entry);
 
 //TODO: translation
 if (command === "get") {
-    if (targetConfs[key]) {
+
+    var key = process.argv[4];
+    if (sourceConfs[entry][key]) {
         res.success = true;
-        res.result = targetConfs[key].length == 1 ? targetConfs[key][0] : targetConfs[key];
+        res.result = sourceConfs[entry][key];
         return output(res);
     }
     else {
         res.result = "key not found";
         return output(res);
     }
-} else if (command === "set") {
-    var keys = [], vals = [];
-    for (var i = 3; i < process.argv.length; i++) {
-        (i % 2 == 1) ? keys.push(process.argv[i]) : vals.push(process.argv[i]);
-    }
 
-    for (var i = 0; i < keys.length; i++) {
-        if (vals[i]) {
-            if (entry === "network" && keys[i] === "routerip") {
-                targetConfs["dnsmasq"]["dhcp-option"] = [
-                    "46,8"
-                    , "6," + vals[i]
-                ];
+} else if (command === "set") {
+
+    var translator = undefined;
+
+    var tbw = {};
+    for (var k in sourceConfs[entry]) {
+        var val = sourceConfs[entry][k];
+
+        if (entry === __NETWORK) {
+            translator = require("./network");
+            translator.translate(k, val, targetConfs[__DNSMASQ]);
+            tbw[__DNSMASQ] = tbw[__DNSMASQ] || "";
+        } else if (entry === __WIFI) {
+            translator = require("./wlan");
+            if (k === "wlan2g") {
+                translator.translate(val, targetConfs[__HOSTAPD2G]);
+                tbw[__HOSTAPD2G] = tbw[__HOSTAPD2G] || "";
+            } else if (k === "wlan5g") {
+                translator.translate(val, targetConfs[__HOSTAPD5G]);
+                tbw[__HOSTAPD5G] = tbw[__HOSTAPD5G] || "";
             }
+        } else if(entry == __HOSTS) {
+            translator = require("./hosts");
+            translator.translate(k, val, targetConfs[__HOSTS]);
         }
     }
 
+    for (var k in tbw) {
+        writeConf(k);
+    }
 }
