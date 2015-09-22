@@ -1,4 +1,4 @@
-#!/usr/bin/env ash
+#!/bin/ash
 
 if [ ! -f /etc/dnsmasq.conf ]
 then
