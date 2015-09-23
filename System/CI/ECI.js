@@ -93,6 +93,8 @@ if (!entries.hasOwnProperty(entry)) {
     readConfig(__HOSTAPD5G);
 } else if (entry === __HOSTS) {
     readConfig(__HOSTS);
+} else if(entry === __FIREWALL) {
+    readEntry(__NETWORK);
 }
 readEntry(entry);
 
@@ -135,6 +137,9 @@ if (command === "get") {
         } else if(entry == __HOSTS) { //** HOSTS
             translator = require("./hosts");
             translator.translate(k, val, targetConfs[__HOSTS]);
+        } else if(entry === __FIREWALL) { //** FIREWALL
+            translator = require("./firewall");
+            translator.translate(k, val, sourceConfs[__NETWORK].lan.routerip, sourceConfs[__NETWORK].lan.netmask);
         }
     }
 

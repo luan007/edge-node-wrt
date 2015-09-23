@@ -20,6 +20,11 @@ then
     cp /ramdisk/System/Configs/network.json /etc/network.json
 fi
 
+if [ ! -f /etc/firewall.json ]
+then
+    cp /ramdisk/System/Configs/firewall.json /etc/firewall.json
+fi
+
 
 if [ ! -d /tmp/fdsock/hostapd_aps ]
 then

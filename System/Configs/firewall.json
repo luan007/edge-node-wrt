@@ -1,0 +1,16 @@
+{
+  "NAT": {
+    "WLAN2G": true,
+    "WLAN5G": true,
+    "WLAN2G_Guest": true,
+    "WLAN5G_Guest": true
+  },
+  "VLAN_Isolation": {
+    "WLAN2G": false,
+    "WLAN5G": false,
+    "WLAN2G_Guest": true,
+    "WLAN5G_Guest": true
+  },
+  "BlockedRemoteAddresses": [],
+  "EnableNginxProxy": true
+}

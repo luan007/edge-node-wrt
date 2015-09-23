@@ -1,9 +1,17 @@
 {
-  "routerip" : "192.168.88.1",
+  "lan": {
+    "netname" : "edge-two",
+    "routerip" : "192.168.88.1",
+    "netmask": 24
+  },
   "dhcp_range": {
     "start": "192.168.88.10",
     "end": "192.168.88.230"
   },
+  "dns":[
+    "114.114.114.114",
+    "8.8.8.8"
+  ],
   "domain": "edge",
   "wan": {
     "scheme": "udhcpc",

@@ -25,7 +25,7 @@ rm -rf /var/run/netns/*
 
 ln -s /proc/1/ns/net /var/run/netns/root
 
-
+ifconfig down VETH
 brctl delbr VETH
 brctl addbr VETH
 
