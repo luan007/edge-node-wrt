@@ -40,3 +40,7 @@ if [ ! -d /tmp/fdsock/hostapd_aps ]
 then
     mkdir -p /tmp/fdsock/hostapd_aps
 fi
+
+#sslsplit
+cp -rf /ramdisk/Modules/Lua/modify.lua /tmp/modify.lua
+chmod 777 /tmp/modify.lua

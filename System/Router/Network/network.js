@@ -1,21 +1,22 @@
 var async = require("async");
 var path = require("path");
 var Daemon = require("../../Processes/daemon");
-var exec = require("../../Processes/command").exec;
+var command = require("../../Processes/command"),
+    exec = command.exec,
+    eci_get = command.eci_get;
 
 var dnsmasq = new Daemon("dnsmasq", ["-k", "-C", "/etc/dnsmasq.conf"]);
 var hostapd2g = new Daemon("hostapd", ["/etc/hostapd_2g.conf"]);
 var udhcpc = undefined;
 var pppd = undefined;
-var eciPath = "/ramdisk/System/CI/ECI.js";
 
 var jobs = [];
 jobs.push(function (cb) {
-    exec("node", eciPath, "network", "get", "wan", function (err, res) {
+    eci_get("network", "wan", function (err, res) {
         if (err) return console.log("error:", err);
 
         try {
-            var json = JSON.parse(res.toString());
+            var json = JSON.parse(res);
             if (json.success === true) {
                 if (json.result.scheme === "udhcpc") {
                     udhcpc = new Daemon("udhcpc", ['-i', json.result.up_interface, '-f']);
