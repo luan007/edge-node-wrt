@@ -3,7 +3,7 @@ var path = require("path");
 var Daemon = require("../../Processes/daemon");
 var exec = require("../../Processes/command").exec;
 
-var dnsmasq = new Daemon("dnsmasq", ["-k"]);
+var dnsmasq = new Daemon("dnsmasq", ["-k", "-C", "/etc/dnsmasq.conf"]);
 var hostapd2g = new Daemon("hostapd", ["/etc/hostapd_2g.conf"]);
 var udhcpc = undefined;
 var pppd = undefined;

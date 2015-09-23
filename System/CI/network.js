@@ -8,7 +8,7 @@ module.exports.translate = function(key, source, targetConfs){
             "46,8"
             , "6," + source.routerip
         ];
-        targetConfs["listen-address"] = source + ",127.0.0.1";
+        targetConfs["listen-address"] = source.routerip + ",127.0.0.1";
         targetConfs["address"] = [
             "/.wi.fi/" + source.routerip
             , "/.wifi.network/" + source.routerip

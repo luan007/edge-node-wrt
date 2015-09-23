@@ -60,8 +60,17 @@ function readConfig(cname) {
         var parts = row.split(delimiter);
         var row = parts[0];
         var val = parts[1];
-        targetConfs[cname][row] = targetConfs[cname][row] || [];
-        targetConfs[cname][row].push(val !== undefined ? row + "=" + val : row);
+        if(targetConfs[cname][row]){
+            var old = targetConfs[cname][row];
+            targetConfs[cname][row] = [];
+            if(Array.isArray(old))
+                targetConfs[cname][row].concat(old);
+            else
+                targetConfs[cname][row].push(old);
+            targetConfs[cname][row].push(val !== undefined ? row + "=" + val : row);
+        } else {
+            targetConfs[cname][row] = val;
+        }
     });
 }
 var sourceConfs = {};
@@ -75,10 +84,13 @@ function writeConf(cname) {
         var o = targetConfs[cname][row];
         if(Array.isArray(o))
             o.forEach(function (c) {
-                buf += c + "\n";
+                buf += row + "=" + c + "\n";
             });
-        else
-            buf += o.toString() + "\n";
+        else if(typeof o === "string")
+            buf += (o.trim() ? row + "=" + o.toString() : row) + "\n";
+        else if(o === undefined) {
+            buf += row + "\n";
+        }
     }
     fs.writeFileSync(confs[cname], buf);
 }
