@@ -1,7 +1,6 @@
 #!/bin/ash
 
 #rfkill unblock wlan
-killall hostapd
 
 iw ap0 del
 iw ap1 del

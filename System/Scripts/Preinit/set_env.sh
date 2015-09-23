@@ -2,6 +2,8 @@
 
 killall nginx
 killall squid
+killall hostapd
+killall dnsmasq
 
 #pre-set env
 if [ -z $DEV_2G ]; then export DEV_2G=ap1; fi
@@ -25,7 +27,7 @@ rm -rf /var/run/netns/*
 
 ln -s /proc/1/ns/net /var/run/netns/root
 
-
+ifconfig VETH down
 brctl delbr VETH
 brctl addbr VETH
 
