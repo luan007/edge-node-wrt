@@ -8,9 +8,9 @@
  *
  */
 var fs = require("fs");
-var command = require("../Processes/command"),
-    exec = command.exec,
-    md5_compare = command.md5_compare;
+var process_cmd = require("../Processes/command"),
+    exec = process_cmd.exec,
+    md5_compare = process_cmd.md5_compare;
 
 var res = {
     success: false,
@@ -95,6 +95,8 @@ function writeConf(cname) {
             buf += row + "\n";
         }
     }
+
+    buf = buf.trim("\n");
     if(!md5_compare(confs[cname], buf)) {
         fs.writeFileSync(confs[cname], buf);
     }

@@ -47,6 +47,7 @@ module.exports.translate = function(key, source, targetConfs, up_interface){
             buf += "server=" + ip + "\n";
         });
         var fname = "/ramdisk/System/Configs/dnsmasq_server_file.conf";
+        buf = buf.trim("\n");
         if(!md5_compare(fname, buf)) {
             fs.writeFileSync(fname, buf, {flag: "w"});
         }

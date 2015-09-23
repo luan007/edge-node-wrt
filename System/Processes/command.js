@@ -27,9 +27,8 @@ module.exports.eci_set = function (entry) {
 };
 
 function md5_file(fpath) {
-    var md5sum = require('crypto').createHash('md5');
     var data = require("fs").readFileSync(fpath);
-    return md5sum.update(data).digest('hex');
+    return md5_string(data);
 };
 
 function md5_string(str) {
