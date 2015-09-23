@@ -5,6 +5,7 @@ killall squid
 killall hostapd
 killall dnsmasq
 killall udhcpc
+killall sslsplit
 
 #pre-set env
 if [ -z $DEV_2G ]; then export DEV_2G=ap1; fi

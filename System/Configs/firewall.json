@@ -12,5 +12,5 @@
     "WLAN5G_Guest": true
   },
   "BlockedRemoteAddresses": [],
-  "EnableNginxProxy": true
+  "EnableNginxProxy": false
 }

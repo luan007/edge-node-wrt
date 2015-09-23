@@ -5,6 +5,7 @@ module.exports.exec = function (cmd) {
     args.shift();
     var cb = typeof (args[args.length - 1]) === "function" ? args.pop() : function () {};
     var j = args.length == 0 ? child_process.exec.bind(null, cmd, {}) : child_process.execFile.bind(null, cmd, args, {});
+    console.log("[exec]", cmd + " " + args.toString());
     j(function(err, stdio, stderr){
         if (err || (stderr && stderr.length > 0)) {
             return cb(err ? err : new Error(stderr.toString()), stdio.toString(), stderr.toString());

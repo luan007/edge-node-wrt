@@ -15,6 +15,8 @@ module.exports.translate = function(key, source, targetConfs, up_interface){
             , "/.ed.ge/" + source.routerip
             , "/.wifi/" + source.routerip
         ];
+        //set br0 ip
+        exec("ifconfig", "br0", source.routerip);
         //netmask
         var networkAddress = source.routerip + "/" + source.netmask;
         exec("iptables", "-w", "-t", "nat", "-R", "nginx_proxy", "1", "-d", networkAddress, "-j", "RETURN");
@@ -37,5 +39,11 @@ module.exports.translate = function(key, source, targetConfs, up_interface){
         fs.writeFileSync("/etc/chap-secrets", secrets, {flag:"w"});
         //nat
         exec("iptables", "-w", "-t", "nat", "-R", "routing_masquerade", "1", "-j", "MASQUERADE", "-o", soource.up_interface);
+    } else if (key === "dns") {
+        var buf = "";
+        source.forEach(function(ip) {
+            buf += "server=" + ip + "\n";
+        });
+        fs.writeFileSync("/ramdisk/System/Configs/dnsmasq_server_file.conf", buf, {flag:"w"});
     }
 }
