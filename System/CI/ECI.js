@@ -8,6 +8,9 @@
  *
  */
 var fs = require("fs");
+var command = require("../Processes/command"),
+    exec = command.exec,
+    md5_compare = command.md5_compare;
 
 var res = {
     success: false,
@@ -31,7 +34,7 @@ var confs = {};
 confs[__DNSMASQ] = "/etc/dnsmasq.conf";
 confs[__HOSTAPD2G] = "/etc/hostapd_2g.conf";
 confs[__HOSTAPD5G] = "/etc/hostapd_5g.conf";
-confs[__HOSTS] = "/ramdisk/System/Configs/hostapd_addn_hosts.conf";
+confs[__HOSTS] = "/ramdisk/System/Configs/dnsmasq_addn_hosts.conf";
 
 var __NETWORK = "network";
 var __WIFI = "wifi";
@@ -92,7 +95,9 @@ function writeConf(cname) {
             buf += row + "\n";
         }
     }
-    fs.writeFileSync(confs[cname], buf);
+    if(!md5_compare(confs[cname], buf)) {
+        fs.writeFileSync(confs[cname], buf);
+    }
 }
 
 if (!entries.hasOwnProperty(entry)) {
@@ -149,6 +154,7 @@ if (command === "get") {
         } else if(entry == __HOSTS) { //** HOSTS
             translator = require("./hosts");
             translator.translate(k, val, targetConfs[__HOSTS]);
+            tbw[__HOSTS] = "";
         } else if(entry === __FIREWALL) { //** FIREWALL
             translator = require("./firewall");
             translator.translate(k, val, sourceConfs[__NETWORK].lan.routerip, sourceConfs[__NETWORK].lan.netmask);
