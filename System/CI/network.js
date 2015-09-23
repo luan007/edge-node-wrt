@@ -1,7 +1,7 @@
 var fs = require("fs");
 var exec = require("../Processes/command").exec;
 
-module.exports.translate = function(key, source, targetConfs){
+module.exports.translate = function(key, source, targetConfs, up_interface){
     if (key === "lan") {
         //routerip
         targetConfs["dhcp-option"] = [
@@ -16,7 +16,16 @@ module.exports.translate = function(key, source, targetConfs){
             , "/.wifi/" + source.routerip
         ];
         //netmask
-        exec("iptables", "-w", "-t", "nat", "-R", "nginx_proxy", "1", "-d", source.routerip + "/" + source.netmask, "-j", "RETURN");
+        var networkAddress = source.routerip + "/" + source.netmask;
+        exec("iptables", "-w", "-t", "nat", "-R", "nginx_proxy", "1", "-d", networkAddress, "-j", "RETURN");
+        exec("iptables", '-w', '-t', "filter", '-R', "FORWARD", '1', '-c', 0, 0, //fill traffic data from DB
+            '-s', networkAddress, '-o', up_interface, '-j', "internet_up_traffic");
+        exec("iptables", '-w', '-t', "filter", '-R', "FORWARD", '2', '-c', 0, 0,
+            '-d', networkAddress, '-i', up_interface, '-j', "internet_down_traffic");
+        exec("iptables", '-w', '-t', "filter", '-R', "FORWARD", '3', '-c', 0, 0,
+            '-s', networkAddress, '-d', networkAddress, '-j', "intranet_up_traffic");
+        exec("iptables", '-w', '-t', "filter", '-R', "FORWARD", '4', '-c', 0, 0,
+            '-s', networkAddress, '-d', networkAddress, '-j', "intranet_down_traffic");
     } else if (key === "dhcp_range") {
         targetConfs["dhcp-range"] = source.start + "," + source.end;
     } else if (key === "domain") {

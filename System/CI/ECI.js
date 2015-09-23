@@ -135,7 +135,7 @@ if (command === "get") {
 
         if (entry === __NETWORK) { //** NETWORK
             translator = require("./network");
-            translator.translate(k, val, targetConfs[__DNSMASQ]);
+            translator.translate(k, val, targetConfs[__DNSMASQ], sourceConfs[__NETWORK].wan.up_interface);
             tbw[__DNSMASQ] = tbw[__DNSMASQ] || "";
         } else if (entry === __WIFI) { //** WIRELESS
             translator = require("./wlan");
