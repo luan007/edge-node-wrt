@@ -1,0 +1,42 @@
+#!/bin/ash
+mkdir -p /etc/config
+cd /etc/config
+fileChange() {
+    echo "! /etc/config/$1"
+}
+fileIgnore() {
+    echo "- /etc/config/$1"
+}
+echo "* Init"
+set -- *
+tt=0
+for i; do
+    if [ $i = "*" ]; then
+    echo "* Config Directory is Empty"
+    break
+    fi
+    md5=$(md5sum /etc/config/$i | awk '{print $1}')
+    dt=$(db /tmp/md5 get $i)
+    if [ "$dt" != "$md5" ]; then
+        db /tmp/md5 set $i $md5
+        fileChange $i
+    else 
+        fileIgnore $i
+    fi
+    tt=$((tt + 1))
+done
+echo "* $tt File Watched"
+echo "* Entering Loop"
+while true
+do
+    f=$(inotifywait --format "%f" -r -e modify /etc/config 2>/dev/null)
+    echo "* Event"
+    md5=$(md5sum /etc/config/$f | awk '{print $1}')
+    dt=$(db /tmp/md5 get $f)
+    if [ "$dt" != "$md5" ]; then
+        db /tmp/md5 set $f $md5
+        fileChange $f
+    else 
+        fileIgnore $f
+    fi
+done

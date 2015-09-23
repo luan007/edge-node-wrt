@@ -1,0 +1,50 @@
+#!/bin/ash
+
+#  
+#   tiny fileName get/set key {value}
+#
+
+if [ -z $3 ]; then
+    exit 0;
+fi
+
+path=$1
+action=$2
+key=$3
+val=$4
+
+getTable() {
+    grep -m 1 -e "^$key[[:blank:]]" "$path" | awk '{print $2}'
+}
+
+setTable() {
+    delTable
+    echo "$key\t$val" >> $path
+}
+
+delTable() {
+    local line=$(grep -n -m 1 -e "^$key[[:blank:]]" "$path" | awk -F: '{print $1}')
+    if [ $line ]; then
+        line=$line"d"
+        sed --in-place "$line" $path
+    fi
+}
+
+if [ $action = "set" ]; then
+    if [ ! -e $path ]; then
+        touch $path
+    fi
+    setTable
+fi
+if [ $action = "get" ]; then
+    if [ ! -e $1 ]; then
+        exit 0;
+    fi
+    getTable
+fi
+if [ $action = "del" ]; then
+    if [ ! -e $path ]; then
+        exit 0;
+    fi
+    delTable
+fi
