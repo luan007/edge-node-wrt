@@ -51,4 +51,19 @@ function utils.stringify(obj)
     return cjson.encode(obj)
 end
 
+function utils.md5(str)
+    return utils.exec("echo \""..str.."\" | md5sum | awk '{print $1}'")
+end
+
+function utils.md5file(path)
+    return utils.exec("md5sum "..path.." | awk '{print $1}'")
+end
+
+function utils.md5compare(path, str)
+    local md5f = utils.md5file(path),
+          md5s = utils.md5(str)
+    print("[md5]", path, md5f, "string:", md5s);
+    return md5f == md5s
+end
+
 return utils

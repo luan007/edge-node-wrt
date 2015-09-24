@@ -98,7 +98,10 @@ local function writeConf(cname)
     end
 
     buf = utils.trimend(buf, "\n")
-    print(buf)
+
+    if(not utils.md5compare(confs[cname], buf)) then
+        io.open(confs[cname], "w+"):write(buf)
+    end
 end
 
 readConfig(__DNSMASQ)
