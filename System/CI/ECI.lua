@@ -99,7 +99,7 @@ local function writeConf(cname)
 
     buf = utils.trimend(buf, "\n")
 
-    if(not utils.md5compare(confs[cname], buf)) then
+    if(not utils.md5compare(confs[cname], buf)) then        
         io.open(confs[cname], "w+"):write(buf)
     end
 end

@@ -60,9 +60,9 @@ function utils.md5file(path)
 end
 
 function utils.md5compare(path, str)
-    local md5f = utils.md5file(path),
-          md5s = utils.md5(str)
-    print("[md5]", path, md5f, "string:", md5s);
+    local md5f = utils.md5file(path)
+    local md5s = utils.md5(str)
+    print("[md5]", path, md5f, "string:", md5s, str);
     return md5f == md5s
 end
 
