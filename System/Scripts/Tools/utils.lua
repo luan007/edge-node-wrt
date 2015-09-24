@@ -17,6 +17,11 @@ function utils.concat(t1,t2)
     return t1
 end
 
+function utils.append(t1, s)
+    t1[#t1+1] = s
+    return t1
+end
+
 function utils.iterate(t)
     for _, v in pairs(t) do
         print(v)

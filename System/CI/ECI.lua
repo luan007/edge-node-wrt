@@ -7,6 +7,7 @@
 --
 package.path = package.path .. ";../Scripts/Tools/?.lua"
 
+local inspect = require "inspect"
 local cjson = require "cjson"
 local utils = require "utils"
 
@@ -52,17 +53,20 @@ local function readConfig(cname)
     local f = io.open(conf)
 
     for line in f:lines() do
-        local parts = utils.split(line, ln)
-        --utils.iterate(parts)
+        local parts = utils.split(line, delimiter)
         local row = parts[1]
-        local val = parts[2]
+        local val = parts[2]        
         if(targetConfs[cname][row]) then
             local old = targetConfs[cname][row]
+            targetConfs[cname][row] = {}
             if(type(old) == "table") then
                 targetConfs[cname][row] = utils.concat(targetConfs[cname][row], old);
             elseif(type(old) == "string") then
-
+                targetConfs[cname][row] = utils.append(targetConfs[cname][row], old)
             end
+            targetConfs[cname][row] = utils.append(targetConfs[cname][row], val and row..delimiter..val or val)
+        else
+            targetConfs[cname][row] = val
         end
     end
 end
