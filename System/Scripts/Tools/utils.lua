@@ -33,6 +33,15 @@ function utils.contains(t1, s)
     return false
 end
 
+function utils.haskey(t1, key)
+    for k, _ in pairs(t1) do
+        if(k == key) then
+          return true
+        end
+    end
+    return false
+end
+
 function utils.trimend(s1, s2)
     return string.gsub(s1, s2.."$", "")
 end

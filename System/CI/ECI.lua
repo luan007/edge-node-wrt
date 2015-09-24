@@ -11,6 +11,11 @@ local inspect = require "inspect"
 local dbg = require "dbg"
 local utils = require "utils"
 
+local res = {
+    success = false,
+    result = ""
+}
+
 if #arg < 2 then
     return print("usage: lua ECI xxx get/set")
 end
@@ -99,11 +104,24 @@ local function writeConf(cname)
 
     buf = utils.trimend(buf, "\n")
 
-    if(not utils.md5compare(confs[cname], buf)) then        
+    if(not utils.md5compare(confs[cname], buf)) then
         io.open(confs[cname], "w+"):write(buf)
     end
 end
 
-readConfig(__DNSMASQ)
+if (not utils.haskey(entries, entry)) then
+    res.result = "illegal entry"
+    return print(utils.stringify(res))
+elseif (entry == __NETWORK) then
+    readConfig(__DNSMASQ);
+elseif (entry == __WIFI) then
+    readConfig(__HOSTAPD2G)
+    readConfig(__HOSTAPD5G)
+elseif (entry == __HOSTS) then
+    readConfig(__HOSTS)
+elseif(entry == __FIREWALL) then
+    readEntry(__NETWORK)
+end
+readEntry(entry);
 
-writeConf(__DNSMASQ)
+utils.iterate(sourceConfs[__NETWORK])
