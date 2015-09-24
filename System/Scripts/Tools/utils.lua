@@ -17,4 +17,10 @@ function utils.concat(t1,t2)
     return t1
 end
 
+function utils.iterate(t)
+    for _, v in pairs(t) do
+        print(v)
+    end
+end
+
 return utils

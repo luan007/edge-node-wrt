@@ -5,7 +5,7 @@
 --              lua ECI network set
 --              lua ECI network get key
 --
-package.path = package.path .. ";./?.lua"
+package.path = package.path .. ";../Scripts/Tools/?.lua"
 
 local cjson = require "cjson"
 local utils = require "utils"
@@ -52,7 +52,8 @@ local function readConfig(cname)
     local f = io.open(conf)
 
     for line in f:lines() do
-        local parts = utils.split(line, ln)        
+        local parts = utils.split(line, ln)
+        --utils.iterate(parts)
         local row = parts[1]
         local val = parts[2]
         if(targetConfs[cname][row]) then
@@ -60,8 +61,10 @@ local function readConfig(cname)
             if(type(old) == "table") then
                 targetConfs[cname][row] = utils.concat(targetConfs[cname][row], old);
             elseif(type(old) == "string") then
-                hhh = "s"
+
             end
         end
     end
 end
+
+readConfig(__DNSMASQ)
