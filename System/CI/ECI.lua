@@ -5,7 +5,7 @@
 --              lua ECI network set
 --              lua ECI network get key
 --
-package.path = package.path .. ";../Scripts/Tools/?.lua"
+package.path = package.path .. ";../Scripts/Tools/?.lua;./?.lua"
 
 local inspect = require "inspect"
 local dbg = require "dbg"
@@ -15,6 +15,9 @@ local res = {
     success = false,
     result = ""
 }
+local output = function(obj)
+    print(utils.stringify(obj))
+end
 
 if #arg < 2 then
     return print("usage: lua ECI xxx get/set")
@@ -111,7 +114,7 @@ end
 
 if (not utils.haskey(entries, entry)) then
     res.result = "illegal entry"
-    return print(utils.stringify(res))
+    return output(res)
 elseif (entry == __NETWORK) then
     readConfig(__DNSMASQ);
 elseif (entry == __WIFI) then
@@ -124,4 +127,44 @@ elseif(entry == __FIREWALL) then
 end
 readEntry(entry);
 
-utils.iterate(sourceConfs[__NETWORK])
+if (command == "get") then
+    local key = arg[3]
+    if (sourceConfs[entry][key]) then
+        res.success = true
+        res.result = sourceConfs[entry][key]
+        return output(res)
+    else
+      res.result = "key not found";
+      return output(res)
+    end
+
+elseif (command == "set") then
+    local translator = nil
+    local tbw = {}
+
+    if (entry == __NETWORK) then --** NETWORK
+        translator = require "network"
+        translator.translate(k, val, targetConfs[__DNSMASQ], sourceConfs[__NETWORK].wan.up_interface)
+        tbw[__DNSMASQ] = tbw[__DNSMASQ] or ""
+    elseif (entry == __WIFI) then --** WIRELESS
+        translator = require "wlan"
+        if (k == "wlan2g") then
+            translator.translate(val, targetConfs[__HOSTAPD2G])
+            tbw[__HOSTAPD2G] = tbw[__HOSTAPD2G] or ""
+        elseif (k == "wlan5g") then
+            translator.translate(val, targetConfs[__HOSTAPD5G])
+            tbw[__HOSTAPD5G] = tbw[__HOSTAPD5G] or ""
+        end
+    elseif (entry == __HOSTS) then --** HOSTS
+        translator = require "hosts"
+        translator.translate(k, val, targetConfs[__HOSTS])
+        tbw[__HOSTS] = ""
+    elseif (entry == __FIREWALL) then --** FIREWALL
+        translator = require "firewall"
+        translator.translate(k, val, sourceConfs[__NETWORK].lan.routerip, sourceConfs[__NETWORK].lan.netmask)
+    end
+
+    for k in tbw do  -- ** write conf
+        writeConf(k)
+    end
+end
