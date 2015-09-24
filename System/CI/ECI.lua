@@ -8,7 +8,7 @@
 package.path = package.path .. ";../Scripts/Tools/?.lua"
 
 local inspect = require "inspect"
-local cjson = require "cjson"
+local dbg = require "dbg"
 local utils = require "utils"
 
 if #arg < 2 then
@@ -43,10 +43,11 @@ entries[__TIME] = "/etc/time.json"
 entries[__SSH] = "/etc/ssh.json"
 entries[__HOSTS] = "/etc/hosts.json"
 
-
 local targetConfs = {}
+local sortedkeys = {}
 local function readConfig(cname)
-    targetConfs[cname] = targetConfs or {}
+    targetConfs[cname] = targetConfs[cname] or {}
+    sortedkeys[cname] = sortedkeys[cname] or {}
     local conf = confs[cname]
     local delimiter = "="
     local ln = "\n"
@@ -55,7 +56,11 @@ local function readConfig(cname)
     for line in f:lines() do
         local parts = utils.split(line, delimiter)
         local row = parts[1]
-        local val = parts[2]        
+        local val = parts[2]
+        -- for sorting
+        if not utils.contains(sortedkeys[cname], row) then
+            table.insert(sortedkeys[cname], row)
+        end
         if(targetConfs[cname][row]) then
             local old = targetConfs[cname][row]
             targetConfs[cname][row] = {}
@@ -64,11 +69,38 @@ local function readConfig(cname)
             elseif(type(old) == "string") then
                 targetConfs[cname][row] = utils.append(targetConfs[cname][row], old)
             end
-            targetConfs[cname][row] = utils.append(targetConfs[cname][row], val and row..delimiter..val or val)
+            targetConfs[cname][row] = utils.append(targetConfs[cname][row], val and val or val)
         else
             targetConfs[cname][row] = val
         end
     end
 end
 
+local sourceConfs = {}
+local function readEntry(ename)
+    local path = entries[ename];
+    sourceConfs[ename] = utils.parse(io.open(path):read("*a"));
+end
+
+local function writeConf(cname)
+    local buf = ""
+    for i, row in ipairs(sortedkeys[cname]) do
+        local o = targetConfs[cname][row]
+        if(type(o) == "table") then
+            for k, v in pairs(o) do
+                buf = buf..row.."="..o[k].."\n";
+            end
+        elseif(type(o) == "string") then
+            buf = buf..(string.len(o) > 0 and row.."="..o or row) .. "\n";
+        elseif(o == nil) then
+            buf = buf..row.."\n"
+        end
+    end
+
+    buf = utils.trimend(buf, "\n")
+    print(buf)
+end
+
 readConfig(__DNSMASQ)
+
+writeConf(__DNSMASQ)

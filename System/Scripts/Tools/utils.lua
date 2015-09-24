@@ -1,3 +1,5 @@
+local cjson = require "cjson"
+
 utils = {}
 
 function utils.exec(cmd)
@@ -18,14 +20,35 @@ function utils.concat(t1,t2)
 end
 
 function utils.append(t1, s)
-    t1[#t1+1] = s
+    table.insert(t1, s)
     return t1
 end
 
-function utils.iterate(t)
-    for _, v in pairs(t) do
-        print(v)
+function utils.contains(t1, s)
+    for _, v in pairs(t1) do
+      if(v == s) then
+        return true
+      end
     end
+    return false
+end
+
+function utils.trimend(s1, s2)
+    return string.gsub(s1, s2.."$", "")
+end
+
+function utils.iterate(t)
+    for k, v in pairs(t) do
+        print(k, v)
+    end
+end
+
+function utils.parse(text)
+    return cjson.decode(text)
+end
+
+function utils.stringify(obj)
+    return cjson.encode(obj)
 end
 
 return utils
