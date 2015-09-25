@@ -27,12 +27,12 @@ module.exports.translate = function(key, source, routerip, netmask){
         var dev2GEnable = source["WLAN2G"] && source["WLAN2G"] === true,
             dev5GEnable = source["WLAN2G"] && source["WLAN2G"] === true,
             devGuest2GEnable = source["WLAN2G_Guest"] && source["WLAN2G_Guest"] === true,
-            devGuest2GEnable = source["WLAN5G_Guest"] && source["WLAN5G_Guest"] === true;
+            devGuest5GEnable = source["WLAN5G_Guest"] && source["WLAN5G_Guest"] === true;
 
         exec(iptables, '-w', '-t', 'nat', '-R', 'wifi_nat', '1', '-i', dev2G, '-j', dev2GEnable ? 'RETURN' : 'REJECT');
         exec(iptables, '-w', '-t', 'nat', '-R', 'wifi_nat', '2', '-i', dev5G, '-j', dev5GEnable ? 'RETURN' : 'REJECT');
         exec(iptables, '-w', '-t', 'nat', '-R', 'wifi_nat', '3', '-i', devGuest2G, '-j', devGuest2GEnable ? 'RETURN' : 'REJECT');
-        exec(iptables, '-w', '-t', 'nat', '-R', 'wifi_nat', '4', '-i', devGuest5G, '-j', devGuest2GEnable ? 'RETURN' : 'REJECT');
+        exec(iptables, '-w', '-t', 'nat', '-R', 'wifi_nat', '4', '-i', devGuest5G, '-j', devGuest5GEnable ? 'RETURN' : 'REJECT');
     } else if(key === "EnableNginxProxy") {
 
         if (source === true) {
