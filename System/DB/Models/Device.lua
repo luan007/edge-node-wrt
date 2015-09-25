@@ -34,9 +34,11 @@ sql_create = [[
     )
 ]]
 
-local conn = Device.establish_connection('sqlite3', "orm.db")
-conn:execute(Device.sql_create)
-
 local exports = {}
-exports.Table = Device
+function exports.init(dbpath)
+    local conn = Device.establish_connection('sqlite3', dbpath)
+    conn:execute(Device.sql_create)
+end
+
+exports.dt = Device
 return exports

@@ -15,9 +15,12 @@ sql_create = [[
     )
 ]]
 
-local conn = Graphd.establish_connection('sqlite3', "orm.db")
-conn:execute(Graphd.sql_create)
-
 local exports = {}
-exports.Table = Graphd
+
+function exports.init(dbpath)
+    local conn = Graphd.establish_connection('sqlite3', dbpath)
+    conn:execute(Graphd.sql_create)
+    return Graphd
+end
+
 return exports

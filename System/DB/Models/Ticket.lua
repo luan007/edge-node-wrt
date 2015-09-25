@@ -22,9 +22,11 @@ sql_create = [[
     )
 ]]
 
-local conn = Ticket.establish_connection('sqlite3', "orm.db")
-conn:execute(Ticket.sql_create)
-
 local exports = {}
-exports.Table = Ticket
+function exports.init(dbpath)
+    local conn = Ticket.establish_connection('sqlite3', dbpath)
+    conn:execute(Ticket.sql_create)
+    return Ticket
+end
+
 return exports

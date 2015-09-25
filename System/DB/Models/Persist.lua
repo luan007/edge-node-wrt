@@ -14,9 +14,11 @@ sql_create = [[
     )
 ]]
 
-local conn = Persist.establish_connection('sqlite3', "orm.db")
-conn:execute(Persist.sql_create)
-
 local exports = {}
-exports.Table = Persist
+function exports.init(dbpath)
+    local conn = Persist.establish_connection('sqlite3', dbpath)
+    conn:execute(Persist.sql_create)
+    return Persist
+end
+
 return exports

@@ -24,9 +24,11 @@ sql_create = [[
     )
 ]]
 
-local conn = User.establish_connection('sqlite3', "orm.db")
-conn:execute(User.sql_create)
-
 local exports = {}
-exports.Table = User
+function exports.init(dbpath)
+    local conn = User.establish_connection('sqlite3', dbpath)
+    conn:execute(User.sql_create)
+    return User
+end
+
 return exports

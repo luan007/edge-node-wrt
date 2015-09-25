@@ -28,9 +28,11 @@ sql_create = [[
     )
 ]]
 
-local conn = Traffic.establish_connection('sqlite3', "orm.db")
-conn:execute(Traffic.sql_create)
-
 local exports = {}
-exports.Table = Traffic
+function exports.init(dbpath)
+    local conn = Traffic.establish_connection('sqlite3', dbpath)
+    conn:execute(Traffic.sql_create)
+    return Traffic
+end
+
 return exports
