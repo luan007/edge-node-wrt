@@ -1,7 +1,7 @@
 package.path = package.path .. ";../Scripts/Tools/?.lua;./?.lua"
 
 local inspect = require "inspect"
-local utils = require "util"
+local utils = require "utils"
 
 network = {}
 

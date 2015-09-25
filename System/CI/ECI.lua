@@ -163,7 +163,7 @@ elseif (command == "set") then
         translator.translate(k, val, sourceConfs[__NETWORK].lan.routerip, sourceConfs[__NETWORK].lan.netmask)
     end
 
-    for k in tbw do  -- ** write conf
+    for k, _ in pairs(tbw) do  -- ** write conf
         writeConf(k)
     end
 end
