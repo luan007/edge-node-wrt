@@ -26,8 +26,8 @@ function storage.init()
     end
 end
 
-function storage.connect(table)
-    table.establish_connection("sqlite3", dbpath)
-end
+--function storage.connect(table)
+--    table.establish_connection("sqlite3", dbpath)
+--end
 
 return storage

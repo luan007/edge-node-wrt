@@ -22,11 +22,10 @@ for k, _ in pairs(db.ds) do
     print(k)
 end
 
---insert
+--retrieve table
 local appTable = db.ds.Application
-storage.connect(appTable)
-print(appTable.Create)
 
+--insert
 local app = appTable.create{
     uid = uuid(),
     appsig = "holy",
