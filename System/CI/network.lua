@@ -26,8 +26,8 @@ function network.translate(key, source, targetConfs, up_interface)
         utils.exec("iptables -w -t filter -R FORWARD 3 -c 0, 0 -s " .. networkAddress .. " -d " .. networkAddress .. "-j intranet_up_traffic")
         utils.exec("iptables -w -t filter -R FORWARD 4 -c 0, 0 -s " .. networkAddress .. " -d " .. networkAddress .. "-j intranet_down_traffic")
     elseif (key == "dhcp_range") then
-        targetConfs["dhcp-range"] = source.start .. "," .. source.end
-    else if (key === "wan" and source.scheme === "ppp") then
+        targetConfs["dhcp-range"] = source.start .. "," .. source["end"]
+    elseif (key == "wan" and source.scheme == "ppp") then
         local secrets = source.ppp.account .. "\t*\t" .. source.ppp.passwd .. "\n"
         io.open("/etc/ppp/pap-secrets", "w+"):write(secrets)
         io.open("/etc/chap-secrets", "w+"):write(secrets)
@@ -38,10 +38,10 @@ function network.translate(key, source, targetConfs, up_interface)
         local buf = ""
         local fname = "/ramdisk/System/Configs/dnsmasq_server_file.conf"
         for _, ip in ipairs(source) do
-            buf = buf.. "server=" .. ip .. "\n"
+            buf = buf .. "server=" .. ip .. "\n"
         end
         buf = utils.trimed(buf, "\n")
-        if(not utils.md5compare(confs[cname], buf)) then
+        if (not utils.md5compare(confs[cname], buf)) then
             io.open(fname, "w+"):write(buf)
         end
     end
