@@ -8,7 +8,6 @@
 package.path = package.path .. ";../Scripts/Tools/?.lua;./?.lua"
 
 local inspect = require "inspect"
-local dbg = require "dbg"
 local utils = require "utils"
 
 local res = {

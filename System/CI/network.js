@@ -35,14 +35,14 @@ module.exports.translate = function(key, source, targetConfs, up_interface){
     } else if (key === "domain") {
         targetConfs["domain"] = source;
     } else if (key === "wan" && source.scheme === "ppp") {
-        var secrets = source.ppp.account + "\t*\t" + source.ppp.passwd + "\n";
+        local secrets = source.ppp.account + "\t*\t" + source.ppp.passwd + "\n";
         console.log(secrets);
         fs.writeFileSync("/etc/ppp/pap-secrets", secrets, {flag:"w"});
         fs.writeFileSync("/etc/chap-secrets", secrets, {flag:"w"});
         //nat
         exec("iptables", "-w", "-t", "nat", "-R", "routing_masquerade", "1", "-j", "MASQUERADE", "-o", soource.up_interface);
     } else if (key === "dns") {
-        var buf = "";
+        local buf = "";
         source.forEach(function(ip) {
             buf += "server=" + ip + "\n";
         });
