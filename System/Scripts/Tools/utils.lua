@@ -46,6 +46,18 @@ function utils.trimend(s1, s2)
     return string.gsub(s1, s2.."$", "")
 end
 
+function utils.trimstart(s1, s2)
+    return string.gsub(s1, "^"..s2, "")
+end
+
+function utils.trimall(s1, s2)
+    return s1:match("^"..s2.."(.-)"..s2.."$")
+end
+
+function utils.startswith(s1, s2)
+    return string.match(s1, "^"..s2) ~= nil
+end
+
 function utils.iterate(t)
     for k, v in pairs(t) do
         print(k, v)
