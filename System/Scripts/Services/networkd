@@ -1,0 +1,13 @@
+#!/bin/ash
+
+CONF=/etc/dnsmasq.conf
+PROG=/usr/sbin/dnsmasq
+
+start(){
+
+}
+
+stop(){
+
+}
+
