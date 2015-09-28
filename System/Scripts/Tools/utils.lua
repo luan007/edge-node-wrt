@@ -6,6 +6,10 @@ function utils.exec(cmd)
     return io.popen(cmd):read()
 end
 
+function utils.exec_withlines(cmd)
+    return io.popen(cmd):lines()
+end
+
 function utils.split(s, p)
     local rt= {}
     string.gsub(s, '[^'..p..']+', function(w) table.insert(rt, w) end )

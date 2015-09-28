@@ -18,25 +18,29 @@
 --        MFP:		no
 --        TDLS peer:	no
 
+if #arg < 1 then
+    return print("usage: lua iw apN")
+end
+local ap = arg[1]
+
 package.path = package.path .. ";../Tools/?.lua;./?.lua"
 
 local cjson = require "cjson"
 local utils = require "utils"
+local inspect = require "inspect"
 
-local function dump_station(ap_no)
+local function dump_station(ap)
     local stations = {}
     local ln = "\n"
     local mac = nil
 
-    local output = utils.exec("iw ap"..ap_no.." station dump")
-    local rows = utils.split(output, ln)
-
-    for _, v in iparis(rows) do
+    local lines = utils.exec_withlines("iw "..ap.." station dump")
+    for v in lines do
         if (utils.startswith(v, "Station")) then -- new RECORD
             mac = utils.split(v, " ")[2]
             stations[mac] = {}
         else
-            local parts = v.split(":")
+            local parts = utils.split(v, ":")
             local k = utils.trimall(parts[1], "%s*")
             local v = utils.trimall(parts[2], "%s*")
             stations[mac][k] = v
@@ -45,4 +49,7 @@ local function dump_station(ap_no)
 
     return stations
 end
+
+local stations = dump_station(ap)
+print(cjson.encode(stations))
 
