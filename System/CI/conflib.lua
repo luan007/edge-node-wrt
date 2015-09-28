@@ -1,3 +1,6 @@
+package.path = package.path .. ";../Scripts/Tools/?.lua;./?.lua"
+local utils = require "utils"
+
 exports = {}
 
 exports.sections = {}
@@ -9,13 +12,13 @@ exports.sections.__TIME = "time"
 exports.sections.__SSH = "ssh"
 exports.sections.__HOSTS = "hosts"
 exports.target = {}
-exports.target[exports.sections.__NETWORK] = "/etc/network.json"
-exports.target[exports.sections.__WIFI] = "/etc/wifi.json"
-exports.target[exports.sections.__FIREWALL] = "/etc/firewall.json"
-exports.target[exports.sections.__SYSTEM] = "/etc/system.json"
-exports.target[exports.sections.__TIME] = "/etc/time.json"
-exports.target[exports.sections.__SSH] = "/etc/ssh.json"
-exports.target[exports.sections.__HOSTS] = "/etc/hosts.json"
+exports.target[exports.sections.__NETWORK] = "/etc/config/network.json"
+exports.target[exports.sections.__WIFI] = "/etc/config/wifi.json"
+exports.target[exports.sections.__FIREWALL] = "/etc/config/firewall.json"
+exports.target[exports.sections.__SYSTEM] = "/etc/config/system.json"
+exports.target[exports.sections.__TIME] = "/etc/config/time.json"
+exports.target[exports.sections.__SSH] = "/etc/config/ssh.json"
+exports.target[exports.sections.__HOSTS] = "/etc/config/hosts.json"
 
 function exports.read_config(conf_path)
     local headers = {}

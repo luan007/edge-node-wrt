@@ -19,7 +19,7 @@ getTable() {
 
 setTable() {
     delTable
-    echo "$key\t$val" >> $path
+    echo "$key"$'\t'"$val" >> $path
 }
 
 delTable() {

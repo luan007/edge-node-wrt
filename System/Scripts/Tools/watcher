@@ -3,6 +3,7 @@ mkdir -p /etc/config
 cd /etc/config
 fileChange() {
     echo "! /etc/config/$1"
+    lua /ramdisk/System/CI/ECI.lua $1 set
 }
 fileIgnore() {
     echo "- /etc/config/$1"

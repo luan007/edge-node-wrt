@@ -43,12 +43,25 @@ end
 
 if (command == "get") then
     local key = arg[3]
+    local format = arg[4]
+
     if (conflib.target[entry]) then
         local conf = conflib.read_json(entry)
-        if(conf and conf[key]) then
+        if (conf and conf[key] and not format) then
             res.success = true
             res.result = conf[key]
             return output(res)
+        else                    --format arg can help script parsing
+            local parts = utils.split(format, ".")
+            local curr = conf[key]
+            for _, v in ipairs(parts) do
+                if(curr[v]) then
+                    curr = curr[v]
+                end
+            end
+            if(curr) then
+                return print(curr)
+            end
         end
     end
 

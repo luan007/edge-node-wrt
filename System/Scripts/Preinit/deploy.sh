@@ -3,8 +3,11 @@
 rm -rf /etc/dnsmasq.conf
 rm -rf /etc/hostapd_2g.conf
 rm -rf /etc/hostapd_5g.conf
-rm -rf /etc/network.json
-rm -rf /etc/firewall.json
+rm -rf /etc/config/network.json
+rm -rf /etc/config/firewall.json
+rm -rf /etc/init.d/networkd
+rm -rf /etc/init.d/wland
+rm -rf /etc/init.d/wand
 
 if [ ! -f /etc/dnsmasq.conf ]
 then
@@ -24,17 +27,34 @@ then
     cp /ramdisk/System/Configs/hostapd_5g.conf /etc/hostapd_5g.conf
 fi
 
-if [ ! -f /etc/network.json ]
+if [ ! -f /etc/config/network.json ]
 then
 
-    cp /ramdisk/System/Configs/network.json /etc/network.json
+    cp /ramdisk/System/Configs/network.json /etc/config/network.json
 fi
 
-if [ ! -f /etc/firewall.json ]
+if [ ! -f /etc/config/firewall.json ]
 then
-    cp -rf /ramdisk/System/Configs/firewall.json /etc/firewall.json
+    cp -rf /ramdisk/System/Configs/firewall.json /etc/config/firewall.json
 fi
 
+####deamon
+if [ ! -f /etc/init.d/networkd ]
+then
+    cp -rf /ramdisk/System/Scripts/Services/networkd /etc/init.d/networkd
+fi
+
+if [ ! -f /etc/init.d/wland ]
+then
+    cp -rf /ramdisk/System/Scripts/Services/wland /etc/init.d/wland
+fi
+
+if [ ! -f /etc/init.d/wand ]
+then
+    cp -rf /ramdisk/System/Scripts/Services/wand /etc/init.d/wand
+fi
+
+####daemon end
 
 if [ ! -d /tmp/fdsock/hostapd_aps ]
 then

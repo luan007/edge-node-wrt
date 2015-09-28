@@ -1,0 +1,60 @@
+#!/bin/ash
+
+CONF="/etc/dnsmasq.conf"
+PROG="dnsmasq"
+FULL=$PROG" -C "$CONF
+PID=0
+
+pid(){
+    echo $(ps ax | grep "$FULL" | grep -v grep | awk '{print $1}')
+}
+
+start(){
+    eval $FULL
+}
+
+stop(){
+    PID=$(pid)
+    if [ $PID ]; then
+        kill -9 $PID
+    fi
+}
+
+sighup(){
+    PID=$(pid)
+    if [ $PID ]; then
+        kill -1 $PID
+    fi
+}
+
+case "$1" in
+start)
+    start
+    ;;
+stop)
+    stop
+    ;;
+reload|restart)
+    stop
+    start
+    ;;
+status)
+    PID=$(pid)
+    if [ $PID ]; then
+        echo running, pid: $PID
+    else
+        echo not running
+    fi
+    ;;
+sighup)
+    sighup
+    ;;
+*)
+    echo $"Usage: $0 {start|stop|restart|status}"
+    exit 1
+    ;;
+esac
+
+
+
+
