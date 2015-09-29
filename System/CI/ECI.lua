@@ -5,7 +5,7 @@
 --              lua ECI network set
 --              lua ECI network get key
 --
-package.path = package.path .. ";../Scripts/Tools/?.lua;./?.lua"
+package.path = package.path .. ";/ramdisk/System/Scripts/Tools/?.lua;/ramdisk/System/CI/?.lua"
 
 local inspect = require "inspect"
 local utils = require "utils"

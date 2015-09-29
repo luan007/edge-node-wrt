@@ -39,14 +39,14 @@ then
 fi
 
 ####deamon
-if [ ! -f /etc/init.d/networkd ]
+if [ ! -f /etc/init.d/land ]
 then
-    cp -rf /ramdisk/System/Scripts/Services/networkd /etc/init.d/networkd
+    cp -rf /ramdisk/System/Scripts/Services/land /etc/init.d/land
 fi
 
-if [ ! -f /etc/init.d/wland ]
+if [ ! -f /etc/init.d/wifid ]
 then
-    cp -rf /ramdisk/System/Scripts/Services/wland /etc/init.d/wland
+    cp -rf /ramdisk/System/Scripts/Services/wifid /etc/init.d/wifid
 fi
 
 if [ ! -f /etc/init.d/wand ]

@@ -1,41 +1,58 @@
 #!/bin/ash
 
-CONF="/etc/dnsmasq.conf"
-FULL=""
-if [ "$1" == "udhcpc" ]; then
-    INTERFACE=(lua /ramdisk/System/CI/ECI.lua network get wan up_interface)
-    FULL="udhcpc -i "$INTERFACE
-else
-    PPP_NUMBER=$(lua /ramdisk/System/CI/ECI.lua network get wan ppp.number)
-    FULL="pppd  unit "$PPP_NUMBER" plugin /usr/lib/pppd/2.4.7/rp-pppoe.so"
-fi
+FULL_UDHCPC=""
+FULL_PPPD=""
 
-FULL=$PROG" -C "$CONF
+INTERFACE=$(lua /ramdisk/System/CI/ECI.lua network get wan up_interface)
+FULL_UDHCPC="udhcpc -i "$INTERFACE
+PPP_NUMBER=$(lua /ramdisk/System/CI/ECI.lua network get wan ppp.number)
+FULL_PPPD="pppd  unit "$PPP_NUMBER" plugin /usr/lib/pppd/2.4.7/rp-pppoe.so"
+TYPE=$1
+
 PID=0
 
-pid(){
-    echo $(ps ax | grep "$FULL" | grep -v grep | awk '{print $1}')
+pid_udhcpc(){
+    echo $(ps ax | grep "$FULL_UDHCPC" | grep -v grep | awk '{print $1}')
+}
+pid_pppd(){
+    echo $(ps ax | grep "$FULL_PPPD" | grep -v grep | awk '{print $1}')
+}
+
+pid_by_cmd(){
+    if [ $TYPE == "udhcpc" ]; then
+        echo $(pid_udhcpc)
+    else
+        echo $(pid_pppd)
+    fi
 }
 
 start(){
-    eval $FULL
+    if [ $TYPE == "udhcpc" ]; then
+        eval $FULL_UDHCPC
+    else
+        eval $FULL_PPPD
+    fi
 }
 
 stop(){
-    PID=$(pid)
+    PID=$(pid_udhcpc)
+    if [ $PID ]; then
+        kill -9 $PID
+    fi
+    PID=$(pid_pppd)
     if [ $PID ]; then
         kill -9 $PID
     fi
 }
 
 sighup(){
-    PID=$(pid)
+    PID=$(pid_by_cmd)
     if [ $PID ]; then
         kill -1 $PID
     fi
 }
 
-case "$1" in
+case "$2" in
 start)
     start
     ;;
@@ -47,7 +64,7 @@ reload|restart)
     start
     ;;
 status)
-    PID=$(pid)
+    PID=$(pid_by_cmd)
     if [ $PID ]; then
         echo running, pid: $PID
     else
@@ -58,7 +75,7 @@ sighup)
     sighup
     ;;
 *)
-    echo $"Usage: $0 {start|stop|restart|status}"
+    echo $"Usage: $0 udhcpc/ppd {start|stop|restart|status}"
     exit 1
     ;;
 esac

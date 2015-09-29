@@ -23,7 +23,7 @@ if #arg < 1 then
 end
 local ap = arg[1]
 
-package.path = package.path .. ";../Tools/?.lua;./?.lua"
+package.path = package.path .. ";/ramdisk/System/Scripts/Tools/?.lua"
 
 local cjson = require "cjson"
 local utils = require "utils"
