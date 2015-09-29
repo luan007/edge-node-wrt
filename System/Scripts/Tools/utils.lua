@@ -77,7 +77,7 @@ function utils.stringify(obj)
 end
 
 function utils.md5(str)
-    return utils.exec("echo \""..str.."\" | md5sum | awk '{print $1}'")
+    return utils.exec("echo -n \""..str.."\" | md5sum | awk '{print $1}'")
 end
 
 function utils.md5file(path)
