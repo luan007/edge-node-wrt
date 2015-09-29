@@ -11,6 +11,7 @@ exports.sections.__SYSTEM = "system"
 exports.sections.__TIME = "time"
 exports.sections.__SSH = "ssh"
 exports.sections.__HOSTS = "hosts"
+exports.sections.__DNS = "dns"
 exports.target = {}
 exports.target[exports.sections.__NETWORK] = "/etc/config/network.json"
 exports.target[exports.sections.__WIFI] = "/etc/config/wifi.json"
@@ -19,6 +20,7 @@ exports.target[exports.sections.__SYSTEM] = "/etc/config/system.json"
 exports.target[exports.sections.__TIME] = "/etc/config/time.json"
 exports.target[exports.sections.__SSH] = "/etc/config/ssh.json"
 exports.target[exports.sections.__HOSTS] = "/etc/config/hosts.json"
+exports.target[exports.sections.__DNS] = "/etc/config/dns.json"
 
 function exports.read_config(conf_path)
     local headers = {}
@@ -28,23 +30,25 @@ function exports.read_config(conf_path)
 
     for line in f:lines() do
         local parts = utils.split(line, delimiter)
-        local row = parts[1]
-        local val = parts[2]
-        -- for sorting
-        if not utils.contains(headers, row) then
-            table.insert(headers, row)
-        end
-        if (rows[row]) then
-            local old = rows[row]
-            rows[row] = {}
-            if (type(old) == "table") then
-                rows[row] = utils.concat(rows[row], old);
-            elseif (type(old) == "string") then
-                rows[row] = utils.append(rows[row], old)
+        if(#parts > 0) then
+            local row = parts[1]
+            local val = parts[2]
+            -- for sorting
+            if not utils.contains(headers, row) then
+                table.insert(headers, row)
             end
-            rows[row] = utils.append(rows[row], val and val or val)
-        else
-            rows[row] = val
+            if (rows[row]) then
+                local old = rows[row]
+                rows[row] = {}
+                if (type(old) == "table") then
+                    rows[row] = utils.concat(rows[row], old);
+                elseif (type(old) == "string") then
+                    rows[row] = utils.append(rows[row], old)
+                end
+                rows[row] = utils.append(rows[row], val and val or val)
+            else
+                rows[row] = val
+            end
         end
     end
 

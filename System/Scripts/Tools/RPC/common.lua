@@ -8,7 +8,6 @@ exports.MSG_EVENT = 2
 exports.CHECK_BEFORE_SEND = true
 exports.PATCH_JSON = true
 
-
 function exports.patchJSON(obj, nullrep)
     --recurrrs
     if(not exports.PATCH_JSON) then return obj end

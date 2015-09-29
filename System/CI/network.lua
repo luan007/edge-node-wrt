@@ -51,18 +51,6 @@ function network.translate()
         elseif (key == "domain") then
             print(">>domain")
             rows["domain"] = source
-        elseif (key == "dns") then
-            print(">>dns")
-            local buf = ""
-            local fname = "/ramdisk/System/Configs/dnsmasq_server_file.conf"
-            for _, ip in ipairs(source) do
-                buf = buf .. "server=" .. ip .. "\n"
-            end
-            buf = utils.trimend(buf, "\n")
-            if (not utils.md5compare(fname, buf)) then
-                io.open(fname, "w+"):write(buf)
-                utils.exec("/usr/sbin/land sighup")
-            end
         end
     end
 

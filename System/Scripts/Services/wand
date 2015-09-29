@@ -6,7 +6,7 @@ FULL_PPPD=""
 INTERFACE=$(ECI network get wan up_interface)
 FULL_UDHCPC="udhcpc -b -i $INTERFACE"
 PPP_NUMBER=$(ECI network get wan ppp.number)
-FULL_PPPD="pppd  unit $PPP_NUMBER plugin /usr/lib/pppd/2.4.7/rp-pppoe.so"
+FULL_PPPD="pppd unit $PPP_NUMBER plugin /usr/lib/pppd/2.4.7/rp-pppoe.so $INTERFACE"
 TYPE=$1
 
 PID=0

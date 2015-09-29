@@ -6,6 +6,7 @@ rm -rf /etc/hostapd_5g.conf
 rm -rf /etc/config/network.json
 rm -rf /etc/config/firewall.json
 rm -rf /etc/config/wifi.json
+rm -rf /etc/config/dns.json
 rm -rf /usr/sbin/land
 rm -rf /usr/sbin/wifid
 rm -rf /usr/sbin/wand
@@ -43,6 +44,11 @@ fi
 if [ ! -f /etc/config/wifi.json ]
 then
     cp -rf /ramdisk/System/Configs/wifi.json /etc/config/wifi.json
+fi
+
+if [ ! -f /etc/config/dns.json ]
+then
+    cp -rf /ramdisk/System/Configs/dns.json /etc/config/dns.json
 fi
 
 ####ECI

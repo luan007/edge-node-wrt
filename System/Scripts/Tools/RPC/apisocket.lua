@@ -1,36 +1,40 @@
-package.path = package.path .. ";../?.lua"
-
+local ffi = require 'ffi'
 local uv = require 'luv'
 local dbg = require('dbg')('edge.apisocket')
 local cjson = require 'cjson'
 local bit = require 'bit'
 local common = require 'common'
 local exports = {}
-local inspect = require 'inspect'
+
 
 local map = {}
+local gen = {}
 local _free = {}
 local timeout = {}
 
 local function alloc()
-    if(#_free == 0) then
+    if (#_free == 0) then
         --allocate
+        gen[#map + 1] = 0
         return #map + 1
     else
-        local spot = _free[#free]
-        _free[#free] = nil
+        local spot = _free[#_free]
+        _free[#_free] = nil
         return spot
     end
 end
 
 local function free(spot)
+    if not map[spot] then return end
     map[spot] = nil
     timeout[spot] = nil
     _free[#_free + 1] = spot
 end
 
 function exports.Emit(client, id, params)
+    print("send event")
     send(client, { common.MSG_EVENT, id, params });
+    params = nil
 end
 
 function exports.Call(client, id, params, callback)
@@ -38,6 +42,7 @@ function exports.Call(client, id, params, callback)
     local called = 0
     local function cb(err, result)
         if (called ~= 1) then
+            free(p)
             called = 1
             callback(err, result)
             callback = nil
@@ -47,51 +52,62 @@ function exports.Call(client, id, params, callback)
 
     map[p] = cb
     timeout[p] = common.FUNC_TIMEOUT
-    send(client, { common.MSG_REQ, id, params, p });
+    gen[p] = gen[p] + 1
+    send(client, { common.MSG_REQ, id, params, p, gen[p] });
+    params = nil
 end
 
 local function parseFrame(socket, frame)
+
+    if (frame[1] == common.MSG_EVENT) then
+        print("on event!")
+        return socket.onevent(frame[2], frame[3], socket)
+    end
 
     if (frame[1] == common.MSG_REQ) then
         local called = 0
         local function cb(err, result)
             if (called ~= 1) then
                 called = 1
-                return send(socket.client, { common.MSG_RESP, { err, result }, frame[4] });
+                send(socket.client, { common.MSG_RESP, { err, result }, frame[4], frame[5] });
+                frame = nil
+                return
             end
         end
 
         local state, result_or_err = pcall(function()
-            return socket.oncall(frame[2], frame[3], cb)
+            return socket.oncall(frame[2], frame[3], cb, socket)
         end)
 
-        if (called == 1) then return end --you called cb as sync method
+        if (called == 1) then
+            frame = nil
+            return
+        end --you called cb as sync method
         if (state == false) then
             called = 1
-            return send(socket.client, { common.MSG_RESP, { result_or_err, nil }, frame[4] });
+            send(socket.client, { common.MSG_RESP, { result_or_err, nil }, frame[4], frame[5] });
+            frame = nil
+            return
         end
-
         if (result_or_err) then
             called = 1
             --sync method
-            return send(socket.client, { common.MSG_RESP, { nil, result_or_err }, frame[4] });
+            send(socket.client, { common.MSG_RESP, { nil, result_or_err }, frame[4], frame[5] });
+            frame = nil
+            return
         end
 
-        return send(socket.client, { common.MSG_RESP, { "Host function did not return anything", nil }, frame[4] });
+        send(socket.client, { common.MSG_RESP, { "Host function did not return anything", nil }, frame[4], frame[5] });
+        frame = nil
+        return
     end
-
     if (frame[1] == common.MSG_RESP) then
-        if (map[frame[3]]) then
+        if (map[frame[3]] and gen[frame[3]] == frame[4]) then
             pcall(function() map[frame[3]](unpack(frame[2])) end)
             free(frame[3])
             return
         end
     end
-
-    if (frame[1] == common.EVENT) then
-        return socket.onevent(socket, frame[2], frame[3])
-    end
-
     return
     --return socket.onerr("frame err", inspect(frame))
 end
@@ -157,6 +173,7 @@ local function ondata(socket, chunk)
                     socket.cur_pack = "";
                 end
                 if (cursor >= #chunk) then
+                    chunk = nil
                     return nil
                 end
             end
@@ -180,6 +197,7 @@ end
 function exports.release(socket)
     uv.read_stop(socket)
     uv.close(socket)
+    socket = nil
 end
 
 function exports.handle(socket, _onerr, onend, _oncall, _onevent)
@@ -197,7 +215,13 @@ function exports.handle(socket, _onerr, onend, _oncall, _onevent)
     uv.read_start(sockObj.client, function(err, chunk)
         if err then
             debug(err)
-            release(sockObj.client)
+            exports.release(sockObj.client)
+            sockObj.frag_header = nil
+            sockObj.cur_pack = nil
+            sockObj.oncall = nil
+            sockObj.onevent = nil
+            sockObj.onerr = nil
+            sockObj.client = nil
             onend()
             return onerr(err)
         end
@@ -205,7 +229,13 @@ function exports.handle(socket, _onerr, onend, _oncall, _onevent)
             ondata(sockObj, chunk)
         else
             --boom, you're done
-            release(sockObj.client)
+            exports.release(sockObj.client)
+            sockObj.frag_header = nil
+            sockObj.cur_pack = nil
+            sockObj.oncall = nil
+            sockObj.onevent = nil
+            sockObj.onerr = nil
+            sockObj.client = nil
             onend()
         end
     end)

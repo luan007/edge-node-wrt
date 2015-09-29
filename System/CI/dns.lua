@@ -3,20 +3,20 @@ package.path = package.path .. ";/ramdisk/System/Scripts/Tools/?.lua;/ramdisk/Sy
 local inspect = require "inspect"
 local utils = require "utils"
 
-local path = "/ramdisk/System/Configs/dnsmasq_addn_hosts.conf"
+local path = "/ramdisk/System/Configs/dnsmasq_server_file.conf"
 
 hosts = {}
 
 function hosts.translate()
-    print(">>hosts")
-    local json = rows.read_json(conflib.sections.__HOSTS)
+    print(">>dns")
+    local json = rows.read_json(conflib.sections.__DNS)
     local buf = ""
-    for _, cfg in ipairs(json) do
-        buf = buf .. cfg.ip .. " " .. cfg.host "\n"
+    for _, ip in ipairs(json) do
+        buf = buf .. "server=" .. ip .. "\n"
     end
-    buf = utils.trimed(buf, "\n")
+    buf = utils.trimend(buf, "\n")
     if (not utils.md5compare(path, buf)) then
-        io.open(fname, "w+"):write(buf)
+        io.open(path, "w+"):write(buf)
         utils.exec("/usr/sbin/land sighup")
     end
 end

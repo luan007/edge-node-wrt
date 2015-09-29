@@ -2,6 +2,7 @@ package.path = package.path .. ";/ramdisk/System/Scripts/Tools/?.lua;/ramdisk/Sy
 
 local inspect = require "inspect"
 local utils = require "utils"
+local conflib = require "conflib"
 
 local __HOSTAPD2G = "/etc/hostapd_2g.conf"
 local __HOSTAPD5G = "/etc/hostapd_5g.conf"
@@ -11,12 +12,12 @@ wifi = {}
 function wifi.translate()
     local rows_2g, headers_2g = conflib.read_config(__HOSTAPD2G)
     local rows_5g, headers_5g = conflib.read_config(__HOSTAPD5G)
-    local json = rows.read_json(conflib.sections.__WIFI)
+    local json = conflib.read_json(conflib.sections.__WIFI)
 
     for key, source in pairs(json) do
         if (key == "wlan2g") then
             if(source["ssid"]) then
-                rows2g["ssid"] = source["ssid"]
+                rows_2g["ssid"] = source["ssid"]
             end
         elseif (key == "wlan5g") then
             if(source["ssid"]) then

@@ -1,11 +1,10 @@
 local p = print
 local uv = require('luv')
 local apisocket = require('apisocket')
-local inspect = require('inspect')
-local cjson = require 'cjson'
+--local inspect = require("inspect")
+--local sandbox = require('sandbox')
 
 local function create_server(on_connection)
-
     local server = uv.new_pipe(false)
     p(1, server)
     uv.pipe_bind(server, "/tmp/crap")
@@ -16,18 +15,18 @@ local function create_server(on_connection)
         uv.accept(server, client)
         on_connection(client)
     end)
-
     return server
 end
 
-local server = create_server(function(client)
+create_server(function(client)
     p("new client", client)
     apisocket.handle(client, function(...) --onevent
     print("server: error", ...)
     end, function() --onclose
     print("server: socket closed")
-    end, function(funcId, params, cb) --oncall
-    return { params[1], '1', "helloworld", nil, { nil, 1 } }
+    end, function(funcId, params, cb, socket) --oncall
+    apisocket.Emit(client, funcId, { "hehe", { test = {1,2,3,4,5} } })
+    return { params[1], funcId, "helloworld", nil, { nil, 1 } }
     end)
 end)
 
@@ -47,27 +46,37 @@ set_interval(5000, function()
     print("count", collectgarbage("count"))
 end)
 
-local client = uv.new_pipe(false)
-uv.pipe_connect(client, "/tmp/crap", function(err)
-    assert(not err, err)
-    apisocket.handle(client, function(...)
-        print("client: error", ...)
-        error("stop")
-    end, function()
-        print("client: socket closed")
-    end)
 
-    for i = 0, 1000000 do
-        apisocket.Call(client, 1, { i, "crap", "yea" }, function(err, result)
-            if (not err) then
-                print("good", result[1])
-                --print(result[1], result[2], result[3], result[4])
-            else
-                print("shit happens", err)
-            end
-        end)
-    end
-end)
+--
+--
+--
+--local client = uv.new_pipe(false)
+--uv.pipe_connect(client, "/tmp/crap", function(err)
+--    assert(not err, err)
+--
+--    API = sandbox(client, {
+--        ["Dummy.Thing"] = 1,
+--        ["Some.Wat"] = 2
+--    }, {
+--        ["Event.Demo"] = 1
+--    })
+--
+--    API.Event.Demo.listen(function(...)
+--        print(inspect({...}))
+--    end)
+--
+--    for i = 1, 10000 do
+--        API.Dummy.Thing(i, function(err, result)
+--            if (err) then
+--                return error(err)
+--            end
+--            print('good', inspect(result))
+--        end)
+--    end
+--end)
+--
+
+
 
 
 -- Start the main event loop
@@ -75,3 +84,4 @@ uv.run()
 uv.walk(uv.close)
 uv.run()
 uv.loop_close()
+
