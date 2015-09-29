@@ -1,4 +1,4 @@
-package.path = package.path .. ";../Scripts/Tools/?.lua;./?.lua"
+package.path = package.path .. ";/ramdisk/System/Scripts/Tools/?.lua;/ramdisk/System/CI/?.lua"
 
 local inspect = require "inspect"
 local utils = require "utils"
@@ -6,9 +6,9 @@ local utils = require "utils"
 local __HOSTAPD2G = "/etc/hostapd_2g.conf"
 local __HOSTAPD5G = "/etc/hostapd_5g.conf"
 
-wlan = {}
+wifi = {}
 
-function wlan.translate()
+function wifi.translate()
     local rows_2g, headers_2g = conflib.read_config(__HOSTAPD2G)
     local rows_5g, headers_5g = conflib.read_config(__HOSTAPD5G)
     local json = rows.read_json(conflib.sections.__WIFI)
@@ -34,4 +34,4 @@ function wlan.translate()
     end
 end
 
-return wlan
+return wifi

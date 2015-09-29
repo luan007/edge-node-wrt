@@ -40,9 +40,9 @@ reload|restart)
 status)
     PID=$(pid)
     if [ ! -z "$PID" ]; then
-        echo running, pid: $PID
+        echo $PID
     else
-        echo not running
+        echo
     fi
     ;;
 sighup)
