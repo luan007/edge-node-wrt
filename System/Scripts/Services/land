@@ -1,8 +1,7 @@
 #!/bin/ash
 
 CONF="/etc/dnsmasq.conf"
-PROG="dnsmasq"
-FULL=$PROG" -C "$CONF
+FULL="dnsmasq -C $CONF"
 PID=0
 
 pid(){
@@ -10,19 +9,19 @@ pid(){
 }
 
 start(){
-    $( $FULL )
+    eval $FULL
 }
 
 stop(){
     PID=$(pid)
-    if [ $PID ]; then
+    if [ ! -z "$PID" ]; then
         kill -9 $PID
     fi
 }
 
 sighup(){
     PID=$(pid)
-    if [ $PID ]; then
+    if [ ! -z "$PID" ]; then
         kill -1 $PID
     fi
 }
@@ -40,7 +39,7 @@ reload|restart)
     ;;
 status)
     PID=$(pid)
-    if [ $PID ]; then
+    if [ ! -z "$PID" ]; then
         echo running, pid: $PID
     else
         echo not running

@@ -3,6 +3,10 @@ local cjson = require "cjson"
 utils = {}
 
 function utils.exec(cmd)
+    return io.popen(cmd)
+end
+
+function utils.exec_withall(cmd)
     return io.popen(cmd):read()
 end
 
@@ -77,11 +81,11 @@ function utils.stringify(obj)
 end
 
 function utils.md5(str)
-    return utils.exec("echo -n \""..str.."\" | md5sum | awk '{print $1}'")
+    return utils.exec_withall("echo -n \""..str.."\" | md5sum | awk '{print $1}'")
 end
 
 function utils.md5file(path)
-    return utils.exec("md5sum "..path.." | awk '{print $1}'")
+    return utils.exec_withall("md5sum "..path.." | awk '{print $1}'")
 end
 
 function utils.md5compare(path, str)

@@ -2,12 +2,11 @@
 
 CONF_2G="/etc/hostapd_2g.conf"
 CONF_5G="/etc/hostapd_5g.conf"
-PROG="hostapd"
-FULL=$PROG
+FULL="hostapd"
 if [ "$1" == "2g" ]; then
-    FULL=$FULL" -B "$CONF_2G
+    FULL="$FULL -B $CONF_2G"
 else
-    FULL=$FULL" -B "$CONF_5G
+    FULL="$FULL -B $CONF_5G"
 fi
 PID=0
 
@@ -16,19 +15,19 @@ pid(){
 }
 
 start(){
-    $( $FULL )
+    eval $FULL
 }
 
 stop(){
     PID=$(pid)
-    if [ $PID ]; then
+    if [ ! -z "$PID" ]; then
         kill -9 $PID
     fi
 }
 
 sighup(){
     PID=$(pid)
-    if [ $PID ]; then
+    if [ ! -z "$PID" ]; then
         kill -1 $PID
     fi
 }
@@ -46,7 +45,7 @@ reload|restart)
     ;;
 status)
     PID=$(pid)
-    if [ $PID ]; then
+    if [ ! -z "$PID" ]; then
         echo running, pid: $PID
     else
         echo not running

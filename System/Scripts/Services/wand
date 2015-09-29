@@ -4,9 +4,9 @@ FULL_UDHCPC=""
 FULL_PPPD=""
 
 INTERFACE=$(ECI network get wan up_interface)
-FULL_UDHCPC="udhcpc -i "$INTERFACE
+FULL_UDHCPC="udhcpc -b -i $INTERFACE"
 PPP_NUMBER=$(ECI network get wan ppp.number)
-FULL_PPPD="pppd  unit "$PPP_NUMBER" plugin /usr/lib/pppd/2.4.7/rp-pppoe.so"
+FULL_PPPD="pppd  unit $PPP_NUMBER plugin /usr/lib/pppd/2.4.7/rp-pppoe.so"
 TYPE=$1
 
 PID=0
@@ -28,26 +28,26 @@ pid_by_cmd(){
 
 start(){
     if [ $TYPE == "udhcpc" ]; then
-        $( $FULL_UDHCPC )
+        eval $FULL_UDHCPC
     else
-        $( $FULL_PPPD )
+        eval $FULL_PPPD
     fi
 }
 
 stop(){
     PID=$(pid_udhcpc)
-    if [ $PID ]; then
+    if [ -n "$PID" ]; then
         kill -9 $PID
     fi
     PID=$(pid_pppd)
-    if [ $PID ]; then
+    if [ -n "$PID" ]; then
         kill -9 $PID
     fi
 }
 
 sighup(){
     PID=$(pid_by_cmd)
-    if [ $PID ]; then
+    if [ ! -z "$PID" ]; then
         kill -1 $PID
     fi
 }
@@ -65,7 +65,7 @@ reload|restart)
     ;;
 status)
     PID=$(pid_by_cmd)
-    if [ $PID ]; then
+    if [ ! -z "$PID" ]; then
         echo running, pid: $PID
     else
         echo not running

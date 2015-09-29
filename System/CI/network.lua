@@ -15,6 +15,7 @@ function network.translate()
 
     for key, source in pairs(json) do
         if (key == "lan") then
+            print(">>lan")
             rows["dhcp-option"] = {}
             table.insert(rows["dhcp-option"], "46,8")
             table.insert(rows["dhcp-option"], "6," .. source.routerip)
@@ -34,8 +35,10 @@ function network.translate()
             utils.exec("iptables -w -t filter -R FORWARD 3 -c 0 0 -s " .. networkAddress .. " -d " .. networkAddress .. " -j intranet_up_traffic")
             utils.exec("iptables -w -t filter -R FORWARD 4 -c 0 0 -s " .. networkAddress .. " -d " .. networkAddress .. " -j intranet_down_traffic")
         elseif (key == "dhcp_range") then
+            print(">>dhcp_range")
             rows["dhcp-range"] = source.start .. "," .. source["end"]
         elseif (key == "wan") then
+            print(">>wan")
             if (source.scheme == "ppp") then
                 local secrets = source.ppp.account .. "\t*\t" .. source.ppp.passwd .. "\n"
                 io.open("/etc/ppp/pap-secrets", "w+"):write(secrets)
@@ -46,8 +49,10 @@ function network.translate()
                 utils.exec("/usr/sbin/wand udhcpc restart")     --** dhcp
             end
         elseif (key == "domain") then
+            print(">>domain")
             rows["domain"] = source
         elseif (key == "dns") then
+            print(">>dns")
             local buf = ""
             local fname = "/ramdisk/System/Configs/dnsmasq_server_file.conf"
             for _, ip in ipairs(source) do
@@ -56,13 +61,15 @@ function network.translate()
             buf = utils.trimend(buf, "\n")
             if (not utils.md5compare(fname, buf)) then
                 io.open(fname, "w+"):write(buf)
-                utils.exec("/usr/sbin/land sighup")
+                --utils.exec("/usr/sbin/land sighup")
             end
         end
     end
 
+    print(">>compare")
     if (conflib.write_config(path, rows, headers)) then
-        utils.exec("/usr/sbin/land restart")
+        print(">>write_config")
+        --utils.exec("/usr/sbin/land restart")
     end
 end
 
