@@ -20,10 +20,10 @@ function network.translate()
             table.insert(rows["dhcp-option"], "6," .. source.routerip)
             rows["listen-address"] = source.routerip .. ",127.0.0.1"
             rows["address"] = {}
-            table.insert(rows["dhcp-option"], "/.wi.fi/" .. source.routerip)
-            table.insert(rows["dhcp-option"], "/.wifi.network/" .. source.routerip)
-            table.insert(rows["dhcp-option"], "/.ed.ge/" .. source.routerip)
-            table.insert(rows["dhcp-option"], "/.wifi/" .. source.routerip)
+            table.insert(rows["address"], "/.wi.fi/" .. source.routerip)
+            table.insert(rows["address"], "/.wifi.network/" .. source.routerip)
+            table.insert(rows["address"], "/.ed.ge/" .. source.routerip)
+            table.insert(rows["address"], "/.wifi/" .. source.routerip)
             -- set br0 ip
             utils.exec("ifconfig br0 " .. source.routerip)
             -- netmask

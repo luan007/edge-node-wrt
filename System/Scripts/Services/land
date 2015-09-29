@@ -10,7 +10,7 @@ pid(){
 }
 
 start(){
-    eval $FULL
+    $( $FULL )
 }
 
 stop(){

@@ -1,0 +1,8 @@
+{
+  "wlan2g": {
+    "ssid" : "Edge Two"
+  },
+  "wlan5g": {
+    "ssid" : "Edge Two 5G"
+  }
+}

@@ -1,3 +1,4 @@
+#!/usr/bin/lua
 --
 -- ECI
 --
@@ -20,7 +21,7 @@ local output = function(obj)
 end
 
 if (#arg < 2) then
-    return print("usage: lua ECI xxx get/set")
+    return print("Usage: lua ECI xxx get/set")
 end
 
 local entry = arg[1]

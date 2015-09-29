@@ -3,9 +3,9 @@
 FULL_UDHCPC=""
 FULL_PPPD=""
 
-INTERFACE=$(lua /ramdisk/System/CI/ECI.lua network get wan up_interface)
+INTERFACE=$(ECI network get wan up_interface)
 FULL_UDHCPC="udhcpc -i "$INTERFACE
-PPP_NUMBER=$(lua /ramdisk/System/CI/ECI.lua network get wan ppp.number)
+PPP_NUMBER=$(ECI network get wan ppp.number)
 FULL_PPPD="pppd  unit "$PPP_NUMBER" plugin /usr/lib/pppd/2.4.7/rp-pppoe.so"
 TYPE=$1
 
@@ -28,9 +28,9 @@ pid_by_cmd(){
 
 start(){
     if [ $TYPE == "udhcpc" ]; then
-        eval $FULL_UDHCPC
+        $( $FULL_UDHCPC )
     else
-        eval $FULL_PPPD
+        $( $FULL_PPPD )
     fi
 }
 
