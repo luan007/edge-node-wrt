@@ -61,7 +61,7 @@ function network.translate()
             buf = utils.trimend(buf, "\n")
             if (not utils.md5compare(fname, buf)) then
                 io.open(fname, "w+"):write(buf)
-                --utils.exec("/usr/sbin/land sighup")
+                utils.exec("/usr/sbin/land sighup")
             end
         end
     end
@@ -69,7 +69,7 @@ function network.translate()
     print(">>compare")
     if (conflib.write_config(path, rows, headers)) then
         print(">>write_config")
-        --utils.exec("/usr/sbin/land restart")
+        utils.exec("/usr/sbin/land restart")
     end
 end
 

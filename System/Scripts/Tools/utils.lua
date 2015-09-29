@@ -3,7 +3,7 @@ local cjson = require "cjson"
 utils = {}
 
 function utils.exec(cmd)
-    return io.popen(cmd)
+    return os.execute(cmd)
 end
 
 function utils.exec_withall(cmd)
