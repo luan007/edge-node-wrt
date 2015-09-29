@@ -56,7 +56,7 @@ sighup)
     sighup
     ;;
 *)
-    echo $"Usage: $0 2g/5g {start|stop|restart|status}"
+    echo $"Usage: $0 2g/5g {start|stop|restart|status|sighup}"
     exit 1
     ;;
 esac

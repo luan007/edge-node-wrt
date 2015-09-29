@@ -75,7 +75,7 @@ sighup)
     sighup
     ;;
 *)
-    echo $"Usage: $0 udhcpc/ppd {start|stop|restart|status}"
+    echo $"Usage: $0 udhcpc/ppd {start|stop|restart|status|sighup}"
     exit 1
     ;;
 esac

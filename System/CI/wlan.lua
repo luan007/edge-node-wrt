@@ -26,11 +26,11 @@ function wlan.translate()
     end
 
     if (conflib.write_config(__HOSTAPD2G, rows_2g, headers_2g)) then
-        --TODO: send RESTART
+        utils.exec("/usr/sbin/wifid 2g restart")
     end
 
     if (conflib.write_config(__HOSTAPD5G, rows_5g, headers_5g)) then
-        --TODO: send RESTART
+        utils.exec("/usr/sbin/wifid 5g restart")
     end
 end
 

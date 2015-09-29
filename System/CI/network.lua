@@ -35,11 +35,16 @@ function network.translate()
             utils.exec("iptables -w -t filter -R FORWARD 4 -c 0 0 -s " .. networkAddress .. " -d " .. networkAddress .. " -j intranet_down_traffic")
         elseif (key == "dhcp_range") then
             rows["dhcp-range"] = source.start .. "," .. source["end"]
-        elseif (key == "wan" and source.scheme == "ppp") then
-            local secrets = source.ppp.account .. "\t*\t" .. source.ppp.passwd .. "\n"
-            io.open("/etc/ppp/pap-secrets", "w+"):write(secrets)
-            io.open("/etc/chap-secrets", "w+"):write(secrets)
-            utils.exec("iptables -w -t nat -R routing_masquerade 1 -j MASQUERADE -o " .. soource.up_interface)
+        elseif (key == "wan") then
+            if (source.scheme == "ppp") then
+                local secrets = source.ppp.account .. "\t*\t" .. source.ppp.passwd .. "\n"
+                io.open("/etc/ppp/pap-secrets", "w+"):write(secrets)
+                io.open("/etc/chap-secrets", "w+"):write(secrets)
+                utils.exec("iptables -w -t nat -R routing_masquerade 1 -j MASQUERADE -o " .. soource.up_interface)
+                utils.exec("/usr/sbin/wand pppd restart")       -- ** dial up
+            elseif (source.scheme == "udhcpc") then
+                utils.exec("/usr/sbin/wand udhcpc restart")     --** dhcp
+            end
         elseif (key == "domain") then
             rows["domain"] = source
         elseif (key == "dns") then
@@ -51,13 +56,13 @@ function network.translate()
             buf = utils.trimend(buf, "\n")
             if (not utils.md5compare(fname, buf)) then
                 io.open(fname, "w+"):write(buf)
-                --TODO: send SIGHUP
+                utils.exec("/usr/sbin/land sighup")
             end
         end
     end
 
     if (conflib.write_config(path, rows, headers)) then
-        --TODO: send RESTART
+        utils.exec("/usr/sbin/land restart")
     end
 end
 

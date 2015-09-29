@@ -16,7 +16,7 @@ function hosts.translate()
     buf = utils.trimed(buf, "\n")
     if (not utils.md5compare(path, buf)) then
         io.open(fname, "w+"):write(buf)
-        --TODO: send SIGHUP
+        utils.exec("/usr/sbin/land sighup")
     end
 end
 

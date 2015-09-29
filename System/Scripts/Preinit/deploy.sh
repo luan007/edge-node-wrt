@@ -5,8 +5,8 @@ rm -rf /etc/hostapd_2g.conf
 rm -rf /etc/hostapd_5g.conf
 rm -rf /etc/config/network.json
 rm -rf /etc/config/firewall.json
-rm -rf /etc/init.d/networkd
-rm -rf /etc/init.d/wland
+rm -rf /etc/init.d/land
+rm -rf /etc/init.d/wifid
 rm -rf /etc/init.d/wand
 
 if [ ! -f /etc/dnsmasq.conf ]
@@ -41,17 +41,20 @@ fi
 ####deamon
 if [ ! -f /etc/init.d/land ]
 then
-    cp -rf /ramdisk/System/Scripts/Services/land /etc/init.d/land
+    cp -rf /ramdisk/System/Scripts/Services/land /usr/sbin/land
+    chmod 755 /usr/sbin/land
 fi
 
 if [ ! -f /etc/init.d/wifid ]
 then
-    cp -rf /ramdisk/System/Scripts/Services/wifid /etc/init.d/wifid
+    cp -rf /ramdisk/System/Scripts/Services/wifid /usr/sbin/wifid
+    chmod 755 /usr/sbin/wifid
 fi
 
 if [ ! -f /etc/init.d/wand ]
 then
-    cp -rf /ramdisk/System/Scripts/Services/wand /etc/init.d/wand
+    cp -rf /ramdisk/System/Scripts/Services/wand /usr/sbin/wand
+    chmod 755 /usr/sbin/wand
 fi
 
 ####daemon end
