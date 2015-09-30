@@ -5,6 +5,7 @@
 --      Invocation:
 --              lua ECI network set
 --              lua ECI network get key
+--              lua ECI init
 --
 package.path = package.path .. ";/ramdisk/System/Scripts/Tools/?.lua;/ramdisk/System/CI/?.lua"
 
@@ -20,56 +21,72 @@ local output = function(obj)
     print(utils.stringify(obj))
 end
 
-if (#arg < 2) then
-    return print("Usage: lua ECI xxx get/set")
-end
+if (arg[1] == "init") then
 
-local entry = arg[1]
-local command = arg[2]
+    SCHEME=$(ECI network get wan scheme)
+    if [ $SCHEME == "udhcpc" ]; then
+        INTERFACE=$(ECI network get wan up_interface)
+        CMD="udhcpc -b -i $INTERFACE"
+        CMD="daemon wan_dhcp $CMD"
+        eval $CMD
+    else
+        PPP_NUMBER=$(ECI network get wan ppp.number)
+        CMD="pppd unit $PPP_NUMBER plugin /usr/lib/pppd/2.4.7/rp-pppoe.so $INTERFACE"
+        CMD="daemon wan_pppd $CMD"
+        eval $CMD
+    fi
 
-if (not conflib.target[entry]) then
-    print(inspect(conflib.sections))
-    return print("invalid entry: ", entry)
-end
+    CMD="daemon wlan2g hostapd -B /etc/hostapd_2g.conf"
+    eval $CMD
+    CMD="daemon wlan5g hostapd -B /etc/hostapd_5g.conf"
+    eval $CMD
 
---local __DNSMASQ = "dnsmasq"
---local __HOSTAPD2G = "hostapd2g"
---local __HOSTAPD5G = "hostapd5g"
---local __HOSTS = "hosts"
---local confs = {}
---confs[__DNSMASQ] = "/etc/dnsmasq.conf"
---confs[__HOSTAPD2G] = "/etc/hostapd_2g.conf"
---confs[__HOSTAPD5G] = "/etc/hostapd_5g.conf"
---confs[__HOSTS] = "/ramdisk/System/Configs/dnsmasq_addn_hosts.conf"
+    CMD="daemon lan dnsmasq -C /etc/dnsmasq.conf"
+    eval $CMD
 
-if (command == "get") then
-    local key = arg[3]
-    local format = arg[4]
+else
 
-    if (conflib.target[entry]) then
-        local conf = conflib.read_json(entry)
-        if (conf and conf[key] and not format) then
-            res.success = true
-            res.result = conf[key]
-            return output(res)
-        else                    --format arg can help script parsing
-            local parts = utils.split(format, ".")
-            local curr = conf[key]
-            for _, v in ipairs(parts) do
-                if(curr[v]) then
-                    curr = curr[v]
-                end
-            end
-            if(curr) then
-                return print(curr)
-            end
-        end
+    if (#arg < 2) then
+        return print("Usage: lua ECI xxx get/set")
     end
 
-    res.result = "key not found";
-    return output(res)
+    local entry = arg[1]
+    local command = arg[2]
 
-elseif (command == "set") then
-    local translator = require(entry)
-    translator.translate()
+    if (not conflib.target[entry]) then
+        print(inspect(conflib.sections))
+        return print("invalid entry: ", entry)
+    end
+
+    if (command == "get") then
+        local key = arg[3]
+        local format = arg[4]
+
+        if (conflib.target[entry]) then
+            local conf = conflib.read_json(entry)
+            if (conf and conf[key] and not format) then
+                res.success = true
+                res.result = conf[key]
+                return output(res)
+            else                    --format arg can help script parsing
+                local parts = utils.split(format, ".")
+                local curr = conf[key]
+                for _, v in ipairs(parts) do
+                    if(curr[v]) then
+                        curr = curr[v]
+                    end
+                end
+                if(curr) then
+                    return print(curr)
+                end
+            end
+        end
+
+        res.result = "key not found";
+        return output(res)
+    elseif (command == "set") then
+        local translator = require(entry)
+        translator.translate()
+    end
+
 end
